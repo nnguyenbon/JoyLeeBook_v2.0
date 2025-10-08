@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+<header class="flex justify-between items-center px-12 shadow-lg">
+    <div class="flex-1">
+        <img src="logo.png" alt="logo"/>
+    </div>
+
+    <div class="flex-8 flex justify-center items-center gap-6">
+        <p>Genre</p>
+        <form action="" class="w-1/2">
+            <input
+                    type="text"
+                    placeholder="Search"
+                    class="py-1 px-3 border border-sky-300 rounded-md focus:outline-none w-full"
+            />
+        </form>
+    </div>
+
+    <div class="flex-2 text-right">
+        <a
+                href="./login.html"
+                class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-300 hover:text-black mr-2"
+        >Login</a
+        >
+        <a
+                href="./signup.html"
+                class="border border-gray-500 hover:bg-gray-500 hover:text-white py-2 px-4 rounded-lg"
+        >Sign up</a
+        >
+    </div>
+</header>
+
+<main class="mt-12">
+    <div class="text-center">
+        <p class="font-bold text-5xl">Create Series</p>
+        <p class="text-gray-500">Add a new series to you collection</p>
+    </div>
+
+    <div class="flex justify-center max-w-2/3 mx-auto my-12 gap-12">
+        <div
+                class="flex-1 border-dashed border-2 border-neutral-400 max-h-64 text-center flex flex-col justify-center rounded-md"
+        >
+            <p class="opacity-75">Click to upload</p>
+            <label
+                    for="file"
+                    class="cursor-pointer inline-block border border-gray-200 hover:bg-gray-200 mx-8 my-1 py-2 rounded-md transition"
+            >
+                Choose File
+            </label>
+            <input id="file" name="file" type="file" class="hidden"/>
+        </div>
+
+        <div class="flex-4 border border-neutral-400 rounded-md p-4">
+            <div>
+                <label for="title" class="block">
+                    Series Title * (Maximum 50 characters)
+                </label>
+                <input
+                        type="text"
+                        placeholder="Enter Title"
+                        name="title"
+                        id="title"
+                        class="block w-full border border-gray-300 rounded-md py-1 px-3 my-1"
+                />
+            </div>
+
+            <div class="flex gap-12 my-6">
+                <div class="flex-1">
+                    <p>Genre *</p>
+                    <!-- <input type="text" class="block w-full border border-gray-300 rounded-md py-1 px-3 my-2"> -->
+                    <div
+                            class="relative border border-gray-300 rounded-md py-1 px-3 my-1 h-8 flex items-center"
+                    >
+                        <div class="flex-1 min-w-0">
+                            <ul
+                                    id="genres"
+                                    class="flex gap-1 whitespace-nowrap w-full pr-2 overflow-x-auto"
+                            >
+
+
+                                <!-- ...các thẻ li khác... -->
+                            </ul>
+                        </div>
+
+                        <span
+                                id="showGenre"
+                                class="absolute right-2 bottom-1 hover:rotate-90 cursor-pointer transition duration-500 origin-center"
+                        >&gt;</span
+                        >
+
+                        <div
+                                id="containerGenre"
+                                class="hidden absolute z-10 top-full right-0 border border-gray-800 bg-gray-50 p-3 transition-all transition-discrete duration-500 opacity-0"
+                        >
+                            <ul>
+                                <li>
+                                    <input
+                                            type="checkbox"
+                                            name="Tien Hiep"
+                                            id="genre1"
+                                            onclick="checkedGenre(this)"
+                                    />
+                                    <label for="genre1">Tien Hiep</label>
+                                </li>
+
+                                <li>
+                                    <input
+                                            type="checkbox"
+                                            name="Kiem Hiep"
+                                            id="genre2"
+                                            onclick="checkedGenre(this)"
+                                    />
+                                    <label for="genre2">Kiem Hiep</label>
+                                </li>
+
+                                <li>
+                                    <input
+                                            type="checkbox"
+                                            name="Ngon Tinh"
+                                            id="genre3"
+                                            onclick="checkedGenre(this)"
+                                    />
+                                    <label for="genre3">Ngon Tinh</label>
+                                </li>
+
+                                <li>
+                                    <input
+                                            type="checkbox"
+                                            name="Tong Tai"
+                                            id="genre4"
+                                            onclick="checkedGenre(this)"
+                                    />
+                                    <label for="genre4">Tong Tai</label>
+                                </li>
+
+                                <li>
+                                    <input
+                                            type="checkbox"
+                                            name="Phuc Phuc"
+                                            id="genre5"
+                                            onclick="checkedGenre(this)"
+                                    />
+                                    <label for="genre5">Phuc Phuc</label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <label>Status *</label>
+                    <div
+                            class="relative w-full border border-gray-300 rounded-md py-1 px-3 my-1 group h-8"
+                    >
+                        <select
+                                class="appearance-none w-full bg-transparent focus:outline-none cursor-pointer"
+                        >
+                            <option value="">Ongoing</option>
+                            <option value="">Pending</option>
+                            <option value="">Drop</option>
+                        </select>
+
+                        <!-- Icon -->
+                        <span
+                                class="pointer-events-none absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 transition-transform duration-500 origin-center group-hover:rotate-90"
+                        >
+                  &gt;
+                </span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="block">Description</label>
+                <textarea
+                        class="border border-gray-300 w-full min-h-64 p-2"
+                        name="description"
+                        id="description"
+                        placeholder="Enter a description of the series "
+                ></textarea>
+            </div>
+
+            <div class="text-center pt-2">
+                <button
+                        class="py-1 px-3 bg-blue-500 text-white rounded-md hover:bg-blue-800 mr-4"
+                >
+                    Create series
+                </button>
+                <button
+                        class="py-1 px-3 border border-gray-500 rounded-md hover:bg-gray-500 hover:text-white"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="./main.js"></script>
+</body>
+</html>
