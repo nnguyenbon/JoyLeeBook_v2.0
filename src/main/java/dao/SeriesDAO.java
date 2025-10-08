@@ -7,19 +7,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import jakarta.ws.rs.core.Link;
 import model.Series;
 
 public class SeriesDAO {
     private final Connection conn;
 
-    // ✅ Nhận connection từ bên ngoài
     public SeriesDAO(Connection conn) {
         this.conn = conn;
     }
 
-    // 🔹 Lấy tất cả series chưa bị xóa
     public List<Series> getAll() throws SQLException {
         List<Series> list = new ArrayList<>();
         String sql = "SELECT * FROM series WHERE is_deleted = false";
@@ -94,6 +93,35 @@ public class SeriesDAO {
         }
     }
 
+    public Map<Series, Integer> selectTopSeriesPoints(int rank) throws SQLException {
+        Map<Series, Integer> topSerieslist = new LinkedHashMap<>();
+        String sql = "SELECT TOP (" + rank +") s.series_id, title, SUM(rating_value) AS total_rating FROM series s JOIN Rating r ON s.series_id = r.series_id GROUP BY s.series_id, title ORDER BY SUM(rating_value) DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)){
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Series series = new Series();
+                series.setSeriesId(rs.getInt("series_id"));
+                series.setTitle(rs.getString("title"));
+                Integer totalRating = rs.getInt("total_rating");
+                topSerieslist.put(series, totalRating);
+            }
+            return topSerieslist;
+        }
+    }
+
+    public List<Series> findByName(String name) throws SQLException {
+        List<Series> seriesList = new ArrayList<>();
+        String sql = "SELECT * FROM series WHERE title LIKE ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, "%" + name + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                seriesList.add(extractSeriesFromResultSet(rs));
+            }
+            return seriesList;
+        }
+    }
+
     private Series extractSeriesFromResultSet(ResultSet rs) throws SQLException {
         Series s = new Series();
         s.setSeriesId(rs.getInt("series_id"));
@@ -106,4 +134,6 @@ public class SeriesDAO {
         s.setDeleted(rs.getBoolean("is_deleted"));
         return s;
     }
+
+
 }

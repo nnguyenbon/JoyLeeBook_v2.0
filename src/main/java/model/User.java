@@ -14,8 +14,9 @@ public class User {
     private boolean isGoogleAccount;
     private String googleAccountId;
     private LocalDateTime createdAt;
+    private int points;
 
-    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt) {
+    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt, int points) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -28,6 +29,7 @@ public class User {
         this.isGoogleAccount = isGoogleAccount;
         this.googleAccountId = googleAccountId;
         this.createdAt = createdAt;
+        this.points = points;
     }
 
     public User() {
@@ -123,5 +125,13 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 }

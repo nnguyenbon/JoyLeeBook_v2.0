@@ -1,6 +1,7 @@
 package dao;
 
 import model.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,7 +48,7 @@ public class UserDAO {
 
 
     public boolean insert(User user) throws SQLException {
-        String sql = "INSERT INTO users (email, username, password_hash, full_name, role, email_otp,is_verified, status, google_id, created_at)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (email, username, password_hash, full_name, role, email_otp,is_verified, status, google_id, created_at, points)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getEmail());
@@ -60,13 +61,14 @@ public class UserDAO {
             stmt.setString(8, "inactive");
             stmt.setString(9, user.getGoogleAccountId());
             stmt.setTimestamp(10, Timestamp.valueOf(user.getCreatedAt()));
+            stmt.setInt(11, user.getPoints());
             return stmt.executeUpdate() > 0;
         }
     }
 
 
     public boolean update(User user) throws SQLException {
-        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ?, points = ? WHERE user_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getEmail());
@@ -79,6 +81,7 @@ public class UserDAO {
             stmt.setString(8, user.getStatus());
             stmt.setString(9, user.getGoogleAccountId());
             stmt.setInt(10, user.getUserId());
+            stmt.setInt(11, user.getPoints());
             return stmt.executeUpdate() > 0;
         }
     }
@@ -90,6 +93,32 @@ public class UserDAO {
             stmt.setString(1, "inactive");
             stmt.setInt(2, id);
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public List<User> findByName(String name) throws SQLException {
+        List<User> usersList = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE username LIKE ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + name + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    usersList.add(mapResultSetToUser(rs));
+                }
+            }
+            return usersList;
+        }
+    }
+
+    public List<User> selectTopUserPoints(int rank) throws SQLException {
+        List<User> usersList = new ArrayList<>();
+        String sql = "SELECT TOP (" + rank + " FROM users ORDER BY points DESC ";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                usersList.add(mapResultSetToUser(rs));
+            }
+            return usersList;
         }
     }
 
@@ -105,6 +134,7 @@ public class UserDAO {
         user.setVerified(rs.getBoolean("is_verified"));
         user.setStatus(rs.getString("status"));
         user.setGoogleAccountId(rs.getString("google_id"));
+        user.setPoints(rs.getInt("points"));
         user.setGoogleAccount(user.getGoogleAccountId() != null);
 
         Timestamp created = rs.getTimestamp("created_at");

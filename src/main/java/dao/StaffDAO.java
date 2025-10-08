@@ -89,6 +89,19 @@ public class StaffDAO {
         }
     }
 
+    public List<Staff> findByUsername(String username) throws SQLException {
+        List<Staff> staffList = new ArrayList<>();
+        String sql = "SELECT * FROM staffs WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, "%" + username + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    staffList.add(mapResultSetToStaff(rs));
+                }
+            }
+            return staffList;
+        }
+    }
 
     private Staff mapResultSetToStaff(ResultSet rs) throws SQLException {
         Staff staff = new Staff();
