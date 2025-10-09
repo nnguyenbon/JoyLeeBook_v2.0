@@ -21,7 +21,7 @@ public class StaffDAO {
 
     public List<Staff> getAll() throws SQLException {
         List<Staff> list = new ArrayList<>();
-        String sql = "SELECT * FROM staffs is_deleted = FALSE";
+        String sql = "SELECT * FROM staffs WHERE is_deleted = FALSE";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
