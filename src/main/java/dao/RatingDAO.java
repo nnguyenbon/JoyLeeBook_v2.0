@@ -18,7 +18,6 @@ public class RatingDAO {
         this.conn = conn;
     }
 
-    // 🔹 Helper: Map ResultSet → Rating
     private Rating mapResultSetToRating(ResultSet rs) throws SQLException {
         Rating r = new Rating();
         r.setSeriesId(rs.getInt("series_id"));
@@ -33,7 +32,6 @@ public class RatingDAO {
         return r;
     }
 
-    // 🔹 CREATE
     public boolean insert(Rating rating) throws SQLException {
         String sql = "INSERT INTO ratings (series_id, user_id, rating_value, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -46,7 +44,6 @@ public class RatingDAO {
         }
     }
 
-    // 🔹 READ ALL
     public List<Rating> getAll() throws SQLException {
         List<Rating> list = new ArrayList<>();
         String sql = "SELECT * FROM ratings";
@@ -59,7 +56,6 @@ public class RatingDAO {
         return list;
     }
 
-    // 🔹 READ by user_id
     public List<Rating> getByUserId(int userId) throws SQLException {
         List<Rating> list = new ArrayList<>();
         String sql = "SELECT * FROM ratings WHERE user_id = ?";
@@ -74,7 +70,6 @@ public class RatingDAO {
         return list;
     }
 
-    // 🔹 READ by series_id
     public List<Rating> getBySeriesId(int seriesId) throws SQLException {
         List<Rating> list = new ArrayList<>();
         String sql = "SELECT * FROM ratings WHERE series_id = ?";
@@ -89,7 +84,6 @@ public class RatingDAO {
         return list;
     }
 
-    // 🔹 READ one (for specific user + series)
     public Rating findById(int seriesId, int userId) throws SQLException {
         String sql = "SELECT * FROM ratings WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -104,7 +98,6 @@ public class RatingDAO {
         return null;
     }
 
-    // 🔹 UPDATE
     public boolean update(Rating rating) throws SQLException {
         String sql = "UPDATE ratings SET rating_value = ?, updated_at = ? WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -116,7 +109,6 @@ public class RatingDAO {
         }
     }
 
-    // 🔹 DELETE
     public boolean delete(int seriesId, int userId) throws SQLException {
         String sql = "DELETE FROM ratings WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -126,7 +118,6 @@ public class RatingDAO {
         }
     }
 
-    // 🔹 Tính trung bình rating của 1 series
     public double getAverageRating(int seriesId) throws SQLException {
         String sql = "SELECT AVG(CAST(rating_value AS FLOAT)) AS avg_rating FROM ratings WHERE series_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -140,7 +131,6 @@ public class RatingDAO {
         return 0.0;
     }
 
-    // 🔹 Đếm số lượng người đánh giá cho series
     public int getRatingCount(int seriesId) throws SQLException {
         String sql = "SELECT COUNT(*) AS total FROM ratings WHERE series_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

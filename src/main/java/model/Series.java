@@ -12,8 +12,9 @@ public class Series {
     private LocalDateTime updatedAt;
     private int authorId;
     private boolean isDeleted;
+    private int points;
 
-    public Series(int seriesId, String title, String description, String coverImgUrl, int status, LocalDateTime createdAt, LocalDateTime updatedAt, int authorId, boolean isDeleted) {
+    public Series(int seriesId, String title, String description, String coverImgUrl, int status, LocalDateTime createdAt, LocalDateTime updatedAt, int authorId, boolean isDeleted, int points) {
         this.seriesId = seriesId;
         this.title = title;
         this.description = description;
@@ -23,6 +24,7 @@ public class Series {
         this.updatedAt = updatedAt;
         this.authorId = authorId;
         this.isDeleted = isDeleted;
+        this.points = points;
     }
 
     public Series() {}
@@ -97,5 +99,13 @@ public class Series {
 
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 }
