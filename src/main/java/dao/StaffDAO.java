@@ -21,7 +21,7 @@ public class StaffDAO {
 
     public List<Staff> getAll() throws SQLException {
         List<Staff> list = new ArrayList<>();
-        String sql = "SELECT * FROM staffs";
+        String sql = "SELECT * FROM staffs is_deleted = FALSE";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -35,7 +35,7 @@ public class StaffDAO {
 
 
     public Staff findById(int id) throws SQLException {
-        String sql = "SELECT * FROM staffs WHERE staff_id = ?";
+        String sql = "SELECT * FROM staffs WHERE staff_id = ? AND is_deleted = FALSE";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
 
@@ -66,7 +66,7 @@ public class StaffDAO {
 
 
     public boolean update(Staff staff) throws SQLException {
-        String sql = "UPDATE staffs SET username = ?, password_hash = ?, full_name = ?, role = ?, is_deleted = ? WHERE staff_id = ?";
+        String sql = "UPDATE staffs SET username = ?, password_hash = ?, full_name = ?, role = ?, is_deleted = ? WHERE staff_id = ? AND is_deleted = FALSE";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, staff.getUsername());
