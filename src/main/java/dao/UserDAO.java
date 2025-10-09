@@ -21,7 +21,7 @@ public class UserDAO {
 
     public List<User> getAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM users WHERE status <> 'inactive'";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -34,7 +34,7 @@ public class UserDAO {
 
 
     public User findById(int id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE user_id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ? AND status <> 'inactive'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -58,7 +58,7 @@ public class UserDAO {
             stmt.setString(5, user.getRole());
             stmt.setString(6, user.getEmailOtp());
             stmt.setBoolean(7, user.isVerified());
-            stmt.setString(8, "inactive");
+            stmt.setString(8, "active");
             stmt.setString(9, user.getGoogleAccountId());
             stmt.setTimestamp(10, Timestamp.valueOf(user.getCreatedAt()));
             stmt.setInt(11, user.getPoints());
@@ -68,7 +68,7 @@ public class UserDAO {
 
 
     public boolean update(User user) throws SQLException {
-        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ?, points = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ?, points = ? WHERE user_id = ? AND status <> 'inactive'";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getEmail());
@@ -88,7 +88,7 @@ public class UserDAO {
 
 
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE users SET status = '?' WHERE user_id = ?";
+        String sql = "UPDATE users SET status = '?' WHERE user_id = ? AND status <> 'inactive'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "inactive");
             stmt.setInt(2, id);
