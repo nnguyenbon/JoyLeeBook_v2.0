@@ -10,16 +10,18 @@ public class Staff {
     private String role;
     private boolean isDeleted;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 
-    public Staff(int staffId, String username, String passwordHash, String fullName, String role, boolean status, LocalDateTime createdAt) {
+    public Staff(int staffId, String username, String passwordHash, String fullName, String role, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.staffId = staffId;
         this.username = username;
         this.passwordHash = passwordHash;
         this.fullName = fullName;
         this.role = role;
-        this.isDeleted = status;
+        this.isDeleted = isDeleted;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public Staff() {}
@@ -78,4 +80,12 @@ public class Staff {
     public void setDeleted(boolean deleted) {
         this.isDeleted = deleted;
     }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 }

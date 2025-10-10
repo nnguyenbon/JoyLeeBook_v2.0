@@ -15,8 +15,9 @@ public class User {
     private String googleAccountId;
     private LocalDateTime createdAt;
     private int points;
+    private boolean isDeleted;
 
-    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt, int points) {
+    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt, int points, boolean isDeleted) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -30,6 +31,7 @@ public class User {
         this.googleAccountId = googleAccountId;
         this.createdAt = createdAt;
         this.points = points;
+        this.isDeleted = isDeleted;
     }
 
     public User() {
@@ -133,5 +135,13 @@ public class User {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }
