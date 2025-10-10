@@ -3,9 +3,7 @@ package dao;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import model.Chapter;
 import services.ChapterListItem;
@@ -313,6 +311,55 @@ public class ChapterDAO {
                 return rs.next() ? rs.getInt(1) : 0;
             }
         }
+    }
+
+    /**
+     * Get the latest chapter number of a series.
+     *
+     * @param seriesId ID of the series.
+     * @return number of the latest chapter. If no chapters exist, returns 0.
+     */
+    public int getLatestChapterNumber(int seriesId) throws SQLException {
+        String sql = "SELECT MAX(chapter_number) FROM chapters WHERE series_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Add a new chapter and return the Chapter object with the generated ID.
+     *
+     * @param chapter the Chapter object to add (without chapterId)
+     * @return the Chapter object with the generated chapterId, or null if insertion failed
+     */
+    public Chapter addChapter(Chapter chapter) throws SQLException {
+        String sql = "INSERT INTO chapters (series_id, chapter_number, title, content, status, created_at, updated_at) " + "VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE())";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, chapter.getSeriesId());
+            ps.setInt(2, chapter.getChapterNumber());
+            ps.setString(3, chapter.getTitle());
+            ps.setString(4, chapter.getContent());
+            ps.setString(5, chapter.getStatus());
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        chapter.setChapterId(generatedKeys.getInt(1));
+                        return chapter;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**

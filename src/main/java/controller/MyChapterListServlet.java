@@ -46,11 +46,11 @@ public class MyChapterListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        // Lấy userId từ session (tùy dự án bạn lưu: "userId" / "authUser")
+        // get userId from session
         Integer userId = (Integer) req.getSession().getAttribute("userId");
 
         // testing
-        userId = 4;
+        // userId = 3;
 
         if (userId == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
@@ -63,7 +63,7 @@ public class MyChapterListServlet extends HttpServlet {
         int page = parseInt(req.getParameter("page"), 1);
         int size = parseInt(req.getParameter("size"), 10);
         String keyword = trimToNull(req.getParameter("q"));
-        String status = trimToNull(req.getParameter("status")); // chỉ áp dụng cho author mode
+        String status = trimToNull(req.getParameter("status")); // only for author mode
 
         try (Connection conn = DBConnection.getConnection()) {
             MyChapterService service = new MyChapterService(conn);
@@ -84,7 +84,7 @@ public class MyChapterListServlet extends HttpServlet {
             req.setAttribute("q", keyword);
             req.setAttribute("status", status);
 
-            // Forward tới JSP của bạn (tạo file tương ứng)
+            // forward to JSP
             req.getRequestDispatcher("/WEB-INF/views/my-chapters.jsp").forward(req, resp);
 
         } catch (SQLException e) {
