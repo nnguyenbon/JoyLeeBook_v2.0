@@ -1,18 +1,18 @@
-const showGenreElement = document.getElementById('showGenre');
-const genresElement = document.getElementById('genres');
-const containerGenreElement = document.getElementById('containerGenre');
-const listGenre = document.querySelectorAll('#containerGenre li');
+const showGenreElement = document.getElementById("showGenre");
+const genresElement = document.getElementById("genres");
+const containerGenreElement = document.getElementById("containerGenre");
+const listGenre = document.querySelectorAll("#containerGenre li");
 
-showGenreElement.addEventListener('click', () => {
-    containerGenreElement.classList.toggle('hidden');
-    containerGenreElement.classList.toggle('opacity-0');
-    showGenreElement.classList.toggle('rotate-90');
-});
+// showGenreElement.addEventListener("click", () => {
+//   containerGenreElement.classList.toggle("hidden");
+//   containerGenreElement.classList.toggle("opacity-0");
+//   showGenreElement.classList.toggle("rotate-90");
+// });
 
 function checkedGenre(inputElement) {
-    console.log(inputElement.checked);
-    if (inputElement.checked) {
-        const label = `
+  console.log(inputElement.checked);
+  if (inputElement.checked) {
+    const label = `
                     <li class="inline-block bg-gray-300 py-0.5 px-2 rounded-sm text-xs h-full">
                       <span>${inputElement.name}</span>
                       <span
@@ -24,31 +24,40 @@ function checkedGenre(inputElement) {
                     </li>
     `;
 
-        genresElement.insertAdjacentHTML('beforeend', label);
-    } else {
-        const tags = genresElement.querySelectorAll('li span:first-child');
-        tags.forEach((span) => {
-            if (span.textContent.trim() === inputElement.name) {
-                span.parentElement.remove();
-            }
-        });
-    }
+    genresElement.insertAdjacentHTML("beforeend", label);
+  } else {
+    const tags = genresElement.querySelectorAll("li span:first-child");
+    tags.forEach((span) => {
+      if (span.textContent.trim() === inputElement.name) {
+        span.parentElement.remove();
+      }
+    });
+  }
 }
 
 function removeGenre(genreRemoveElement) {
-    console.log(genreRemoveElement);
-    const liRemoveElement = genreRemoveElement.parentElement;
+  console.log(genreRemoveElement);
+  const liRemoveElement = genreRemoveElement.parentElement;
 
-    const spanText = liRemoveElement.firstElementChild;
-    const inputCurrent = document.querySelectorAll('#containerGenre li input');
-    inputCurrent.forEach(input => {
-        if (input.name.trim() === spanText.textContent.trim()) {
-            input.checked = false
-            console.log(123123123);
-        }
-        console.log(input);
-    })
-    console.log(spanText);
-    console.log(liRemoveElement);
-    liRemoveElement.remove();
+  const spanText = liRemoveElement.firstElementChild;
+  const inputCurrent = document.querySelectorAll("#containerGenre li input");
+  inputCurrent.forEach((input) => {
+    if (input.name.trim() === spanText.textContent.trim()) {
+      input.checked = false;
+      console.log(123123123);
+    }
+    console.log(input);
+  });
+  console.log(spanText);
+  console.log(liRemoveElement);
+  liRemoveElement.remove();
+}
+
+function toggleIndicator(index) {
+  console.log(index);
+  const indicators = document.querySelectorAll("#indicator a");
+  indicators.forEach((indicator) => {
+    indicator.classList.remove("bg-sky-500");
+  });
+  indicators[index - 1].classList.add("bg-sky-500");
 }
