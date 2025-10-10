@@ -1,3 +1,7 @@
+/**
+ * cần chỉnh sửa xem xem có cho xem các chapter chưa approved không
+ */
+
 package dao;
 
 import java.sql.*;
@@ -363,6 +367,159 @@ public class ChapterDAO {
     }
 
     /**
+     * Find an approved chapter by its ID.
+     *
+     * @param chapterId the ID of the chapter
+     * @return the Chapter object if found and approved, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findApprovedById(int chapterId) throws SQLException {
+        String sql = """
+                    SELECT * FROM chapters
+                    WHERE chapter_id = ? AND is_deleted = 0 AND status = 'approved'
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Find an approved chapter by its series ID and chapter number.
+     *
+     * @param seriesId      the ID of the series
+     * @param chapterNumber the chapter number within the series
+     * @return the Chapter object if found and approved, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findApprovedBySeriesAndNumber(int seriesId, int chapterNumber) throws SQLException {
+        String sql = """
+                    SELECT * FROM chapters
+                    WHERE series_id = ? AND chapter_number = ? AND is_deleted = 0 AND status = 'approved'
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, chapterNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Find the next approved chapter in a series after the given chapter number.
+     *
+     * @param seriesId      the ID of the series
+     * @param currentNumber the current chapter number
+     * @return the next approved Chapter object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findPrevApproved(int seriesId, int currentNumber) throws SQLException {
+        String sql = """
+                    SELECT TOP 1 * FROM chapters
+                    WHERE series_id = ? AND is_deleted = 0 AND status = 'approved'
+                      AND chapter_number < ?
+                    ORDER BY chapter_number DESC
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, currentNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Find the next approved chapter in a series after the current chapter number.
+     *
+     * @param seriesId      the ID of the series
+     * @param currentNumber the current chapter number
+     * @return the next approved Chapter object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findNextApproved(int seriesId, int currentNumber) throws SQLException {
+        String sql = """
+                    SELECT TOP 1 * FROM chapters
+                    WHERE series_id = ? AND is_deleted = 0 AND status = 'approved'
+                      AND chapter_number > ?
+                    ORDER BY chapter_number ASC
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, currentNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Map the current row of the ResultSet to a Chapter object.
+     *
+     * @param rs the ResultSet positioned at the desired row
+     * @return a Chapter object populated with data from the ResultSet
+     * @throws SQLException if a database access error occurs
+     */
+    private Chapter map(ResultSet rs) throws SQLException {
+        Chapter c = new Chapter();
+
+        c.setChapterId(rs.getInt("chapter_id"));
+        c.setSeriesId(rs.getInt("series_id"));
+        c.setChapterNumber(rs.getInt("chapter_number"));
+        c.setTitle(rs.getString("title"));
+        c.setContent(rs.getString("content"));
+        c.setStatus(rs.getString("status"));
+        c.setDeleted(rs.getBoolean("is_deleted"));
+        Timestamp cr = rs.getTimestamp("created_at");
+        Timestamp up = rs.getTimestamp("updated_at");
+        c.setCreatedAt(cr != null ? cr.toLocalDateTime() : LocalDateTime.now());
+        c.setUpdatedAt(up != null ? up.toLocalDateTime() : LocalDateTime.now());
+        return c;
+    }
+
+    /**
+     * Find a chapter by its ID if it is not marked as deleted.
+     *
+     * @param chapterId the ID of the chapter
+     * @return the Chapter object if found and not deleted, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findByIdIfNotDeleted(int chapterId) throws SQLException {
+        String sql = "SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
+     * Find a chapter by its series ID and chapter number if it is not marked as deleted.
+     *
+     * @param seriesId      the ID of the series
+     * @param chapterNumber the chapter number within the series
+     * @return the Chapter object if found and not deleted, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findBySeriesAndNumberIfNotDeleted(int seriesId, int chapterNumber) throws SQLException {
+        String sql = """
+                    SELECT * FROM chapters
+                    WHERE series_id = ? AND chapter_number = ? AND is_deleted = 0
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, chapterNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        }
+    }
+
+    /**
      * Extract a Chapter object from the current row of the ResultSet.
      *
      * @param rs the ResultSet positioned at the desired row
@@ -371,6 +528,7 @@ public class ChapterDAO {
      */
     private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {
         Chapter chapter = new Chapter();
+
         chapter.setChapterId(rs.getInt("chapter_id"));
         chapter.setChapterNumber(rs.getInt("chapter_number"));
         chapter.setTitle(rs.getString("title"));

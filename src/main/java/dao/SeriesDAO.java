@@ -35,8 +35,7 @@ public class SeriesDAO {
         List<Series> list = new ArrayList<>();
         String sql = "SELECT * FROM series WHERE is_deleted = false";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(extractSeriesFromResultSet(rs));
             }
@@ -52,12 +51,18 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public Series findById(int seriesId) throws SQLException {
-        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = false";
+        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return extractSeriesFromResultSet(rs);
+                    Series s = new Series();
+                    s.setSeriesId(rs.getInt("series_id"));
+                    s.setTitle(rs.getNString("title"));
+                    s.setDescription(rs.getNString("description"));
+                    s.setCoverImgUrl(rs.getNString("cover_image_url"));
+                    s.setStatus(rs.getString("status"));
+                    return s;
                 }
             }
         }
@@ -146,9 +151,8 @@ public class SeriesDAO {
      */
     public List<Series> getTopRatedSeries(int limit) throws SQLException {
         List<Series> topSerieslist = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit +") s.series_id, title, rating_points" +
-                "FROM series s ORDER BY rating_points DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT TOP (" + limit + ") s.series_id, title, rating_points" + "FROM series s ORDER BY rating_points DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Series series = new Series();
@@ -169,8 +173,7 @@ public class SeriesDAO {
      */
     public int getTotalSeriesCount() throws SQLException {
         String sql = "SELECT COUNT(*) FROM series";
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()){
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -186,10 +189,8 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public int countSeriesByCategory(int categoryId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM series s " +
-                "JOIN series_categories sc ON s.series_id = sc.series_id " +
-                "WHERE sc.category_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT COUNT(*) FROM series s " + "JOIN series_categories sc ON s.series_id = sc.series_id " + "WHERE sc.category_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -208,10 +209,8 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT * FROM series s " +
-                "JOIN dbo.series_author sa ON s.series_id = sa.series_id " +
-                "WHERE sa.user_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, authorId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -231,7 +230,7 @@ public class SeriesDAO {
     public List<Series> getSeriesByCategoryId(int categoryId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM series s JOIN series_categories sc ON s.series_id = sc.series_id WHERE sc.category_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, categoryId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -249,10 +248,10 @@ public class SeriesDAO {
      * @return a list of Series objects with the specified status
      * @throws SQLException if a database access error occurs
      */
-    public List<Series> getSeriesByStatus (int limit, String status) throws SQLException {
+    public List<Series> getSeriesByStatus(int limit, String status) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT TOP (" + limit + ") FROM series WHERE status = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -272,7 +271,7 @@ public class SeriesDAO {
     public List<Series> findByName(String name) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM series WHERE title LIKE ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + name + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -289,10 +288,10 @@ public class SeriesDAO {
      * @return a list of recently updated Series objects
      * @throws SQLException if a database access error occurs
      */
-    public List<Series> getRecentlyUpdated (int limit) throws SQLException {
+    public List<Series> getRecentlyUpdated(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP ("+ limit +") * FROM series ORDER BY updated_at DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY updated_at DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 seriesList.add(extractSeriesFromResultSet(rs));
@@ -310,8 +309,8 @@ public class SeriesDAO {
      */
     public List<Series> getNewReleasedSeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit +") * FROM series ORDER BY created_at DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY created_at DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 seriesList.add(extractSeriesFromResultSet(rs));
@@ -329,17 +328,8 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit +")" +
-                "    s.series_id," +
-                "    s.title," +
-                "    SUM(r.rating_value) AS total_rating" +
-                "FROM series s" +
-                "JOIN Rating r ON s.series_id = r.series_id" +
-                "WHERE DATEPART(WEEK, r.rating_date) = DATEPART(WEEK, GETDATE())" +
-                "  AND DATEPART(YEAR, r.rating_date) = DATEPART(YEAR, GETDATE())" +
-                "GROUP BY s.series_id, s.title" +
-                "ORDER BY total_rating DESC;";
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+        String sql = "SELECT TOP (" + limit + ")" + "    s.series_id," + "    s.title," + "    SUM(r.rating_value) AS total_rating" + "FROM series s" + "JOIN Rating r ON s.series_id = r.series_id" + "WHERE DATEPART(WEEK, r.rating_date) = DATEPART(WEEK, GETDATE())" + "  AND DATEPART(YEAR, r.rating_date) = DATEPART(YEAR, GETDATE())" + "GROUP BY s.series_id, s.title" + "ORDER BY total_rating DESC;";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 seriesList.add(extractSeriesFromResultSet(rs));
