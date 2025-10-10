@@ -49,16 +49,16 @@ public class ViewChapterServlet extends HttpServlet {
 
             if (vm == null) {
                 req.setAttribute("error", "Chapter not found or you don't have permission.");
-                req.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, resp);
                 return;
             }
 
             req.setAttribute("vm", vm);
-            req.getRequestDispatcher("/WEB-INF/views/chapter-view.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/chapter-view.jsp").forward(req, resp);
         } catch (Exception ex) {
             ex.printStackTrace();
             req.setAttribute("error", "Unable to load chapter.");
-            req.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, resp);
         }
     }
 }

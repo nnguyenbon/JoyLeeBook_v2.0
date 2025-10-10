@@ -85,13 +85,13 @@ public class MyChapterListServlet extends HttpServlet {
             req.setAttribute("status", status);
 
             // forward to JSP
-            req.getRequestDispatcher("/WEB-INF/views/my-chapters.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/my-chapters.jsp").forward(req, resp);
 
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Error loading My Chapter List", e);
             req.setAttribute("error", "Unable to load your chapters.");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            req.getRequestDispatcher("/WEB-INF/views/error.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, resp);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
