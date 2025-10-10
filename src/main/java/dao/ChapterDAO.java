@@ -135,9 +135,8 @@ public class ChapterDAO {
      */
     public boolean delete(int chapterId) throws SQLException {
         String sql = "UPDATE chapters SET is_deleted = 1, updated_at = ? WHERE chapter_id = ?";
-
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setTimestamp(1, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(2, chapterId);
             return ps.executeUpdate() > 0;
         }

@@ -202,4 +202,55 @@ public class ChapterManagementService {
 
         return chapterDAO.findByIdIfNotDeleted(chapterId);
     }
+
+    /**
+     * Soft-delete a chapter by marking it as deleted in the database.
+     * Validates permissions before performing the deletion.
+     *
+     * @param userId    The ID of the user attempting to delete the chapter (must be an author of the series or staff/admin).
+     * @param role      The role of the user (e.g., "admin", "staff", "author").
+     * @param chapterId The ID of the chapter to delete.
+     * @throws IllegalArgumentException If the chapter is not found.
+     * @throws IllegalAccessException   If the user does not have permission to delete the chapter.
+     * @throws Exception                If a database access error occurs during deletion.
+     */
+    public void deleteChapter(int userId, String role, int chapterId) throws Exception {
+        ChapterDAO chapterDAO = new ChapterDAO(conn);
+        Chapter chapter = chapterDAO.findByIdIfNotDeleted(chapterId);
+        if (chapter == null) {
+            throw new IllegalArgumentException("Chapter not found or already deleted.");
+        }
+
+        int seriesId = chapter.getSeriesId();
+        if (!canDeleteChapter(userId, role, seriesId)) {
+            throw new IllegalAccessException("You do not have permission to delete this chapter.");
+        }
+
+        boolean ok = chapterDAO.delete(chapterId);
+        if (!ok) {
+            throw new RuntimeException("Database delete failed.");
+        }
+    }
+
+    /**
+     * Check if a user has permission to delete a chapter in a series.
+     * A user can delete a chapter if they are an author of the series or have a role of "admin" or "staff".
+     *
+     * @param userId   The ID of the user.
+     * @param role     The role of the user (e.g., "admin", "staff", "author").
+     * @param seriesId The ID of the series containing the chapter.
+     * @return True if the user can delete chapters in the series, otherwise false.
+     * @throws SQLException If a database access error occurs.
+     */
+    public boolean canDeleteChapter(int userId, String role, int seriesId) throws SQLException {
+        // Staff/Admin always can
+        if (role != null) {
+            String r = role.toLowerCase();
+            if (r.equals("admin") || r.equals("staff")) return true;
+        }
+        // Author of the series can
+        SeriesAuthorDAO saDAO = new SeriesAuthorDAO(conn);
+        // returns TRUE if user is NOT author
+        return !saDAO.isUserAuthorOfSeries(userId, seriesId);
+    }
 }
