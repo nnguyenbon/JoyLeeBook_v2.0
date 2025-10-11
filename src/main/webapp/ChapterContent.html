@@ -190,105 +190,127 @@
             </div>
         </div>
     </header>
-    <main class="mb-10">
-        <!-- <div class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px] items-center justify-center">
-            <div class=" text-center">
-                <h1 class="font-bold text-4xl">Series Title Example</h1>
-                <p class="text-gray-600 mt-2">by Author Name</p> -->
+    <main class=" mb-10">
+
         <div class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
             <!-- Nội dung chính -->
             <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow">
                 <h1 class="text-4xl font-bold text-center mb-3">Chronicles of the Mystic Realm</h1>
 
                 <h2 class="text-center font-semibold text-gray-700 mb-3">by Elena Starweaver</h2>
-                <div class="relative w-fit mx-auto mb-10">
-                    <!-- Nút mở danh sách chương -->
-                    <button id="chapterListBtn"
-                        class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
-                        <span>Chapter 1: The Awakening</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-list">
-                            <path d="M3 5h.01" />
-                            <path d="M3 12h.01" />
-                            <path d="M3 19h.01" />
-                            <path d="M8 5h13" />
-                            <path d="M8 12h13" />
-                            <path d="M8 19h13" />
-                        </svg>
-                    </button>
+                <div class="flex items-center justify-center gap-3 mb-6">
 
-                    <!-- Dropdown danh sách chương -->
-                    <div id="chapterList"
-                        class="hidden absolute left-1/2 -translate-x-1/2 top-full mt-2 w-100 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
-                        <div class="text-base">
-                            <h4
-                                class="mb-2 bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold">
-                                Chapter List
-                            </h4>
-                            <hr class="mb-3 border-gray-300" />
+                    <div class="relative flex gap-3 w-fit mx-auto mb-10">
+                        <!-- Nút mở danh sách chương -->
+                        <button id="chapterListBtn"
+                            class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
+                            <span>Chapter 1: The Awakening</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-list">
+                                <path d="M3 5h.01" />
+                                <path d="M3 12h.01" />
+                                <path d="M3 19h.01" />
+                                <path d="M8 5h13" />
+                                <path d="M8 12h13" />
+                                <path d="M8 19h13" />
+                            </svg>
+                        </button>
 
-                            <!-- Các chương -->
-                            <button
-                                class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
-                                Chapter 1: The Awakening
+                        <!-- Dropdown danh sách chương -->
+                        <div id="chapterList"
+                            class="hidden absolute left-1/2 -translate-x-1/2 top-full mt-2 w-100 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                            <div class="text-base">
+                                <h4
+                                    class="mb-2 bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold">
+                                    Chapter List
+                                </h4>
+                                <hr class="mb-3 border-gray-300" />
+
+                                <!-- Các chương -->
+                                <button
+                                    class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                    Chapter 1: The Awakening
+                                </button>
+                                <button
+                                    class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                    Chapter 2: The Journey Begins
+                                </button>
+                                <button
+                                    class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                    Chapter 3: Shadows of the Past
+                                </button>
+                                <button
+                                    class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                    Chapter 4: The Hidden Village
+                                </button>
+                                <button
+                                    class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                    Chapter 5: Trials of the Heart
+                                </button>
+                            </div>
+                        </div>
+                        <div class="relative inline-block">
+                            <!-- Nút settings -->
+                            <button id="settingsBtn"
+                                class="text-gray-600 px-3 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-settings">
+                                    <path
+                                        d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
                             </button>
-                            <button
-                                class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
-                                Chapter 2: The Journey Begins
-                            </button>
-                            <button
-                                class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
-                                Chapter 3: Shadows of the Past
-                            </button>
-                            <button
-                                class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
-                                Chapter 4: The Hidden Village
-                            </button>
-                            <button
-                                class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
-                                Chapter 5: Trials of the Heart
-                            </button>
+
+                            <!-- Dropdown menu -->
+                            <!-- <div id="settingsMenu"
+                                class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 space-y-3 transition-all duration-200">
+                                <h3 class="text-lg font-semibold mb-3">Reading Settings</h3>
+                                Font size -->
+                            <!-- <div class="mb-4">
+                                    <label class="block text-sm font-medium mb-2">Font Size</label>
+                                    <div class="flex items-center justify-between">
+                                        <button id="decreaseFont"
+                                            class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md text-xl hover:bg-gray-100 transition">
+                                            −
+                                        </button>
+                                        <span id="fontSizeDisplay" class="text-base font-medium">16px</span>
+                                        <button id="increaseFont"
+                                            class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md text-xl hover:bg-gray-100 transition">
+                                            +
+                                        </button>
+                                    </div>
+                                </div> 
+                            </div> -->
                         </div>
                     </div>
                 </div>
 
-                <script>
-                    // Toggle dropdown
-                    document.getElementById("chapterListBtn").addEventListener("click", () => {
-                        document.getElementById("chapterList").classList.toggle("hidden");
-                    });
-
-                    // Đóng khi click ra ngoài
-                    window.addEventListener("click", (e) => {
-                        const btn = document.getElementById("chapterListBtn");
-                        const list = document.getElementById("chapterList");
-                        if (!btn.contains(e.target) && !list.contains(e.target)) {
-                            list.classList.add("hidden");
-                        }
-                    });
-                </script>
-
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    The morning sun cast long shadows across the ancient courtyard as Aria stepped through the
-                    ornate
-                    gates...
-                </p>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    "You're late," came a voice from the shadows. Master Chen emerged from beneath the arched
-                    walkway...
-                </p>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    "I came as quickly as I could," Aria replied, bowing respectfully...
-                </p>
-                <p class="text-gray-700 leading-relaxed mb-4">
-                    Master Chen's lips curved into what might have been a smile...
-                </p>
-                <p class="text-gray-700 leading-relaxed">
-                    "Master," she began hesitantly, "what if I'm not ready? What if the power within me isn't
-                    enough?"
-                </p>
-
+                <div id="contentArea" class="mt-6 text-gray-800 text-base transition-all duration-200">
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        The morning sun cast long shadows across the ancient courtyard as Aria stepped through
+                        the
+                        ornate
+                        gates...
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        "You're late," came a voice from the shadows. Master Chen emerged from beneath the
+                        arched
+                        walkway...
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        "I came as quickly as I could," Aria replied, bowing respectfully...
+                    </p>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        Master Chen's lips curved into what might have been a smile...
+                    </p>
+                    <p class="text-gray-700 leading-relaxed">
+                        "Master," she began hesitantly, "what if I'm not ready? What if the power within me
+                        isn't
+                        enough?"
+                    </p>
+                </div>
                 <!-- Navigation buttons -->
                 <div class="flex items-center justify-between mt-8">
                     <button class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100">
@@ -336,21 +358,40 @@
 
                 <!-- Comments -->
                 <div class="mt-6 space-y-4">
+                    <!-- Comment 1 -->
                     <div class="flex justify-between gap-3">
-                        <!-- img user comment -->
-
                         <div class="flex gap-5">
                             <div class="w-10 h-10 rounded-full bg-gray-200"></div>
                             <div>
                                 <p class="font-semibold text-gray-800">Duy Phuc</p>
-                                <p class="text-gray-600 text-sm">re reading bc im watching the twilight live stream</p>
+                                <p class="text-gray-600 text-sm">re reading bc im watching the twilight live
+                                    stream</p>
                                 <p class="text-xs text-gray-400 mt-1">2 days ago</p>
                             </div>
                         </div>
-                        <button id="">...</button>
-                    </div>
-                    <div class="flex items-start gap-3">
 
+                        <div class="relative">
+                            <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-ellipsis">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="19" cy="12" r="1" />
+                                    <circle cx="5" cy="12" r="1" />
+                                </svg>
+                            </button>
+
+                            <div
+                                class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+
+                                <button
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Report</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment 2 -->
+                    <div class="flex justify-between gap-3">
                         <div class="flex gap-5">
                             <div class="w-10 h-10 rounded-full bg-gray-200"></div>
                             <div>
@@ -360,10 +401,50 @@
                             </div>
                         </div>
 
+                        <div class="relative">
+                            <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-ellipsis">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="19" cy="12" r="1" />
+                                    <circle cx="5" cy="12" r="1" />
+                                </svg>
+                            </button>
+
+                            <div
+                                class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <button
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</button>
+                                <button
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete</button>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <button class="mt-4 text-indigo-600 text-sm hover:underline">Show more</button>
+                <script>
+                    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation(); // Ngăn việc click lan ra ngoài
+                            const menu = btn.nextElementSibling; // Tìm menu liền sau button
+                            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+                            });
+                            menu.classList.toggle('hidden');
+                        });
+                    });
+
+                    window.addEventListener('click', () => {
+                        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+                    });
+                </script>
+
+                <div class="text-center">
+                    <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
+                        more</button>
+                </div>
             </div>
 
 
@@ -471,8 +552,65 @@
             }
         })
     </script>
+    <script>
+        // Toggle dropdown
+        document.getElementById("chapterListBtn").addEventListener("click", () => {
+            document.getElementById("chapterList").classList.toggle("hidden");
+        });
 
+        // Đóng khi click ra ngoài
+        window.addEventListener("click", (e) => {
+            const btn = document.getElementById("chapterListBtn");
+            const list = document.getElementById("chapterList");
+            if (!btn.contains(e.target) && !list.contains(e.target)) {
+                list.classList.add("hidden");
+            }
+        });
+    </script>
 
+    <!-- <script>
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const fontButtons = document.querySelectorAll('.font-btn');
+        const content = document.getElementById('contentArea');
+        const lightBtn = document.getElementById('lightMode');
+        const darkBtn = document.getElementById('darkMode');
 
+        // Toggle dropdown
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.toggle('hidden');
+        });
+
+        // Font size change
+        fontButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const size = btn.dataset.size;
+                if (size === 'small') content.className = 'mt-6 text-gray-800 text-sm transition-all duration-200';
+                if (size === 'medium') content.className = 'mt-6 text-gray-800 text-base transition-all duration-200';
+                if (size === 'large') content.className = 'mt-6 text-gray-800 text-lg transition-all duration-200';
+            });
+        });
+
+        // Theme change
+        lightBtn.addEventListener('click', () => {
+            document.documentElement.classList.remove('dark');
+            document.body.classList.remove('bg-gray-900', 'text-white');
+            document.body.classList.add('bg-white', 'text-gray-800');
+        });
+
+        darkBtn.addEventListener('click', () => {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('bg-gray-900', 'text-white');
+            document.body.classList.remove('bg-white', 'text-gray-800');
+        });
+
+        // Đóng khi click ra ngoài
+        window.addEventListener('click', (e) => {
+            if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+                settingsMenu.classList.add('hidden');
+            }
+        });
+    </script> -->
 
 </body>
