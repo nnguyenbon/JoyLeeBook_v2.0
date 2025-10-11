@@ -131,6 +131,19 @@ public class SeriesAuthorDAO {
         return false;
     }
 
+    public List<String> authorsOfSeries(int seriesId) throws SQLException {
+        String sql = "SELECT DISTINCT username FROM users u JOIN series_author sa ON u.user_id = sa.user_id AND series_id = ?";
+        List<String> authorsName = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    authorsName.add(rs.getString("username"));
+                }
+                return authorsName;
+            }
+        }
+    }
     /**
      * Utility method to map a ResultSet row to a SeriesAuthor object.
      *

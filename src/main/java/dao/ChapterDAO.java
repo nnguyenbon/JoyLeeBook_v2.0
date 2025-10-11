@@ -529,6 +529,21 @@ public class ChapterDAO {
             }
         }
     }
+
+
+    public List<Chapter> findChapterBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0";
+        List<Chapter> chapterList = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                chapterList.add(extractChapterFromResultSet(rs));
+                }
+            }
+            return chapterList;
+        }
+    }
     /**
      * Extract a Chapter object from the current row of the ResultSet.
      *
