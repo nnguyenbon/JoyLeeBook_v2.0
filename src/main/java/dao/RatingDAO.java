@@ -22,7 +22,7 @@ public class RatingDAO {
         Rating r = new Rating();
         r.setSeriesId(rs.getInt("series_id"));
         r.setUserId(rs.getInt("user_id"));
-        r.setRatingValue(rs.getByte("rating_value"));
+        r.setRatingValue(rs.getByte("score"));
 
         Timestamp created = rs.getTimestamp("created_at");
         Timestamp updated = rs.getTimestamp("updated_at");
@@ -33,7 +33,7 @@ public class RatingDAO {
     }
 
     public boolean insert(Rating rating) throws SQLException {
-        String sql = "INSERT INTO ratings (series_id, user_id, rating_value, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ratings (series_id, user_id, score, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, rating.getSeriesId());
             stmt.setInt(2, rating.getUserId());
@@ -99,7 +99,7 @@ public class RatingDAO {
     }
 
     public boolean update(Rating rating) throws SQLException {
-        String sql = "UPDATE ratings SET rating_value = ?, updated_at = ? WHERE series_id = ? AND user_id = ?";
+        String sql = "UPDATE ratings SET score = ?, updated_at = ? WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, rating.getRatingValue());
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
@@ -119,7 +119,7 @@ public class RatingDAO {
     }
 
     public double getAverageRating(int seriesId) throws SQLException {
-        String sql = "SELECT AVG(CAST(rating_value AS FLOAT)) AS avg_rating FROM ratings WHERE series_id = ?";
+        String sql = "SELECT AVG(CAST(score AS FLOAT)) AS avg_rating FROM ratings WHERE series_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, seriesId);
             try (ResultSet rs = stmt.executeQuery()) {

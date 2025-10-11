@@ -11,15 +11,17 @@ import model.SeriesCategories;
  * Uses external Connection for better transaction control.
  */
 public class SeriesCategoriesDAO {
-
+    private final Connection conn;
+    public SeriesCategoriesDAO(Connection conn) {
+        this.conn = conn;
+    }
     /**
      * Get all series-category mappings.
      *
-     * @param conn The active database connection.
      * @return List of SeriesCategory objects.
      * @throws SQLException if any SQL error occurs.
      */
-    public List<SeriesCategories> getAll(Connection conn) throws SQLException {
+    public List<SeriesCategories> getAll() throws SQLException {
         List<SeriesCategories> list = new ArrayList<>();
         String sql = "SELECT series_id, category_id FROM series_categories";
 
@@ -40,13 +42,12 @@ public class SeriesCategoriesDAO {
     /**
      * Find a specific series-category record.
      *
-     * @param conn       Active DB connection.
      * @param seriesId   Series ID.
      * @param categoryId Category ID.
      * @return SeriesCategory or null if not found.
      * @throws SQLException if any SQL error occurs.
      */
-    public SeriesCategories findById(Connection conn, int seriesId, int categoryId) throws SQLException {
+    public SeriesCategories findById( int seriesId, int categoryId) throws SQLException {
         String sql = "SELECT series_id, category_id FROM series_categories WHERE series_id = ? AND category_id = ?";
         SeriesCategories sc = null;
 
@@ -69,12 +70,11 @@ public class SeriesCategoriesDAO {
     /**
      * Insert a new series-category record.
      *
-     * @param conn Active DB connection.
      * @param sc   The SeriesCategory object to insert.
      * @return true if inserted successfully.
      * @throws SQLException if any SQL error occurs.
      */
-    public boolean insert(Connection conn, SeriesCategories sc) throws SQLException {
+    public boolean insert( SeriesCategories sc) throws SQLException {
         String sql = "INSERT INTO series_categories (series_id, category_id) VALUES (?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -87,14 +87,13 @@ public class SeriesCategoriesDAO {
     /**
      * Update an existing record.
      *
-     * @param conn          Active DB connection.
      * @param oldSeriesId   Old series ID.
      * @param oldCategoryId Old category ID.
      * @param newData       New data to update.
      * @return true if updated successfully.
      * @throws SQLException if any SQL error occurs.
      */
-    public boolean update(Connection conn, int oldSeriesId, int oldCategoryId, SeriesCategories newData) throws SQLException {
+    public boolean update( int oldSeriesId, int oldCategoryId, SeriesCategories newData) throws SQLException {
         String sql = "UPDATE series_categories SET series_id = ?, category_id = ? WHERE series_id = ? AND category_id = ? ";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -109,13 +108,12 @@ public class SeriesCategoriesDAO {
     /**
      * Delete a record by seriesId and categoryId.
      *
-     * @param conn       Active DB connection.
      * @param seriesId   Series ID.
      * @param categoryId Category ID.
      * @return true if deleted successfully.
      * @throws SQLException if any SQL error occurs.
      */
-    public boolean delete(Connection conn, int seriesId, int categoryId) throws SQLException {
+    public boolean delete( int seriesId, int categoryId) throws SQLException {
         String sql = "DELETE FROM series_categories WHERE series_id = ? AND category_id = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -123,5 +121,17 @@ public class SeriesCategoriesDAO {
             ps.setInt(2, categoryId);
             return ps.executeUpdate() > 0;
         }
+    }
+
+    public int countSeriesByCategoryId(int categoryId) throws SQLException {
+        String sql = "SELECT COUNT(series_id) FROM series_categories WHERE category_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
 }

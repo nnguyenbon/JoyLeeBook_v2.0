@@ -1,7 +1,7 @@
 <%-- Created by IntelliJ IDEA. User: DPhuc Date: 10/10/25 Time: 12:48 AM To
-change this template use File | Settings | File Templates. --%> <%@ page
-contentType="text/html; charset=UTF-8" language="java" %> <%@ taglib
-uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+change this template use File | Settings | File Templates. --%>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <header class="header">
   <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">

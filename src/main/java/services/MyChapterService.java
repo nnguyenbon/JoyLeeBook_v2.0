@@ -1,6 +1,7 @@
 package services;
 
 import dao.ChapterDAO;
+import dto.ChapterItemDTO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -72,7 +73,7 @@ public class MyChapterService {
      * @return a PagedResult containing the list of ChapterListItem and pagination info
      * @throws SQLException if a database access error occurs
      */
-    public PagedResult<ChapterListItem> getAuthoredChapters(int userId, int page, int pageSize, String statusFilter, String keyword) throws SQLException {
+    public PagedResult<ChapterItemDTO> getAuthoredChapters(int userId, int page, int pageSize, String statusFilter, String keyword) throws SQLException {
         int offset = (Math.max(page, 1) - 1) * pageSize;
         var items = dao.getAuthoredChapters(userId, offset, pageSize, statusFilter, keyword);
         int total = dao.countAuthoredChapters(userId, statusFilter, keyword);
@@ -89,7 +90,7 @@ public class MyChapterService {
      * @return a PagedResult containing the list of ChapterListItem and pagination info
      * @throws SQLException if a database access error occurs
      */
-    public PagedResult<ChapterListItem> getReadingHistoryChapters(int userId, int page, int pageSize, String keyword) throws SQLException {
+    public PagedResult<ChapterItemDTO> getReadingHistoryChapters(int userId, int page, int pageSize, String keyword) throws SQLException {
         int offset = (Math.max(page, 1) - 1) * pageSize;
         var items = dao.getReadingHistoryChapters(userId, offset, pageSize, keyword);
         int total = dao.countReadingHistoryChapters(userId, keyword);

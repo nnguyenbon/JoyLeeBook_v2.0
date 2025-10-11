@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Chapter;
-import services.ChapterListItem;
+import dto.ChapterItemDTO;
+
+import javax.swing.table.TableRowSorter;
 
 /**
  * Data Access Object (DAO) for Chapter entity.
@@ -154,7 +156,7 @@ public class ChapterDAO {
      * @return a list of ChapterListItem objects matching the criteria
      * @throws SQLException if a database access error occurs
      */
-    public List<ChapterListItem> getAuthoredChapters(int userId, int offset, int pageSize, String statusFilter, String keyword) throws SQLException {
+    public List<ChapterItemDTO> getAuthoredChapters(int userId, int offset, int pageSize, String statusFilter, String keyword) throws SQLException {
 
         StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, c.chapter_number, c.title AS chapter_title, c.status, c.updated_at FROM chapters c " + "JOIN series s ON c.series_id = s.series_id " + "JOIN series_author sa ON sa.series_id = s.series_id " + "WHERE sa.user_id = ? ");
 
@@ -180,9 +182,9 @@ public class ChapterDAO {
                 ps.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ps.executeQuery()) {
-                List<ChapterListItem> list = new ArrayList<>();
+                List<ChapterItemDTO> list = new ArrayList<>();
                 while (rs.next()) {
-                    ChapterListItem it = new ChapterListItem();
+                    ChapterItemDTO it = new ChapterItemDTO();
                     it.setChapterId(rs.getInt("chapter_id"));
                     it.setSeriesId(rs.getInt("series_id"));
                     it.setSeriesTitle(rs.getString("series_title"));
@@ -244,7 +246,7 @@ public class ChapterDAO {
      * @return a list of ChapterListItem objects from the user's reading history matching the criteria
      * @throws SQLException if a database access error occurs
      */
-    public List<ChapterListItem> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {
+    public List<ChapterItemDTO> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {
 
         StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, " + "       c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at " + "FROM reading_history h " + "JOIN chapters c ON c.chapter_id = h.chapter_id " + "JOIN series s ON s.series_id = c.series_id " + "WHERE h.user_id = ? ");
 
@@ -266,9 +268,9 @@ public class ChapterDAO {
                 ps.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ps.executeQuery()) {
-                List<ChapterListItem> list = new ArrayList<>();
+                List<ChapterItemDTO> list = new ArrayList<>();
                 while (rs.next()) {
-                    ChapterListItem it = new ChapterListItem();
+                    ChapterItemDTO it = new ChapterItemDTO();
                     it.setChapterId(rs.getInt("chapter_id"));
                     it.setSeriesId(rs.getInt("series_id"));
                     it.setSeriesTitle(rs.getString("series_title"));
@@ -518,6 +520,15 @@ public class ChapterDAO {
         }
     }
 
+    public int countChapterBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
     /**
      * Extract a Chapter object from the current row of the ResultSet.
      *
