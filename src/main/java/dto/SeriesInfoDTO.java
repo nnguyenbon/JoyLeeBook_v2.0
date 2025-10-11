@@ -15,7 +15,19 @@ public class SeriesInfoDTO {
     private int totalChapters;
     private double avgRating;
     private int countRatings;
-    private LocalDateTime createdAt;
+    private String status;
+    private String createdAt;
+    private String updatedAt;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
 
     public int getSeriesId() {
         return seriesId;
@@ -89,13 +101,19 @@ public class SeriesInfoDTO {
         this.avgRating = avgRating;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
 
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
