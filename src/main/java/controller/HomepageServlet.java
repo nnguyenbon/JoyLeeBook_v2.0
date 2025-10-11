@@ -50,21 +50,21 @@ public class HomepageServlet extends HttpServlet {
             for (Series series : seriesDAO.getNewReleasedSeries(4)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
+                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
                 seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
                 newReleaseSeriesList.add(seriesInfoDTO);
             }
             for (Series series : seriesDAO.getRecentlyUpdated(6)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
+                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
                 seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
                 recentlyUpdatedSeriesList.add(seriesInfoDTO);
             }
             for (Series series : seriesDAO.getSeriesByStatus(6, "completed")){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
+                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
                 seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
                 completedSeriesList.add(seriesInfoDTO);
             }
