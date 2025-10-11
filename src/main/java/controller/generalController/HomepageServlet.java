@@ -1,4 +1,4 @@
-package controller;
+package controller.generalController;
 
 import dao.*;
 import db.DBConnection;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
-import model.SeriesCategories;
 import model.User;
 
 import java.io.IOException;
@@ -84,7 +83,7 @@ public class HomepageServlet extends HttpServlet {
             request.setAttribute("completedSeriesList", completedSeriesList);
             request.setAttribute("categoryList", categoryList);
             request.setAttribute("userList", userList);
-            request.getRequestDispatcher("homepage.jsp").forward(request, response);
+            request.getRequestDispatcher("Homepage.jsp").forward(request, response);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {

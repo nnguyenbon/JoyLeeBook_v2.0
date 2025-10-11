@@ -1,4 +1,4 @@
-package controller;
+package controller.chapterController;
 
 import db.DBConnection;
 import services.MyChapterService;
