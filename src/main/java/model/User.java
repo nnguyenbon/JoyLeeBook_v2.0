@@ -5,41 +5,41 @@ public class User {
     private int userId;
     private String username;
     private String fullName;
+    private String bio;
     private String passwordHash;
     private String role;
     private String email;
     private String status;
-    private String emailOtp;
     private boolean isVerified;
-    private boolean isGoogleAccount;
-    private String googleAccountId;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private int points;
     private boolean isDeleted;
 
-    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt, int points, boolean isDeleted) {
+    public User(int userId, String username, String fullName, String bio, String passwordHash, String role, String email, String status, boolean isVerified, LocalDateTime createdAt, LocalDateTime updatedAt, int points, boolean isDeleted) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
+        this.bio = bio;
         this.passwordHash = passwordHash;
         this.role = role;
         this.email = email;
         this.status = status;
-        this.emailOtp = emailOtp;
         this.isVerified = isVerified;
-        this.isGoogleAccount = isGoogleAccount;
-        this.googleAccountId = googleAccountId;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
         this.points = points;
         this.isDeleted = isDeleted;
     }
 
-    public User() {
-    }
+    public User() {}
     public int getUserId() {
         return userId;
     }
-    public void setUserId(int userId) {}
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     public String getUsername() {
         return username;
@@ -55,6 +55,14 @@ public class User {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public String getPasswordHash() {
@@ -89,14 +97,6 @@ public class User {
         this.status = status;
     }
 
-    public String getEmailOtp() {
-        return emailOtp;
-    }
-
-    public void setEmailOtp(String emailOtp) {
-        this.emailOtp = emailOtp;
-    }
-
     public boolean isVerified() {
         return isVerified;
     }
@@ -105,28 +105,20 @@ public class User {
         isVerified = verified;
     }
 
-    public boolean isGoogleAccount() {
-        return isGoogleAccount;
-    }
-
-    public void setGoogleAccount(boolean googleAccount) {
-        isGoogleAccount = googleAccount;
-    }
-
-    public String getGoogleAccountId() {
-        return googleAccountId;
-    }
-
-    public void setGoogleAccountId(String googleAccountId) {
-        this.googleAccountId = googleAccountId;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public int getPoints() {

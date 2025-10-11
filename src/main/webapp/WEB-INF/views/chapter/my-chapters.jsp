@@ -6,10 +6,10 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.*, services.ChapterListItem, services.MyChapterService.PagedResult" %>
+<%@ page import="java.util.*, dto.ChapterItemDTO, services.MyChapterService.PagedResult" %>
 <%
     String mode = (String) request.getAttribute("mode");
-    List<ChapterListItem> items = (List<ChapterListItem>) request.getAttribute("items");
+    List<ChapterItemDTO> items = (List<ChapterItemDTO>) request.getAttribute("items");
     Integer currentPage = (Integer) request.getAttribute("page");
     Integer totalPages = (Integer) request.getAttribute("totalPages");
 %>
@@ -42,7 +42,7 @@
         <% } %>
     </tr>
     <%
-        if (items != null) for (ChapterListItem it : items) {
+        if (items != null) for (ChapterItemDTO it : items) {
     %>
     <tr>
         <td><%= it.getSeriesTitle() %>

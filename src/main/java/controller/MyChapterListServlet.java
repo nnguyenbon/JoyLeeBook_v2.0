@@ -3,7 +3,7 @@ package controller;
 import db.DBConnection;
 import services.MyChapterService;
 import services.MyChapterService.PagedResult;
-import services.ChapterListItem;
+import dto.ChapterItemDTO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -68,7 +68,7 @@ public class MyChapterListServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             MyChapterService service = new MyChapterService(conn);
 
-            PagedResult<ChapterListItem> result;
+            PagedResult<ChapterItemDTO> result;
             if ("history".equalsIgnoreCase(mode)) {
                 result = service.getReadingHistoryChapters(userId, page, size, keyword);
             } else {

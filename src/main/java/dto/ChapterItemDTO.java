@@ -1,4 +1,4 @@
-package services;
+package dto;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  *
  * @author HaiDD-dev
  */
-public class ChapterListItem {
+public class ChapterItemDTO {
     private int chapterId;
     private int seriesId;
     private String seriesTitle;
