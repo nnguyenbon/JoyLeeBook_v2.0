@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet" />
+    <style>
+        .header {
+            background-color: white;
+            border-bottom: 1px solid #D9D9D9;
+            margin: auto;
+            height: 65px;
+            box-shadow: 0px 0px 15px #195DA9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-[30px] ">
+            <div class="col-span-2 flex items-center gap-2 h-[70px]">
+                <img src="./img/logo.png" alt="logo" />
+            </div>
+            <div class="col-span-1 flex items-center relative">
+                <!-- Nút Genre -->
+                <button id="genreButton"
+                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1">
+                    Genre
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="genreMenu"
+                    class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50">
+                    <div class="grid grid-cols-5 gap-3 text-sm">
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Action</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Adventure</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Romance</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Fantasy</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Comedy</button>
+
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Drama</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Sci-Fi</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Horror</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Mystery</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Slice of Life</button>
+
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Thriller</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Historical</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Sports</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Supernatural</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Psychological</button>
+
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Tragedy</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Isekai</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Magic</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Martial Arts</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Mecha</button>
+
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Music</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">School</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Seinen</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Shoujo</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Shounen</button>
+
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Josei</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Harem</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Parody</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">Crime</button>
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">War</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-6 flex items-center">
+                <form action="" class="w-full">
+                    <input type="text" placeholder="Search series, author"
+                        class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full" />
+                </form>
+            </div>
+            <div class="col-span-2 col-start-10 flex items-center justify-center">
+                <button
+                    class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]">
+                    <span
+                        class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent">
+                        Write Now
+                    </span>
+                </button>
+            </div>
+            <div class="col-span-1 flex items-center justify-end relative">
+                <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full"><img class="w-10 h-10 rounded-full"
+                            src="./img/thenewkidinschool.png"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="MenuAvatar"
+                    class="hidden absolute right-0 top-full mt-2 w-50 h-65 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                    <div class="text-lg">
+                        <div class="mb-2">
+                            <h4
+                                class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold">
+                                Trunguyen</h4>
+                            <p class="text-[#195DA9] text-xs">Reader</p>
+                        </div>
+                        <hr class="mb-2 border-gray-300" />
+                        <button
+                            class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="bi bi-person"
+                                viewBox="0 0 16 16">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#341661" />
+                                        <stop offset="50%" stop-color="#4C1D95" />
+                                        <stop offset="100%" stop-color="#195BA7" />
+                                    </linearGradient>
+                                </defs>
+                                <path fill="url(#gradient)"
+                                    d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                            </svg>
+                            <span
+                                class=" bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold">Profile</span></button>
+                        <button
+                            class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-pencil-line-icon lucide-pencil-line">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#341661" />
+                                        <stop offset="50%" stop-color="#4C1D95" />
+                                        <stop offset="100%" stop-color="#195BA7" />
+                                    </linearGradient>
+                                </defs>
+                                <path stroke="url(#gradient)" d="M13 21h8" />
+                                <path stroke="url(#gradient)" d="m15 5 4 4" />
+                                <path stroke="url(#gradient)"
+                                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                            </svg>
+                            <span
+                                class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold">Author</span>
+                        </button>
+                        <button
+                            class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-library-icon lucide-library">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#341661" />
+                                        <stop offset="50%" stop-color="#4C1D95" />
+                                        <stop offset="100%" stop-color="#195BA7" />
+                                    </linearGradient>
+                                </defs>
+                                <path stroke="url(#gradient)" d=" m16 6 4 14 M12 6v14 M8 8v12 M4 4v16" />
+                            </svg>
+                            <span
+                                class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold">Library</span>
+                        </button>
+                        <button class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-log-out-icon lucide-log-out">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#341661" />
+                                        <stop offset="50%" stop-color="#4C1D95" />
+                                        <stop offset="100%" stop-color="#195BA7" />
+                                    </linearGradient>
+                                </defs>
+                                <path stroke="url(#gradient)"
+                                    d="m16 17 5-5-5-5 M21 12H9 M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+
+                            </svg>
+                            <span
+                                class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <main class="main max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-[30px]">
+        <div class="col-span-12 border-b-1 border-gray-300 flex items-center">
+            <button class="font-bold text-2xl border-b-5 border-[#195DA9] px-4">Series</button>
+            <button class="text-gray-500 font-bold text-2xl px-4 hover:text-[#195DA9]">Author</button>
+
+        </div>
+        <div class="col-span-12 mb-1">
+            <p class="text-sm text-gray-500">30 results</p>
+        </div>
+        <!-- CỘT TRÁI: FILTER -->
+        <div class="col-span-3 bg-white rounded-xl shadow p-5">
+            <h2 class="text-xl font-semibold mb-4">Filter</h2>
+            <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>
+
+            <div class="space-y-3">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="accent-[#195DA9]" />
+                    <span>Completed</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="accent-[#195DA9]" />
+                    <span>Ongoing</span>
+                </label>
+            </div>
+
+            <h2 class="text-xl font-semibold mt-6 mb-3">Genre</h2>
+            <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>
+
+            <div class="grid grid-cols-2 gap-2 text-gray-700">
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Action</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" />
+                    Fantasy</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Love</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Drama</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Action</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" />
+                    Fantasy</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Love</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="accent-[#195DA9]" /> Drama</label>
+            </div>
+        </div>
+
+        <!-- CỘT GIỮA: DANH SÁCH SERIES -->
+        <div class="col-span-6">
+
+
+            <!-- CARD SERIES -->
+            <div class="space-y-6">
+                <!-- 1 series -->
+                <div class="flex gap-4 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+                    <img src="https://placehold.co/120x160" alt="cover"
+                        class="w-[120px] h-[160px] object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-lg text-gray-800">The Shattered Vows</h3>
+                        <p class="text-sm text-gray-500 mb-1">by Alix</p>
+                        <p class="text-gray-700 text-sm mb-3">
+                            “The Shattered Vows” has the potential to be an emotional love story, focusing on themes of
+                            regret,
+                            missed opportunities, and the complexities of relationships.
+                        </p>
+                        <div class="flex gap-2 mb-2">
+                            <span
+                                class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">Romance</span>
+                            <span
+                                class="bg-green-100 text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full">Completed</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span class="flex gap-2 items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                    height="16" viewBox="0 0 24 24" fill="yellow" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-star-icon lucide-star">
+                                    <path
+                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                                </svg> 5.0 (1247)</span>
+                            <span>25 Chapters</span>
+                            <span>Updated: 25/09/2025</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lặp thêm các card khác nếu cần -->
+                <div class="flex gap-4 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
+                    <img src="https://placehold.co/120x160" alt="cover"
+                        class="w-[120px] h-[160px] object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-lg text-gray-800">Lovers on the Sea</h3>
+                        <p class="text-sm text-gray-500 mb-1">by Adam Silvera</p>
+                        <p class="text-gray-700 text-sm mb-3">
+                            A romantic story about fate, distance, and self-discovery through love and pain.
+                        </p>
+                        <div class="flex gap-2 mb-2">
+                            <span
+                                class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">Romance</span>
+                            <span
+                                class="bg-green-100 text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full">Completed</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span class="flex gap-2 items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                    height="16" viewBox="0 0 24 24" fill="yellow" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-star-icon lucide-star">
+                                    <path
+                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                                </svg> 5.0 (1247)</span>
+                            <span>25 Chapters</span>
+                            <span>Updated: 25/09/2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: BẢNG XẾP HẠNG -->
+        <div class="col-span-3 space-y-6">
+            <!-- Top Weekly Series -->
+            <h3 class="font-semibold text-gray-800 mb-3">Top Weekly Series</h3>
+
+            <div class="bg-white rounded-xl shadow p-5">
+                <ol class="space-y-4 text-sm text-gray-500">
+                    <li class="text-[#E23636] font-semibold">1. The Shattered Vows
+                        <span class="float-right">543</span>
+                    </li>
+                    <li class="text-[#F5A83D] font-semibold">2. The U I I A <span class="float-right">400</span></li>
+                    <li class="text-[#195DA9] font-semibold">3. Momomo
+                        <span class="float-right">123</span>
+                    </li>
+                    <li>4. AAAAAA <span class="float-right">90</span></li>
+                    <li>5. 1234 <span class="float-right text-gray-500">59</span></li>
+                    <li>6. KT Phieu Luu Ky <span class="float-right text-gray-500">42</span></li>
+                    <li>7. An nhong a se o <span class="float-right text-gray-500">32</span></li>
+                    <li>8. Ff <span class="float-right text-gray-500">32</span></li>
+                </ol>
+            </div>
+
+            <!-- Top Reader Points -->
+            <h3 class="font-semibold text-gray-800 mb-3">Top Reader Points</h3>
+
+            <div class="bg-white rounded-xl shadow p-5">
+                <ol class="space-y-4 text-sm text-gray-500">
+                    <li class="text-[#E23636] font-semibold">1. BonNguyen
+                        <span class="float-right">543</span>
+                    </li>
+                    <li class="text-[#F5A83D] font-semibold">2. KhaiToan<span class="float-right">400</span></li>
+                    <li class="text-[#195DA9] font-semibold">3. DuyP<span class="float-right">123</span>
+                    </li>
+                    <li>4. HaiDD <span class="float-right">90</span></li>
+                    <li>5. Nguyen <span class="float-right text-gray-500">59</span></li>
+                    <li>6. Mark <span class="float-right text-gray-500">42</span></li>
+                    <li>7. An nhong a se o <span class="float-right text-gray-500">32</span></li>
+                    <li>8. Ff <span class="float-right text-gray-500">32</span></li>
+                </ol>
+            </div>
+        </div>
+    </main>
+
+</body>
