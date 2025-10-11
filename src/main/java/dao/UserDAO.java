@@ -2,11 +2,7 @@ package dao;
 
 import model.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +14,10 @@ public class UserDAO {
         this.conn = conn;
     }
 
-
+    // Lấy toàn bộ user chưa bị xóa
     public List<User> getAll() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM users WHERE is_deleted = 0";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -32,9 +28,9 @@ public class UserDAO {
         return users;
     }
 
-
+    // Tìm user theo ID
     public User findById(int id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE user_id = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ? AND is_deleted = 0";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -46,99 +42,115 @@ public class UserDAO {
         return null;
     }
 
-
+    // Thêm user mới
     public boolean insert(User user) throws SQLException {
-        String sql = "INSERT INTO users (email, username, password_hash, full_name, role, email_otp,is_verified, status, google_id, created_at, points)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = """
+                INSERT INTO users (username, full_name, bio, email, password_hash, role, 
+                                   is_verified, is_deleted, status, points, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getEmail());
-            stmt.setString(2, user.getUsername());
-            stmt.setString(3, user.getPasswordHash());
-            stmt.setString(4, user.getFullName());
-            stmt.setString(5, user.getRole());
-            stmt.setString(6, user.getEmailOtp());
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getFullName());
+            stmt.setString(3, user.getBio());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getPasswordHash());
+            stmt.setString(6, user.getRole());
             stmt.setBoolean(7, user.isVerified());
-            stmt.setString(8, "inactive");
-            stmt.setString(9, user.getGoogleAccountId());
-            stmt.setTimestamp(10, Timestamp.valueOf(user.getCreatedAt()));
-            stmt.setInt(11, user.getPoints());
+            stmt.setBoolean(8, user.isDeleted());
+            stmt.setString(9, user.getStatus());
+            stmt.setInt(10, user.getPoints());
+            stmt.setTimestamp(11, Timestamp.valueOf(user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now()));
+            stmt.setTimestamp(12, Timestamp.valueOf(user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         }
     }
 
-
+    // Cập nhật thông tin user
     public boolean update(User user) throws SQLException {
-        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ?, points = ? WHERE user_id = ?";
+        String sql = """
+                UPDATE users
+                SET username = ?, full_name = ?, bio = ?, email = ?, password_hash = ?, 
+                    role = ?, is_verified = ?, is_deleted = ?, status = ?, points = ?, updated_at = ?
+                WHERE user_id = ? AND is_deleted = 0
+                """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getEmail());
-            stmt.setString(2, user.getUsername());
-            stmt.setString(3, user.getPasswordHash());
-            stmt.setString(4, user.getFullName());
-            stmt.setString(5, user.getRole());
-            stmt.setString(6, user.getEmailOtp());
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getFullName());
+            stmt.setString(3, user.getBio());
+            stmt.setString(4, user.getEmail());
+            stmt.setString(5, user.getPasswordHash());
+            stmt.setString(6, user.getRole());
             stmt.setBoolean(7, user.isVerified());
-            stmt.setString(8, user.getStatus());
-            stmt.setString(9, user.getGoogleAccountId());
-            stmt.setInt(10, user.getUserId());
-            stmt.setInt(11, user.getPoints());
+            stmt.setBoolean(8, user.isDeleted());
+            stmt.setString(9, user.getStatus());
+            stmt.setInt(10, user.getPoints());
+            stmt.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+            stmt.setInt(12, user.getUserId());
             return stmt.executeUpdate() > 0;
         }
     }
 
-
+    // Xóa mềm user (chuyển cờ is_deleted = 1)
     public boolean delete(int id) throws SQLException {
-        String sql = "UPDATE users SET status = '?' WHERE user_id = ?";
+        String sql = "UPDATE users SET is_deleted = 1, status = 'inactive', updated_at = GETDATE() WHERE user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, "inactive");
-            stmt.setInt(2, id);
+            stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
         }
     }
 
+    // Tìm theo tên người dùng
     public List<User> findByName(String name) throws SQLException {
-        List<User> usersList = new ArrayList<>();
-        String sql = "SELECT * FROM users WHERE username LIKE ?";
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE username LIKE ? AND is_deleted = 0";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "%" + name + "%");
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    usersList.add(mapResultSetToUser(rs));
+                    users.add(mapResultSetToUser(rs));
                 }
             }
-            return usersList;
         }
+        return users;
     }
 
-    public List<User> selectTopUserPoints(int rank) throws SQLException {
-        List<User> usersList = new ArrayList<>();
-        String sql = "SELECT TOP (" + rank + " FROM users ORDER BY points DESC ";
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                usersList.add(mapResultSetToUser(rs));
+    // Lấy top người dùng theo điểm
+    public List<User> selectTopUserPoints(int limit) throws SQLException {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT TOP (?) * FROM users WHERE is_deleted = 0 ORDER BY points DESC";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
             }
-            return usersList;
         }
+        return users;
     }
 
+    // Hàm map dữ liệu từ ResultSet sang đối tượng User
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setUserId(rs.getInt("user_id"));
-        user.setEmail(rs.getString("email"));
         user.setUsername(rs.getString("username"));
-        user.setPasswordHash(rs.getString("password_hash"));
         user.setFullName(rs.getString("full_name"));
+        user.setBio(rs.getString("bio"));
+        user.setEmail(rs.getString("email"));
+        user.setPasswordHash(rs.getString("password_hash"));
         user.setRole(rs.getString("role"));
-        user.setEmailOtp(rs.getString("email_otp"));
         user.setVerified(rs.getBoolean("is_verified"));
+        user.setDeleted(rs.getBoolean("is_deleted"));
         user.setStatus(rs.getString("status"));
-        user.setGoogleAccountId(rs.getString("google_id"));
         user.setPoints(rs.getInt("points"));
-        user.setGoogleAccount(user.getGoogleAccountId() != null);
 
         Timestamp created = rs.getTimestamp("created_at");
+        Timestamp updated = rs.getTimestamp("updated_at");
         user.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+        user.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
 
         return user;
     }

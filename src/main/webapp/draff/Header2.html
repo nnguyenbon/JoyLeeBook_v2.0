@@ -5,33 +5,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="../css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet" />
-    <style>
-        .header {
-            background-color: white;
-            border-bottom: 1px solid #D9D9D9;
-            margin: auto;
-            height: 65px;
-            box-shadow: 0px 0px 15px #195DA9;
-        }
-    </style>
 </head>
 
 <body>
-
-    <!-- Header -->
     <header class="header">
-        <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-[30px] ">
-            <div class="col-span-2 flex items-center gap-2 h-[70px]">
-                <img src="./img/logo.png" alt="logo" />
+        <div class="max-w-[1290px] max-h-20 mx-auto grid grid-cols-12 grid-rows-1 gap-8 items-center">
+            <div class="col-span-2 ">
+                <img src="../img/shared/logo.png" alt="logo" />
             </div>
-            <div class="col-span-1 flex items-center relative">
+            <div class="col-span-1 relative">
                 <!-- Nút Genre -->
                 <button id="genreButton"
                     class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1">
@@ -92,7 +81,7 @@
                         class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full" />
                 </form>
             </div>
-            <div class="col-span-2 col-start-10 flex items-center justify-center">
+            <!-- <div class="col-span-2 col-start-10 flex items-center justify-center">
                 <button
                     class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]">
                     <span
@@ -100,11 +89,11 @@
                         Write Now
                     </span>
                 </button>
-            </div>
-            <div class="col-span-1 flex items-center justify-end relative">
+            </div> -->
+            <!-- <div class="col-span-1 flex items-center justify-end relative">
                 <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
                     <div class="w-10 h-10 bg-gray-300 rounded-full"><img class="w-10 h-10 rounded-full"
-                            src="./img/thenewkidinschool.png"></div>
+                            src="../img/thenewkidinschool.png"></div>
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
@@ -112,7 +101,7 @@
                     </svg>
                 </button>
 
-                <!-- Dropdown -->
+                Dropdown
                 <div id="MenuAvatar"
                     class="hidden absolute right-0 top-full mt-2 w-50 h-65 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
                     <div class="text-lg">
@@ -196,124 +185,18 @@
                         </button>
                     </div>
                 </div>
+            </div> -->
+            <div class="col-span-3 text-right">
+                <button><a href="./login.html" class="inline-block bg-sky-700 text-white py-1 px-3 rounded-lg hover:bg-sky-900">Login</a></button>
+                <button><a href="./signup.html" class="inline-block py-1 px-3 rounded-lg hover:bg-neutral-200 mx-4">Sign Up</a></button>
             </div>
         </div>
     </header>
-
-    <!-- Content -->
-    <main class="main max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px] items-center">
-
-        <!-- Left Image -->
-        <div class="col-span-3 col-start-2">
-            <img src="https://placehold.co/220x320" alt="Series cover" class="rounded-lg shadow" />
-        </div>
-
-        <!-- Right (Title, Info, Tags) -->
-        <div class="col-span-7">
-            <h1 class="text-4xl font-bold">Chronicles of the Mystic Realm</h1>
-            <p class="text-gray-600 mb-4">by <span class="font-semibold">Elena Starweaver</span></p>
-
-            <div class="flex flex-wrap gap-2 mb-15">
-                <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">Fantasy</span>
-                <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">Adventure</span>
-                <span class="bg-blue-100 text-blue-600 text-sm px-3 py-1 rounded-full">Ongoing</span>
-            </div>
-
-            <div class="flex items-center gap-30 mb-10">
-                <div class="flex flex-col items-center justify-center">
-                    <span class="font-semibold text-lg">45</span>
-                    Chapters
-                </div>
-                <div class="flex flex-col items-center justify-center">
-
-                    <div class="text-gray-500 font-semibold text-lg mb-1">
-                        <span class="text-yellow-400">★ 4.9</span>
-                        <span>(875)</span>
-                    </div>
-
-                    <div id="starRatingContainer" class="flex">
-                        <input type="radio" name="rating" id="star1" value="1" class="hidden" />
-                        <label for="star1"
-                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                        <input type="radio" name="rating" id="star2" value="2" class="hidden" />
-                        <label for="star2"
-                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                        <input type="radio" name="rating" id="star3" value="3" class="hidden" />
-                        <label for="star3"
-                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                        <input type="radio" name="rating" id="star4" value="4" class="hidden" />
-                        <label for="star4"
-                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                        <input type="radio" name="rating" id="star5" value="5" class="hidden" />
-                        <label for="star5"
-                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-            <div class="flex items-center gap-4 mt-4">
-                <button
-                    class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                    ▶ Start Reading
-                </button>
-
-                <button
-                    class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-bookmark">
-                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                    </svg>
-                    Add to Library
-                </button>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Summary -->
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
-        <div class="col-span-10 col-start-2">
-            <h2 class="font-semibold text-xl mb-3">Summary</h2>
-            <div class="border-2 border-[#0D2E55] rounded-lg bg-white p-4 leading-relaxed text-gray-700">
-                This epic fantasy saga spans multiple kingdoms, each with their own unique magical systems
-                and political intrigue...
-            </div>
-        </div>
-    </section>
-    <!-- Chapter List -->
-    <section class="max-w-[1290px] mx-auto mt-5 mb-20 grid grid-cols-12 gap-[30px]">
-        <div class="col-span-10 col-start-2">
-            <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
-            <div class="space-y-3 border-2 border-[#0D2E55] p-3 rounded-lg ">
-                <div
-                    class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                    <span>Chapter 43: The Awakening</span>
-                    <span class="text-sm text-gray-500">15 Likes · 2 days ago</span>
-                </div>
-                <div
-                    class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                    <span>Chapter 42: The Awakening</span>
-                    <span class="text-sm text-gray-500">15 Likes · 2 days ago</span>
-                </div>
-                <div
-                    class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                    <span>Chapter 41: The Awakening</span>
-                    <span class="text-sm text-gray-500">15 Likes · 2 days ago</span>
-                </div>
-            </div>
-        </div>
-    </section>
     <script>
         const genreButton = document.getElementById("genreButton");
         const genreMenu = document.getElementById("genreMenu");
+        const BtnAvatar = document.getElementById("BtnAvatar");
+        const MenuAvatar = document.getElementById("MenuAvatar");
 
         genreButton.addEventListener("click", () => {
             genreMenu.classList.toggle("hidden");
@@ -326,9 +209,6 @@
             }
         });
 
-        const BtnAvatar = document.getElementById("BtnAvatar");
-        const MenuAvatar = document.getElementById("MenuAvatar");
-
         BtnAvatar.addEventListener("click", () => {
             MenuAvatar.classList.toggle("hidden");
         });
@@ -340,56 +220,4 @@
             }
         });
     </script>
-
-
-    <!-- ✅ Modal đưa ra ngoài container -->
-    <div id="confirmModal"
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50">
-        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md relative">
-            <h2 class="text-xl font-semibold mb-4">Confirm Rating</h2>
-            <p id="confirmText" class="mb-6 text-gray-700"></p>
-            <button id="confirmBtn"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                OK
-            </button>
-        </div>
-    </div>
-
-    <script>
-        const starContainer = document.getElementById('starRatingContainer');
-        const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
-        const labels = starContainer.querySelectorAll('label');
-        const modal = document.getElementById('confirmModal');
-        const confirmText = document.getElementById('confirmText');
-        const confirmBtn = document.getElementById('confirmBtn');
-
-        let currentRating = 0;
-
-        function colorStars(ratingValue) {
-            labels.forEach((label, index) => {
-                if (index < ratingValue) {
-                    label.classList.add('text-yellow-400');
-                    label.classList.remove('text-gray-400');
-                } else {
-                    label.classList.add('text-gray-400');
-                    label.classList.remove('text-yellow-400');
-                }
-            });
-        }
-
-        labels.forEach((label, index) => {
-            const ratingValue = index + 1;
-            label.addEventListener('mouseover', () => colorStars(ratingValue));
-            label.addEventListener('click', () => {
-                currentRating = ratingValue;
-                radioButtons[index].checked = true;
-                confirmText.textContent = `You confirm ${currentRating}-star rating?`;
-                modal.classList.remove('hidden');
-            });
-        });
-
-        starContainer.addEventListener('mouseout', () => colorStars(currentRating));
-        confirmBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    </script>
-
 </body>
