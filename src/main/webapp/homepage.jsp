@@ -24,33 +24,7 @@
     />
 </head>
 <body>
-<header class="flex justify-between items-center mx-12">
-    <div class="flex-1">
-        <img src="./img/logo.png" alt="logo" />
-    </div>
-
-    <div class="flex-8 flex justify-center items-center gap-6">
-        <p>Genre</p>
-        <form action="" class="w-1/2">
-            <input
-                    type="text"
-                    placeholder="Search"
-                    class="py-1 px-3 border border-sky-300 rounded-md focus:outline-none w-full"
-            />
-        </form>
-    </div>
-
-    <div class="flex-2 text-right">
-        <a
-                href="./login.html"
-                class="bg-primary py-2 px-4 rounded-lg hover:bg-sky-200"
-        >Login</a
-        >
-        <a href="./signup.html" class="text-primary py-2 px-4 rounded-lg"
-        >Sign up</a
-        >
-    </div>
-</header>
+<jsp:include page="/WEB-INF/views/components/_header.jsp" />
 
 <section class="relative w-full h-auto">
     <img src="./img/hero-reading.png" class="w-full" alt="" />
