@@ -4,11 +4,11 @@ contentType="text/html; charset=UTF-8" language="java" %> <%@ taglib
 uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <header class="header">
-  <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-[30px]">
-    <div class="col-span-2 flex items-center gap-2 h-[70px]">
+  <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
+    <div class="col-span-2 flex items-center gap-2 h-20">
       <img src="../img/shared/logo.png" alt="logo" />
     </div>
-    <div class="col-span-1 flex items-center relative">
+    <div class="col-span-1 relative">
       <!-- Nút Genre -->
       <button
         id="genreButton"
@@ -134,7 +134,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       </div>
     </div>
 
-    <div class="col-span-6 flex items-center">
+    <div class="col-span-6 ">
       <form action="" class="w-full">
         <input
           type="text"
@@ -144,7 +144,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       </form>
     </div>
     <c:if test="${loginedUser != null}">
-      <div class="col-span-2 col-start-10 flex items-center justify-center">
+      <div class="col-span-2 col-start-10  ">
         <button
           class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
         >
@@ -155,7 +155,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           </span>
         </button>
       </div>
-      <div class="col-span-1 flex items-center justify-end relative">
+      <div class="col-span-1 relative">
         <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
           <div class="w-10 h-10 bg-gray-300 rounded-full">
             <img
