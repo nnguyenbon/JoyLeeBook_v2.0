@@ -197,8 +197,8 @@
                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
             </svg></a>
             <a href="#" class="hover:text-gray-800 transition"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail-icon lucide-mail">
+                                                                    class="w-5 h-5 lucide lucide-mail-icon lucide-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
                 <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
                 <rect x="2" y="4" width="20" height="16" rx="2" />
             </svg></a>
