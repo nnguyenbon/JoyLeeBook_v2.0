@@ -151,7 +151,7 @@ public class SeriesDAO {
      */
     public List<Series> getTopRatedSeries(int limit) throws SQLException {
         List<Series> topSerieslist = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") s.series_id, title, rating_points" + "FROM series s ORDER BY rating_points DESC";
+        String sql = "SELECT TOP (" + limit + ") s.series_id, title, rating_points, description, cover_image_url" + " FROM series s ORDER BY rating_points DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -159,6 +159,8 @@ public class SeriesDAO {
                 series.setSeriesId(rs.getInt("series_id"));
                 series.setTitle(rs.getString("title"));
                 series.setRating_points(rs.getInt("rating_points"));
+                series.setDescription(rs.getString("description"));
+
                 topSerieslist.add(series);
             }
             return topSerieslist;
@@ -250,7 +252,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByStatus(int limit, String status) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") FROM series WHERE status = ?";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
@@ -328,15 +330,24 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ")" + "    s.series_id," + "    s.title," + "    SUM(r.rating_value) AS total_rating" + "FROM series s" + "JOIN Rating r ON s.series_id = r.series_id" + "WHERE DATEPART(WEEK, r.rating_date) = DATEPART(WEEK, GETDATE())" + "  AND DATEPART(YEAR, r.rating_date) = DATEPART(YEAR, GETDATE())" + "GROUP BY s.series_id, s.title" + "ORDER BY total_rating DESC;";
+        String sql = "SELECT TOP ("+ limit +") s.series_id,  s.title,  SUM(r.score) AS total_rating " +
+                "FROM series s JOIN ratings r ON s.series_id = r.series_id " +
+                "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " +
+                "GROUP BY s.series_id, s.title ORDER BY total_rating DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                seriesList.add(extractSeriesFromResultSet(rs));
+                Series series = new Series();
+                series.setSeriesId(rs.getInt("series_id"));
+                series.setTitle(rs.getString("title"));
+                series.setRating_points(rs.getInt("total_rating"));
+                seriesList.add(series);
             }
             return seriesList;
         }
     }
+
+
 
     /**
      * Utility method to extract a Series object from a ResultSet.

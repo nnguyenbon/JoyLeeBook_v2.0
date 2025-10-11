@@ -89,6 +89,20 @@ public class CategoryDAO {
         }
     }
 
+    public List<Category> getCategoryBySeriesId(int seriesId) throws SQLException {
+        List<Category> listCategory = new ArrayList<>();
+        String sql = "SELECT * FROM categories c JOIN series_categories sc ON c.category_id = sc.category_id WHERE sc.series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    listCategory.add(mapResultSetToCategory(rs));
+                }
+            }
+            return listCategory;
+        }
+    }
+
     /**
      * Helper: Map a ResultSet row into a Category object.
      */
