@@ -1,4 +1,4 @@
-package controller;
+package controller.chapterController;
 
 import db.DBConnection;
 import jakarta.servlet.ServletException;

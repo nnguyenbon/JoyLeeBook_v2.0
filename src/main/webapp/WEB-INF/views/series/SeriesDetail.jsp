@@ -116,11 +116,13 @@
         <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
         <div class="space-y-3 border-2 border-[#0D2E55] p-3 rounded-lg ">
             <c:forEach var="chapter" items="${chapterInfoDTOList}">
-                <div
-                        class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                    <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                    <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
-                </div>
+                <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                    <div
+                            class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                        <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
+                        <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
+                    </div>
+                </a>
             </c:forEach>
         </div>
     </div>

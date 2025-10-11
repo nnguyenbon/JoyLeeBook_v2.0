@@ -70,7 +70,7 @@ public class CommentDAO {
      */
     public List<Comment> findByChapter(int chapterId) throws SQLException {
         List<Comment> list = new ArrayList<>();
-        String sql = "SELECT * FROM comments WHERE chapter_id = ? AND is_delete = 0 ORDER BY created_at ASC";
+        String sql = "SELECT * FROM comments WHERE chapter_id = ? AND is_deleted = 0 ORDER BY created_at ASC";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, chapterId);
@@ -181,7 +181,7 @@ public class CommentDAO {
         cmt.setUserId(rs.getInt("user_id"));
         cmt.setChapterId(rs.getInt("chapter_id"));
         cmt.setContent(rs.getString("content"));
-        cmt.setDeleted(rs.getBoolean("is_delete"));
+        cmt.setDeleted(rs.getBoolean("is_deleted"));
 
         Timestamp created = rs.getTimestamp("created_at");
         Timestamp updated = rs.getTimestamp("updated_at");

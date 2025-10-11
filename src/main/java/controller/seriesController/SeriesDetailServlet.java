@@ -1,4 +1,4 @@
-package controller;
+package controller.seriesController;
 
 import dao.*;
 import db.DBConnection;
@@ -99,6 +99,4 @@ public class SeriesDetailServlet extends HttpServlet {
             return "just now";
         }
     }
-
-
 }
