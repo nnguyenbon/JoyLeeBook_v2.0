@@ -27,7 +27,7 @@
 <jsp:include page="/WEB-INF/views/components/_header.jsp" />
 
 <section class="relative w-full h-auto">
-    <img src="./img/hero-reading.png" class="w-full" alt="" />
+    <img src="./img/shared/hero-reading.png" class="w-full" alt="" />
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
     ></div>
