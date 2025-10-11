@@ -1,5 +1,6 @@
 package dao;
 
+import model.Badge;
 import model.BadgesUser;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -79,6 +80,25 @@ public class BadgesUserDAO {
             stmt.setInt(1, badgeId);
             stmt.setInt(2, userId);
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public List<Badge> getBadgesByUserId(int userId) throws SQLException {
+        List<Badge> badgeList = new ArrayList<>();
+        String sql = "SELECT * FROM badges_users bu JOIN badges b ON bu.badge_id = b.badge_id WHERE user_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Badge badge = new Badge();
+                    badge.setBadgeId(rs.getInt("badge_id"));
+                    badge.setDescription(rs.getString("description"));
+                    badge.setName(rs.getString("name"));
+                    badge.setIconUrl(rs.getString("icon_url"));
+                    badgeList.add(badge);
+                }
+                return  badgeList;
+            }
         }
     }
 

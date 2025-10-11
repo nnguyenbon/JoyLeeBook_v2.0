@@ -36,12 +36,12 @@ public class HomepageServlet extends HttpServlet {
             List<SeriesInfoDTO> recentlyUpdatedSeriesList = new ArrayList<>();
             List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
             List<CategoryInfoDTO> categoryList = new ArrayList<>();
-            List<User>  userList = userDAO.selectTopUserPoints(10);
+            List<User>  userList = userDAO.selectTopUserPoints(8);
             for (Series series : seriesDAO.getTopRatedSeries(3)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 hotSeriesList.add(seriesInfoDTO);
             }
-            for (Series series : seriesDAO.getWeeklySeries(10)){
+            for (Series series : seriesDAO.getWeeklySeries(8)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 weeklySeriesList.add(seriesInfoDTO);
                 seriesInfoDTO.setAvgRating(series.getRating_points());

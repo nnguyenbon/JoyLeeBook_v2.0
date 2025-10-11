@@ -143,4 +143,17 @@ public class RatingDAO {
         }
         return 0;
     }
+
+    public int getRatingSumBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT SUM(score) AS total FROM ratings WHERE series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        }
+        return 0;
+    }
 }
