@@ -120,21 +120,21 @@
                     <li>
                         <a
                                 class="block size-3 bg-sky-500 rounded-full border border-sky-500"
-                                href="#slide-1"
+<%--                                href="#slide-1"--%>
                                 onclick="toggleIndicator(1)"
                         ></a>
                     </li>
                     <li>
                         <a
                                 class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-2"
+<%--                                href="#slide-2"--%>
                                 onclick="toggleIndicator(2)"
                         ></a>
                     </li>
                     <li>
                         <a
                                 class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-3"
+<%--                                href="#slide-3"--%>
                                 onclick="toggleIndicator(3)"
                         ></a>
                     </li>
