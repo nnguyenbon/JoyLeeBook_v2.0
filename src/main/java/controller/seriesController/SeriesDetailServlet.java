@@ -12,8 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Chapter;
 import model.Series;
+import services.series.SeriesService;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -41,30 +43,14 @@ public class SeriesDetailServlet extends HttpServlet {
         }
 
         try {
-            LikesDAO likesDAO = new LikesDAO(DBConnection.getConnection());
-            SeriesDAO seriesDAO = new SeriesDAO(DBConnection.getConnection());
-            CategoryDAO categoryDAO = new CategoryDAO(DBConnection.getConnection());
-            ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
-            RatingDAO ratingDAO = new RatingDAO(DBConnection.getConnection());
-            SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(DBConnection.getConnection());
-            Series series = seriesDAO.findById(seriesId);
-            SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
-            seriesInfoDTO.setSeriesId(seriesId);
-            seriesInfoDTO.setDescription(series.getDescription());
-            seriesInfoDTO.setTitle(series.getTitle());
-            seriesInfoDTO.setCoverImgUrl(series.getCoverImgUrl());
-            List<String> categories = new ArrayList<>();
-            for (Category category : categoryDAO.getCategoryBySeriesId(seriesId)){
-                categories.add(category.getName());
-            }
-            seriesInfoDTO.setCategories(categories);
-            seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-            seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
-            seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-            seriesInfoDTO.setAuthorsName(seriesAuthorDAO.authorsOfSeries(series.getSeriesId()));
-
+            Connection connection = DBConnection.getConnection();
+            LikesDAO likesDAO = new LikesDAO(connection);
+            SeriesDAO seriesDAO = new SeriesDAO(connection);
+            ChapterDAO chapterDAO = new ChapterDAO(connection);
+            SeriesService  seriesService = new SeriesService(connection);
+            SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
             List<ChapterInfoDTO> chapterInfoDTOList = new ArrayList<>();
-            for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
+            for (Chapter chapter : chapterDAO.findChapterBySeriesId(seriesInfoDTO.getSeriesId())) {
                 ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
                 chapterInfoDTO.setChapterId(chapter.getChapterId());
                 chapterInfoDTO.setTitle(chapter.getTitle());
@@ -87,7 +73,6 @@ public class SeriesDetailServlet extends HttpServlet {
 
     private String calculateTimeAgo(LocalDateTime updatedAt) {
         Duration duration = Duration.between(updatedAt, LocalDateTime.now());
-
         if (duration.toDays() > 0) {
             return duration.toDays() + " days ago";
         } else if (duration.toHours() > 0) {

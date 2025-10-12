@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -40,30 +41,14 @@ public class LibraryServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing userId");
             return;
         }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         try {
             Connection conection = DBConnection.getConnection();
             SeriesDAO  seriesDAO = new SeriesDAO(conection);
             ChapterDAO chapterDAO = new ChapterDAO(conection);
-            CategoryDAO categoryDAO = new CategoryDAO(conection);
-            RatingDAO ratingDAO = new RatingDAO(conection);
             List<SeriesInfoDTO> savedSeries = new ArrayList<>();
+            SeriesService seriesService = new SeriesService(conection);
             for (Series series : seriesDAO.getSeriesByUserId(userId)) {
-                SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
-                seriesInfoDTO.setSeriesId(series.getSeriesId());
-                seriesInfoDTO.setTitle(series.getTitle());
-                seriesInfoDTO.setUpdatedAt(series.getUpdatedAt().format(formatter));
-                seriesInfoDTO.setCoverImgUrl(series.getCoverImgUrl());
-                seriesInfoDTO.setStatus(series.getStatus());
-                seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                List<String> categoriesName = new ArrayList<>();
-                for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {
-                    categoriesName.add(category.getName());
-                }
-                seriesInfoDTO.setCategories(categoriesName);
-                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) / 10);
-                seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                savedSeries.add(seriesInfoDTO);
+                savedSeries.add(seriesService.buildSeriesInfoDTO(series));
             }
             List<ChapterItemDTO> historyChapters = chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null);
 

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
 import model.User;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,28 +39,13 @@ public class SearchServlet extends HttpServlet {
             Connection connection = DBConnection.getConnection();
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             CategoryDAO categoryDAO = new CategoryDAO(connection);
-            RatingDAO ratingDAO = new RatingDAO(connection);
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
             UserDAO userDAO = new UserDAO(connection);
+            SeriesService seriesService = new SeriesService(connection);
             List<User>  userList = userDAO.selectTopUserPoints(8);
             if ("title".equals(searchType) || searchType == null) {
                 List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
                 for (Series series : seriesDAO.findByName(keyword)) {
-                    SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
-                    seriesInfoDTO.setSeriesId(series.getSeriesId());
-                    seriesInfoDTO.setTitle(series.getTitle());
-                    seriesInfoDTO.setUpdatedAt(series.getUpdatedAt().format(formatter));
-                    seriesInfoDTO.setCoverImgUrl(series.getCoverImgUrl());
-                    seriesInfoDTO.setStatus(series.getStatus());
-                    seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                    List<String> categoriesName = new ArrayList<>();
-                    for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {
-                        categoriesName.add(category.getName());
-                    }
-                    seriesInfoDTO.setCategories(categoriesName);
-                    seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) / 10);
-                    seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                    seriesInfoDTOList.add(seriesInfoDTO);
+                    seriesInfoDTOList.add(seriesService.buildSeriesInfoDTO(series));
                 }
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
 

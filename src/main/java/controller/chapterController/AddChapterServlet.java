@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Chapter;
 import model.Series;
-import services.ChapterManagementService;
+import services.chapter.ChapterManagementService;
 
 import java.io.IOException;
 import java.sql.Connection;

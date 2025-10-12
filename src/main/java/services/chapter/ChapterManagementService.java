@@ -1,4 +1,4 @@
-package services;
+package services.chapter;
 
 import dao.ChapterDAO;
 import dao.SeriesAuthorDAO;

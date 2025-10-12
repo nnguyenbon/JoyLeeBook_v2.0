@@ -46,63 +46,67 @@
     <div id="content-saved" class="grid grid-cols-2 gap-6">
         <!-- Item -->
         <c:forEach var="series" items="${savedSeries}">
-            <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
-                <!-- Bookmark Remove Icon -->
-                <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition" title="Remove from saved">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                         class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M5 5l14 14M5 19V5a2 2 0 012-2h10a2 2 0 012 2v14l-7-3-7 3z" />
-                    </svg>
-                </button>
+            <a href="${pageContext.request.contextPath}/series-detail?seriesId=${series.seriesId}">
+                <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
+                    <!-- Bookmark Remove Icon -->
+                    <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition" title="Remove from saved">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M5 5l14 14M5 19V5a2 2 0 012-2h10a2 2 0 012 2v14l-7-3-7 3z" />
+                        </svg>
+                    </button>
 
-                <!-- Content -->
-                <img src="https://via.placeholder.com/100x140" alt="cover" class="w-24 h-32 object-cover rounded-md">
-                <div class="ml-4 flex-1">
-                    <h3 class="font-semibold text-gray-900">${series.title}</h3>
-                    <p class="text-sm text-gray-500 mb-1">by
-                        <c:forEach var="author" items="${series.authorsName}" varStatus="loop">
-                            ${author}<c:if test="${!loop.last}">, </c:if>
-                        </c:forEach>
-                    </p>
-                    <p class="text-sm text-gray-600 mb-2 line-clamp-2">
-                        ${series.description}
-                    </p>
-                    <div class="flex items-center space-x-2 text-xs mb-2">
-                        <c:forEach var="category" items="${series.categories}">
-                            <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full">${category}</span>
-                        </c:forEach>
+                    <!-- Content -->
+                    <img src="https://via.placeholder.com/100x140" alt="cover" class="w-24 h-32 object-cover rounded-md">
+                    <div class="ml-4 flex-1">
+                        <h3 class="font-semibold text-gray-900">${series.title}</h3>
+                        <p class="text-sm text-gray-500 mb-1">by
+                            <c:forEach var="author" items="${series.authorsName}" varStatus="loop">
+                                ${author}<c:if test="${!loop.last}">, </c:if>
+                            </c:forEach>
+                        </p>
+                        <p class="text-sm text-gray-600 mb-2 line-clamp-2">
+                                ${series.description}
+                        </p>
+                        <div class="flex items-center space-x-2 text-xs mb-2">
+                            <c:forEach var="category" items="${series.categories}">
+                                <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full">${category}</span>
+                            </c:forEach>
 
-                        <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">${series.status}</span>
-                    </div>
-                    <div class="flex justify-between text-xs text-gray-500">
-                        <span>⭐ ${series.avgRating} (${series.countRatings})</span>
-                        <span>${series.totalChapters} Chapters</span>
-                        <span>Updated: ${series.updatedAt}</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">${series.status}</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>⭐ ${series.avgRating} (${series.countRatings})</span>
+                            <span>${series.totalChapters} Chapters</span>
+                            <span>Updated: ${series.updatedAt}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </c:forEach>
     </div>
 
     <!-- HISTORY TAB -->
     <div id="content-history" class="hidden flex flex-col space-y-3">
         <c:forEach var="chapter" items="${historyChapters}">
-            <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
-                <img src="https://via.placeholder.com/80x100" alt="cover" class="w-16 h-20 object-cover rounded-md">
-                <div class="ml-4 flex-1">
-                    <h3 class="font-semibold text-gray-900">${chapter.seriesTitle}</h3>
-                    <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.chapterTitle}</p>
+            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
+                <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
+                    <img src="https://via.placeholder.com/80x100" alt="cover" class="w-16 h-20 object-cover rounded-md">
+                    <div class="ml-4 flex-1">
+                        <h3 class="font-semibold text-gray-900">${chapter.seriesTitle}</h3>
+                        <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.chapterTitle}</p>
+                    </div>
+                    <div class="text-sm text-gray-500">${chapter.lastReadAtFormatted}</div>
+                    <button class="ml-4 text-gray-400 hover:text-red-500" title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                             class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M6 7h12M9 7v10m6-10v10M4 7h16l-1 13a2 2 0 01-2 2H7a2 2 0 01-2-2L4 7zM9 4h6a1 1 0 011 1v1H8V5a1 1 0 011-1z" />
+                        </svg>
+                    </button>
                 </div>
-                <div class="text-sm text-gray-500">${chapter.lastReadAtFormatted}</div>
-                <button class="ml-4 text-gray-400 hover:text-red-500" title="Delete">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                         class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M6 7h12M9 7v10m6-10v10M4 7h16l-1 13a2 2 0 01-2 2H7a2 2 0 01-2-2L4 7zM9 4h6a1 1 0 011 1v1H8V5a1 1 0 011-1z" />
-                    </svg>
-                </button>
-            </div>
+            </a>
         </c:forEach>
     </div>
 
