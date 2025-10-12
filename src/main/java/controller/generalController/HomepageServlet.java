@@ -36,7 +36,7 @@ public class HomepageServlet extends HttpServlet {
             List<SeriesInfoDTO> recentlyUpdatedSeriesList = new ArrayList<>();
             List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
             List<CategoryInfoDTO> categoryList = new ArrayList<>();
-            List<User>  userList = userDAO.selectTopUserPoints(8);
+            List<User>  userList = userDAO.selectTopUserPoints(10);
             for (Series series : seriesDAO.getTopRatedSeries(3)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 hotSeriesList.add(seriesInfoDTO);
@@ -53,7 +53,7 @@ public class HomepageServlet extends HttpServlet {
                 seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
                 newReleaseSeriesList.add(seriesInfoDTO);
             }
-            for (Series series : seriesDAO.getRecentlyUpdated(6)){
+            for (Series series : seriesDAO.getRecentlyUpdated(5)){
                 SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
                 seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
                 seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
@@ -75,6 +75,7 @@ public class HomepageServlet extends HttpServlet {
                 categoryInfoDTO.setTotalSeries(totalSeries);
                 categoryList.add(categoryInfoDTO);
             }
+            categoryList.sort((a, b) -> Integer.compare(b.getTotalSeries(), a.getTotalSeries()));
 
             request.setAttribute("hotSeriesList", hotSeriesList);
             request.setAttribute("weeklySeriesList", weeklySeriesList);
