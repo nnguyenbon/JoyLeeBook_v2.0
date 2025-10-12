@@ -1,4 +1,4 @@
-package dto;
+package dto.general;
 
 public class CommentDetailDTO {
     private int commentId;

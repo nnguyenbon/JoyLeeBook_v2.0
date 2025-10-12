@@ -2,9 +2,9 @@ package controller.chapterController;
 
 import dao.*;
 import db.DBConnection;
-import dto.ChapterDetailDTO;
-import dto.ChapterInfoDTO;
-import dto.CommentDetailDTO;
+import dto.chapter.ChapterDetailDTO;
+import dto.chapter.ChapterInfoDTO;
+import dto.general.CommentDetailDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

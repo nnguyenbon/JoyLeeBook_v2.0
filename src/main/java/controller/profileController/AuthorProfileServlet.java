@@ -2,7 +2,7 @@ package controller.profileController;
 
 import dao.*;
 import db.DBConnection;
-import dto.SeriesInfoDTO;
+import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

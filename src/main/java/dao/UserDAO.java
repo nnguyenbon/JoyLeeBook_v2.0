@@ -105,7 +105,7 @@ public class UserDAO {
     // Tìm theo tên người dùng
     public List<User> findByName(String name) throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users WHERE username LIKE ? AND is_deleted = 0";
+        String sql = "SELECT * FROM users WHERE username LIKE ? AND is_deleted = 0 AND role = 'author'";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "%" + name + "%");
             try (ResultSet rs = stmt.executeQuery()) {

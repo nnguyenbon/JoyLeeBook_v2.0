@@ -2,8 +2,8 @@ package controller.seriesController;
 
 import dao.*;
 import db.DBConnection;
-import dto.ChapterInfoDTO;
-import dto.SeriesInfoDTO;
+import dto.chapter.ChapterInfoDTO;
+import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -58,7 +58,6 @@ public class SeriesDetailServlet extends HttpServlet {
                 categories.add(category.getName());
             }
             seriesInfoDTO.setCategories(categories);
-//            seriesInfoDTO.setAuthorsName();
             seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
             seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
             seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
