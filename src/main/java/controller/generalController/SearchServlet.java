@@ -43,7 +43,6 @@ public class SearchServlet extends HttpServlet {
             UserDAO userDAO = new UserDAO(connection);
             List<User>  userList = userDAO.selectTopUserPoints(8);
             if ("title".equals(searchType) || searchType == null) {
-                // Load Series data
                 List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
                 for (Series series : seriesDAO.findByName(keyword)) {
                     SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
@@ -65,7 +64,7 @@ public class SearchServlet extends HttpServlet {
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
 
                 if (isAjaxRequest && "title".equals(searchType)) {
-                    request.getRequestDispatcher("/WEB-INF/views/general/SearchTitleView.jsp").forward(request, response);
+                    request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchTitleView.jsp").forward(request, response);
                     return;
                 }
 
@@ -82,7 +81,7 @@ public class SearchServlet extends HttpServlet {
 
 
                 if (isAjaxRequest) {
-                    request.getRequestDispatcher("/WEB-INF/views/general/SearchAuthorView.jsp").forward(request, response);
+                    request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchAuthorView.jsp").forward(request, response);
                     return;
                 }
             }

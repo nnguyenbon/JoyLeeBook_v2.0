@@ -348,7 +348,18 @@ public class SeriesDAO {
     }
 
 
-
+    public List<Series> getSeriesByUserId(int userId) throws SQLException {
+        List<Series> seriesList = new ArrayList<>();
+        String sql = "SELECT * FROM series s JOIN saved_series ss ON s.series_id = ss.series_id WHERE ss.user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                seriesList.add(extractSeriesFromResultSet(rs));
+            }
+            return seriesList;
+        }
+    }
     /**
      * Utility method to extract a Series object from a ResultSet.
      *

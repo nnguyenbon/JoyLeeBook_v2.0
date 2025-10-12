@@ -33,7 +33,7 @@
         <button id="btn-author" class="tab-btn font-bold text-2xl px-4" onclick="loadResults('author')">Author</button>
     </div>
     <div class="col-span-9" id="search-results">
-            <jsp:include page="/WEB-INF/views/general/SearchTitleView.jsp"/>
+            <jsp:include page="/WEB-INF/views/general/searchview/SearchTitleView.jsp"/>
     </div>
 
     <!-- CỘT PHẢI: BẢNG XẾP HẠNG -->
