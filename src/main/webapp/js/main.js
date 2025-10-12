@@ -53,11 +53,26 @@ function removeGenre(genreRemoveElement) {
   liRemoveElement.remove();
 }
 
-function toggleIndicator(index) {
-  console.log(index);
-  const indicators = document.querySelectorAll("#indicator a");
-  indicators.forEach((indicator) => {
-    indicator.classList.remove("bg-sky-500");
-  });
-  indicators[index - 1].classList.add("bg-sky-500");
+function toggleIndicator(index, event) {
+    event.preventDefault();
+    const indicators = document.querySelectorAll("#indicator a");
+    const slides = document.querySelectorAll("[id^='slide-']");
+    const slideContainer = document.querySelector("#slide-container");
+
+    indicators.forEach((indicator) => {
+        indicator.classList.remove("bg-sky-500");
+    });
+
+    indicators[index - 1].classList.add("bg-sky-500");
+
+    const targetSlide = slides[index - 1];
+    if (!targetSlide) return;
+
+    targetSlide.scrollIntoView({
+        behavior: "smooth",
+        inline: "start",
+        block: "nearest",
+    });
+
 }
+

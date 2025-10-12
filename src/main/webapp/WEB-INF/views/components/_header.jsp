@@ -22,11 +22,13 @@ change this template use File | Settings | File Templates. --%>
 %>
 <header class="header">
     <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
-        <a href="homepage">
-            <div class="col-span-2 flex items-center gap-2 h-20">
-                <img src="./img/shared/logo.png" alt="logo" />
-            </div>
-        </a>
+
+        <div class="col-span-2 flex items-center gap-2 h-20">
+            <a href="homepage" class="cols-span-2 block">
+                <img src="./img/shared/logo.png" alt="logo"/>
+            </a>
+
+        </div>
         <div class="col-span-1 relative">
             <!-- Nút Genre -->
             <button
@@ -56,7 +58,7 @@ change this template use File | Settings | File Templates. --%>
                 <div class="grid grid-cols-5 gap-3 text-sm">
                     <c:forEach var="category" items="${categories}">
                         <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                            ${category.name}
+                                ${category.name}
                         </button>
                     </c:forEach>
                 </div>
@@ -121,7 +123,7 @@ change this template use File | Settings | File Templates. --%>
                             </h4>
                             <p class="text-[#195DA9] text-xs">Reader</p>
                         </div>
-                        <hr class="mb-2 border-gray-300" />
+                        <hr class="mb-2 border-gray-300"/>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
@@ -134,9 +136,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path
@@ -165,13 +167,13 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
-                                <path stroke="url(#gradient)" d="M13 21h8" />
-                                <path stroke="url(#gradient)" d="m15 5 4 4" />
+                                <path stroke="url(#gradient)" d="M13 21h8"/>
+                                <path stroke="url(#gradient)" d="m15 5 4 4"/>
                                 <path
                                         stroke="url(#gradient)"
                                         d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
@@ -198,9 +200,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path
@@ -229,9 +231,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path
