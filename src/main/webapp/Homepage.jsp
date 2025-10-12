@@ -27,7 +27,7 @@
 <jsp:include page="/WEB-INF/views/components/_header.jsp" />
 
 <section class="relative w-full h-auto">
-    <img src="./img/hero-reading.png" class="w-full" alt="" />
+    <img src="./img/shared/hero-reading.png" class="w-full" alt="" />
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
     ></div>
@@ -101,7 +101,7 @@
                                     ${hotSeries.description}
                                 </p>
                                 <a
-                                        href="./readnow.html"
+                                        href="${pageContext.request.contextPath}/series-detail?seriesId=${hotSeries.seriesId}"
                                         class="inline-block py-2 px-4 mt-4 bg-primary rounded-md"
                                 >
                                     Read now
@@ -109,32 +109,27 @@
                             </div>
                         </div>
                     </c:forEach>
-
-
-
-
-
                 </div>
 
                 <ul class="flex justify-center gap-4 py-2" id="indicator">
                     <li>
                         <a
                                 class="block size-3 bg-sky-500 rounded-full border border-sky-500"
-<%--                                href="#slide-1"--%>
+                                href="#slide-1"
                                 onclick="toggleIndicator(1)"
                         ></a>
                     </li>
                     <li>
                         <a
                                 class="block size-3 rounded-full border border-sky-500"
-<%--                                href="#slide-2"--%>
+                                href="#slide-2"
                                 onclick="toggleIndicator(2)"
                         ></a>
                     </li>
                     <li>
                         <a
                                 class="block size-3 rounded-full border border-sky-500"
-<%--                                href="#slide-3"--%>
+                                href="#slide-3"
                                 onclick="toggleIndicator(3)"
                         ></a>
                     </li>
@@ -169,29 +164,32 @@
                     <li
                             class="border border-neutral-900/50 shadow-2xl w-1/4 rounded-xl overflow-hidden"
                     >
-                        <div>
-                            <img
-                                    src="./img/thenewkidinschool.png"
-                                    class="w-full"
-                                    alt="hehe"
-                            />
-                        </div>
-                        <div class="p-2">
-                            <ul class="flex gap-2 text-xs">
-                                <c:forEach var="category" items="${newReleaseSeries.categories}">
-                                    <li class="rounded-md bg-amber-500 px-2">${category}</li>
-                                </c:forEach>
-
-                            </ul>
-                            <p class="font-semibold text-xl truncate my-1">
-                                ${newReleaseSeries.title}
-                            </p>
-                            <div class="flex justify-between opacity-50 text-sm">
-                                <p>by <span>Alex</span></p>
-                                <p>${newReleaseSeries.totalChapters} chapters</p>
+                        <a href="${pageContext.request.contextPath}/series-detail?seriesId=${newReleaseSeries.seriesId}">
+                            <div>
+                                <img
+                                        src="./img/thenewkidinschool.png"
+                                        class="w-full"
+                                        alt="hehe"
+                                />
                             </div>
-                            <p>★ ${newReleaseSeries.avgRating} (${newReleaseSeries.countRatings})</p>
-                        </div>
+                            <div class="p-2">
+                                <ul class="flex gap-2 text-xs">
+                                    <c:forEach var="category" items="${newReleaseSeries.categories}">
+                                        <li class="rounded-md bg-amber-500 px-2">${category}</li>
+                                    </c:forEach>
+
+                                </ul>
+                                <p class="font-semibold text-xl truncate my-1">
+                                        ${newReleaseSeries.title}
+                                </p>
+                                <div class="flex justify-between opacity-50 text-sm">
+                                    <p>by <span>Alex</span></p>
+                                    <p>${newReleaseSeries.totalChapters} chapters</p>
+                                </div>
+                                <p>★ ${newReleaseSeries.avgRating} (${newReleaseSeries.countRatings})</p>
+                            </div>
+                        </a>
+
                     </li>
                 </c:forEach>
             </ul>
@@ -225,28 +223,31 @@
                 <li
                         class="border border-neutral-900/50 shadow-2xl w-1/4 rounded-xl overflow-hidden"
                 >
-                    <div>
-                        <img
-                                src="./img/thenewkidinschool.png"
-                                class="w-full"
-                                alt="hehe"
-                        />
-                    </div>
-                    <div class="p-2">
-                        <ul class="flex gap-2 text-xs">
-                            <c:forEach var="category" items="${recentlyUpdatedSeries.categories}">
-                                <li class="rounded-md bg-amber-500 px-2">${category}</li>
-                            </c:forEach>
-                        </ul>
-                        <p class="font-semibold text-xl truncate my-1">
-                            ${recentlyUpdatedSeries.title}
-                        </p>
-                        <div class="flex justify-between opacity-50 text-sm">
-                            <p>by <span>Alex</span></p>
-                            <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
+                    <a href="${pageContext.request.contextPath}/series-detail?seriesId=${recentlyUpdatedSeries.seriesId}">
+                        <div>
+                            <img
+                                    src="./img/thenewkidinschool.png"
+                                    class="w-full"
+                                    alt="hehe"
+                            />
                         </div>
-                        <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
-                    </div>
+                        <div class="p-2">
+                            <ul class="flex gap-2 text-xs">
+                                <c:forEach var="category" items="${recentlyUpdatedSeries.categories}">
+                                    <li class="rounded-md bg-amber-500 px-2">${category}</li>
+                                </c:forEach>
+                            </ul>
+                            <p class="font-semibold text-xl truncate my-1">
+                                    ${recentlyUpdatedSeries.title}
+                            </p>
+                            <div class="flex justify-between opacity-50 text-sm">
+                                <p>by <span>Alex</span></p>
+                                <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
+                            </div>
+                            <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
+                        </div>
+                    </a>
+
                 </li>
             </c:forEach>
 
@@ -277,28 +278,30 @@
                 <li
                         class="border border-neutral-900/50 shadow-2xl w-1/4 rounded-xl overflow-hidden"
                 >
-                    <div>
-                        <img
-                                src="./img/thenewkidinschool.png"
-                                class="w-full"
-                                alt="hehe"
-                        />
-                    </div>
-                    <div class="p-2">
-                        <ul class="flex gap-2 text-xs">
-                            <c:forEach var="category" items="${completedSeries.categories}">
-                                <li class="rounded-md bg-amber-500 px-2">${category}</li>
-                            </c:forEach>
-                        </ul>
-                        <p class="font-semibold text-xl truncate my-1">
-                            ${completedSeries.title}
-                        </p>
-                        <div class="flex justify-between opacity-50 text-sm">
-                            <p>by <span>Alex</span></p>
-                            <p>${completedSeries.totalChapters} chapters</p>
+                    <a href="${pageContext.request.contextPath}/series-detail?seriesId=${completedSeries.seriesId}">
+                        <div>
+                            <img
+                                    src="./img/thenewkidinschool.png"
+                                    class="w-full"
+                                    alt="hehe"
+                            />
                         </div>
-                        <p>★ ${completedSeries.avgRating} (${completedSeries.countRatings})</p>
-                    </div>
+                        <div class="p-2">
+                            <ul class="flex gap-2 text-xs">
+                                <c:forEach var="category" items="${completedSeries.categories}">
+                                    <li class="rounded-md bg-amber-500 px-2">${category}</li>
+                                </c:forEach>
+                            </ul>
+                            <p class="font-semibold text-xl truncate my-1">
+                                    ${completedSeries.title}
+                            </p>
+                            <div class="flex justify-between opacity-50 text-sm">
+                                <p>by <span>Alex</span></p>
+                                <p>${completedSeries.totalChapters} chapters</p>
+                            </div>
+                            <p>★ ${completedSeries.avgRating} (${completedSeries.countRatings})</p>
+                        </div>
+                    </a>
                 </li>
             </c:forEach>
         </ul>

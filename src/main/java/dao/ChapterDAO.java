@@ -58,7 +58,7 @@ public class ChapterDAO {
      * @throws SQLException if a database access error occurs
      */
     public Chapter findById(int chapterId) throws SQLException {
-        String sql = "SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = false";
+        String sql = "SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, chapterId);
@@ -529,6 +529,69 @@ public class ChapterDAO {
             }
         }
     }
+
+
+    public List<Chapter> findChapterBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0";
+        List<Chapter> chapterList = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                chapterList.add(extractChapterFromResultSet(rs));
+                }
+            }
+            return chapterList;
+        }
+    }
+
+    /**
+     * Retrieves the next chapter in a series based on the chapter index.
+     *
+     * @param seriesId     the ID of the series
+     * @param chapterNumber the index of the current chapter
+     * @return the next Chapter object if it exists, or null if there is no next
+     *         chapter.
+     * @throws SQLException If a database access error occurs.
+     */
+    public Chapter getNextChapter(int seriesId, int chapterNumber) throws SQLException {
+        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number > ? ORDER BY chapter_number ";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, chapterNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractChapterFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the previous chapter in a series based on the chapter index.
+     *
+     * @param seriesId     the ID of the series
+     * @param chapterNumber the index of the current chapter
+     * @return the previous Chapter object if it exists, or null if there is no
+     *         previous chapter.
+     * @throws SQLException If a database access error occurs.
+     */
+    public Chapter getPreviousChapter(int seriesId, int chapterNumber) throws SQLException {
+        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number < ? ORDER BY chapter_number DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, chapterNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractChapterFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+
     /**
      * Extract a Chapter object from the current row of the ResultSet.
      *
