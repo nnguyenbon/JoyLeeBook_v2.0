@@ -1,8 +1,5 @@
-package dto;
+package dto.series;
 
-import model.Category;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class SeriesInfoDTO {

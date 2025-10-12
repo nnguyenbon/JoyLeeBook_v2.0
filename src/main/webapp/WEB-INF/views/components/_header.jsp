@@ -2,12 +2,31 @@
 change this template use File | Settings | File Templates. --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="dao.CategoryDAO" %>
+<%@ page import="model.Category" %>
+<%@ page import="java.util.List" %>
+<%@ page import="db.DBConnection" %>
+<%@ page import="java.sql.SQLException" %>
 
+<%
+    CategoryDAO categoryDAO = null;
+    try {
+        categoryDAO = new CategoryDAO(DBConnection.getConnection());
+        List<Category> categories = categoryDAO.getAll();
+        request.setAttribute("categories", categories);
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+    }
+%>
 <header class="header">
     <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
-        <div class="col-span-2 flex items-center gap-2 h-20">
-            <img src="./img/shared/logo.png" alt="logo" />
-        </div>
+        <a href="homepage">
+            <div class="col-span-2 flex items-center gap-2 h-20">
+                <img src="./img/shared/logo.png" alt="logo" />
+            </div>
+        </a>
         <div class="col-span-1 relative">
             <!-- Nút Genre -->
             <button
@@ -35,111 +54,23 @@ change this template use File | Settings | File Templates. --%>
                     class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"
             >
                 <div class="grid grid-cols-5 gap-3 text-sm">
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Action
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Adventure
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Romance
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Fantasy
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Comedy
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Drama
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Sci-Fi
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Horror
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Mystery
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Slice of Life
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Thriller
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Historical
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Sports
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Supernatural
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Psychological
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Tragedy
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Isekai
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Magic
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Martial Arts
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Mecha
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Music
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        School
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Seinen
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Shoujo
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Shounen
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Josei
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Harem
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Parody
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Crime
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        War
-                    </button>
+                    <c:forEach var="category" items="${categories}">
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
+                            ${category.name}
+                        </button>
+                    </c:forEach>
                 </div>
             </div>
         </div>
 
         <div class="col-span-6 ">
-            <form action="" class="w-full">
+            <form action="search?" class="w-full">
                 <input
                         type="text"
                         placeholder="Search series, author"
                         class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full"
+                        name="keyword"
+                        id="keyword"
                 />
             </form>
         </div>

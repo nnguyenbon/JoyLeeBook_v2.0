@@ -1,4 +1,4 @@
-package dto;
+package dto.chapter;
 
 import java.util.List;
 

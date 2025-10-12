@@ -1,6 +1,4 @@
-package dto;
-
-import java.time.LocalDateTime;
+package dto.chapter;
 
 public class ChapterInfoDTO {
     private int chapterId;
