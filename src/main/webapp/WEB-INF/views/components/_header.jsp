@@ -21,34 +21,30 @@ change this template use File | Settings | File Templates. --%>
     }
 %>
 <header class="header">
-    <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
-
-        <div class="col-span-2 flex items-center gap-2 h-20">
-            <a href="homepage" class="cols-span-2 block">
-                <img src="./img/shared/logo.png" alt="logo"/>
-            </a>
-
-        </div>
-        <div class="col-span-1 relative">
-            <!-- Nút Genre -->
-            <button
-                    id="genreButton"
-                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"
-            >
-                Genre
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="w-4 h-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                >
-                    <path
-                            fill-rule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-                            clip-rule="evenodd"
-                    />
-                </svg>
-            </button>
+  <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
+    <div class="col-span-2 flex items-center gap-2 h-20">
+      <img src="../img/shared/logo.png" alt="logo" />
+    </div>
+    <div class="col-span-1 relative">
+      <!-- Nút Genre -->
+      <button
+        id="genreButton"
+        class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"
+      >
+        Genre
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
 
             <!-- Dropdown -->
             <div
@@ -86,29 +82,29 @@ change this template use File | Settings | File Templates. --%>
           >
             Write Now
           </span>
-                </button>
-            </div>
-            <div class="col-span-1 relative">
-                <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
-                    <div class="w-10 h-10 bg-gray-300 rounded-full">
-                        <img
-                                class="w-10 h-10 rounded-full"
-                                src="../img/thenewkidinschool.png"
-                        />
-                    </div>
-                    <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                    >
-                        <path
-                                fill-rule="evenodd"
-                                d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-                                clip-rule="evenodd"
-                        />
-                    </svg>
-                </button>
+        </button>
+      </div>
+      <div class="col-span-1 relative">
+        <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
+          <div class="w-10 h-10 bg-gray-300 rounded-full">
+            <img
+              class="w-10 h-10 rounded-full"
+              src="../img/thenewkidinschool.png"
+            />
+          </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
 
                 <div
                         id="MenuAvatar"
