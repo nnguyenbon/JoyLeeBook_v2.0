@@ -2,52 +2,23 @@
 change this template use File | Settings | File Templates. --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="dao.CategoryDAO" %>
-<%@ page import="model.Category" %>
-<%@ page import="java.util.List" %>
-<%@ page import="db.DBConnection" %>
-<%@ page import="java.sql.SQLException" %>
 
-<%
-    CategoryDAO categoryDAO = null;
-    try {
-        categoryDAO = new CategoryDAO(DBConnection.getConnection());
-        List<Category> categories = categoryDAO.getAll();
-        request.setAttribute("categories", categories);
-    } catch (SQLException e) {
-        throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-    }
-%>
-<header class="header">
-  <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
-      <div class="col-span-2 flex items-center gap-2 h-20">
-          <a href="homepage" class="cols-span-2 block">
-              <img src="./img/shared/logo.png" alt="logo"/>
-          </a>
-
-      </div>
-    <div class="col-span-1 relative">
-      <!-- Nút Genre -->
-      <button
-        id="genreButton"
-        class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"
-      >
-        Genre
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-4 h-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
+<header class="relative top-0 left-0 right-0">
+    <div class="grid grid-cols-12 gap-8 items-center">
+        <div class="col-span-2 flex items-center gap-2 h-20">
+            <a href="/">
+                <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
+            </a>
+        </div>
+        <div class="col-span-1 relative">
+            <!-- Nút Genre -->
+            <button
+                    id="genreButton"
+                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"
+            >
+                Genre
+                <i class="fa-solid fa-caret-down"></i>
+            </button>
 
             <!-- Dropdown -->
             <div
@@ -85,29 +56,18 @@ change this template use File | Settings | File Templates. --%>
           >
             Write Now
           </span>
-        </button>
-      </div>
-      <div class="col-span-1 relative">
-        <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
-          <div class="w-10 h-10 bg-gray-300 rounded-full">
-            <img
-              class="w-10 h-10 rounded-full"
-              src="../img/thenewkidinschool.png"
-            />
-          </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 h-4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
+                </button>
+            </div>
+            <div class="col-span-1 relative">
+                <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full">
+                        <img
+                                class="w-10 h-10 rounded-full"
+                                src="${pageContext.request.contextPath}/img/thenewkidinschool.png"
+                        />
+                    </div>
+                    <i class="fa-solid fa-caret-down"></i>
+                </button>
 
                 <div
                         id="MenuAvatar"
@@ -126,25 +86,7 @@ change this template use File | Settings | File Templates. --%>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
-                            <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    class="bi bi-person"
-                                    viewBox="0 0 16 16"
-                            >
-                                <defs>
-                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661"/>
-                                        <stop offset="50%" stop-color="#4C1D95"/>
-                                        <stop offset="100%" stop-color="#195BA7"/>
-                                    </linearGradient>
-                                </defs>
-                                <path
-                                        fill="url(#gradient)"
-                                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-user"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Profile</span
@@ -153,31 +95,7 @@ change this template use File | Settings | File Templates. --%>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
-                            <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-pencil-line-icon lucide-pencil-line"
-                            >
-                                <defs>
-                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661"/>
-                                        <stop offset="50%" stop-color="#4C1D95"/>
-                                        <stop offset="100%" stop-color="#195BA7"/>
-                                    </linearGradient>
-                                </defs>
-                                <path stroke="url(#gradient)" d="M13 21h8"/>
-                                <path stroke="url(#gradient)" d="m15 5 4 4"/>
-                                <path
-                                        stroke="url(#gradient)"
-                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-pen"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Author</span
@@ -186,29 +104,7 @@ change this template use File | Settings | File Templates. --%>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
-                            <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-library-icon lucide-library"
-                            >
-                                <defs>
-                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661"/>
-                                        <stop offset="50%" stop-color="#4C1D95"/>
-                                        <stop offset="100%" stop-color="#195BA7"/>
-                                    </linearGradient>
-                                </defs>
-                                <path
-                                        stroke="url(#gradient)"
-                                        d=" m16 6 4 14 M12 6v14 M8 8v12 M4 4v16"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-bookmark"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Library</span
@@ -217,29 +113,7 @@ change this template use File | Settings | File Templates. --%>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 text-lg"
                         >
-                            <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-log-out-icon lucide-log-out"
-                            >
-                                <defs>
-                                    <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661"/>
-                                        <stop offset="50%" stop-color="#4C1D95"/>
-                                        <stop offset="100%" stop-color="#195BA7"/>
-                                    </linearGradient>
-                                </defs>
-                                <path
-                                        stroke="url(#gradient)"
-                                        d="m16 17 5-5-5-5 M21 12H9 M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-right-from-bracket"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Logout</span

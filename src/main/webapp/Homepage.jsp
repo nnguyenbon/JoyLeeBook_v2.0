@@ -13,8 +13,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Homepage</title>
+    <title>Document</title>
     <link rel="stylesheet" href="css/styles.css"/>
+    <link rel="stylesheet" href="css/fontawesome/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -24,78 +25,81 @@
     />
 </head>
 <body>
-<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
 
-<section class="relative w-full h-auto">
-    <img src="./img/shared/hero-reading.png" class="w-full" alt=""/>
-    <div
-            class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
-    ></div>
-    <div
-            class="absolute top-1/2 left-1/2 -translate-1/2 text-center text-white"
-    >
-        <div class="text-6xl font-bold">
-            <p>Discover Your Next</p>
-            <p
-                    class="bg-linear-to-r from-orange-300 to-neutral-900 bg-clip-text text-transparent my-2"
-            >
-                Great Story
-            </p>
-        </div>
+<div class="max-w-7xl mx-auto">
 
-        <p class="text-lg max-w-2/3 text-center mx-auto mt-6 mb-10">
-            Dive into thousands of captivating novel with passionate readers, and
-            embark on extraodinary adventures
-        </p>
+    <jsp:include page="/WEB-INF/views/components/_header.jsp"/>
 
-        <ul class="flex justify-center gap-12">
-            <li>
-                <p class="font-bold text-2xl">50K+</p>
-                <p class="opacity-50 text-sm">SERIES</p>
-            </li>
-            <li>
-                <p class="font-bold text-2xl">2M+</p>
-                <p class="opacity-50 text-sm">READER</p>
-            </li>
-            <li>
-                <p class="font-bold text-2xl">15K+</p>
-                <p class="opacity-50 text-sm">AUTHOR</p>
-            </li>
-            <li>
-                <p class="font-bold text-2xl">10M+</p>
-                <p class="opacity-50 text-sm">CHAPTER</p>
-            </li>
-        </ul>
-    </div>
-</section>
-<main
-        class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-8 relative"
->
-    <section class="flex justify-center gap-16 col-span-12">
-        <div class="w-3/4">
-            <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
-            <div
-                    class="border border-neutral-800/50 rounded-xl py-6 overflow-hidden shadow-xl"
-            >
-                <div
-                        class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth"
+    <section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-screen">
+        <img src="./img/shared/hero-reading.png" class="w-full" alt=""/>
+        <div
+                class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
+        ></div>
+        <div
+                class="absolute top-1/2 left-1/2 -translate-1/2 text-center text-white"
+        >
+            <div class="text-6xl font-bold">
+                <p>Discover Your Next</p>
+                <p
+                        class="bg-linear-to-r from-orange-300 to-neutral-900 bg-clip-text text-transparent my-2"
                 >
-                    <c:forEach
-                            var="hotSeries"
-                            items="${hotSeriesList}"
-                            varStatus="loop"
+                    Great Story
+                </p>
+            </div>
+
+            <p class="text-lg max-w-2/3 text-center mx-auto mt-6 mb-10">
+                Dive into thousands of captivating novel with passionate readers, and
+                embark on extraodinary adventures
+            </p>
+
+            <ul class="flex justify-center gap-12">
+                <li>
+                    <p class="font-bold text-2xl">50K+</p>
+                    <p class="opacity-50 text-sm">SERIES</p>
+                </li>
+                <li>
+                    <p class="font-bold text-2xl">2M+</p>
+                    <p class="opacity-50 text-sm">READER</p>
+                </li>
+                <li>
+                    <p class="font-bold text-2xl">15K+</p>
+                    <p class="opacity-50 text-sm">AUTHOR</p>
+                </li>
+                <li>
+                    <p class="font-bold text-2xl">10M+</p>
+                    <p class="opacity-50 text-sm">CHAPTER</p>
+                </li>
+            </ul>
+        </div>
+    </section>
+    <main
+            class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-8 relative"
+    >
+        <section class="flex justify-center gap-16 col-span-12">
+            <div class="w-3/4">
+                <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
+                <div
+                        class="border border-neutral-800/50 rounded-xl py-6 overflow-hidden shadow-xl"
+                >
+                    <div
+                            class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth"
                     >
-                        <div
-                                id="slide-${loop.index + 1}"
-                                class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
+                        <c:forEach
+                                var="hotSeries"
+                                items="${hotSeriesList}"
+                                varStatus="loop"
                         >
-                            <div class="flex-1">
-                                <img
-                                        src="./${hotSeries.coverImgUrl}"
-                                        class="w-full h-full"
-                                        alt="hehe"
-                                />
-                            </div>
+                            <div
+                                    id="slide-${loop.index + 1}"
+                                    class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
+                            >
+                                <div class="flex-1">
+                                    <img
+                                            src="./img/thenewkidinschool.png"
+                                            class="w-full h-full"
+                                            alt="hehe"
+                                    />
+                                </div>
 
                             <div class="flex-3">
                                 <p class="text-2xl font-bold">${hotSeries.title}</p>
@@ -120,55 +124,55 @@
                     </c:forEach>
                 </div>
 
-                <ul class="flex justify-center gap-4 py-2" id="indicator">
-                    <li>
-                        <a
-                                class="block size-3 bg-sky-500 rounded-full border border-sky-500"
-                                href="#slide-1"
-                                onclick="toggleIndicator(1, event)"
-                        ></a>
-                    </li>
-                    <li>
-                        <a
-                                class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-2"
-                                onclick="toggleIndicator(2, event)"
-                        ></a>
-                    </li>
-                    <li>
-                        <a
-                                class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-3"
-                                onclick="toggleIndicator(3, event)"
-                        ></a>
-                    </li>
-                </ul>
+                    <ul class="flex justify-center gap-4 py-2" id="indicator">
+                        <li>
+                            <a
+                                    class="block size-3 bg-sky-500 rounded-full border border-sky-500"
+                                    href="#slide-1"
+                                    onclick="toggleIndicator(1, event)"
+                            ></a>
+                        </li>
+                        <li>
+                            <a
+                                    class="block size-3 rounded-full border border-sky-500"
+                                    href="#slide-2"
+                                    onclick="toggleIndicator(2, event)"
+                            ></a>
+                        </li>
+                        <li>
+                            <a
+                                    class="block size-3 rounded-full border border-sky-500"
+                                    href="#slide-3"
+                                    onclick="toggleIndicator(3, event)"
+                            ></a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <div class="w-1/4 flex flex-shrink-0 flex-col weekly-top">
-            <p class="pt-6 pb-4 font-bold text-3xl">Top Weekly Series</p>
-            <div
-                    class="border border-neutral-800/50 rounded-xl py-6 px-8 flex-1 shadow-xl"
-            >
-                <ul class="text-xl flex flex-col justify-between gap-2 h-full">
-                    <c:forEach
-                            var="weeklySeries"
-                            items="${weeklySeriesList}"
-                            varStatus="loop"
-                    >
-                        <li class="flex justify-between gap-4">
-                            <p class="truncate">
+            <div class="w-1/4 flex flex-col weekly-top">
+                <p class="pt-6 pb-4 font-bold text-3xl">Top Weekly Series</p>
+                <div
+                        class="border border-neutral-800/50 rounded-xl py-6 px-8 flex-1 shadow-xl"
+                >
+                    <ul class="text-xl flex flex-col justify-between gap-2 h-full">
+                        <c:forEach
+                                var="weeklySeries"
+                                items="${weeklySeriesList}"
+                                varStatus="loop"
+                        >
+                            <li class="flex justify-between gap-4">
+                                <p class="truncate">
                     <span class="pr-4">${loop.index + 1}</span
                     >${weeklySeries.title}
-                            </p>
-                            <span>${weeklySeries.avgRating}</span>
-                        </li>
-                    </c:forEach>
-                </ul>
+                                </p>
+                                <span>${weeklySeries.avgRating}</span>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
     <section class="flex justify-center gap-16 py-8 col-span-12">
         <div class="w-3/4">
@@ -290,23 +294,23 @@
         </ul>
     </section>
 
-    <section
-            class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center col-span-12 relative left-1/2 right-1/2 -mx-[50vw] w-screen"
-    >
-        <p class="font-bold text-6xl">Explore by Genre</p>
-        <ul class="flex justify-center gap-8 mt-12">
-            <c:forEach var="category" items="${categoryList}" varStatus="loop">
-                <li class="p-12 bg-white rounded-lg">
-                    <p class="text-primary mb-2 text-3xl font-semibold">
-                            ${category.name}
-                    </p>
-                    <p class="text-neutral-500" text-xl>
-                            ${category.totalSeries} series
-                    </p>
-                </li>
-            </c:forEach>
-        </ul>
-    </section>
+        <section
+                class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center col-span-12 relative left-1/2 right-1/2 -mx-[50vw] w-screen"
+        >
+            <p class="font-bold text-6xl">Explore by Genre</p>
+            <ul class="flex justify-center gap-8 mt-12">
+                <c:forEach var="category" items="${categoryList}" varStatus="loop">
+                    <li class="p-12 bg-white rounded-lg">
+                        <p class="text-primary mb-2 text-3xl font-semibold">
+                                ${category.name}
+                        </p>
+                        <p class="text-neutral-500" text-xl>
+                                ${category.totalSeries} series
+                        </p>
+                    </li>
+                </c:forEach>
+            </ul>
+        </section>
 
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-12">Completed Series</p>
@@ -359,72 +363,26 @@
         </ul>
     </section>
 
-    <section
-            class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center rounded-4xl col-span-12"
-    >
-        <div class="w-1/2 m-auto">
-            <p class="font-bold text-6xl">Unleash Your Imagination</p>
-            <p class="text-2xl py-8">
-                Share your stories with millions of readers, inspire new worlds, and
-                become part of a thriving community of authors.
-            </p>
-            <a
-                    href="./signup.html"
-                    class="text-2xl font-semibold inline-block bg-primary py-4 px-8 rounded-lg hover:bg-sky-200"
-            >Start Writing</a
-            >
-        </div>
-    </section>
-</main>
+        <section
+                class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center rounded-4xl col-span-12"
+        >
+            <div class="w-1/2 m-auto">
+                <p class="font-bold text-6xl">Unleash Your Imagination</p>
+                <p class="text-2xl py-8">
+                    Share your stories with millions of readers, inspire new worlds, and
+                    become part of a thriving community of authors.
+                </p>
+                <a
+                        href="./signup.html"
+                        class="text-2xl font-semibold inline-block bg-primary py-4 px-8 rounded-lg hover:bg-sky-200"
+                >Start Writing</a
+                >
+            </div>
+        </section>
+    </main>
+    <jsp:include page="/WEB-INF/views/components/_footer.jsp"/>
+</div>
 
-<footer class="border border-t-neutral-800/70 text-center mt-8">
-    <div class="max-w-1/3 mx-auto">
-        <div class="w-44 mx-auto">
-            <img
-                    src="./img/shared/logo.png"
-                    class="w-full h-full"
-                    alt="day la mot cai logo"
-            />
-        </div>
-        <p class="text-xl text-neutral-500">
-            Your gateway to endless stories. Discover, read, and connect with
-            millions of readers worldwide in the ultimate reading experience.
-        </p>
-        <ul class="flex justify-center gap-6 mt-4 opacity-50">
-            <li class="size-6">
-                <img
-                        src="./img/iconSVG/twitter.svg"
-                        class="w-full h-full"
-                        alt="brand"
-                />
-            </li>
-            <li class="size-6">
-                <img
-                        src="./img/iconSVG/facebook.svg"
-                        class="w-full h-full"
-                        alt="brand"
-                />
-            </li>
-            <li class="size-6">
-                <img
-                        src="./img/iconSVG/instagram.svg"
-                        class="w-full h-full"
-                        alt="brand"
-                />
-            </li>
-            <li class="size-6">
-                <img
-                        src="./img/iconSVG/envelope.svg"
-                        class="w-full h-full"
-                        alt="brand"
-                />
-            </li>
-        </ul>
-        <p class="pt-4 pb-2 text-neutral-600">
-            © 2024 JoyLeeBook. All rights reserved.
-        </p>
-    </div>
-</footer>
 <script src="js/main.js"></script>
 </body>
 </html>
