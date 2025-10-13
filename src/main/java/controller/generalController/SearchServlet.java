@@ -12,10 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
 import model.User;
-import services.series.SeriesService;
+import services.general.FilterServices;
+import services.series.SeriesServices;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -33,28 +33,49 @@ public class SearchServlet extends HttpServlet {
         String searchType = request.getParameter("searchType");
         boolean isAjaxRequest = searchType != null;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         List<SeriesInfoDTO> weeklySeriesList = new ArrayList<>();
         try {
             Connection connection = DBConnection.getConnection();
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             CategoryDAO categoryDAO = new CategoryDAO(connection);
             UserDAO userDAO = new UserDAO(connection);
-            SeriesService seriesService = new SeriesService(connection);
+            SeriesServices seriesServices = new SeriesServices(connection);
             List<User>  userList = userDAO.selectTopUserPoints(8);
             if ("title".equals(searchType) || searchType == null) {
+                List<Category> categories = categoryDAO.getAll();
                 List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
+
+
                 for (Series series : seriesDAO.findByName(keyword)) {
-                    seriesInfoDTOList.add(seriesService.buildSeriesInfoDTO(series));
+                    seriesInfoDTOList.add(seriesServices.buildSeriesInfoDTO(series));
                 }
+                request.setAttribute("categories", categories);
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
 
                 if (isAjaxRequest && "title".equals(searchType)) {
                     request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchTitleView.jsp").forward(request, response);
                     return;
                 }
+            } else if ("filter".equals(searchType)) {
+                String statusParam = request.getParameter("status");
+                String genresParam = request.getParameter("genres");
 
-            } else if ("author".equals(searchType)) {
+                List<String> statuses = (statusParam != null && !statusParam.isEmpty())
+                        ? List.of(statusParam.split(","))
+                        : new ArrayList<>();
+
+                List<String> genres = (genresParam != null && !genresParam.isEmpty())
+                        ? List.of(genresParam.split(","))
+                        : new ArrayList<>();
+
+                FilterServices filterServices = new FilterServices();
+                List<SeriesInfoDTO> filteredSeries = filterServices.filterSeries(statuses, genres, connection);
+
+                request.setAttribute("seriesInfoDTOList", filteredSeries);
+                request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchFilterView.jsp")
+                        .forward(request, response);
+            }
+            else if ("author".equals(searchType)) {
                 List<AuthorItemDTO> authorItemDTOList = new ArrayList<>();
                 for (User author : userDAO.findByName(keyword)) {
                     AuthorItemDTO authorItemDTO = new AuthorItemDTO();

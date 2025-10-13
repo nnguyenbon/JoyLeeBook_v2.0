@@ -24,8 +24,6 @@ public class SeriesInfoDTO {
         this.status = status;
     }
 
-
-
     public int getSeriesId() {
         return seriesId;
     }

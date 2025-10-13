@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
-import services.series.SeriesService;
+import services.series.SeriesServices;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -40,7 +40,7 @@ public class AuthorProfileServlet extends HttpServlet {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy ");
         try {
             Connection connection = DBConnection.getConnection();
-            SeriesService seriesService = new SeriesService(connection);
+            SeriesServices seriesServices = new SeriesServices(connection);
             UserDAO userDAO = new UserDAO(connection);
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             LikesDAO likesDAO = new LikesDAO(connection);
@@ -57,7 +57,7 @@ public class AuthorProfileServlet extends HttpServlet {
             int ratingCount = 0;
             List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
             for (Series series : seriesList) {
-                seriesInfoDTOList.add(seriesService.buildSeriesInfoDTO(series));
+                seriesInfoDTOList.add(seriesServices.buildSeriesInfoDTO(series));
                 for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
                     totalLike += likesDAO.countByChapter(chapter.getChapterId());
                 }

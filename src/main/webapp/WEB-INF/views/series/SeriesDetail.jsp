@@ -27,7 +27,7 @@
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="./img/thenewkidinschool.png" alt="Series cover" class="rounded-lg shadow"/>
+        <img src="./${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
@@ -43,6 +43,7 @@
             <c:forEach var="category" items="${seriesInfoDTO.categories}">
                 <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">${category}</span>
             </c:forEach>
+            <span class="bg-green-100 text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full">${seriesInfoDTO.status}</span>
         </div>
 
         <div class="flex items-center gap-30 mb-10">
@@ -83,11 +84,12 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <button
-                    class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                ▶ Start Reading
-            </button>
-
+            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}">
+                <button
+                        class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
+                    ▶ Start Reading
+                </button>
+            </a>
             <button
                     class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -114,11 +116,11 @@
 <section class="max-w-[1290px] mx-auto mt-5 mb-20 grid grid-cols-12 gap-[30px]">
     <div class="col-span-10 col-start-2">
         <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
-        <div class="space-y-3 border-2 border-[#0D2E55] p-3 rounded-lg ">
+        <div class="border-2 border-[#0D2E55] p-3 rounded-lg">
             <c:forEach var="chapter" items="${chapterInfoDTOList}">
                 <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
                     <div
-                            class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                            class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer mb-3">
                         <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                         <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
                     </div>

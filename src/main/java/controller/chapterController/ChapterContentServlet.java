@@ -41,19 +41,8 @@ public class ChapterContentServlet extends HttpServlet {
             return;
         }
 
-        String chapterIdParam = request.getParameter("chapterId");
-        int chapterId = 0;
-        if (chapterIdParam != null && !chapterIdParam.isEmpty()) {
-            try {
-                chapterId = Integer.parseInt(chapterIdParam);
-            } catch (NumberFormatException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid chapterId");
-                return;
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing chapterId");
-            return;
-        }
+
+
 
         try {
             Connection connection = DBConnection.getConnection();
@@ -63,6 +52,10 @@ public class ChapterContentServlet extends HttpServlet {
             LikesDAO likesDAO = new LikesDAO(connection);
             CommentDAO commentDAO = new CommentDAO(connection);
             UserDAO userDAO = new UserDAO(connection);
+
+            String chapterIdParam = request.getParameter("chapterId");
+            int chapterId = (chapterIdParam != null && !chapterIdParam.isEmpty()) ? Integer.parseInt(chapterIdParam) : chapterDAO.getFirstChapterNumber(seriesId);
+
             Chapter chapter = chapterDAO.findById(chapterId);
             ChapterDetailDTO chapterDetailDTO = new ChapterDetailDTO();
             chapterDetailDTO.setSeriesId(seriesId);

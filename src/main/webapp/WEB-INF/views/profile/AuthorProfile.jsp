@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Author Profile</title>
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,20 +22,11 @@
     <link
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
             rel="stylesheet" />
-    <style>
-        .header {
-            background-color: white;
-            border-bottom: 1px solid #D9D9D9;
-            margin: auto;
-            height: 70px;
-            box-shadow: 0px 0px 15px #195DA9;
-        }
-    </style>
 </head>
 
 <body>
 <jsp:include page="/WEB-INF/views/components/_header.jsp"/>
-<
+
 <main class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-[30px] gap-y-0">
 
     <div class="col-span-3 flex flex-col items-center text-center">
@@ -106,7 +97,7 @@
                     <div
                             class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
                         <div class="flex items-center gap-4">
-                            <img src="https://via.placeholder.com/60" class="w-12 h-16 rounded object-cover" alt="">
+                            <img src="./${series.coverImgUrl}" class="w-12 h-16 rounded object-cover" alt="">
                             <div>
                                 <p class="font-semibold text-gray-800">${series.title}</p>
                                 <c:forEach var="category" items="${series.categories}">

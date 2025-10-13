@@ -4,7 +4,6 @@ import dao.CategoryDAO;
 import dao.ChapterDAO;
 import dao.RatingDAO;
 import dao.SeriesAuthorDAO;
-import db.DBConnection;
 import dto.series.SeriesInfoDTO;
 import model.Category;
 import model.Series;
@@ -15,14 +14,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SeriesService {
+public class SeriesServices {
     private final CategoryDAO categoryDAO;
     private final RatingDAO ratingDAO ;
     private final ChapterDAO chapterDAO ;
     private final SeriesAuthorDAO seriesAuthorDAO ;
     
 
-    public SeriesService(Connection connection) throws SQLException, ClassNotFoundException {
+    public SeriesServices(Connection connection) throws SQLException, ClassNotFoundException {
         this.categoryDAO = new CategoryDAO(connection);
         this.ratingDAO = new RatingDAO(connection);
         this.chapterDAO = new ChapterDAO(connection);
@@ -37,24 +36,20 @@ public class SeriesService {
         dto.setTitle(series.getTitle());
         dto.setDescription(series.getDescription());
         dto.setCoverImgUrl(series.getCoverImgUrl());
-        dto.setStatus(series.getStatus());
+        dto.setStatus((series.getStatus().equals("completed") ? "Completed" : "Ongoing"));
         dto.setUpdatedAt(series.getUpdatedAt().format(formatter));
 
-        // Categories
         List<String> categories = new ArrayList<>();
         for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {
             categories.add(category.getName());
         }
         dto.setCategories(categories);
 
-        // Ratings
         dto.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         dto.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
 
-        // Chapters
         dto.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
 
-        // Authors
         dto.setAuthorsName(seriesAuthorDAO.authorsOfSeries(series.getSeriesId()));
 
         return dto;

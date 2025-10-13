@@ -13,7 +13,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Document</title>
+    <title>Homepage</title>
     <link rel="stylesheet" href="css/styles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -91,7 +91,7 @@
                         >
                             <div class="flex-1">
                                 <img
-                                        src="./img/thenewkidinschool.png"
+                                        src="./${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
                                         alt="hehe"
                                 />
@@ -100,7 +100,11 @@
                             <div class="flex-3">
                                 <p class="text-2xl font-bold">${hotSeries.title}</p>
                                 <p class="text-gray-400 text-lg">
-                                    by <span class="text-primary">InstinctualWater</span>
+                                    by <span class="text-primary">
+                                     <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
+                                         ${author}<c:if test="${!loop.last}">, </c:if>
+                                     </c:forEach>
+                                </span>
                                 </p>
                                 <p class="mt-2 whitespace-pre-line text-lg">
                                         ${hotSeries.description}
@@ -142,7 +146,7 @@
             </div>
         </div>
 
-        <div class="w-1/4 flex flex-col weekly-top">
+        <div class="w-1/4 flex flex-shrink-0 flex-col weekly-top">
             <p class="pt-6 pb-4 font-bold text-3xl">Top Weekly Series</p>
             <div
                     class="border border-neutral-800/50 rounded-xl py-6 px-8 flex-1 shadow-xl"
@@ -183,7 +187,7 @@
                         >
                             <div>
                                 <img
-                                        src="./img/thenewkidinschool.png"
+                                        src="./${newReleaseSeries.coverImgUrl}"
                                         class="w-full"
                                         alt="hehe"
                                 />
@@ -216,7 +220,7 @@
                 </c:forEach>
             </ul>
         </div>
-        <div class="w-1/4 flex flex-col weekly-top">
+        <div class="w-1/4 flex-shrink-0 flex flex-col weekly-top">
             <p class="pt-6 pb-4 font-bold text-3xl">Top reader points</p>
             <div
                     class="shadow-xl border border-neutral-800/50 rounded-xl py-6 px-8 flex-1"
@@ -238,7 +242,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-6">Recently Update</p>
         <p class="text-right">
-            <a href="./series.html" class="hover:text-neutral-600">View all</a>
+            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach
@@ -254,7 +258,7 @@
                     >
                         <div>
                             <img
-                                    src="./img/thenewkidinschool.png"
+                                    src="./${recentlyUpdatedSeries.coverImgUrl}"
                                     class="w-full"
                                     alt="hehe"
                             />
@@ -307,7 +311,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-12">Completed Series</p>
         <p class="text-right">
-            <a href="./series.html" class="hover:text-neutral-600">View all</a>
+            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach
@@ -323,7 +327,7 @@
                     >
                         <div>
                             <img
-                                    src="./img/thenewkidinschool.png"
+                                    src="./${completedSeries.coverImgUrl}"
                                     class="w-full"
                                     alt="hehe"
                             />

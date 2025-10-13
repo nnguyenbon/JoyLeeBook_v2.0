@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Document</title>
+    <title>Search Page</title>
     <link rel="stylesheet" href="./styles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -75,18 +75,13 @@
     const keyword = "<%= request.getAttribute("keyword") %>";
     const contextPath = '<%= request.getContextPath() %>';
 
-    // --- ĐỊNH NGHĨA CÁC LỚP STYLE TAILWIND ---
     const ACTIVE_CLASSES = "text-[#195DA9] border-b-4 border-[#195DA9]";
     const INACTIVE_CLASSES = "text-gray-500 hover:text-[#195DA9] border-b-4 border-transparent";
 
-
     function loadResults(type) {
-
         const activeBtnId = "btn-" + type;
 
-
         document.querySelectorAll(".tab-btn").forEach(button => {
-
             button.classList.remove(...ACTIVE_CLASSES.split(' '));
             button.classList.remove(...INACTIVE_CLASSES.split(' '));
             button.classList.add(...INACTIVE_CLASSES.split(' '));
@@ -107,11 +102,41 @@
                 if (window.tailwind && window.tailwind.refresh) {
                     window.tailwind.refresh();
                 }
+
+                bindFilterEvents();
             });
     }
 
-    document.addEventListener('DOMContentLoaded', (event) => {
-        loadResults('title');
+    function bindFilterEvents() {
+        const checkboxes = document.querySelectorAll("input[type=checkbox]");
+        checkboxes.forEach(cb => {
+            cb.removeEventListener("change", updateFilter); // tránh gắn trùng
+            cb.addEventListener("change", updateFilter);
+        });
+    }
+
+    function updateFilter() {
+        const selectedStatus = Array.from(document.querySelectorAll("input[name=status]:checked")).map(cb => cb.value);
+        const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
+
+        const params = new URLSearchParams();
+        params.append("searchType", "filter");
+        if (selectedStatus.length > 0) params.append("status", selectedStatus.join(","));
+        if (selectedGenres.length > 0) params.append("genres", selectedGenres.join(","));
+
+        fetch(contextPath + "/search?" + params.toString(), {
+            method: "GET",
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+            .then(res => res.text())
+            .then(html => {
+                document.querySelector("#result-container").innerHTML = html;
+            })
+            .catch(err => console.error("Filter load error:", err));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadResults("title");
     });
 </script>
 </body>

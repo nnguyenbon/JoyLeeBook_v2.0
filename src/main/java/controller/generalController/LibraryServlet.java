@@ -1,8 +1,6 @@
 package controller.generalController;
 
-import dao.CategoryDAO;
 import dao.ChapterDAO;
-import dao.RatingDAO;
 import dao.SeriesDAO;
 import db.DBConnection;
 import dto.chapter.ChapterItemDTO;
@@ -12,14 +10,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Category;
 import model.Series;
-import services.series.SeriesService;
+import services.series.SeriesServices;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,9 +42,9 @@ public class LibraryServlet extends HttpServlet {
             SeriesDAO  seriesDAO = new SeriesDAO(conection);
             ChapterDAO chapterDAO = new ChapterDAO(conection);
             List<SeriesInfoDTO> savedSeries = new ArrayList<>();
-            SeriesService seriesService = new SeriesService(conection);
+            SeriesServices seriesServices = new SeriesServices(conection);
             for (Series series : seriesDAO.getSeriesByUserId(userId)) {
-                savedSeries.add(seriesService.buildSeriesInfoDTO(series));
+                savedSeries.add(seriesServices.buildSeriesInfoDTO(series));
             }
             List<ChapterItemDTO> historyChapters = chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null);
 

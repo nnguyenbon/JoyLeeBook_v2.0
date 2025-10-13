@@ -103,6 +103,30 @@ public class CategoryDAO {
         }
     }
 
+    public boolean matchGenres(int seriesId, List<String> genres) throws SQLException {
+        if (genres == null || genres.isEmpty()) return true;
+
+        String placeholders = String.join(",", genres.stream().map(g -> "?").toArray(String[]::new));
+
+        String sql = "SELECT COUNT(*) FROM series_category sc " +
+                "JOIN category c ON sc.category_id = c.category_id " +
+                "WHERE sc.series_id = ? AND c.category_name IN (" + placeholders + ")";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            for (int i = 0; i < genres.size(); i++) {
+                ps.setString(i + 2, genres.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Helper: Map a ResultSet row into a Category object.
      */
