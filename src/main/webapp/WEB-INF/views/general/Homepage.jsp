@@ -215,7 +215,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-6">Recently Update</p>
         <p class="text-right">
-            <a href="./series.html" class="hover:text-neutral-600">View all</a>
+            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach
@@ -288,7 +288,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-12">Completed Series</p>
         <p class="text-right">
-            <a href="./series.html" class="hover:text-neutral-600">View all</a>
+            <a href="${pageContext.request.contextPath}/search?searchType=&status=completed" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach

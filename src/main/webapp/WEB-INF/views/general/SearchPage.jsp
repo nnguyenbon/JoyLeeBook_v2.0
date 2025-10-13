@@ -16,6 +16,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Search Page</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
+    <link
+            rel="stylesheet"
+            href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -132,12 +136,31 @@
             .then(res => res.text())
             .then(html => {
                 document.querySelector("#result-container").innerHTML = html;
+                restoreFilterState(selectedStatus, selectedGenres);
             })
             .catch(err => console.error("Filter load error:", err));
     }
 
+    function restoreFilterState(selectedStatus, selectedGenres) {
+        document.querySelectorAll("input[name=status]").forEach(cb => {
+            cb.checked = selectedStatus.includes(cb.value);
+        });
+        document.querySelectorAll("input[name=genre]").forEach(cb => {
+            cb.checked = selectedGenres.includes(cb.value);
+        });
+    }
     document.addEventListener("DOMContentLoaded", () => {
         loadResults("title");
+
+        const hasStatusChecked = document.querySelector("input[name=status]:checked");
+        const hasGenreChecked = document.querySelector("input[name=genre]:checked");
+
+        if (hasStatusChecked || hasGenreChecked) {
+            // đợi trang render xong kết quả đầu tiên rồi mới filter
+            setTimeout(() => {
+                updateFilter();
+            },1);
+        }
     });
 </script>
 </body>

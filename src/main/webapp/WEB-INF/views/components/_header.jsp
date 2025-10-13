@@ -9,7 +9,7 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="java.sql.SQLException" %>
 
 <%
-    CategoryDAO categoryDAO = null;
+    CategoryDAO categoryDAO;
     try {
         categoryDAO = new CategoryDAO(DBConnection.getConnection());
         List<Category> categories = categoryDAO.getAll();
@@ -42,9 +42,11 @@ change this template use File | Settings | File Templates. --%>
             >
                 <div class="grid grid-cols-5 gap-3 text-sm">
                     <c:forEach var="category" items="${categories}">
-                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                                ${category.name}
-                        </button>
+                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}">
+                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
+                                    ${category.name}
+                            </button>
+                        </a>
                     </c:forEach>
                 </div>
             </div>

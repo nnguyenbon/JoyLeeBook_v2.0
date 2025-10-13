@@ -9,10 +9,14 @@
 
         <div class="space-y-3">
             <label class="flex items-center gap-2">
-                <input type="checkbox" name="status" value="completed" class="accent-[#195DA9]" /> Completed
+                <input type="checkbox" name="status" value="completed" class="accent-[#195DA9]"
+                       <c:if test="${statusParam.contains('completed')}">checked</c:if>
+                /> Completed
             </label>
             <label class="flex items-center gap-2">
-                <input type="checkbox" name="status" value="ongoing" class="accent-[#195DA9]" /> Ongoing
+                <input type="checkbox" name="status" value="ongoing" class="accent-[#195DA9]"
+                       <c:if test="${statusParam.contains('ongoing')}">checked</c:if>
+                /> Ongoing
             </label>
         </div>
 
@@ -24,7 +28,9 @@
                 <label class="flex items-center gap-2"><input type="checkbox"
                                                               name="genre"
                                                               value="${category.name}"
-                                                              class="accent-[#195DA9]" /> ${category.name}</label>
+                                                              class="accent-[#195DA9]"
+                                                              <c:if test="${genresParam.contains(category.name)}">checked</c:if>
+                /> ${category.name}</label>
             </c:forEach>
         </div>
     </div>

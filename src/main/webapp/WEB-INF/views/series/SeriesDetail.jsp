@@ -67,10 +67,13 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <button
-                    class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                ▶ Start Reading
-            </button>
+            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                <button
+                        class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
+                    ▶ Start Reading
+                </button>
+            </a>
+
 
             <button
                     class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
