@@ -7,6 +7,7 @@ import dao.SeriesAuthorDAO;
 import dto.series.SeriesInfoDTO;
 import model.Category;
 import model.Series;
+import services.general.FormatServices;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -28,16 +29,23 @@ public class SeriesServices {
         this.seriesAuthorDAO = new SeriesAuthorDAO(connection);
     }
 
+    public List<SeriesInfoDTO> buildSeriesInfoDTOList(List<Series> seriesList) throws SQLException, ClassNotFoundException {
+        List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
+        for (Series series : seriesList) {
+            seriesInfoDTOList.add(buildSeriesInfoDTO(series));
+        }
+        return seriesInfoDTOList;
+    }
+
+
     public SeriesInfoDTO buildSeriesInfoDTO(Series series) throws SQLException {
         SeriesInfoDTO dto = new SeriesInfoDTO();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
         dto.setSeriesId(series.getSeriesId());
         dto.setTitle(series.getTitle());
         dto.setDescription(series.getDescription());
         dto.setCoverImgUrl(series.getCoverImgUrl());
-        dto.setStatus((series.getStatus().equals("completed") ? "Completed" : "Ongoing"));
-        dto.setUpdatedAt(series.getUpdatedAt().format(formatter));
+        dto.setStatus(FormatServices.formatStatus(series.getStatus()));
+        dto.setUpdatedAt(FormatServices.formatDate(series.getUpdatedAt()));
 
         List<String> categories = new ArrayList<>();
         for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {

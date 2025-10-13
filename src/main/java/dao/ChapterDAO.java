@@ -618,7 +618,7 @@ public class ChapterDAO {
      */
     private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {
         Chapter chapter = new Chapter();
-
+        chapter.setSeriesId(rs.getInt("series_id"));
         chapter.setChapterId(rs.getInt("chapter_id"));
         chapter.setChapterNumber(rs.getInt("chapter_number"));
         chapter.setTitle(rs.getString("title"));

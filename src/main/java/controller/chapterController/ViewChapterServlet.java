@@ -1,9 +1,10 @@
 package controller.chapterController;
 
+import dto.chapter.ChapterViewDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import services.chapter.ChapterService;
+import services.chapter.ChapterServices;
 import model.User;
 
 import java.io.IOException;
@@ -44,16 +45,16 @@ public class ViewChapterServlet extends HttpServlet {
                 viewerUserId = ((User) u).getUserId();
             }
 
-            ChapterService svc = new ChapterService();
-            ChapterService.ChapterView vm = svc.loadView(chapterId, seriesId, number, viewerUserId);
+            ChapterServices svc = new ChapterServices();
+            ChapterViewDTO chapterViewDTO = svc.loadView(chapterId, seriesId, number, viewerUserId);
 
-            if (vm == null) {
+            if (chapterViewDTO == null) {
                 req.setAttribute("error", "Chapter not found or you don't have permission.");
                 req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, resp);
                 return;
             }
 
-            req.setAttribute("vm", vm);
+            req.setAttribute("vm", chapterViewDTO);
             req.getRequestDispatcher("/WEB-INF/views/chapter/chapter-view.jsp").forward(req, resp);
         } catch (Exception ex) {
             ex.printStackTrace();

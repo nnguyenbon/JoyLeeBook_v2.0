@@ -2,86 +2,25 @@ package services.chapter;
 
 import dao.*;
 import db.DBConnection;
+import dto.chapter.ChapterDetailDTO;
+import dto.chapter.ChapterInfoDTO;
+import dto.chapter.ChapterViewDTO;
 import model.Chapter;
 import model.Series;
+import services.general.FormatServices;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service class for handling chapter-related operations
  *
  * @author HaiDD-dev
  */
-public class ChapterService {
+public class ChapterServices {
 
-    /**
-     * View model for chapter details
-     */
-    public static class ChapterView {
-        private Chapter chapter;
-        private Series series;
-        private Chapter prev;
-        private Chapter next;
-        private int likeCount;
-        private int commentCount;
-        private boolean userLiked;
-
-        public Chapter getChapter() {
-            return chapter;
-        }
-
-        public void setChapter(Chapter chapter) {
-            this.chapter = chapter;
-        }
-
-        public Series getSeries() {
-            return series;
-        }
-
-        public void setSeries(Series series) {
-            this.series = series;
-        }
-
-        public Chapter getPrev() {
-            return prev;
-        }
-
-        public void setPrev(Chapter prev) {
-            this.prev = prev;
-        }
-
-        public Chapter getNext() {
-            return next;
-        }
-
-        public void setNext(Chapter next) {
-            this.next = next;
-        }
-
-        public int getLikeCount() {
-            return likeCount;
-        }
-
-        public void setLikeCount(int likeCount) {
-            this.likeCount = likeCount;
-        }
-
-        public int getCommentCount() {
-            return commentCount;
-        }
-
-        public void setCommentCount(int commentCount) {
-            this.commentCount = commentCount;
-        }
-
-        public boolean isUserLiked() {
-            return userLiked;
-        } // EL map tới ${vm.userLiked}
-
-        public void setUserLiked(boolean userLiked) {
-            this.userLiked = userLiked;
-        }
-    }
 
     /**
      * Load chapter view by chapter ID or series ID and chapter number
@@ -93,7 +32,7 @@ public class ChapterService {
      * @return A ChapterView object containing chapter details, series info, navigation links, like and comment counts, and user like status; or null if not found
      * @throws Exception If an error occurs during database access
      */
-    public ChapterView loadView(Integer chapterId, Integer seriesId, Integer number, Integer viewerUserId) throws Exception {
+    public ChapterViewDTO loadView(Integer chapterId, Integer seriesId, Integer number, Integer viewerUserId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             SeriesDAO  seriesDAO  = new SeriesDAO(conn);
@@ -140,7 +79,7 @@ public class ChapterService {
                 new ReadingHistoryDAO(conn).upsert(viewerUserId, chapter.getChapterId());
             }
 
-            ChapterView vm = new ChapterView();
+            ChapterViewDTO vm = new ChapterViewDTO();
             vm.setChapter(chapter);
             vm.setSeries(series);
             vm.setPrev(prev);
@@ -151,4 +90,40 @@ public class ChapterService {
             return vm;
         }
     }
+
+    public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter, Connection connection) throws SQLException {
+        LikesDAO   likesDAO   = new LikesDAO(connection);
+        ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
+        chapterInfoDTO.setChapterId(chapter.getChapterId());
+        chapterInfoDTO.setTitle(chapter.getTitle());
+        chapterInfoDTO.setChapterNumber(chapter.getChapterNumber());
+        chapterInfoDTO.setUpdatedAt(FormatServices.calculateTimeAgo(chapter.getUpdatedAt()));
+        chapterInfoDTO.setTotalLikes(likesDAO.countByChapter(chapter.getChapterId()));
+        return chapterInfoDTO;
+    }
+
+    public List<ChapterInfoDTO> buildChapterInfoDTOList(List<Chapter> chapterList, Connection connection) throws SQLException {
+        List<ChapterInfoDTO> chapterInfoDTOList = new ArrayList<>();
+        for (Chapter chapter : chapterList) {
+            chapterInfoDTOList.add(buildChapterInfoDTO(chapter, connection));
+        }
+        return chapterInfoDTOList;
+    }
+
+    public ChapterDetailDTO buildChapterDetailDTO(Chapter chapter, Connection connection) throws SQLException {
+        SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(connection);
+        SeriesDAO seriesDAO = new SeriesDAO(connection);
+        LikesDAO likesDAO = new LikesDAO(connection);
+        ChapterDetailDTO chapterDetailDTO = new ChapterDetailDTO();
+        chapterDetailDTO.setSeriesId(chapter.getSeriesId());
+        chapterDetailDTO.setChapterId(chapter.getChapterId());
+        chapterDetailDTO.setTitle(chapter.getTitle());
+        chapterDetailDTO.setContent(chapter.getContent());
+        chapterDetailDTO.setChapterNumber(chapter.getChapterNumber());
+        chapterDetailDTO.setAuthorsName(seriesAuthorDAO.authorsOfSeries(chapter.getSeriesId()));
+        chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
+        chapterDetailDTO.setTotalLike(likesDAO.countByChapter(chapter.getChapterId()));
+        return  chapterDetailDTO;
+    }
+
 }
