@@ -233,24 +233,24 @@ public class ChapterManagementService {
     }
 
     /**
-     * Check if a user has permission to delete a chapter in a series.
-     * A user can delete a chapter if they are an author of the series or have a role of "admin" or "staff".
+     * Check if a user can delete a chapter in a series.
+     * Admins and staff can always delete. Authors can delete if they are authors of the series.
      *
-     * @param userId   The ID of the user.
+     * @param userId   The ID of the user attempting to delete the chapter.
      * @param role     The role of the user (e.g., "admin", "staff", "author").
-     * @param seriesId The ID of the series containing the chapter.
-     * @return True if the user can delete chapters in the series, otherwise false.
+     * @param seriesId The ID of the series to which the chapter belongs.
+     * @return True if the user has permission to delete chapters in the series, otherwise false.
      * @throws SQLException If a database access error occurs.
      */
     public boolean canDeleteChapter(int userId, String role, int seriesId) throws SQLException {
-        // Staff/Admin always can
         if (role != null) {
             String r = role.toLowerCase();
-            if (r.equals("admin") || r.equals("staff")) return true;
+            if (r.equals("admin") || r.equals("staff")) {
+                return true; // Admin/staff always can
+            }
         }
-        // Author of the series can
+
         SeriesAuthorDAO saDAO = new SeriesAuthorDAO(conn);
-        // returns TRUE if user is NOT author
-        return !saDAO.isUserAuthorOfSeries(userId, seriesId);
+        return saDAO.isUserAuthorOfSeries(userId, seriesId);
     }
 }
