@@ -9,7 +9,7 @@ public class DBConnection {
         try {
             String url = "jdbc:sqlserver://localhost:1433;databaseName=JoyLeeBook;instance=SQLEXPRESS;encrypt=true;trustServerCertificate=true;";
             String username = "sa";
-            String password = "123456";
+            String password = "04072005Toan";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {

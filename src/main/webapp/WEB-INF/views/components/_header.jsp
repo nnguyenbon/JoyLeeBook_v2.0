@@ -22,9 +22,12 @@ change this template use File | Settings | File Templates. --%>
 %>
 <header class="header">
   <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
-    <div class="col-span-2 flex items-center gap-2 h-20">
-      <img src="../img/shared/logo.png" alt="logo" />
-    </div>
+      <div class="col-span-2 flex items-center gap-2 h-20">
+          <a href="homepage" class="cols-span-2 block">
+              <img src="./img/shared/logo.png" alt="logo"/>
+          </a>
+
+      </div>
     <div class="col-span-1 relative">
       <!-- Nút Genre -->
       <button

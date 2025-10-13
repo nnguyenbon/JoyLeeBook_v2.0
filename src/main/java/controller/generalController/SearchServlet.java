@@ -44,15 +44,13 @@ public class SearchServlet extends HttpServlet {
             if ("title".equals(searchType) || searchType == null) {
                 List<Category> categories = categoryDAO.getAll();
                 List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
-
-
                 for (Series series : seriesDAO.findByName(keyword)) {
                     seriesInfoDTOList.add(seriesServices.buildSeriesInfoDTO(series));
                 }
                 request.setAttribute("categories", categories);
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
 
-                if (isAjaxRequest && "title".equals(searchType)) {
+                if (isAjaxRequest) {
                     request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchTitleView.jsp").forward(request, response);
                     return;
                 }
@@ -74,6 +72,7 @@ public class SearchServlet extends HttpServlet {
                 request.setAttribute("seriesInfoDTOList", filteredSeries);
                 request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchFilterView.jsp")
                         .forward(request, response);
+                return;
             }
             else if ("author".equals(searchType)) {
                 List<AuthorItemDTO> authorItemDTOList = new ArrayList<>();

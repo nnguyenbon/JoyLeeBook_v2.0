@@ -15,7 +15,7 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Search Page</title>
-    <link rel="stylesheet" href="./styles.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -77,6 +77,7 @@
 
     const ACTIVE_CLASSES = "text-[#195DA9] border-b-4 border-[#195DA9]";
     const INACTIVE_CLASSES = "text-gray-500 hover:text-[#195DA9] border-b-4 border-transparent";
+
 
     function loadResults(type) {
         const activeBtnId = "btn-" + type;
