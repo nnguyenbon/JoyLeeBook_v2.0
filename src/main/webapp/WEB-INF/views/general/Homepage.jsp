@@ -8,7 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-screen">
-    <img src="../../../img/shared/hero-reading.png" class="w-full" alt=""/>
+    <img src="${pageContext.request.contextPath}/img/shared/hero-reading.png" class="w-full" alt=""/>
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
     ></div>
@@ -67,12 +67,12 @@
                             varStatus="loop"
                     >
                         <div
-                                id="slide-${loop.index + 1}"
+                                id="slide-${hotSeries.seriesId}"
                                 class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
                         >
-                            <div class="flex-1">
+                            <div class="flex-1 overflow-hidden rounded-lg">
                                 <img
-                                        src="./${hotSeries.coverImgUrl}"
+                                        src="${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
                                         alt="hehe"
                                 />
@@ -82,9 +82,9 @@
                                 <p class="text-2xl font-bold">${hotSeries.title}</p>
                                 <p class="text-gray-400 text-lg">
                                     by <span class="text-primary">
-                                     <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
-                                         ${author}<c:if test="${!loop.last}">, </c:if>
-                                     </c:forEach>
+                                    <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
+                                        ${author}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
                                 </span>
                                 </p>
                                 <p class="mt-2 whitespace-pre-line text-lg">
@@ -102,32 +102,20 @@
                 </div>
 
                 <ul class="flex justify-center gap-4 py-2" id="indicator">
-                    <li>
-                        <a
-                                class="block size-3 bg-sky-500 rounded-full border border-sky-500"
-                                href="#slide-1"
-                                onclick="toggleIndicator(1, event)"
-                        ></a>
-                    </li>
-                    <li>
-                        <a
-                                class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-2"
-                                onclick="toggleIndicator(2, event)"
-                        ></a>
-                    </li>
-                    <li>
-                        <a
-                                class="block size-3 rounded-full border border-sky-500"
-                                href="#slide-3"
-                                onclick="toggleIndicator(3, event)"
-                        ></a>
-                    </li>
+                    <c:forEach var="hotSeries" items="${hotSeriesList}" varStatus="loop">
+                        <li>
+                            <a
+                                    class="block size-3 rounded-full border border-sky-500"
+                                    href="#slide-${hotSeries.seriesId}"
+                                    onclick="toggleIndicator(${loop.index}, event)"
+                            ></a>
+                        </li>
+                    </c:forEach>
                 </ul>
             </div>
         </div>
 
-        <div class="w-1/4 flex flex-col weekly-top">
+        <div class="w-1/4 flex flex-shrink-0 flex-col weekly-top">
             <p class="pt-6 pb-4 font-bold text-3xl">Top Weekly Series</p>
             <div
                     class="border border-neutral-800/50 rounded-xl py-6 px-8 flex-1 shadow-xl"
@@ -168,7 +156,7 @@
                         >
                             <div>
                                 <img
-                                        src="./${newReleaseSeries.coverImgUrl}"
+                                        src="${newReleaseSeries.coverImgUrl}"
                                         class="w-full"
                                         alt="hehe"
                                 />
@@ -188,7 +176,11 @@
                                         ${newReleaseSeries.title}
                                 </p>
                                 <div class="flex justify-between opacity-50 text-sm">
-                                    <p>by <span>Alex</span></p>
+                                    <p>by <span>
+                                        <c:forEach var="author" items="${newReleaseSeries.authorsName}" varStatus="loop">
+                                            ${author}<c:if test="${!loop.last}">, </c:if>
+                                        </c:forEach>
+                                    </span></p>
                                     <p>${newReleaseSeries.totalChapters} chapters</p>
                                 </div>
                                 <p>
@@ -201,7 +193,7 @@
                 </c:forEach>
             </ul>
         </div>
-        <div class="w-1/4 flex flex-col weekly-top">
+        <div class="w-1/4 flex flex-shrink-0 flex-col weekly-top">
             <p class="pt-6 pb-4 font-bold text-3xl">Top reader points</p>
             <div
                     class="shadow-xl border border-neutral-800/50 rounded-xl py-6 px-8 flex-1"
@@ -223,7 +215,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-6">Recently Update</p>
         <p class="text-right">
-            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600">View all</a>
+            <a href="./series.html" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach
@@ -239,7 +231,7 @@
                     >
                         <div>
                             <img
-                                    src="./${recentlyUpdatedSeries.coverImgUrl}"
+                                    src="${recentlyUpdatedSeries.coverImgUrl}"
                                     class="w-full"
                                     alt="hehe"
                             />
@@ -257,7 +249,11 @@
                                     ${recentlyUpdatedSeries.title}
                             </p>
                             <div class="flex justify-between opacity-50 text-sm">
-                                <p>by <span>Alex</span></p>
+                                <p>by <span>
+                                    <c:forEach var="author" items="${recentlyUpdatedSeries.authorsName}" varStatus="loop">
+                                        ${author}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </span></p>
                                 <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
                             </div>
                             <p>
@@ -292,7 +288,7 @@
     <section class="col-span-12">
         <p class="font-bold text-3xl pt-12">Completed Series</p>
         <p class="text-right">
-            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600">View all</a>
+            <a href="./series.html" class="hover:text-neutral-600">View all</a>
         </p>
         <ul class="flex gap-12 py-4">
             <c:forEach
@@ -308,7 +304,7 @@
                     >
                         <div>
                             <img
-                                    src="./${completedSeries.coverImgUrl}"
+                                    src="${completedSeries.coverImgUrl}"
                                     class="w-full"
                                     alt="hehe"
                             />
@@ -326,7 +322,11 @@
                                     ${completedSeries.title}
                             </p>
                             <div class="flex justify-between opacity-50 text-sm">
-                                <p>by <span>Alex</span></p>
+                                <p>by <span>
+                                    <c:forEach var="author" items="${completedSeries.authorsName}" varStatus="loop">
+                                        ${author}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </span></p>
                                 <p>${completedSeries.totalChapters} chapters</p>
                             </div>
                             <p>

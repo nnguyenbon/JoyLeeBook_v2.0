@@ -34,6 +34,6 @@
     <c:import url="/WEB-INF/views/components/_footer.jsp" />
 </div>
 
-<script src="${pageContext.request.contextPath}/js/main.js"></script>
+<script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
 </body>
 </html>

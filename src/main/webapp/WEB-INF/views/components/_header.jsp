@@ -8,10 +8,20 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="db.DBConnection" %>
 <%@ page import="java.sql.SQLException" %>
 
+<%
+    CategoryDAO categoryDAO = null;
+    try {
+        categoryDAO = new CategoryDAO(DBConnection.getConnection());
+        List<Category> categories = categoryDAO.getAll();
+        request.setAttribute("categories", categories);
+    } catch (SQLException | ClassNotFoundException e) {
+        throw new RuntimeException(e);
+    }
+%>
 <header class="relative top-0 left-0 right-0 shadow-md bg-white left-1/2 right-1/2 -mx-[50vw] w-screen">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
-            <a href="/">
+            <a href="homepage">
                 <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
             </a>
         </div>
@@ -40,7 +50,7 @@ change this template use File | Settings | File Templates. --%>
             </div>
         </div>
 
-        <div class="col-span-6 ">
+        <div class="col-span-6">
             <form action="search?" class="w-full">
                 <input
                         type="text"
@@ -52,7 +62,7 @@ change this template use File | Settings | File Templates. --%>
             </form>
         </div>
         <c:if test="${loginedUser != null}">
-            <div class="col-span-2 col-start-10  ">
+            <div class="col-span-2  text-right">
                 <button
                         class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
                 >
