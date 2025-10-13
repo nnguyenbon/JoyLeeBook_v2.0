@@ -26,16 +26,12 @@ public class HomepageServlet extends HttpServlet {
             CategoryDAO categoryDAO = new CategoryDAO(DBConnection.getConnection());
             UserDAO userDAO = new UserDAO(DBConnection.getConnection());
 
-            SeriesServices seriesServices = new SeriesServices(DBConnection.getConnection());
-            List<SeriesInfoDTO> hotSeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getTopRatedSeries(3));
-            List<SeriesInfoDTO> weeklySeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getWeeklySeries(8));
-            for (SeriesInfoDTO series : weeklySeriesList){
-                series.setAvgRating(Math.round(series.getAvgRating()*series.getCountRatings()));
-            }
-            List<SeriesInfoDTO> newReleaseSeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getNewReleasedSeries(4));
-            List<SeriesInfoDTO> recentlyUpdatedSeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getRecentlyUpdated(6));
-            List<SeriesInfoDTO> completedSeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getSeriesByStatus(6, "completed"));
-
+            List<SeriesInfoDTO> hotSeriesList = new ArrayList<>();
+            List<SeriesInfoDTO> weeklySeriesList = new ArrayList<>();
+            List<SeriesInfoDTO> newReleaseSeriesList = new ArrayList<>();
+            List<SeriesInfoDTO> recentlyUpdatedSeriesList = new ArrayList<>();
+            List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
+            List<CategoryInfoDTO> categoryList = new ArrayList<>();
             List<User>  userList = userDAO.selectTopUserPoints(8);
 
             CategoryServices categoryServices = new CategoryServices();
@@ -48,8 +44,13 @@ public class HomepageServlet extends HttpServlet {
             request.setAttribute("completedSeriesList", completedSeriesList);
             request.setAttribute("categoryList", categoryList);
             request.setAttribute("userList", userList);
-            request.getRequestDispatcher("Homepage.jsp").forward(request, response);
-        } catch (SQLException | ClassNotFoundException e) {
+
+            request.setAttribute("pageTitle", "JoyLeeBook");
+            request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

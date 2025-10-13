@@ -40,8 +40,14 @@ public class SeriesDetailServlet extends HttpServlet {
 
             request.setAttribute("seriesInfoDTO", seriesInfoDTO);
             request.setAttribute("chapterInfoDTOList", chapterInfoDTOList);
-            request.getRequestDispatcher("/WEB-INF/views/series/SeriesDetail.jsp").forward(request, response);
-        } catch (SQLException | ClassNotFoundException e) {
+
+            request.setAttribute("pageTitle", "Series Detail");
+//            request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesDetail.jsp");
+            request.setAttribute("contentPage", "/testing.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
 
