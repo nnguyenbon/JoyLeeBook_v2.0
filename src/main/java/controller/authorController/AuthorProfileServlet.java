@@ -1,4 +1,4 @@
-package controller.profileController;
+package controller.authorController;
 
 import dao.*;
 import db.DBConnection;
