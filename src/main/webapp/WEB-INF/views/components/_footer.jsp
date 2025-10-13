@@ -5,8 +5,8 @@
   Time: 2:38 PM
   To change this template use File | Settings | File Templates.
 --%>
-<footer class="border-t border-neutral-800/70 text-center mt-8">
-    <div class="max-w-1/2 mx-auto">
+<footer class="border-t border-neutral-800/70 text-center mt-8 relative left-1/2 right-1/2 -mx-[50vw] w-screen">
+    <div class="max-w-2/5 mx-auto">
         <div class="w-44 h-20 mx-auto">
             <img
                     src="${pageContext.request.contextPath}/img/shared/logo.png"
@@ -14,7 +14,7 @@
                     alt="day la mot cai logo"
             />
         </div>
-        <p class="text-xl text-neutral-500 py-1">
+        <p class=" text-neutral-500 py-1">
             Your gateway to endless stories. Discover, read, and connect with
             millions of readers worldwide in the ultimate reading experience.
         </p>
