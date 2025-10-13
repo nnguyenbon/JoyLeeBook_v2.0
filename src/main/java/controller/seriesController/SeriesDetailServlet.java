@@ -9,13 +9,17 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import services.chapter.ChapterServices;
-import services.series.SeriesServices;
-import utils.ValidationInput;
+import model.Category;
+import model.Chapter;
+import model.Series;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/series-detail")
@@ -25,19 +29,36 @@ public class SeriesDetailServlet extends HttpServlet {
         String seriesIdParam = request.getParameter("seriesId");
 
 
-        int seriesId = ValidationInput.isPositiveInteger(seriesIdParam) ? Integer.parseInt(seriesIdParam) : 0;
+        int seriesId = 0;
+        if (seriesIdParam != null && !seriesIdParam.isEmpty()) {
+            try {
+                seriesId = Integer.parseInt(seriesIdParam);
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid seriesId");
+                return;
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing seriesId");
+            return;
+        }
 
         try {
             Connection connection = DBConnection.getConnection();
+            LikesDAO likesDAO = new LikesDAO(connection);
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
-
-            SeriesServices seriesServices = new SeriesServices(connection);
-            SeriesInfoDTO seriesInfoDTO = seriesServices.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
-
-            ChapterServices chapterServices = new ChapterServices();
-            List<ChapterInfoDTO> chapterInfoDTOList = chapterServices.buildChapterInfoDTOList(chapterDAO.findChapterBySeriesId(seriesInfoDTO.getSeriesId()), connection);
-
+            SeriesService  seriesService = new SeriesService(connection);
+            SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
+            List<ChapterInfoDTO> chapterInfoDTOList = new ArrayList<>();
+            for (Chapter chapter : chapterDAO.findChapterBySeriesId(seriesInfoDTO.getSeriesId())) {
+                ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
+                chapterInfoDTO.setChapterId(chapter.getChapterId());
+                chapterInfoDTO.setTitle(chapter.getTitle());
+                chapterInfoDTO.setChapterNumber(chapter.getChapterNumber());
+                chapterInfoDTO.setUpdatedAt(calculateTimeAgo(chapter.getUpdatedAt()));
+                chapterInfoDTO.setTotalLikes(likesDAO.countByChapter(chapter.getChapterId()));
+                chapterInfoDTOList.add(chapterInfoDTO);
+            }
             request.setAttribute("seriesInfoDTO", seriesInfoDTO);
             request.setAttribute("chapterInfoDTOList", chapterInfoDTOList);
 
@@ -54,5 +75,16 @@ public class SeriesDetailServlet extends HttpServlet {
     }
 
 
-
+    private String calculateTimeAgo(LocalDateTime updatedAt) {
+        Duration duration = Duration.between(updatedAt, LocalDateTime.now());
+        if (duration.toDays() > 0) {
+            return duration.toDays() + " days ago";
+        } else if (duration.toHours() > 0) {
+            return duration.toHours() + " hours ago";
+        } else if (duration.toMinutes() > 0) {
+            return duration.toMinutes() + " minutes ago";
+        } else {
+            return "just now";
+        }
+    }
 }

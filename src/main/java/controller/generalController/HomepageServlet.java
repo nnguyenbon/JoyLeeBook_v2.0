@@ -9,12 +9,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Category;
+import model.Series;
 import model.User;
-import services.category.CategoryServices;
-import services.series.SeriesServices;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet ("/homepage")
@@ -24,6 +26,7 @@ public class HomepageServlet extends HttpServlet {
         try {
             SeriesDAO seriesDAO = new SeriesDAO(DBConnection.getConnection());
             CategoryDAO categoryDAO = new CategoryDAO(DBConnection.getConnection());
+            SeriesCategoriesDAO seriesCategoriesDAO = new SeriesCategoriesDAO(DBConnection.getConnection());
             UserDAO userDAO = new UserDAO(DBConnection.getConnection());
 
             List<SeriesInfoDTO> hotSeriesList = new ArrayList<>();
@@ -33,9 +36,32 @@ public class HomepageServlet extends HttpServlet {
             List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
             List<CategoryInfoDTO> categoryList = new ArrayList<>();
             List<User>  userList = userDAO.selectTopUserPoints(8);
-
-            CategoryServices categoryServices = new CategoryServices();
-            List<CategoryInfoDTO> categoryList = categoryServices.buildCategoryInfoDTOList(categoryDAO.getAll());
+            SeriesService seriesService = new SeriesService(DBConnection.getConnection());
+            for (Series series : seriesDAO.getTopRatedSeries(3)){
+                hotSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+            }
+            for (Series series : seriesDAO.getWeeklySeries(8)){
+                SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(series);
+                weeklySeriesList.add(seriesInfoDTO);
+                seriesInfoDTO.setAvgRating(series.getRating_points());
+            }
+            for (Series series : seriesDAO.getNewReleasedSeries(4)){
+                newReleaseSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+            }
+            for (Series series : seriesDAO.getRecentlyUpdated(6)){
+                recentlyUpdatedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+            }
+            for (Series series : seriesDAO.getSeriesByStatus(6, "completed")){
+                completedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+            }
+            for (Category category : categoryDAO.getAll()){
+                CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO();
+                categoryInfoDTO.setCategoryId(category.getCategoryId());
+                categoryInfoDTO.setName(category.getName());
+                int totalSeries = seriesCategoriesDAO.countSeriesByCategoryId(category.getCategoryId());
+                categoryInfoDTO.setTotalSeries(totalSeries);
+                categoryList.add(categoryInfoDTO);
+            }
 
             request.setAttribute("hotSeriesList", hotSeriesList);
             request.setAttribute("weeklySeriesList", weeklySeriesList);
@@ -53,5 +79,19 @@ public class HomepageServlet extends HttpServlet {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public SeriesInfoDTO setSeriesInfoDTO(Series series, List<Category> categories) {
+        SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
+        seriesInfoDTO.setSeriesId(series.getSeriesId());
+        seriesInfoDTO.setTitle(series.getTitle());
+        seriesInfoDTO.setDescription(series.getDescription());
+        seriesInfoDTO.setCoverImgUrl(series.getCoverImgUrl());
+        List<String> categoriesName = new ArrayList<>();
+        for (Category category : categories) {
+            categoriesName.add(category.getName());
+        }
+        seriesInfoDTO.setCategories(categoriesName);
+        return seriesInfoDTO;
     }
 }
