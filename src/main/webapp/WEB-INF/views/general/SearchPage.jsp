@@ -78,7 +78,6 @@
     const ACTIVE_CLASSES = "text-[#195DA9] border-b-4 border-[#195DA9]";
     const INACTIVE_CLASSES = "text-gray-500 hover:text-[#195DA9] border-b-4 border-transparent";
 
-
     function loadResults(type) {
         const activeBtnId = "btn-" + type;
 
