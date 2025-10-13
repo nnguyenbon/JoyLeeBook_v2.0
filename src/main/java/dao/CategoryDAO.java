@@ -108,9 +108,9 @@ public class CategoryDAO {
 
         String placeholders = String.join(",", genres.stream().map(g -> "?").toArray(String[]::new));
 
-        String sql = "SELECT COUNT(*) FROM series_category sc " +
-                "JOIN category c ON sc.category_id = c.category_id " +
-                "WHERE sc.series_id = ? AND c.category_name IN (" + placeholders + ")";
+        String sql = "SELECT COUNT(*) FROM series_categories sc " +
+                "JOIN categories c ON sc.category_id = c.category_id " +
+                "WHERE sc.series_id = ? AND c.name IN (" + placeholders + ")";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
