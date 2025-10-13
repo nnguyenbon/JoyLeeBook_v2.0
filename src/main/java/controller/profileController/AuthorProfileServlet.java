@@ -2,7 +2,6 @@ package controller.profileController;
 
 import dao.*;
 import db.DBConnection;
-import services.account.AuthorServices;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,11 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
 import services.series.SeriesServices;
-import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/author-profile")
@@ -24,28 +24,57 @@ public class AuthorProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String authorIdParam = request.getParameter("authorId");
 
-        int authorId = ValidationInput.isPositiveInteger(authorIdParam) ? Integer.parseInt(authorIdParam) : 0;
+        int authorId = 0;
+        if (authorIdParam != null && !authorIdParam.isEmpty()) {
+            try {
+                authorId = Integer.parseInt(authorIdParam);
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid seriesId");
+                return;
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing seriesId");
+            return;
+        }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy ");
         try {
             Connection connection = DBConnection.getConnection();
+            SeriesServices seriesServices = new SeriesServices(connection);
             UserDAO userDAO = new UserDAO(connection);
             SeriesDAO seriesDAO = new SeriesDAO(connection);
+            LikesDAO likesDAO = new LikesDAO(connection);
+            RatingDAO ratingDAO = new RatingDAO(connection);
+            ChapterDAO chapterDAO = new ChapterDAO(connection);
             BadgesUserDAO badgesUserDAO = new BadgesUserDAO(connection);
-
-            SeriesServices seriesServices = new SeriesServices(connection);
-            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(authorId));
-
-            AuthorServices authorServices = new AuthorServices(connection);
-            authorServices.extractDataFromAuthorId(seriesInfoDTOList,request);
-
             User user = userDAO.findById(authorId);
             List<Badge> badgeList = badgesUserDAO.getBadgesByUserId(authorId);
+            List<Series> seriesList = seriesDAO.getSeriesByAuthorId(authorId);
+            int totalSeriesCount = seriesList.size();
+            int totalLike = 0;
+            double avgRating = 0;
+            int totalRating = 0;
+            int ratingCount = 0;
+            List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
+            for (Series series : seriesList) {
+                seriesInfoDTOList.add(seriesServices.buildSeriesInfoDTO(series));
+                for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
+                    totalLike += likesDAO.countByChapter(chapter.getChapterId());
+                }
+                totalRating += ratingDAO.getRatingSumBySeriesId(series.getSeriesId());
+                ratingCount += ratingDAO.getRatingCount(series.getSeriesId());
+            }
+            avgRating = (double) Math.round((totalRating / ratingCount) * 10) / 10;
 
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
-            request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
+            request.setAttribute("totalSeriesCount", totalSeriesCount);
+            request.setAttribute("totalLike", totalLike);
+            request.setAttribute("avgRating", avgRating);
             request.setAttribute("user", user);
             request.setAttribute("badgeList", badgeList);
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);

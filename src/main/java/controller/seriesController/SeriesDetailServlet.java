@@ -9,10 +9,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Category;
 import model.Chapter;
-import model.Series;
-import services.series.SeriesService;
+import services.series.SeriesServices;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -47,8 +45,8 @@ public class SeriesDetailServlet extends HttpServlet {
             LikesDAO likesDAO = new LikesDAO(connection);
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
-            SeriesService  seriesService = new SeriesService(connection);
-            SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
+            SeriesServices seriesServices = new SeriesServices(connection);
+            SeriesInfoDTO seriesInfoDTO = seriesServices.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
             List<ChapterInfoDTO> chapterInfoDTOList = new ArrayList<>();
             for (Chapter chapter : chapterDAO.findChapterBySeriesId(seriesInfoDTO.getSeriesId())) {
                 ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();

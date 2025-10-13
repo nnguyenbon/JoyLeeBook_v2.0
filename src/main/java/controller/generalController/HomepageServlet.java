@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
 import model.User;
-import services.series.SeriesService;
+import services.series.SeriesServices;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -36,23 +36,23 @@ public class HomepageServlet extends HttpServlet {
             List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
             List<CategoryInfoDTO> categoryList = new ArrayList<>();
             List<User>  userList = userDAO.selectTopUserPoints(8);
-            SeriesService seriesService = new SeriesService(DBConnection.getConnection());
+            SeriesServices seriesServices = new SeriesServices(DBConnection.getConnection());
             for (Series series : seriesDAO.getTopRatedSeries(3)){
-                hotSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+                hotSeriesList.add(seriesServices.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getWeeklySeries(8)){
-                SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(series);
+                SeriesInfoDTO seriesInfoDTO = seriesServices.buildSeriesInfoDTO(series);
                 weeklySeriesList.add(seriesInfoDTO);
                 seriesInfoDTO.setAvgRating(series.getRating_points());
             }
             for (Series series : seriesDAO.getNewReleasedSeries(4)){
-                newReleaseSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+                newReleaseSeriesList.add(seriesServices.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getRecentlyUpdated(6)){
-                recentlyUpdatedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+                recentlyUpdatedSeriesList.add(seriesServices.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getSeriesByStatus(6, "completed")){
-                completedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
+                completedSeriesList.add(seriesServices.buildSeriesInfoDTO(series));
             }
             for (Category category : categoryDAO.getAll()){
                 CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO();
