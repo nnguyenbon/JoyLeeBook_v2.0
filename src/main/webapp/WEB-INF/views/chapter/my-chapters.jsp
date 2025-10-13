@@ -6,7 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.*, dto.chapter.ChapterItemDTO, services.MyChapterService.PagedResult" %>
+<%@ page import="java.util.*, dto.chapter.ChapterItemDTO, services.chapter.MyChapterService.PagedResult" %>
 <%
     String mode = (String) request.getAttribute("mode");
     List<ChapterItemDTO> items = (List<ChapterItemDTO>) request.getAttribute("items");

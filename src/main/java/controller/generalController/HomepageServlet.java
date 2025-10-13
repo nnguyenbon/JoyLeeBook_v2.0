@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
 import model.User;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,8 +26,6 @@ public class HomepageServlet extends HttpServlet {
         try {
             SeriesDAO seriesDAO = new SeriesDAO(DBConnection.getConnection());
             CategoryDAO categoryDAO = new CategoryDAO(DBConnection.getConnection());
-            ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
-            RatingDAO ratingDAO = new RatingDAO(DBConnection.getConnection());
             SeriesCategoriesDAO seriesCategoriesDAO = new SeriesCategoriesDAO(DBConnection.getConnection());
             UserDAO userDAO = new UserDAO(DBConnection.getConnection());
 
@@ -37,35 +36,23 @@ public class HomepageServlet extends HttpServlet {
             List<SeriesInfoDTO> completedSeriesList = new ArrayList<>();
             List<CategoryInfoDTO> categoryList = new ArrayList<>();
             List<User>  userList = userDAO.selectTopUserPoints(8);
+            SeriesService seriesService = new SeriesService(DBConnection.getConnection());
             for (Series series : seriesDAO.getTopRatedSeries(3)){
-                SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-                hotSeriesList.add(seriesInfoDTO);
+                hotSeriesList.add(seriesService.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getWeeklySeries(8)){
-                SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+                SeriesInfoDTO seriesInfoDTO = seriesService.buildSeriesInfoDTO(series);
                 weeklySeriesList.add(seriesInfoDTO);
                 seriesInfoDTO.setAvgRating(series.getRating_points());
             }
             for (Series series : seriesDAO.getNewReleasedSeries(4)){
-                SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
-                seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                newReleaseSeriesList.add(seriesInfoDTO);
+                newReleaseSeriesList.add(seriesService.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getRecentlyUpdated(6)){
-                SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
-                seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                recentlyUpdatedSeriesList.add(seriesInfoDTO);
+                recentlyUpdatedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
             }
             for (Series series : seriesDAO.getSeriesByStatus(6, "completed")){
-                SeriesInfoDTO seriesInfoDTO = setSeriesInfoDTO(series, categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
-                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
-                seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                completedSeriesList.add(seriesInfoDTO);
+                completedSeriesList.add(seriesService.buildSeriesInfoDTO(series));
             }
             for (Category category : categoryDAO.getAll()){
                 CategoryInfoDTO categoryInfoDTO = new CategoryInfoDTO();

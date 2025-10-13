@@ -377,7 +377,7 @@
     <div class="max-w-1/3 mx-auto">
         <div class="w-44 mx-auto">
             <img
-                    src="./img/logo.png"
+                    src="./img/shared/logo.png"
                     class="w-full h-full"
                     alt="day la mot cai logo"
             />

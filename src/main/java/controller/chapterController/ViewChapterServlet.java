@@ -3,7 +3,7 @@ package controller.chapterController;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import services.ChapterService;
+import services.chapter.ChapterService;
 import model.User;
 
 import java.io.IOException;
