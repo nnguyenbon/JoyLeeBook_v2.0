@@ -2,6 +2,11 @@
 change this template use File | Settings | File Templates. --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="dao.CategoryDAO" %>
+<%@ page import="model.Category" %>
+<%@ page import="java.util.List" %>
+<%@ page import="db.DBConnection" %>
+<%@ page import="java.sql.SQLException" %>
 
 <header class="relative top-0 left-0 right-0 shadow-md bg-white left-1/2 right-1/2 -mx-[50vw] w-screen">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
