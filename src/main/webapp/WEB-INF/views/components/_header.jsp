@@ -2,11 +2,32 @@
 change this template use File | Settings | File Templates. --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="dao.CategoryDAO" %>
+<%@ page import="model.Category" %>
+<%@ page import="java.util.List" %>
+<%@ page import="db.DBConnection" %>
+<%@ page import="java.sql.SQLException" %>
 
+<%
+    CategoryDAO categoryDAO = null;
+    try {
+        categoryDAO = new CategoryDAO(DBConnection.getConnection());
+        List<Category> categories = categoryDAO.getAll();
+        request.setAttribute("categories", categories);
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+    }
+%>
 <header class="header">
     <div class="max-w-[1290px] mx-auto grid grid-cols-12 gap-8 items-center">
+
         <div class="col-span-2 flex items-center gap-2 h-20">
-            <img src="./img/shared/logo.png" alt="logo" />
+            <a href="homepage" class="cols-span-2 block">
+                <img src="./img/shared/logo.png" alt="logo"/>
+            </a>
+
         </div>
         <div class="col-span-1 relative">
             <!-- Nút Genre -->
@@ -35,111 +56,23 @@ change this template use File | Settings | File Templates. --%>
                     class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"
             >
                 <div class="grid grid-cols-5 gap-3 text-sm">
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Action
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Adventure
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Romance
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Fantasy
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Comedy
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Drama
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Sci-Fi
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Horror
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Mystery
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Slice of Life
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Thriller
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Historical
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Sports
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Supernatural
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Psychological
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Tragedy
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Isekai
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Magic
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Martial Arts
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Mecha
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Music
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        School
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Seinen
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Shoujo
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Shounen
-                    </button>
-
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Josei
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Harem
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Parody
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        Crime
-                    </button>
-                    <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
-                        War
-                    </button>
+                    <c:forEach var="category" items="${categories}">
+                        <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
+                                ${category.name}
+                        </button>
+                    </c:forEach>
                 </div>
             </div>
         </div>
 
         <div class="col-span-6 ">
-            <form action="" class="w-full">
+            <form action="search?" class="w-full">
                 <input
                         type="text"
                         placeholder="Search series, author"
                         class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full"
+                        name="keyword"
+                        id="keyword"
                 />
             </form>
         </div>
@@ -190,7 +123,7 @@ change this template use File | Settings | File Templates. --%>
                             </h4>
                             <p class="text-[#195DA9] text-xs">Reader</p>
                         </div>
-                        <hr class="mb-2 border-gray-300" />
+                        <hr class="mb-2 border-gray-300"/>
                         <button
                                 class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
@@ -203,9 +136,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path
@@ -234,13 +167,13 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
-                                <path stroke="url(#gradient)" d="M13 21h8" />
-                                <path stroke="url(#gradient)" d="m15 5 4 4" />
+                                <path stroke="url(#gradient)" d="M13 21h8"/>
+                                <path stroke="url(#gradient)" d="m15 5 4 4"/>
                                 <path
                                         stroke="url(#gradient)"
                                         d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
@@ -267,9 +200,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path
@@ -298,9 +231,9 @@ change this template use File | Settings | File Templates. --%>
                             >
                                 <defs>
                                     <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#341661" />
-                                        <stop offset="50%" stop-color="#4C1D95" />
-                                        <stop offset="100%" stop-color="#195BA7" />
+                                        <stop offset="0%" stop-color="#341661"/>
+                                        <stop offset="50%" stop-color="#4C1D95"/>
+                                        <stop offset="100%" stop-color="#195BA7"/>
                                     </linearGradient>
                                 </defs>
                                 <path

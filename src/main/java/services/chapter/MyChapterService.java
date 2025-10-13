@@ -1,7 +1,7 @@
-package services;
+package services.chapter;
 
 import dao.ChapterDAO;
-import dto.ChapterItemDTO;
+import dto.chapter.ChapterItemDTO;
 
 import java.sql.Connection;
 import java.sql.SQLException;

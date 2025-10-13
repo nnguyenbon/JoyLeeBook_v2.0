@@ -102,60 +102,38 @@
         <div class="flex flex-col gap-4">
             <!-- Card Series -->
             <c:forEach var="series" items="${seriesInfoDTOList}" varStatus="loop">
-                <div
-                        class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <img src="https://via.placeholder.com/60" class="w-12 h-16 rounded object-cover" alt="">
-                        <div>
-                            <p class="font-semibold text-gray-800">${series.title}</p>
-                            <c:forEach var="category" items="${series.categories}">
-                                <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
-                            </c:forEach>
+                <a href="${pageContext.request.contextPath}/series-detail?seriesId=${series.seriesId}">
+                    <div
+                            class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <img src="https://via.placeholder.com/60" class="w-12 h-16 rounded object-cover" alt="">
+                            <div>
+                                <p class="font-semibold text-gray-800">${series.title}</p>
+                                <c:forEach var="category" items="${series.categories}">
+                                    <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
+                                </c:forEach>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-10 text-sm">
+                            <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                              stroke-linecap="round" stroke-linejoin="round"
+                                                              class="lucide lucide-star-icon lucide-star">
+                                <path
+                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                            </svg>
+                                <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
+                            </p>
+                            <p>${series.totalChapters} Chapters</p>
+                            <span
+                                    class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
+                            <p class="text-gray-500">${series.updatedAt}</p>
+
                         </div>
                     </div>
-                    <div class="flex items-center gap-10 text-sm">
-                        <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                          stroke-linecap="round" stroke-linejoin="round"
-                                                          class="lucide lucide-star-icon lucide-star">
-                            <path
-                                    d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
-                        </svg>
-                            <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
-                        </p>
-                        <p>${series.totalChapters} Chapters</p>
-                        <span
-                                class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
-                        <p class="text-gray-500">${series.updatedAt}</p>
+                </a>
 
-                    </div>
-                </div>
             </c:forEach>
-
-            <div
-                    class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
-                <div class="flex items-center gap-4">
-                    <img src="https://via.placeholder.com/60" class="w-12 h-16 rounded object-cover" alt="">
-                    <div>
-                        <p class="font-semibold text-gray-800">The Shattrred Vows</p>
-                        <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">collab</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-10 text-sm">
-                    <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                      stroke-linecap="round" stroke-linejoin="round"
-                                                      class="lucide lucide-star-icon lucide-star">
-                        <path
-                                d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
-                    </svg> <span class="ml-1 text-gray-700">5.0 (1247)</span></p>
-                    <p>25 Chapters</p>
-                    <span
-                            class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">Ongoing</span>
-                    <p class="text-gray-500">25/09/2025</p>
-
-                </div>
-            </div>
         </div>
     </div>
 </main>

@@ -11,13 +11,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Document</title>
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/styles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
             rel="stylesheet"
@@ -25,12 +25,11 @@
     <script src="./js/main.js"></script>
 </head>
 <body>
-<!-- Header Section -->
-<jsp:include page="/WEB-INF/views/components/_header.jsp" />
+<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
 
 <!-- Hero Section -->
 <section class="relative w-full h-auto">
-    <img src="./img/shared/hero-reading.png" class="w-full" alt="" />
+    <img src="./img/shared/hero-reading.png" class="w-full" alt=""/>
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
     ></div>
@@ -71,25 +70,34 @@
         </ul>
     </div>
 </section>
-
-<!-- Main Content Grid -->
-<main class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
-    <%--    <section class="flex justify-center gap-16">--%>
-    <!-- Hot Series Section (col-span-9) -->
-    <div class="col-span-9">
-        <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
-        <div class="border border-neutral-800/50 rounded-xl pt-6 overflow-hidden shadow-xl">
-            <div class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth">
-                <c:forEach var="hotSeries" items="${hotSeriesList}" varStatus="loop">
-                    <div id="slide-${loop.index + 1}"
-                         class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16">
-                        <div class="flex-1">
-                            <img
-                                    src="./img/thenewkidinschool.png"
-                                    class="w-full h-full"
-                                    alt="hehe"
-                            />
-                        </div>
+<main
+        class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-8 relative"
+>
+    <section class="flex justify-center gap-16 col-span-12">
+        <div class="w-3/4">
+            <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
+            <div
+                    class="border border-neutral-800/50 rounded-xl py-6 overflow-hidden shadow-xl"
+            >
+                <div
+                        class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth"
+                >
+                    <c:forEach
+                            var="hotSeries"
+                            items="${hotSeriesList}"
+                            varStatus="loop"
+                    >
+                        <div
+                                id="slide-${loop.index + 1}"
+                                class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
+                        >
+                            <div class="flex-1">
+                                <img
+                                        src="./img/thenewkidinschool.png"
+                                        class="w-full h-full"
+                                        alt="hehe"
+                                />
+                            </div>
 
                         <div class="flex-3 ">
                             <div>
@@ -97,7 +105,7 @@
                                 <p class="text-gray-400 text-lg">
                                     by <span class="text-primary">InstinctualWater</span>
                                 </p>
-                                <p class="mt-1 whitespace-pre-line text-lg line-3">
+                                <p class="mt-2 whitespace-pre-line text-lg">
                                         ${hotSeries.description}
                                 </p>
                             </div>
@@ -107,8 +115,29 @@
                             </a>
                         </div>
 
-                    </div>
-                </c:forEach>
+                <ul class="flex justify-center gap-4 py-2" id="indicator">
+                    <li>
+                        <a
+                                class="block size-3 bg-sky-500 rounded-full border border-sky-500"
+                                href="#slide-1"
+                                onclick="toggleIndicator(1, event)"
+                        ></a>
+                    </li>
+                    <li>
+                        <a
+                                class="block size-3 rounded-full border border-sky-500"
+                                href="#slide-2"
+                                onclick="toggleIndicator(2, event)"
+                        ></a>
+                    </li>
+                    <li>
+                        <a
+                                class="block size-3 rounded-full border border-sky-500"
+                                href="#slide-3"
+                                onclick="toggleIndicator(3, event)"
+                        ></a>
+                    </li>
+                </ul>
             </div>
 
             <ul class="flex justify-center gap-4 mt-6 mb-3" id="indicator">
@@ -275,7 +304,10 @@
                                 <p>by <span class="font-medium">Alex</span></p>
                                 <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
                             </div>
-                            <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
+                            <p>
+                                ★ ${recentlyUpdatedSeries.avgRating}
+                                (${recentlyUpdatedSeries.countRatings})
+                            </p>
                         </div>
                     </div>
                 </a>
@@ -344,7 +376,10 @@
                                 <p>by <span class="font-medium">Alex</span></p>
                                 <p>${completedSeries.totalChapters} chapters</p>
                             </div>
-                            <p>★ ${completedSeries.avgRating} (${completedSeries.countRatings})</p>
+                            <p>
+                                ★ ${completedSeries.avgRating}
+                                (${completedSeries.countRatings})
+                            </p>
                         </div>
                     </div>
                 </a>

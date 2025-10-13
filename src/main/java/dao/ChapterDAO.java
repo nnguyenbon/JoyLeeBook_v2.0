@@ -10,9 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Chapter;
-import dto.ChapterItemDTO;
-
-import javax.swing.table.TableRowSorter;
+import dto.chapter.ChapterItemDTO;
 
 /**
  * Data Access Object (DAO) for Chapter entity.

@@ -1,6 +1,9 @@
-package dto;
+package dto.chapter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * ChapterListItem class represents a chapter item in a list view.
@@ -82,4 +85,20 @@ public class ChapterItemDTO {
     public void setLastReadAt(LocalDateTime lastReadAt) {
         this.lastReadAt = lastReadAt;
     }
+
+    public Date getUpdatedAtAsDate() {
+        return updatedAt != null ? Date.from(updatedAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
+    }
+
+    public Date getLastReadAtAsDate() {
+        return lastReadAt != null ? Date.from(lastReadAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
+    }
+
+
+    public String getLastReadAtFormatted() {
+        return lastReadAt != null
+                ? lastReadAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                : "";
+    }
+
 }

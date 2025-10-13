@@ -2,13 +2,14 @@ package controller.profileController;
 
 import dao.*;
 import db.DBConnection;
-import dto.SeriesInfoDTO;
+import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
+import services.series.SeriesService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -39,10 +40,10 @@ public class AuthorProfileServlet extends HttpServlet {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy ");
         try {
             Connection connection = DBConnection.getConnection();
+            SeriesService seriesService = new SeriesService(connection);
             UserDAO userDAO = new UserDAO(connection);
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             LikesDAO likesDAO = new LikesDAO(connection);
-            CategoryDAO categoryDAO = new CategoryDAO(connection);
             RatingDAO ratingDAO = new RatingDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
             BadgesUserDAO badgesUserDAO = new BadgesUserDAO(connection);
@@ -56,29 +57,15 @@ public class AuthorProfileServlet extends HttpServlet {
             int ratingCount = 0;
             List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
             for (Series series : seriesList) {
-                SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
-                seriesInfoDTO.setSeriesId(series.getSeriesId());
-                seriesInfoDTO.setTitle(series.getTitle());
-                seriesInfoDTO.setUpdatedAt(series.getUpdatedAt().format(formatter));
-                seriesInfoDTO.setCoverImgUrl(series.getCoverImgUrl());
-                seriesInfoDTO.setStatus(series.getStatus());
-                List<String> categoriesName = new ArrayList<>();
-                for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {
-                    categoriesName.add(category.getName());
-                }
-                seriesInfoDTO.setCategories(categoriesName);
-                seriesInfoDTO.setAvgRating((double) Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10) /10);
-                seriesInfoDTO.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
-                seriesInfoDTOList.add(seriesInfoDTO);
-
+                seriesInfoDTOList.add(seriesService.buildSeriesInfoDTO(series));
                 for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
                     totalLike += likesDAO.countByChapter(chapter.getChapterId());
                 }
-
                 totalRating += ratingDAO.getRatingSumBySeriesId(series.getSeriesId());
                 ratingCount += ratingDAO.getRatingCount(series.getSeriesId());
             }
             avgRating = (double) Math.round((totalRating / ratingCount) * 10) / 10;
+
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
             request.setAttribute("totalSeriesCount", totalSeriesCount);
             request.setAttribute("totalLike", totalLike);

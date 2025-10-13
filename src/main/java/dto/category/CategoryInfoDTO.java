@@ -1,4 +1,4 @@
-package dto;
+package dto.category;
 
 public class CategoryInfoDTO {
     private int categoryId;

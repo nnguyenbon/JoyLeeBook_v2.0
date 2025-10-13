@@ -1,9 +1,9 @@
 package controller.chapterController;
 
 import db.DBConnection;
-import services.MyChapterService;
-import services.MyChapterService.PagedResult;
-import dto.ChapterItemDTO;
+import services.chapter.MyChapterService;
+import services.chapter.MyChapterService.PagedResult;
+import dto.chapter.ChapterItemDTO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
