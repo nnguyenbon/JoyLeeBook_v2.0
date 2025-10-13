@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * - Requires userId in session to identify the logged-in user
  * <p>
  * Forwards to:
- * - /WEB-INF/views/my-chapters.jsp on success
+ * - /WEB-INF/views/MyChapters.jsp on success
  * - /WEB-INF/views/error.jsp on error
  *
  * @author HaiDD-dev
@@ -85,7 +85,7 @@ public class MyChapterListServlet extends HttpServlet {
             req.setAttribute("status", status);
 
             // forward to JSP
-            req.getRequestDispatcher("/WEB-INF/views/chapter/my-chapters.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/MyChapters.jsp").forward(req, resp);
 
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Error loading My Chapter List", e);

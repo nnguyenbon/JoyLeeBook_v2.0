@@ -25,7 +25,7 @@ import java.sql.Connection;
  * - Requires userId in session to identify the logged-in user
  * <p>
  * Forwards to:
- * - /WEB-INF/views/chapter/edit-chapter.jsp on GET request
+ * - /WEB-INF/views/chapter/EditChapter.jsp on GET request
  * - /chapter?id={chapterId}&updated=true on successful POST request
  * - /WEB-INF/views/error.jsp on error
  *
@@ -81,7 +81,7 @@ public class UpdateChapterServlet extends HttpServlet {
 
             req.setAttribute("series", series);
             req.setAttribute("chapter", chapter);
-            req.getRequestDispatcher("/WEB-INF/views/chapter/edit-chapter.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/EditChapter.jsp").forward(req, resp);
 
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -24,7 +24,7 @@ import java.sql.Connection;
  * - Requires userId in session to identify the logged-in user
  * <p>
  * Forwards to:
- * - /WEB-INF/views/chapter/confirm-delete.jsp on GET request
+ * - /WEB-INF/views/chapter/ConfirmDelete.jsp on GET request
  * - /my-chapters?deleted=1 on successful POST request
  * - /WEB-INF/views/error.jsp on error
  *
@@ -80,7 +80,7 @@ public class DeleteChapterServlet extends HttpServlet {
             }
 
             req.setAttribute("chapter", chapter);
-            req.getRequestDispatcher("/WEB-INF/views/chapter/confirm-delete.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/ConfirmDelete.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();

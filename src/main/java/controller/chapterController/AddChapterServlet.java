@@ -25,7 +25,7 @@ import java.sql.Connection;
  * - Requires userId in session to identify the logged-in user
  * <p>
  * Forwards to:
- * - /WEB-INF/views/add-chapter.jsp on GET request
+ * - /WEB-INF/views/AddChapter.jsp on GET request
  * - /manage-series?id={seriesId}&success=true on successful POST request
  * - /WEB-INF/views/error.jsp on error
  *
@@ -66,7 +66,7 @@ public class AddChapterServlet extends HttpServlet {
                 // get series details
                 Series series = service.getSeriesById(seriesId);
                 req.setAttribute("series", series);
-                req.getRequestDispatcher("/WEB-INF/views/chapter/add-chapter.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/views/chapter/AddChapter.jsp").forward(req, resp);
 
             } catch (Exception e) {
                 System.out.println("series " + e.getMessage());
@@ -109,7 +109,7 @@ public class AddChapterServlet extends HttpServlet {
                     resp.sendRedirect(req.getContextPath() + "/manage-series?id=" + seriesId + "&success=true");
                 } else {
                     req.setAttribute("error", "Failed to create new chapter.");
-                    req.getRequestDispatcher("/WEB-INF/views/chapter/add-chapter.jsp").forward(req, resp);
+                    req.getRequestDispatcher("/WEB-INF/views/chapter/AddChapter.jsp").forward(req, resp);
                 }
 
             } catch (IllegalAccessException e) {
@@ -118,7 +118,7 @@ public class AddChapterServlet extends HttpServlet {
                 req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, resp);
             } catch (Exception e) {
                 req.setAttribute("error", "An error occurred: " + e.getMessage());
-                req.getRequestDispatcher("/WEB-INF/views/error/add-chapter.jsp").forward(req, resp);
+                req.getRequestDispatcher("/WEB-INF/views/error/AddChapter.jsp").forward(req, resp);
             }
 
         } catch (NumberFormatException e) {

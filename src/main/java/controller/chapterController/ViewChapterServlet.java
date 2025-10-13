@@ -54,7 +54,7 @@ public class ViewChapterServlet extends HttpServlet {
             }
 
             req.setAttribute("vm", vm);
-            req.getRequestDispatcher("/WEB-INF/views/chapter/chapter-view.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/chapter/ChapterView.jsp").forward(req, resp);
         } catch (Exception ex) {
             ex.printStackTrace();
             req.setAttribute("error", "Unable to load chapter.");
