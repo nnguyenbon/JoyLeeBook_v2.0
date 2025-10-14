@@ -5,7 +5,7 @@
   Time: 2:38 PM
   To change this template use File | Settings | File Templates.
 --%>
-<footer class="border-t border-neutral-800/70 text-center mt-8 relative left-1/2 right-1/2 -mx-[50vw] w-screen">
+<footer class="border-t border-neutral-800/70 text-center mt-8">
     <div class="max-w-2/5 mx-auto">
         <div class="w-44 h-20 mx-auto">
             <img
