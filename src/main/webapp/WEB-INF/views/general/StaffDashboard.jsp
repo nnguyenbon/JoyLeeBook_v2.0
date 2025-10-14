@@ -33,34 +33,37 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="lucide lucide-book-open-text-icon lucide-book-open-text">
-                        <path d="M12 7v14" />
-                        <path d="M16 12h2" />
-                        <path d="M16 8h2" />
+                        <path d="M12 7v14"/>
+                        <path d="M16 12h2"/>
+                        <path d="M16 8h2"/>
                         <path
-                                d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
-                        <path d="M6 12h2" />
-                        <path d="M6 8h2" />
-                    </svg> <span class="ml-2">Series List</span>
+                                d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+                        <path d="M6 12h2"/>
+                        <path d="M6 8h2"/>
+                    </svg>
+                    <span class="ml-2">Series List</span>
                 </a>
                 <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="lucide lucide-octagon-alert-icon lucide-octagon-alert">
-                        <path d="M12 16h.01" />
-                        <path d="M12 8v4" />
+                        <path d="M12 16h.01"/>
+                        <path d="M12 8v4"/>
                         <path
-                                d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z" />
-                    </svg><span class="ml-2">Reports</span>
+                                d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/>
+                    </svg>
+                    <span class="ml-2">Reports</span>
                 </a>
                 <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="lucide lucide-users-icon lucide-users">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <path d="M16 3.128a4 4 0 0 1 0 7.744" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <circle cx="9" cy="7" r="4" />
-                    </svg><span class="ml-2">Users</span>
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <path d="M16 3.128a4 4 0 0 1 0 7.744"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <circle cx="9" cy="7" r="4"/>
+                    </svg>
+                    <span class="ml-2">Users</span>
                 </a>
             </nav>
         </div>
@@ -70,9 +73,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                      class="lucide lucide-log-out-icon lucide-log-out">
-                    <path d="m16 17 5-5-5-5" />
-                    <path d="M21 12H9" />
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <path d="m16 17 5-5-5-5"/>
+                    <path d="M21 12H9"/>
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 </svg>
                 <span class="ml-2">Logout</span>
             </a>
@@ -99,7 +102,7 @@
                     <option>Ongoing</option>
                 </select>
                 <input type="text" placeholder="Search series, chapter..."
-                       class="border rounded-md text-sm px-3 py-1 w-60 focus:outline-[#195DA9]" />
+                       class="border rounded-md text-sm px-3 py-1 w-60 focus:outline-[#195DA9]"/>
             </div>
         </div>
 
@@ -113,7 +116,8 @@
                 <c:forEach var="series" items="${seriesInfoDTOList}">
                     <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
                         <div class="flex items-center gap-4">
-                            <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" class="w-12 h-16 rounded object-cover" alt="">
+                            <img src="${pageContext.request.contextPath}/${series.coverImgUrl}"
+                                 class="w-12 h-16 rounded object-cover" alt="">
                             <div>
                                 <p class="font-semibold text-gray-800">${series.title}</p>
                                 <c:forEach var="category" items="${series.categories}">
@@ -122,18 +126,35 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-10 text-sm">
-                            <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                              stroke-linecap="round" stroke-linejoin="round"
-                                                              class="lucide lucide-star-icon lucide-star">
-                                <path
-                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
-                            </svg>
+                            <p class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round"
+                                     class="lucide lucide-star-icon lucide-star">
+                                    <path
+                                            d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
+                                </svg>
                                 <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
                             </p>
                             <p>${series.totalChapters} Chapters</p>
-                            <span
-                                    class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
+                            <c:choose>
+                                <c:when test="${series.status == 'Completed'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:when test="${series.status == 'Ongoing'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
+
                             <p class="text-gray-500">${series.createdAt}</p>
                             <a href="">
                                 <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
@@ -141,10 +162,11 @@
                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                            stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
                                         <path
-                                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                                        <circle cx="12" cy="12" r="3" />
+                                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                                        <circle cx="12" cy="12" r="3"/>
                                     </svg></span>
-                                    Detail</button>
+                                    Detail
+                                </button>
                             </a>
                         </div>
                     </div>
@@ -154,13 +176,44 @@
 
         <!-- Pagination -->
         <div class="flex justify-end items-center gap-1 py-4 text-sm px-9 bg-gray-100">
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">&lt;&lt;</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">2</button>
-            <span class="px-2 py-1">...</span>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">10</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">11</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">&gt;&gt;</button>
+            <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+                <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
+                        <c:if test="${currentPage == 1}">disabled</c:if>>
+                    &lt;&lt;
+                </button>
+            </a>
+
+
+            <c:if test="${currentPage > 3}">
+                <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}">
+                    <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
+                </a>
+                <span class="px-2 py-1">...</span>
+            </c:if>
+
+            <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
+                       end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
+                <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}">
+                    <button class="border rounded-md px-2 py-1
+                       ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
+                            ${i}
+                    </button>
+                </a>
+            </c:forEach>
+
+            <c:if test="${currentPage < totalPage - 2}">
+                <span class="px-2 py-1">...</span>
+                <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+                    <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
+                </a>
+            </c:if>
+
+            <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}">
+                <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
+                        <c:if test="${currentPage == totalPage}">disabled</c:if>>
+                    &gt;&gt;
+                </button>
+            </a>
         </div>
     </main>
 </div>
