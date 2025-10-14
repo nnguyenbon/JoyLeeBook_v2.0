@@ -38,7 +38,7 @@ public class ChapterDAO {
      */
     public List<Chapter> getAll() throws SQLException {
         List<Chapter> chapters = new ArrayList<>();
-        String sql = "SELECT * FROM chapters WHERE is_deleted = false";
+        String sql = "SELECT * FROM chapters WHERE is_deleted = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -246,7 +246,7 @@ public class ChapterDAO {
      */
     public List<ChapterItemDTO> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {
 
-        StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, " + "       c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at " + "FROM reading_history h " + "JOIN chapters c ON c.chapter_id = h.chapter_id " + "JOIN series s ON s.series_id = c.series_id " + "WHERE h.user_id = ? ");
+        StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, " + "       c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at, cover_image_url " + "FROM reading_history h " + "JOIN chapters c ON c.chapter_id = h.chapter_id " + "JOIN series s ON s.series_id = c.series_id " + "WHERE h.user_id = ? ");
 
         List<Object> params = new ArrayList<>();
         params.add(userId);
@@ -275,6 +275,7 @@ public class ChapterDAO {
                     it.setChapterNumber(rs.getInt("chapter_number"));
                     it.setChapterTitle(rs.getString("chapter_title"));
                     it.setStatus(rs.getString("status"));
+                    it.setCoverImgUrl(rs.getString("cover_image_url"));
                     Timestamp up = rs.getTimestamp("updated_at");
                     it.setUpdatedAt(up != null ? up.toLocalDateTime() : null);
                     Timestamp lr = rs.getTimestamp("last_read_at");

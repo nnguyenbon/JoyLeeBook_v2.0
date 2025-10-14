@@ -123,7 +123,18 @@ public class ChapterServices {
         chapterDetailDTO.setAuthorsName(seriesAuthorDAO.authorsOfSeries(chapter.getSeriesId()));
         chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapterDetailDTO.setTotalLike(likesDAO.countByChapter(chapter.getChapterId()));
+        chapterDetailDTO.setStatus(FormatServices.formatString(chapter.getStatus()));
+        chapterDetailDTO.setCreatedAt(FormatServices.formatDate(chapter.getCreatedAt()));
+        chapterDetailDTO.setUpdatedAt(FormatServices.formatDate(chapter.getUpdatedAt()));
+        chapterDetailDTO.setAction(FormatServices.getAction(chapterDetailDTO.getCreatedAt(), chapterDetailDTO.getUpdatedAt()));
         return  chapterDetailDTO;
     }
 
+    public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList, Connection connection) throws SQLException {
+        List<ChapterDetailDTO> chapterDetailDTOList = new ArrayList<>();
+        for (Chapter chapter : chapterList) {
+            chapterDetailDTOList.add(buildChapterDetailDTO(chapter, connection));
+        }
+        return chapterDetailDTOList;
+    }
 }

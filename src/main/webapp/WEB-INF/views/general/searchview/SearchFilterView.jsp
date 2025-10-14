@@ -31,7 +31,23 @@
                         <c:forEach var="category" items="${series.categories}">
                             <span class="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded-full">${category}</span>
                         </c:forEach>
-                        <span class="bg-green-100 text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full">${series.status}</span>
+                        <c:choose>
+                            <c:when test="${series.status == 'Completed'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                            </c:when>
+                            <c:when test="${series.status == 'Ongoing'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                            </c:when>
+                            <c:otherwise>
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                     <div class="flex items-center justify-between text-sm text-gray-500">
                                 <span class="flex gap-2 items-center">

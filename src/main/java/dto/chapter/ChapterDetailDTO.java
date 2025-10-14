@@ -10,7 +10,43 @@ public class ChapterDetailDTO {
     private List<String> authorsName;
     private String title;
     private String content;
+    private String status;
+    private String action;
+    private String updatedAt;
+    private String createdAt;
     private int totalLike;
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
 
     public int getSeriesId() {
         return seriesId;

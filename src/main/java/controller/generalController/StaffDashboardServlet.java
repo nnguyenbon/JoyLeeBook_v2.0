@@ -1,8 +1,15 @@
 package controller.generalController;
 
+import dao.CategoryDAO;
+import dao.ChapterDAO;
 import dao.SeriesDAO;
 import dao.StaffDAO;
 import db.DBConnection;
+import dto.category.CategoryInfoDTO;
+import dto.chapter.ChapterDetailDTO;
+import dto.chapter.ChapterInfoDTO;
+import dto.chapter.ChapterItemDTO;
+import dto.chapter.ChapterViewDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,6 +18,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Series;
 import model.Staff;
+import services.account.StaffServices;
+import services.category.CategoryServices;
+import services.chapter.ChapterServices;
 import services.general.PaginationServices;
 import services.series.SeriesServices;
 import utils.ValidationInput;
@@ -29,25 +39,23 @@ public class StaffDashboardServlet extends HttpServlet {
 //        Chưa có session bắt bằng cách truyền param
         String staffIdParam = "1";
         int staffId = ValidationInput.isPositiveInteger(staffIdParam) ? Integer.parseInt(staffIdParam) : 1;
-
+        String type = request.getParameter("type") == null ? "" : request.getParameter("type");
 
         try {
             Connection connection = DBConnection.getConnection();
             StaffDAO staffDAO = new StaffDAO(connection);
-            SeriesDAO seriesDAO = new SeriesDAO(connection);
             Staff staff = staffDAO.findById(staffId);
+            StaffServices staffServices = new StaffServices();
+            if (staffServices.handleRedirect(type, connection, request, response)) {
+                return;
+            }
 
-            PaginationServices paginationServices = new PaginationServices();
-            SeriesServices seriesServices = new SeriesServices(connection);
-            List<SeriesInfoDTO> seriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getAll());
-            List<SeriesInfoDTO> seriesInfoDTOList = paginationServices.handleParameterPage(seriesList, request);
-
-            request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
+            request.setAttribute("type", type != null ? type : "series");
             request.setAttribute("staffId", staff.getStaffId());
             request.setAttribute("staffName", staff.getFullName());
+            request.getRequestDispatcher("/WEB-INF/views/general/StaffDashboard.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        request.getRequestDispatcher("/WEB-INF/views/general/StaffDashboard.jsp").forward(request, response);
     }
 }

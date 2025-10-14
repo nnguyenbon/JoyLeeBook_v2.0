@@ -58,10 +58,8 @@ public class SearchServlet extends HttpServlet {
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-            request.setAttribute("isFirstDirect", isFirstDirect);
             request.setAttribute("statusParam", statuses);
             request.setAttribute("genresParam", genres);
-            isFirstDirect = false;
             request.setAttribute("searchType", searchType != null ? searchType : "title");
             request.setAttribute("keyword", keyword);
             request.getRequestDispatcher("/WEB-INF/views/general/SearchPage.jsp").forward(request, response);
