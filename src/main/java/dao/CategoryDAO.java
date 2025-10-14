@@ -126,7 +126,32 @@ public class CategoryDAO {
         return false;
     }
 
+    public List<Category> getCategoryTop(int limit) throws SQLException {
+        List<Category> list = new ArrayList<>();
+        String sql = "SELECT TOP " + limit + """
+                c.category_id,
+                        c.name,
+                        c.description,
+                        COUNT(sc.series_id) AS total_series
+                FROM
+                categories AS c
+                INNER JOIN
+                series_categories AS sc ON c.category_id = sc.category_id
+                INNER JOIN
+                series AS s ON sc.series_id = s.series_id
+                GROUP BY
+                c.category_id, c.name, c.description
+                ORDER BY
+                total_series DESC;""";
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToCategory(rs));
+            }
+        }
+        return list;
+    }
     /**
      * Helper: Map a ResultSet row into a Category object.
      */

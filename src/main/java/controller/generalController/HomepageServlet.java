@@ -38,7 +38,7 @@ public class HomepageServlet extends HttpServlet {
             List<User>  userList = userDAO.selectTopUserPoints(8);
 
             CategoryServices categoryServices = new CategoryServices();
-            List<CategoryInfoDTO> categoryList = categoryServices.buildCategoryInfoDTOList(categoryDAO.getAll());
+            List<CategoryInfoDTO> categoryList = categoryServices.buildCategoryInfoDTOList(categoryDAO.getCategoryTop(6));
 
 
             request.setAttribute("hotSeriesList", hotSeriesList);

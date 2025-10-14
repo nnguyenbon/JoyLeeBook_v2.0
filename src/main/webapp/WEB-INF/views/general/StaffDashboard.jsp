@@ -104,60 +104,63 @@
         </div>
 
         <!-- List Header -->
-        <p class="text-gray-500 text-sm mb-1 px-9">Total: ${seriesInfoDTOList.size()}</p>
+        <p class="text-gray-500 text-sm mb-2 px-9 mt-2">Total: ${seriesInfoDTOList.size()}</p>
 
-        <!-- Series List -->
-        <div class="space-y-3 px-9">
-            <c:forEach var="series" items="${seriesInfoDTOList}">
-                <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
-                    <div class="flex items-center gap-4">
-                        <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" class="w-12 h-16 rounded object-cover" alt="">
-                        <div>
-                            <p class="font-semibold text-gray-800">${series.title}</p>
-                            <c:forEach var="category" items="${series.categories}">
-                                <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
-                            </c:forEach>
+        <!-- Content Container with Scroll -->
+        <div class="h-[calc(100vh-15rem)] overflow-y-auto px-9 bg-gray-100 custom-scrollbar">
+            <!-- Series List -->
+            <div class="space-y-3">
+                <c:forEach var="series" items="${seriesInfoDTOList}">
+                    <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" class="w-12 h-16 rounded object-cover" alt="">
+                            <div>
+                                <p class="font-semibold text-gray-800">${series.title}</p>
+                                <c:forEach var="category" items="${series.categories}">
+                                    <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
+                                </c:forEach>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-10 text-sm">
+                            <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                              stroke-linecap="round" stroke-linejoin="round"
+                                                              class="lucide lucide-star-icon lucide-star">
+                                <path
+                                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+                            </svg>
+                                <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
+                            </p>
+                            <p>${series.totalChapters} Chapters</p>
+                            <span
+                                    class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
+                            <p class="text-gray-500">${series.createdAt}</p>
+                            <a href="">
+                                <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
+                                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                           stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
+                                        <path
+                                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg></span>
+                                    Detail</button>
+                            </a>
                         </div>
                     </div>
-                    <div class="flex items-center gap-10 text-sm">
-                        <p class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                          stroke-linecap="round" stroke-linejoin="round"
-                                                          class="lucide lucide-star-icon lucide-star">
-                            <path
-                                    d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
-                        </svg>
-                            <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
-                        </p>
-                        <p>${series.totalChapters} Chapters</p>
-                        <span
-                                class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
-                        <p class="text-gray-500">${series.createdAt}</p>
-                        <a href="">
-                            <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
-                            <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                       stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
-                                    <path
-                                            d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg></span>
-                                Detail</button>
-                        </a>
-                    </div>
-                </div>
-            </c:forEach>
-
+                </c:forEach>
+            </div>
+        </div>
 
         <!-- Pagination -->
-        <div class="flex justify-end mt-6 gap-1 text-sm px-9">
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">&lt;&lt;</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">1</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">2</button>
+        <div class="flex justify-end items-center gap-1 py-4 text-sm px-9 bg-gray-100">
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">&lt;&lt;</button>
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">2</button>
             <span class="px-2 py-1">...</span>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">10</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">11</button>
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100">&gt;&gt;</button>
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">10</button>
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">11</button>
+            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">&gt;&gt;</button>
         </div>
     </main>
 </div>
