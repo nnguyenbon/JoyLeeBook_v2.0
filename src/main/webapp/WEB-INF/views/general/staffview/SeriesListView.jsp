@@ -8,13 +8,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!-- List Header -->
-<p class="text-gray-500 text-sm mb-2 px-9 mt-2">Total: ${seriesInfoDTOList.size()}</p>
+<p class="text-gray-500 text-sm mb-2 px-9 mt-2">Total: ${size}</p>
 
 <!-- Content Container with Scroll -->
 <div class="h-[calc(100vh-15rem)] overflow-y-auto px-9 bg-gray-100 custom-scrollbar">
     <!-- Series List -->
-    <div class="space-y-3">
-        <c:forEach var="series" items="${seriesInfoDTOList}">
+
+    <c:forEach var="series" items="${seriesInfoDTOList}">
+        <div class="space-y-3">
             <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
                 <div class="flex items-center gap-4">
                     <img src="${pageContext.request.contextPath}/${series.coverImgUrl}"
@@ -71,14 +72,15 @@
                     </a>
                 </div>
             </div>
-        </c:forEach>
-    </div>
+        </div>
+    </c:forEach>
 </div>
 
 
 <!-- Pagination -->
 <div class="flex justify-end items-center gap-1 py-4 text-sm px-9 bg-gray-100">
-    <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}">
+    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+       class="page-link">
         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                 <c:if test="${currentPage == 1}">disabled</c:if>>
             &lt;&lt;
@@ -87,7 +89,8 @@
 
 
     <c:if test="${currentPage > 3}">
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
         </a>
         <span class="px-2 py-1">...</span>
@@ -95,7 +98,8 @@
 
     <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
                     ${i}
@@ -105,12 +109,14 @@
 
     <c:if test="${currentPage < totalPage - 2}">
         <span class="px-2 py-1">...</span>
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
         </a>
     </c:if>
 
-    <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}">
+    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+       class="page-link">
         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                 <c:if test="${currentPage == totalPage}">disabled</c:if>>
             &gt;&gt;

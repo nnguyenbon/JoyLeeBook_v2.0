@@ -23,7 +23,11 @@ public class FormatServices {
         return date.format(formatter);
     }
 
-    public static String formatStatus (String status) {
-        return status.equals("completed") ? "Completed" : "Ongoing";
+    public static String formatString(String status) {
+        return  Character.toUpperCase(status.charAt(0)) + status.substring(1);
+    }
+
+    public static String getAction (String createdAt, String updatedAt){
+        return createdAt.equals(updatedAt) ? "Add Chapter" : "Edit Chapter";
     }
 }

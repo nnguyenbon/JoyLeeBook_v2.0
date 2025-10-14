@@ -11,7 +11,6 @@ import services.general.FormatServices;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class SeriesServices {
         dto.setTitle(series.getTitle());
         dto.setDescription(series.getDescription());
         dto.setCoverImgUrl(series.getCoverImgUrl());
-        dto.setStatus(FormatServices.formatStatus(series.getStatus()));
+        dto.setStatus(FormatServices.formatString(series.getStatus()));
         dto.setUpdatedAt(FormatServices.formatDate(series.getUpdatedAt()));
 
         List<String> categories = new ArrayList<>();

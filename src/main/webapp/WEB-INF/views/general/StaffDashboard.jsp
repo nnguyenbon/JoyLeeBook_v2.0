@@ -8,12 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
-<% if ("series".equals(request.getParameter("type"))) {
-    request.setAttribute("sizePage", 8);
-} else if ("chapter".equals(request.getParameter("type"))) {
-    request.setAttribute("sizePage", 10);
-}
-%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,6 +119,9 @@
                 <c:when test="${type == 'chapter'}">
                     <jsp:include page="/WEB-INF/views/general/staffview/ChaptersListView.jsp"/>
                 </c:when>
+                <c:when test="${type == 'genres'}">
+                    <jsp:include page="/WEB-INF/views/general/staffview/GenresListView.jsp"/>
+                </c:when>
             </c:choose>
         </div>
 
@@ -135,6 +132,8 @@
     const contextPath = "${pageContext.request.contextPath}";
     const tabs = document.querySelectorAll(".tab-btn");
     const container = document.getElementById("tab-content");
+
+    let currentType = "series";
 
     function highlightActiveTab(type) {
         tabs.forEach(tab => {
@@ -148,27 +147,48 @@
         });
     }
 
-    function fetchContent(type) {
-        highlightActiveTab(type);
-        const sizePage = type === "series" ? 8 : (type === "chapter" ? 10 : 5);
+    function getSizeByType(type) {
+        switch (type) {
+            case "series": return 8;
+            case "chapter": return 10;
+            case "genre": return 20;
+            default: return 5;
+        }
+    }
 
-        fetch(contextPath + '/staff?type=' + encodeURIComponent(type) + '&sizePage=' + sizePage)
-                .then(res => res.text())
+    function fetchContent(type, page = 1) {
+        currentType = type;
+        highlightActiveTab(type);
+
+        const sizePage = getSizeByType(type);
+        const url = contextPath+ '/staff?type=' + encodeURIComponent(type) + '&sizePage=' + sizePage+'&currentPage='+page;
+
+        fetch(url)
+            .then(res => res.text())
             .then(html => {
                 container.innerHTML = html;
 
-                if (window.tailwind && window.tailwind.refresh) {
-                    window.tailwind.refresh();
-                }
 
-                if (typeof bindFilterEvents === "function") {
-                    bindFilterEvents();
-                }
+                if (window.tailwind?.refresh) window.tailwind.refresh();
+                bindPaginationEvents();
+                if (typeof bindFilterEvents === "function") bindFilterEvents();
             })
             .catch(err => {
                 console.error("Fetch failed:", err);
                 container.innerHTML = `<p class="text-red-500 p-4">Failed to load ${type} content.</p>`;
             });
+    }
+
+    function bindPaginationEvents() {
+        const paginationLinks = container.querySelectorAll(".page-link, .pagination a");
+        paginationLinks.forEach(link => {
+            link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const url = new URL(link.href);
+                const page = url.searchParams.get("currentPage") || url.searchParams.get("page") || 1;
+                fetchContent(currentType, page);
+            });
+        });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -178,9 +198,7 @@
                 fetchContent(type);
             });
         });
-        fetchContent("series");
+        fetchContent(currentType);
     });
 </script>
-
-
 </html>

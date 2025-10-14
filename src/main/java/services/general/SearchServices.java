@@ -1,9 +1,12 @@
 package services.general;
 
 import dao.CategoryDAO;
+import dao.ChapterDAO;
 import dao.SeriesDAO;
 import dao.UserDAO;
 import dto.author.AuthorItemDTO;
+import dto.category.CategoryInfoDTO;
+import dto.chapter.ChapterDetailDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Category;
 import model.Series;
 import services.account.AuthorServices;
+import services.category.CategoryServices;
+import services.chapter.ChapterServices;
 import services.series.SeriesServices;
 
 import java.io.IOException;

@@ -8,13 +8,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!-- List Header -->
-<p class="text-gray-500 text-sm mb-1 px-9">Total: ${chapterDetailDTOList.size()}</p>
-
+<p class="text-gray-500 text-sm mb-1 px-9">Total: ${size}</p>
 <!-- Series List -->
 <div class="h-[calc(100vh-15rem)] overflow-y-auto px-9 bg-gray-100 custom-scrollbar">
-    <div class="space-y-3 px-9">
-        <!-- Item -->
-        <c:forEach var="chapter" items="${chapterDetailDTOList}">
+    <!-- Item -->
+    <c:forEach var="chapter" items="${chapterDetailDTOList}">
+        <div class="space-y-3 px-9">
             <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
                 <div class="flex items-center gap-4">
                     <div class="px-4">
@@ -23,14 +22,14 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-10 text-sm">
-                    <p class="font-extrabold text-[#195DA9]">Edit chapter</p>
+                    <p class="font-extrabold text-[#195DA9]">${chapter.action}</p>
                     <c:choose>
-                        <c:when test="${chapter.status == 'approved'}">
+                        <c:when test="${chapter.status == 'Approved'}">
                                     <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
                                             ${chapter.status}
                                     </span>
                         </c:when>
-                        <c:when test="${chapter.status == 'pending'}">
+                        <c:when test="${chapter.status == 'Pending'}">
                                     <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
                                             ${chapter.status}
                                     </span>
@@ -95,12 +94,14 @@
                     </div>
                 </div>
             </div>
-        </c:forEach>
         </div>
-    </div>
+    </c:forEach>
+
+</div>
 <!-- Pagination -->
 <div class="flex justify-end items-center gap-1 py-4 text-sm px-9 bg-gray-100">
-    <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}">
+    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+       class="page-link">
         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                 <c:if test="${currentPage == 1}">disabled</c:if>>
             &lt;&lt;
@@ -109,7 +110,8 @@
 
 
     <c:if test="${currentPage > 3}">
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
         </a>
         <span class="px-2 py-1">...</span>
@@ -117,7 +119,8 @@
 
     <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
                     ${i}
@@ -127,12 +130,14 @@
 
     <c:if test="${currentPage < totalPage - 2}">
         <span class="px-2 py-1">...</span>
-        <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage}&sizePage=${sizePage}">
+        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+           class="page-link">
             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
         </a>
     </c:if>
 
-    <a href="${pageContext.request.contextPath}/staff?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}">
+    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+       class="page-link">
         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                 <c:if test="${currentPage == totalPage}">disabled</c:if>>
             &gt;&gt;

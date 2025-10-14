@@ -1,9 +1,11 @@
 package controller.generalController;
 
+import dao.CategoryDAO;
 import dao.ChapterDAO;
 import dao.SeriesDAO;
 import dao.StaffDAO;
 import db.DBConnection;
+import dto.category.CategoryInfoDTO;
 import dto.chapter.ChapterDetailDTO;
 import dto.chapter.ChapterInfoDTO;
 import dto.chapter.ChapterItemDTO;
@@ -16,6 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Series;
 import model.Staff;
+import services.account.StaffServices;
+import services.category.CategoryServices;
 import services.chapter.ChapterServices;
 import services.general.PaginationServices;
 import services.series.SeriesServices;
@@ -40,33 +44,18 @@ public class StaffDashboardServlet extends HttpServlet {
         try {
             Connection connection = DBConnection.getConnection();
             StaffDAO staffDAO = new StaffDAO(connection);
-            SeriesDAO seriesDAO = new SeriesDAO(connection);
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
             Staff staff = staffDAO.findById(staffId);
-
+            StaffServices staffServices = new StaffServices();
+            if (staffServices.handleRedirect(type, connection, request, response)) {
+                return;
+            }
 
             request.setAttribute("type", type != null ? type : "series");
             request.setAttribute("staffId", staff.getStaffId());
             request.setAttribute("staffName", staff.getFullName());
-            PaginationServices paginationServices = new PaginationServices();
-            if ("series".equals(type)) {
-                SeriesServices seriesServices = new SeriesServices(connection);
-                List<SeriesInfoDTO> seriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getAll());
-                List<SeriesInfoDTO> seriesInfoDTOList = paginationServices.handleParameterPage(seriesList, request);
-                request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
-                request.getRequestDispatcher("/WEB-INF/views/general/staffview/SeriesListView.jsp").forward(request, response);
-                return;
-            } else if ("chapter".equals(type)) {
-                ChapterServices chapterServices = new ChapterServices();
-                List<ChapterDetailDTO> chapterList = chapterServices.buildChapterDetailDTOList(chapterDAO.getAll(), connection);
-                List<ChapterDetailDTO> chapterDetailDTOList = paginationServices.handleParameterPage(chapterList, request);
-                request.setAttribute("chapterDetailDTOList", chapterDetailDTOList);
-                request.getRequestDispatcher("/WEB-INF/views/general/staffview/ChaptersListView.jsp").forward(request, response);
-                return;
-            }
+            request.getRequestDispatcher("/WEB-INF/views/general/StaffDashboard.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        request.getRequestDispatcher("/WEB-INF/views/general/StaffDashboard.jsp").forward(request, response);
     }
 }

@@ -123,9 +123,10 @@ public class ChapterServices {
         chapterDetailDTO.setAuthorsName(seriesAuthorDAO.authorsOfSeries(chapter.getSeriesId()));
         chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapterDetailDTO.setTotalLike(likesDAO.countByChapter(chapter.getChapterId()));
-        chapterDetailDTO.setStatus(chapter.getStatus());
+        chapterDetailDTO.setStatus(FormatServices.formatString(chapter.getStatus()));
         chapterDetailDTO.setCreatedAt(FormatServices.formatDate(chapter.getCreatedAt()));
         chapterDetailDTO.setUpdatedAt(FormatServices.formatDate(chapter.getUpdatedAt()));
+        chapterDetailDTO.setAction(FormatServices.getAction(chapterDetailDTO.getCreatedAt(), chapterDetailDTO.getUpdatedAt()));
         return  chapterDetailDTO;
     }
 
