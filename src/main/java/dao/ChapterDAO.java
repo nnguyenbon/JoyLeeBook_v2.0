@@ -38,7 +38,7 @@ public class ChapterDAO {
      */
     public List<Chapter> getAll() throws SQLException {
         List<Chapter> chapters = new ArrayList<>();
-        String sql = "SELECT * FROM chapters WHERE is_deleted = false";
+        String sql = "SELECT * FROM chapters WHERE is_deleted = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {

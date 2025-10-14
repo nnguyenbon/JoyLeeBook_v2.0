@@ -8,9 +8,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
+<% if ("series".equals(request.getParameter("type"))) {
+    request.setAttribute("sizePage", 8);
+} else if ("chapter".equals(request.getParameter("type"))) {
+    request.setAttribute("sizePage", 10);
+}
+%>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,9 +96,15 @@
 
         <!-- Tabs -->
         <div class="border-b  flex items-center px-9">
-            <button class="font-extrabold border-b-4 border-[#195DA9] pb-1 px-4">Series List</button>
-            <button class="text-gray-500 px-4 pb-2 hover:text-[#195DA9]">Chapter review</button>
-            <button class="text-gray-500 px-4 pb-2 hover:text-[#195DA9]">Genres</button>
+            <button id="tab-series" data-type="series"
+                    class="tab-btn font-extrabold border-b-4 border-[#195DA9] pb-1 px-4">Series List
+            </button>
+            <button id="tab-chapter" data-type="chapter"
+                    class="tab-btn text-gray-500 px-4 pb-2 hover:text-[#195DA9]">Chapter review
+            </button>
+            <button id="tab-genres" data-type="genres"
+                    class="tab-btn text-gray-500 px-4 pb-2 hover:text-[#195DA9]">Genres
+            </button>
 
             <div class="ml-auto flex gap-2">
                 <select class="border rounded-md text-sm px-2 py-1">
@@ -106,10 +117,70 @@
             </div>
         </div>
 
-        <jsp:include page="/WEB-INF/views/general/staffview/SeriesListView.jsp"/>
+        <div id="tab-content">
+            <c:choose>
+                <c:when test="${type == 'series'}">
+                    <jsp:include page="/WEB-INF/views/general/staffview/SeriesListView.jsp"/>
+                </c:when>
+                <c:when test="${type == 'chapter'}">
+                    <jsp:include page="/WEB-INF/views/general/staffview/ChaptersListView.jsp"/>
+                </c:when>
+            </c:choose>
+        </div>
 
     </main>
 </div>
 </body>
+<script>
+    const contextPath = "${pageContext.request.contextPath}";
+    const tabs = document.querySelectorAll(".tab-btn");
+    const container = document.getElementById("tab-content");
+
+    function highlightActiveTab(type) {
+        tabs.forEach(tab => {
+            if (tab.dataset.type === type) {
+                tab.classList.add("font-extrabold", "border-b-4", "border-[#195DA9]", "text-[#195DA9]");
+                tab.classList.remove("text-gray-500");
+            } else {
+                tab.classList.remove("font-extrabold", "border-b-4", "border-[#195DA9]", "text-[#195DA9]");
+                tab.classList.add("text-gray-500");
+            }
+        });
+    }
+
+    function fetchContent(type) {
+        highlightActiveTab(type);
+        const sizePage = type === "series" ? 8 : (type === "chapter" ? 10 : 5);
+
+        fetch(contextPath + '/staff?type=' + encodeURIComponent(type) + '&sizePage=' + sizePage)
+                .then(res => res.text())
+            .then(html => {
+                container.innerHTML = html;
+
+                if (window.tailwind && window.tailwind.refresh) {
+                    window.tailwind.refresh();
+                }
+
+                if (typeof bindFilterEvents === "function") {
+                    bindFilterEvents();
+                }
+            })
+            .catch(err => {
+                console.error("Fetch failed:", err);
+                container.innerHTML = `<p class="text-red-500 p-4">Failed to load ${type} content.</p>`;
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        tabs.forEach(tab => {
+            tab.addEventListener("click", () => {
+                const type = tab.dataset.type;
+                fetchContent(type);
+            });
+        });
+        fetchContent("series");
+    });
+</script>
+
 
 </html>
