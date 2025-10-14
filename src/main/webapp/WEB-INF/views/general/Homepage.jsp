@@ -53,7 +53,7 @@
     <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <div class="col-span-9">
             <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
-            <div class="border border-neutral-800/50 rounded-xl pt-6 overflow-hidden shadow-xl">
+            <div class="border border-gray-300 rounded-xl pt-8 overflow-hidden shadow-xl">
                 <div class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth">
                     <c:forEach
                             var="hotSeries"
@@ -64,7 +64,7 @@
                                 id="slide-${hotSeries.seriesId}"
                                 class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
                         >
-                            <div class="flex-1 overflow-hidden rounded-lg">
+                            <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
                                         src="${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
@@ -72,21 +72,21 @@
                                 />
                             </div>
 
-                            <div class="flex-3">
-                                <p class="text-2xl font-bold">${hotSeries.title}</p>
-                                <p class="text-gray-400 text-lg">
-                                    by <span class="text-primary">
-                                    <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
-                                        ${author}<c:if test="${!loop.last}">, </c:if>
-                                    </c:forEach>
-                                </span>
-                                </p>
-                                <p class="mt-2 whitespace-pre-line text-lg">
-                                        ${hotSeries.description}
-                                </p>
+                            <div class="flex-3 flex flex-col justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
+                                    <p class="text-gray-400">
+                                        by <span class="text-primary">
+                                        <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
+                                            ${author}<c:if test="${!loop.last}">, </c:if>
+                                        </c:forEach>
+                                    </span>
+                                    </p>
+                                </div>
+                                <p class="flex-1 mt-2 whitespace-pre-line text-lg line-clamp-5">${hotSeries.description}</p>
                                 <a
                                         href="${pageContext.request.contextPath}/series-detail?seriesId=${hotSeries.seriesId}"
-                                        class="inline-block py-2 px-4 mt-4 bg-primary rounded-md"
+                                        class="inline-block w-32 text-center py-2 px-4 mt-2 bg-primary rounded-md"
                                 >
                                     Read now
                                 </a>
@@ -95,11 +95,11 @@
                     </c:forEach>
                 </div>
 
-                <ul class="flex justify-center gap-4 mt-6 mb-3" id="indicator">
+                <ul class="flex justify-center gap-4 mt-8 mb-4" id="indicator">
                     <c:forEach var="hotSeries" items="${hotSeriesList}" varStatus="loop">
                         <li>
                             <a
-                                    class="block size-2 rounded-full border border-sky-500"
+                                    class="block size-3 rounded-full border border-[#195da9]"
                                     href="#slide-${hotSeries.seriesId}"
                                     onclick="toggleIndicator(${loop.index}, event)"
                             ></a>
@@ -220,7 +220,7 @@
 
         <ul class="col-span-12 flex justify-between gap-5 pt-6">
             <c:forEach var="recentlyUpdatedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
-                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-3000">
+                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
 
                     <div class="aspect-[3/4] overflow-hidden relative">
                         <img
@@ -302,7 +302,7 @@
         <!-- Danh sách series -->
         <ul class="col-span-12 flex justify-between gap-5 pt-6">
             <c:forEach var="completedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
-                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-3000">
+                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
                     <a href="${pageContext.request.contextPath}/series-detail?seriesId=${completedSeries.seriesId}">
                         <!-- Hình ảnh -->
                         <div class="aspect-[3/4] overflow-hidden relative">

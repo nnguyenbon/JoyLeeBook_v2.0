@@ -55,17 +55,17 @@ function removeGenre(genreRemoveElement) {
     liRemoveElement.remove();
 }
 
-indicators[0].classList.add("bg-sky-500");
+indicators[0].classList.add("bg-[#195da9]");
 function toggleIndicator(index, event) {
     event.preventDefault();
     const slides = document.querySelectorAll("[id^='slide-']");
     const slideContainer = document.querySelector("#slide-container");
 
     indicators.forEach((indicator) => {
-        indicator.classList.remove("bg-sky-500");
+        indicator.classList.remove("bg-[#195da9]");
     });
 
-    indicators[index].classList.add("bg-sky-500");
+    indicators[index].classList.add("bg-[#195da9]");
 
     const targetSlide = slides[index ];
     if (!targetSlide) return;
