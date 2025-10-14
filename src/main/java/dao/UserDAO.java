@@ -120,7 +120,7 @@ public class UserDAO {
     // Lấy top người dùng theo điểm
     public List<User> selectTopUserPoints(int limit) throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT TOP (?) * FROM users WHERE is_deleted = 0 ORDER BY points DESC";
+        String sql = "SELECT TOP (?) * FROM users WHERE is_deleted = 0 AND role = 'reader' ORDER BY points DESC";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, limit);
             try (ResultSet rs = stmt.executeQuery()) {

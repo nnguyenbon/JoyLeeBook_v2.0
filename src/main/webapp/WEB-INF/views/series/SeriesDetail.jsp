@@ -7,27 +7,11 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<html>
-<head>
-    <title>Series Details</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="../css/styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-            rel="stylesheet" />
-</head>
-<body>
-<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
-<main class="main max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px] items-center">
+<main class=" mt-10 grid grid-cols-12 gap-[30px] items-center">
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="./img/thenewkidinschool.png" alt="Series cover" class="rounded-lg shadow"/>
+        <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
@@ -83,10 +67,13 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <button
-                    class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                ▶ Start Reading
-            </button>
+            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                <button
+                        class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
+                    ▶ Start Reading
+                </button>
+            </a>
+
 
             <button
                     class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
@@ -102,7 +89,7 @@
     </div>
 </main>
 <!-- Summary -->
-<section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
+<section class="mt-10 grid grid-cols-12 gap-[30px]">
     <div class="col-span-10 col-start-2">
         <h2 class="font-semibold text-xl mb-3">Summary</h2>
         <div class="border-2 border-[#0D2E55] rounded-lg bg-white p-4 leading-relaxed text-gray-700">
@@ -111,14 +98,14 @@
     </div>
 </section>
 <!-- Chapter List -->
-<section class="max-w-[1290px] mx-auto mt-5 mb-20 grid grid-cols-12 gap-[30px]">
+<section class=" mx-auto mt-5 mb-20 grid grid-cols-12 gap-[30px]">
     <div class="col-span-10 col-start-2">
         <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
         <div class="space-y-3 border-2 border-[#0D2E55] p-3 rounded-lg ">
             <c:forEach var="chapter" items="${chapterInfoDTOList}">
                 <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
                     <div
-                            class="flex justify-between items-center border rounded-lg px-4 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                            class="flex justify-between items-center border rounded-lg px-4 mb-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                         <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                         <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
                     </div>
@@ -207,5 +194,3 @@
     starContainer.addEventListener('mouseout', () => colorStars(currentRating));
     confirmBtn.addEventListener('click', () => modal.classList.add('hidden'));
 </script>
-</body>
-</html>

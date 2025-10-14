@@ -2,6 +2,8 @@ const showGenreElement = document.getElementById("showGenre");
 const genresElement = document.getElementById("genres");
 const containerGenreElement = document.getElementById("containerGenre");
 const listGenre = document.querySelectorAll("#containerGenre li");
+const indicators = document.querySelectorAll("#indicator a");
+
 
 // showGenreElement.addEventListener("click", () => {
 //   containerGenreElement.classList.toggle("hidden");
@@ -10,9 +12,9 @@ const listGenre = document.querySelectorAll("#containerGenre li");
 // });
 
 function checkedGenre(inputElement) {
-  console.log(inputElement.checked);
-  if (inputElement.checked) {
-    const label = `
+    console.log(inputElement.checked);
+    if (inputElement.checked) {
+        const label = `
                     <li class="inline-block bg-gray-300 py-0.5 px-2 rounded-sm text-xs h-full">
                       <span>${inputElement.name}</span>
                       <span
@@ -24,38 +26,38 @@ function checkedGenre(inputElement) {
                     </li>
     `;
 
-    genresElement.insertAdjacentHTML("beforeend", label);
-  } else {
-    const tags = genresElement.querySelectorAll("li span:first-child");
-    tags.forEach((span) => {
-      if (span.textContent.trim() === inputElement.name) {
-        span.parentElement.remove();
-      }
-    });
-  }
+        genresElement.insertAdjacentHTML("beforeend", label);
+    } else {
+        const tags = genresElement.querySelectorAll("li span:first-child");
+        tags.forEach((span) => {
+            if (span.textContent.trim() === inputElement.name) {
+                span.parentElement.remove();
+            }
+        });
+    }
 }
 
 function removeGenre(genreRemoveElement) {
-  console.log(genreRemoveElement);
-  const liRemoveElement = genreRemoveElement.parentElement;
+    console.log(genreRemoveElement);
+    const liRemoveElement = genreRemoveElement.parentElement;
 
-  const spanText = liRemoveElement.firstElementChild;
-  const inputCurrent = document.querySelectorAll("#containerGenre li input");
-  inputCurrent.forEach((input) => {
-    if (input.name.trim() === spanText.textContent.trim()) {
-      input.checked = false;
-      console.log(123123123);
-    }
-    console.log(input);
-  });
-  console.log(spanText);
-  console.log(liRemoveElement);
-  liRemoveElement.remove();
+    const spanText = liRemoveElement.firstElementChild;
+    const inputCurrent = document.querySelectorAll("#containerGenre li input");
+    inputCurrent.forEach((input) => {
+        if (input.name.trim() === spanText.textContent.trim()) {
+            input.checked = false;
+            console.log(123123123);
+        }
+        console.log(input);
+    });
+    console.log(spanText);
+    console.log(liRemoveElement);
+    liRemoveElement.remove();
 }
 
+indicators[0].classList.add("bg-sky-500");
 function toggleIndicator(index, event) {
     event.preventDefault();
-    const indicators = document.querySelectorAll("#indicator a");
     const slides = document.querySelectorAll("[id^='slide-']");
     const slideContainer = document.querySelector("#slide-container");
 
@@ -63,9 +65,9 @@ function toggleIndicator(index, event) {
         indicator.classList.remove("bg-sky-500");
     });
 
-    indicators[index - 1].classList.add("bg-sky-500");
+    indicators[index].classList.add("bg-sky-500");
 
-    const targetSlide = slides[index - 1];
+    const targetSlide = slides[index ];
     if (!targetSlide) return;
 
     targetSlide.scrollIntoView({
@@ -73,6 +75,4 @@ function toggleIndicator(index, event) {
         inline: "start",
         block: "nearest",
     });
-
 }
-

@@ -335,6 +335,8 @@ public class ChapterDAO {
         return 0;
     }
 
+
+
     /**
      * Add a new chapter and return the Chapter object with the generated ID.
      *
@@ -591,6 +593,24 @@ public class ChapterDAO {
 
 
     /**
+     * Get the latest chapter number of a series.
+     *
+     * @param seriesId ID of the series.
+     * @return number of the latest chapter. If no chapters exist, returns 0.
+     */
+    public int getFirstChapterNumber(int seriesId) throws SQLException {
+        String sql = "SELECT MIN(chapter_number) FROM chapters WHERE series_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+    /**
      * Extract a Chapter object from the current row of the ResultSet.
      *
      * @param rs the ResultSet positioned at the desired row
@@ -599,7 +619,7 @@ public class ChapterDAO {
      */
     private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {
         Chapter chapter = new Chapter();
-
+        chapter.setSeriesId(rs.getInt("series_id"));
         chapter.setChapterId(rs.getInt("chapter_id"));
         chapter.setChapterNumber(rs.getInt("chapter_number"));
         chapter.setTitle(rs.getString("title"));

@@ -103,6 +103,55 @@ public class CategoryDAO {
         }
     }
 
+    public boolean matchGenres(int seriesId, List<String> genres) throws SQLException {
+        if (genres == null || genres.isEmpty()) return true;
+
+        String placeholders = String.join(",", genres.stream().map(g -> "?").toArray(String[]::new));
+
+        String sql = "SELECT COUNT(*) FROM series_categories sc " +
+                "JOIN categories c ON sc.category_id = c.category_id " +
+                "WHERE sc.series_id = ? AND c.name IN (" + placeholders + ")";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            for (int i = 0; i < genres.size(); i++) {
+                ps.setString(i + 2, genres.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    public List<Category> getCategoryTop(int limit) throws SQLException {
+        List<Category> list = new ArrayList<>();
+        String sql = "SELECT TOP " + limit + """
+                c.category_id,
+                        c.name,
+                        c.description,
+                        COUNT(sc.series_id) AS total_series
+                FROM
+                categories AS c
+                INNER JOIN
+                series_categories AS sc ON c.category_id = sc.category_id
+                INNER JOIN
+                series AS s ON sc.series_id = s.series_id
+                GROUP BY
+                c.category_id, c.name, c.description
+                ORDER BY
+                total_series DESC;""";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToCategory(rs));
+            }
+        }
+        return list;
+    }
     /**
      * Helper: Map a ResultSet row into a Category object.
      */

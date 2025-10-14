@@ -33,7 +33,7 @@ public class SeriesDAO {
      */
     public List<Series> getAll() throws SQLException {
         List<Series> list = new ArrayList<>();
-        String sql = "SELECT * FROM series WHERE is_deleted = false";
+        String sql = "SELECT * FROM series WHERE is_deleted = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
