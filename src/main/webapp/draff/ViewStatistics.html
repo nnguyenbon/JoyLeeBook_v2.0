@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - JoyLeeBook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="../css/fontawesome/css/all.css" />
+</head>
+
+<body class="bg-white text-gray-800">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-56 border-r flex flex-col justify-between">
+            <div>
+                <div class="h-28 flex items-center justify-center border-b">
+                    <img src="../img/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
+                </div>
+                <nav class="">
+                    <a href="#" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium ">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        </svg> <span class="ml-2">Overview</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-book"></i>
+                        <span class="ml-2">Series List</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span class="ml-2">Reports</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="ml-2">Accounts</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t">
+                <a href="#" class="flex items-center text-red-500 hover:text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-log-out-icon lucide-log-out">
+                        <path d="m16 17 5-5-5-5" />
+                        <path d="M21 12H9" />
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    </svg>
+                    <span class="ml-2">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-gray-100">
+            <!-- Header -->
+            <div class="h-28 flex items-center border-b bg-white px-9 mb-4">
+                <p class="font-semibold text-lg">
+                    Admin: <span class="text-[#195DA9]">BaoNguyen</span>
+                </p>
+            </div>
+
+            <!-- Dashboard Content -->
+            <!-- Grid chiếm toàn bộ phần còn lại -->
+            <div class="flex-1 grid grid-cols-8 gap-6 px-6">
+                <!-- <div class=" border border-gray-300 bg-white rounded-xl flex items-center justify-center"> -->
+                <div class="col-span-2 max-w-sm w-full bg-white rounded-lg shadow-sm md:p-6">
+                    <div class="flex justify-between border-gray-200 border-b pb-3">
+                        <dl>
+                            <dt class="text-base font-normal text-gray-500 pb-1">Total Interactions</dt>
+                            <dd class="leading-none text-3xl font-bold text-gray-900">1120</dd>
+                        </dl>
+                        <!-- <div>
+                            <span
+                                class="bg-green-100 text-green-800 text-xs font-medium inline-flex items-center px-2.5 py-1 rounded-md">
+                                <svg class="w-2.5 h-2.5 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 10 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+                                </svg>
+                                Growth rate 12.3%
+                            </span>
+                        </div> -->
+                    </div>
+                    <div id="bar-chart"></div>
+                    <!-- <div class="grid grid-cols-1 items-center border-gray-200 border-t justify-between">
+                        <div class="flex justify-between items-center pt-5">
+                            <select
+                                class="text-sm font-medium text-gray-500 hover:text-gray-900 text-center inline-flex items-center">
+                                <option>All Time</option>
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>Last 90 days</option>
+                                <option>Last 6 months</option>
+                            </select>
+
+                        </div>
+                    </div> -->
+                </div>
+                <!-- </div> -->
+                <!-- Tổng quan 2 nhóm box (Series + Chapter) -->
+                <div class="col-span-6 grid grid-cols-6 gap-6">
+
+                    <!-- ===== Nhóm 1: Total Series ===== -->
+                    <div class="col-span-3 grid grid-cols-4 gap-4">
+                        <!-- Box chính -->
+                        <div
+                            class="col-span-4 border border-gray-300 rounded-lg bg-white flex items-center justify-between px-8 py-4 shadow-sm">
+                            <span class="text-2xl font-semibold text-gray-700">Total Series</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-4xl font-bold text-[#195DA9]">150</span>
+                                <i class="fa-solid fa-book text-3xl text-[#195DA9]"></i>
+                            </div>
+                        </div>
+
+                        <!-- Active Users -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between shadow-sm">
+                            <p class="text-gray-600 font-semibold">Active Users</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-green-500 text-2xl font-bold">543</p>
+                                <i class="fa-solid fa-users text-green-500 text-3xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Authors -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between items-start shadow-sm">
+                            <p class="text-gray-600 font-semibold">Authors</p>
+                            <div class="flex items-center justify-between w-full">
+                                <p class="text-blue-500 text-2xl font-bold">50</p>
+                                <i class="fa-solid fa-pen-nib text-blue-500 text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Banned Users -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between items-start shadow-sm">
+                            <p class="text-gray-600 font-semibold">Banned Users</p>
+                            <div class="flex items-center justify-between w-full">
+                                <p class="text-red-500 text-2xl font-bold">5</p>
+                                <i class="fa-solid fa-user-slash text-red-500 text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Staffs -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between items-start shadow-sm">
+                            <p class="text-gray-600 font-semibold">Staffs</p>
+                            <div class="flex items-center justify-between w-full">
+                                <p class="text-purple-500 text-2xl font-bold">10</p>
+                                <i class="fa-solid fa-user-tie text-purple-500 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== Nhóm 2: Total Chapter ===== -->
+                    <div class="col-span-3 grid grid-cols-4 gap-4">
+                        <!-- Box chính -->
+                        <div
+                            class="col-span-4 border border-gray-300 rounded-lg bg-white flex items-center justify-between px-8 py-4 shadow-sm">
+                            <span class="text-2xl font-semibold text-gray-700">Total Chapters</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-4xl font-bold text-[#195DA9]">320</span>
+                                <i class="fa-solid fa-file-lines text-3xl text-[#195DA9]"></i>
+                            </div>
+                        </div>
+
+                        <!-- Active Chapters -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between shadow-sm">
+                            <p class="text-gray-600 font-semibold">Pending chapters</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-yellow-500 text-2xl font-bold">280</p>
+                                <i class="fa-regular fa-clock text-yellow-500 text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Drafts -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between shadow-sm">
+                            <p class="text-gray-600 font-semibold">Reject</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-red-500 text-2xl font-bold">15</p>
+                                <i class="fa-solid fa-circle-xmark text-red-500 text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Deleted -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between shadow-sm">
+                            <p class="text-gray-600 font-semibold">Total Reports</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-red-500 text-2xl font-bold">25</p>
+                                <i class="fa-solid fa-flag text-red-500 text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Staff Editors -->
+                        <div
+                            class="col-span-2 border border-gray-300 rounded-lg bg-white py-4 px-8 flex flex-col justify-between shadow-sm">
+                            <p class="text-gray-600 font-semibold">Pending Reports</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-red-500 text-2xl font-bold">8</p>
+                                <i class="fa-regular fa-clock text-red-500 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-span-2 max-w-sm w-full bg-white rounded-lg shadow-sm p-4 md:p-5">
+
+                    <div class="flex justify-between items-start w-full">
+                        <div class="flex-col items-center">
+                            <div class="flex items-center mb-2">
+                                <h5 class="text-xl font-bold leading-none text-gray-900">
+                                    Favorite Genres</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Line Chart -->
+                    <div class="py-2" id="pie-chart"></div>
+
+                </div>
+
+                <div class="col-span-3 border border-gray-300 bg-white rounded-xl flex items-center justify-center">
+                    <div class="max-w-lg w-full p-4 md:p-6">
+                        <div class="flex justify-between">
+                            <div>
+                                <h5 class="leading-none text-3xl font-bold text-gray-900 pb-2">
+                                    102
+                                </h5>
+                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                    Users this week
+                                </p>
+                            </div>
+                            <div class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500">
+                                10%
+                                <svg class="w-3 h-3 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 10 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div id="area-chart"></div>
+                        <select
+                            class="mt-3 text-sm font-medium text-gray-500 hover:text-gray-900 text-center inline-flex items-center">
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                            <option>Last 90 days</option>
+                            <option>Last 6 months</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-span-3 border border-gray-300 bg-white rounded-xl flex items-center justify-center">
+                    <div class="max-w-lg w-full p-4 md:p-6">
+                        <div class="flex justify-between">
+                            <div>
+                                <h5 class="leading-none text-3xl font-bold text-gray-900 pb-2">
+                                    16
+                                </h5>
+                                <p class="text-base font-normal text-gray-500 dark:text-gray-400">
+                                    Reports this week
+                                </p>
+                            </div>
+                            <div class="flex items-center px-2.5 py-0.5 text-base font-semibold text-green-500">
+                                10%
+                                <svg class="w-3 h-3 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 10 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" d="M5 13V1m0 0L1 5m4-4 4 4" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div id="report-chart"></div>
+                        <select
+                            class="mt-3 text-sm font-medium text-gray-500 hover:text-gray-900 text-center inline-flex items-center">
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                            <option>Last 90 days</option>
+                            <option>Last 6 months</option>
+                        </select>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const options = {
+            series: [
+                {
+                    name: "Interactions",
+                    color: "#3B82F6",
+                    data: ["732", "267", "430", "620", "540"],
+                }
+            ],
+            chart: {
+                sparkline: { enabled: false },
+                type: "bar",
+                width: 332,
+                height: 220,
+                toolbar: { show: false },
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    columnWidth: "100%",
+                    borderRadiusApplication: "end",
+                    borderRadius: 6,
+                    dataLabels: { position: "top" },
+                },
+            },
+            legend: {
+                show: false,
+            },
+            dataLabels: {
+                enabled: true,
+                style: {
+                    colors: ['#333'],
+                    fontSize: '12px'
+                }
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                formatter: function (value) {
+                    return value + " interactions";
+                }
+            },
+            xaxis: {
+                labels: {
+                    show: true,
+                    style: {
+                        fontFamily: "Inter, sans-serif",
+                        cssClass: 'text-xs font-normal fill-gray-500'
+                    },
+                },
+                categories: ["Likes", "Comments", "Votes", "Points", "Saves"],
+                axisTicks: { show: false },
+                axisBorder: { show: false },
+            },
+            yaxis: {
+                labels: {
+                    show: true,
+                    style: {
+                        fontFamily: "Inter, sans-serif",
+                        cssClass: 'text-xs font-normal fill-gray-500'
+                    }
+                }
+            },
+            grid: {
+                show: true,
+                strokeDashArray: 4,
+                padding: {
+                    left: 2,
+                    right: 2,
+                    top: 0
+                },
+            },
+            fill: { opacity: 1 }
+        };
+
+        if (document.getElementById("bar-chart") && typeof ApexCharts !== 'undefined') {
+            const chart = new ApexCharts(document.getElementById("bar-chart"), options);
+            chart.render();
+        }
+
+        const getGenreChartOptions = () => {
+            return {
+                series: [28, 22, 18, 16, 10, 6],
+                labels: ["Action", "Romance", "Fantasy", "Comedy", "Horror", "Others"],
+                colors: ["#3B82F6", "#F472B6", "#A855F7", "#22D3EE", "#F97316", "#10B981"],
+                chart: {
+                    type: "pie",
+                    height: 300,
+                    width: "100%",
+                },
+                plotOptions: {
+                    pie: {
+                        dataLabels: {
+                            offset: 0,
+                        },
+                    },
+                },
+                dataLabels: {
+                    enabled: true,
+                    style: {
+                        fontFamily: "Inter, sans-serif",
+                        fontWeight: "bold",
+                        fontSize: "13px",
+                        colors: ["#fff"],
+                    },
+                    formatter: function (val, opts) {
+                        const name = opts.w.globals.labels[opts.seriesIndex];
+                        return `${name}\n${val.toFixed(1)}%`; // xuống dòng cho đẹp
+                    },
+                },
+                legend: {
+                    show: false, // ẩn chú thích vì đã có text trong hình
+                },
+                markers: {
+                    radius: 1,
+                },
+                tooltip: {
+                    y: {
+                        formatter: (val) => val + "%",
+                    },
+                },
+            };
+        };
+
+        if (document.getElementById("pie-chart") && typeof ApexCharts !== "undefined") {
+            const genreChart = new ApexCharts(
+                document.getElementById("pie-chart"),
+                getGenreChartOptions()
+            );
+            genreChart.render();
+        }
+        // Area chart
+        const getUserNewOptions = () => ({
+            chart: {
+                height: "100%",
+                maxWidth: "100%",
+                type: "area",
+                fontFamily: "Inter, sans-serif",
+                toolbar: { show: false },
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    opacityFrom: 0.55,
+                    opacityTo: 0,
+                    shade: "#1C64F2",
+                    gradientToColors: ["#1C64F2"],
+                },
+            },
+            dataLabels: { enabled: false },
+            stroke: { width: 4 },
+            series: [
+                {
+                    name: "New users",
+                    data: [12, 15, 17, 6, 9, 20, 23],
+                    color: "#1A56DB",
+                },
+            ],
+            xaxis: {
+                categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                labels: { show: false },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+            },
+            yaxis: { show: false },
+            grid: { show: false },
+            tooltip: { enabled: true },
+        });
+
+        if (
+            document.getElementById("area-chart") &&
+            typeof ApexCharts !== "undefined"
+        ) {
+            const chart = new ApexCharts(document.getElementById("area-chart"), getUserNewOptions());
+            chart.render();
+        }
+        // Report chart
+        const getChartReportoptions = () => ({
+            chart: {
+                height: "100%",
+                maxWidth: "100%",
+                type: "area",
+                fontFamily: "Inter, sans-serif",
+                toolbar: { show: false },
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    opacityFrom: 0.55,
+                    opacityTo: 0,
+                    shade: "#ff0101ff",
+                    gradientToColors: ["#ff0000ff"],
+                },
+            },
+            dataLabels: { enabled: false },
+            stroke: { width: 4 },
+            series: [
+                {
+                    name: "New Reports",
+                    data: [2, 3, 1, 1, 2, 3, 4],
+                    color: "#ff0000ff",
+                },
+            ],
+            xaxis: {
+                categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                labels: { show: false },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+            },
+            yaxis: { show: false },
+            grid: { show: false },
+            tooltip: { enabled: true },
+        });
+
+        if (
+            document.getElementById("report-chart") &&
+            typeof ApexCharts !== "undefined"
+        ) {
+            const chart = new ApexCharts(document.getElementById("report-chart"), getChartReportoptions());
+            chart.render();
+        }
+
+    </script>
+</body>
+
+</html>

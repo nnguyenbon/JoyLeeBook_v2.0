@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - JoyLeeBook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="../css/fontawesome/css/all.css" />
+</head>
+
+<body class="bg-white text-gray-800">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-56 border-r flex flex-col justify-between">
+            <div>
+                <div class="h-28 flex items-center justify-center border-b">
+                    <img src="../img/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
+                </div>
+                <nav class="">
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        </svg> <span class="ml-2">Overview</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-book"></i>
+                        <span class="ml-2">Series List</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span class="ml-2">Reports</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium 0">
+                        <i class="fa-solid fa-users"></i>
+                        <span class="ml-2">Accounts</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t">
+                <a href="#" class="flex items-center text-red-500 hover:text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-log-out-icon lucide-log-out">
+                        <path d="m16 17 5-5-5-5" />
+                        <path d="M21 12H9" />
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    </svg>
+                    <span class="ml-2">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="flex-1 bg-gray-50">
+            <!-- Header -->
+            <div class="h-28 flex items-center border-b bg-white px-9 mb-4">
+                <p class="font-semibold text-lg">
+                    Admin: <span class="text-[#195DA9]">BaoNguyen</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-6 gap-10 p-6 ">
+
+                <!-- User Info -->
+                <div class="col-span-2 border border-gray-300 bg-white rounded-xl px-10 py-5 shadow-sm">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex-1 ">
+                            <p class="text-gray-500 text-sm mb-3">Username: <span
+                                    class="font-bold text-xl text-gray-800">ToanTK</span></p>
+
+                            <p class="text-gray-500 text-sm mb-3">Fullname:
+                                <span class="font-semibold text-xl mb-2">Truong Khai Toan</span>
+                            </p>
+                            <p class="text-gray-500 text-sm">Create Date:
+                                <span class="font-semibold text-xl">20/09/2025</span>
+                            </p>
+
+                        </div>
+                        <div class="flex flex-col justify-around">
+                            <button class="border rounded-lg p-2 text-gray-400 hover:text-blue-600">
+                                <i class="fa-solid fa-edit text-xl"></i>
+                            </button>
+                            <button class="border rounded-lg p-2 text-red-500 hover:text-red-700">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- Total Review -->
+                <div
+                    class="col-span-2 border border-gray-300 bg-white rounded-xl p-10 flex flex-col justify-between shadow-sm">
+                    <p class="text-gray-600 font-semibold">Total Review</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-4xl font-bold text-blue-600 mr-2">5</p>
+                        <i class="fa-solid fa-circle-check text-blue-500 text-3xl"></i>
+                    </div>
+                </div>
+
+
+                <!-- Total Handle Reports -->
+                <div
+                    class="col-span-2 border border-gray-300 bg-white rounded-xl p-10 shadow-sm flex flex-col justify-between">
+                    <p class="text-gray-600 font-semibold">Total Handle Reports</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-4xl font-bold text-red-600 mr-2">5</p>
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl"></i>
+                    </div>
+                </div>
+
+                <!-- Recent Actions -->
+                <div class="col-span-3 border border-gray-300 bg-white rounded-xl p-6 shadow-sm">
+                    <p class="text-lg font-bold mb-4">Recent Actions</p>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mt-1"></span>
+                            <div>
+                                <p>Approved “The Magic Quest” Chapter</p>
+                                <p class="text-gray-500 text-xs">15 minutes ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full mt-1"></span>
+                            <div>
+                                <p>Rejected “The Win” Series</p>
+                                <p class="text-gray-500 text-xs">1 hour ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-red-500 rounded-full mt-1"></span>
+                            <div>
+                                <p>Approved Report “The Team”</p>
+                                <p class="text-gray-500 text-xs">20 minutes ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mt-1"></span>
+                            <div>
+                                <p>Approved “The Magic Quest”</p>
+                                <p class="text-gray-500 text-xs">15 minutes ago</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="col-span-3 border border-gray-300 bg-white rounded-xl p-6 shadow-sm">
+                    <p class="text-lg font-bold mb-4">Quick Stats</p>
+                    <div class="space-y-8 text-lg">
+                        <div class="flex justify-between">
+                            <p>Reviews completed</p>
+                            <p class="font-semibold">23</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p>Content approved</p>
+                            <p class="font-semibold">24</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p>Content rejected</p>
+                            <p class="font-semibold">7</p>
+                        </div>
+                        <div class="flex justify-between">
+                            <p>Reports resolved</p>
+                            <p class="font-semibold">3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
