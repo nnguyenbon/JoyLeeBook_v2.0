@@ -18,8 +18,17 @@ public class ChapterItemDTO {
     private int chapterNumber;
     private String chapterTitle;
     private String status;
+    private String coverImgUrl;
     private LocalDateTime updatedAt;
     private LocalDateTime lastReadAt;
+
+    public String getCoverImgUrl() {
+        return coverImgUrl;
+    }
+
+    public void setCoverImgUrl(String coverImgUrl) {
+        this.coverImgUrl = coverImgUrl;
+    }
 
     // getters/setters
     public int getChapterId() {

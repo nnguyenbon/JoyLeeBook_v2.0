@@ -109,7 +109,7 @@
         <c:forEach var="chapter" items="${historyChapters}">
             <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                 <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
-                    <img src="https://via.placeholder.com/80x100" alt="cover" class="w-16 h-20 object-cover rounded-md">
+                    <img src="${chapter.coverImgUrl}" alt="cover" class="w-16 h-20 object-cover rounded-md">
                     <div class="ml-4 flex-1">
                         <h3 class="font-semibold text-gray-900">${chapter.seriesTitle}</h3>
                         <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.chapterTitle}</p>
