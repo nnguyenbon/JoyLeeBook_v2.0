@@ -59,7 +59,7 @@
                     </button>
 
                     <!-- Content -->
-                    <img src="https://via.placeholder.com/100x140" alt="cover" class="w-24 h-32 object-cover rounded-md">
+                    <img src="${series.coverImgUrl}" alt="cover" class="w-24 h-32 object-cover rounded-md">
                     <div class="ml-4 flex-1">
                         <h3 class="font-semibold text-gray-900">${series.title}</h3>
                         <p class="text-sm text-gray-500 mb-1">by
@@ -75,7 +75,23 @@
                                 <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full">${category}</span>
                             </c:forEach>
 
-                            <span class="px-2 py-1 bg-green-100 text-green-600 rounded-full">${series.status}</span>
+                            <c:choose>
+                                <c:when test="${series.status == 'Completed'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:when test="${series.status == 'Ongoing'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                         <div class="flex justify-between text-xs text-gray-500">
                             <span>⭐ ${series.avgRating} (${series.countRatings})</span>

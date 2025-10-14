@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Series;
 import model.Staff;
+import services.general.PaginationServices;
 import services.series.SeriesServices;
+import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -26,18 +28,8 @@ public class StaffDashboardServlet extends HttpServlet {
 //        String staffIdParam = request.getParameter("staffId");
 //        Chưa có session bắt bằng cách truyền param
         String staffIdParam = "1";
-        int staffId = 0;
-        if (staffIdParam != null && !staffIdParam.isEmpty()) {
-            try {
-                staffId = Integer.parseInt(staffIdParam);
-            } catch (NumberFormatException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid seriesId");
-                return;
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing seriesId");
-            return;
-        }
+        int staffId = ValidationInput.isPositiveInteger(staffIdParam) ? Integer.parseInt(staffIdParam) : 1;
+
 
         try {
             Connection connection = DBConnection.getConnection();
@@ -45,8 +37,10 @@ public class StaffDashboardServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(connection);
             Staff staff = staffDAO.findById(staffId);
 
+            PaginationServices paginationServices = new PaginationServices();
             SeriesServices seriesServices = new SeriesServices(connection);
-            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getAll());
+            List<SeriesInfoDTO> seriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getAll());
+            List<SeriesInfoDTO> seriesInfoDTOList = paginationServices.handleParameterPage(seriesList, request);
 
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
             request.setAttribute("staffId", staff.getStaffId());

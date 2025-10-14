@@ -16,17 +16,47 @@
 
     <!-- Right (Title, Info, Tags) -->
     <div class="col-span-7">
-        <h1 class="text-4xl font-bold">${seriesInfoDTO.title}</h1>
-        <p class="text-gray-600 mb-4">by <span class="font-semibold">
+        <h1 class="text-4xl font-bold mb-2">${seriesInfoDTO.title}</h1>
+
+        <!-- Tác giả -->
+        <p class="text-gray-600 mb-4">
+            by
+            <span class="font-semibold">
             <c:forEach var="author" items="${seriesInfoDTO.authorsName}" varStatus="loop">
                 ${author}<c:if test="${!loop.last}">, </c:if>
             </c:forEach>
-        </span></p>
+        </span>
+        </p>
 
-        <div class="flex flex-wrap gap-2 mb-15">
+        <!-- Thể loại + Trạng thái -->
+        <div class="flex flex-wrap items-center gap-2 mb-6">
+
+            <!-- Danh mục -->
             <c:forEach var="category" items="${seriesInfoDTO.categories}">
-                <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">${category}</span>
+            <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                    ${category}
+            </span>
             </c:forEach>
+
+            <!-- Trạng thái -->
+            <c:choose>
+                <c:when test="${seriesInfoDTO.status == 'Completed'}">
+                <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
+                        ${seriesInfoDTO.status}
+                </span>
+                </c:when>
+                <c:when test="${seriesInfoDTO.status == 'Ongoing'}">
+                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">
+                        ${seriesInfoDTO.status}
+                </span>
+                </c:when>
+                <c:otherwise>
+                <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                        ${seriesInfoDTO.status}
+                </span>
+                </c:otherwise>
+            </c:choose>
+
         </div>
 
         <div class="flex items-center gap-30 mb-10">
