@@ -26,13 +26,13 @@
     />
 </head>
 <body>
+<c:import url="/WEB-INF/views/components/_header.jsp"/>
 <div class="max-w-7xl mx-auto">
-    <c:import url="/WEB-INF/views/components/_header.jsp" />
 
-    <c:import url="${contentPage}" />
+    <c:import url="${contentPage}"/>
 
-    <c:import url="/WEB-INF/views/components/_footer.jsp" />
 </div>
+<c:import url="/WEB-INF/views/components/_footer.jsp"/>
 
 <script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
 </body>
