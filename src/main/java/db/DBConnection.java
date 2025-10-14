@@ -12,8 +12,10 @@ public class DBConnection {
             String password = "123456";
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(url, username, password);
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+        }catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
