@@ -116,8 +116,23 @@
                                 <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
                             </p>
                             <p>${series.totalChapters} Chapters</p>
-                            <span
-                                    class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">${series.status}</span>
+                            <c:choose>
+                                <c:when test="${series.status == 'Completed'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:when test="${series.status == 'Ongoing'}">
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="w-20 text-center py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
+                                            ${series.status}
+                                    </span>
+                                </c:otherwise>
+                            </c:choose>
                             <p class="text-gray-500">${series.updatedAt}</p>
 
                         </div>
