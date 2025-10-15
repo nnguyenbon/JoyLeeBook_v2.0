@@ -7,19 +7,19 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<main class=" mt-10 grid grid-cols-12 gap-[30px] items-center">
+<main class=" mt-10 grid grid-cols-12 gap-8 items-center">
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow"/>
+        <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
-    <div class="col-span-7">
-        <h1 class="text-4xl font-bold mb-2">${seriesInfoDTO.title}</h1>
+    <div class="col-span-7 h-full flex flex-col justify-between">
+        <h1 class="text-4xl font-bold">${seriesInfoDTO.title}</h1>
 
         <!-- Tác giả -->
-        <p class="text-gray-600 mb-4">
+        <p class="text-gray-600">
             by
             <span class="font-semibold">
             <c:forEach var="author" items="${seriesInfoDTO.authorsName}" varStatus="loop">
@@ -29,7 +29,7 @@
         </p>
 
         <!-- Thể loại + Trạng thái -->
-        <div class="flex flex-wrap items-center gap-2 mb-6">
+        <div class="flex flex-wrap items-center gap-2">
 
             <!-- Danh mục -->
             <c:forEach var="category" items="${seriesInfoDTO.categories}">
@@ -59,7 +59,7 @@
 
         </div>
 
-        <div class="flex items-center gap-30 mb-10">
+        <div class="flex items-center gap-30">
             <div class="flex flex-col items-center justify-center">
                 <span class="font-semibold text-lg">${seriesInfoDTO.totalChapters}</span>
                 Chapters
@@ -117,13 +117,13 @@
         </div>
 
     </div>
-</main>
-<!-- Summary -->
-<section class="mt-10 grid grid-cols-12 gap-[30px]">
-    <div class="col-span-10 col-start-2">
-        <h2 class="font-semibold text-xl mb-3">Summary</h2>
-        <div class="border-2 border-[#0D2E55] rounded-lg bg-white p-4 leading-relaxed text-gray-700">
-            ${seriesInfoDTO.description}
+    <!-- Summary -->
+    <section class="col-span-12 grid grid-cols-12 gap-8">
+        <div class="col-span-10 col-start-2">
+            <h2 class="font-semibold text-xl mb-3">Summary</h2>
+            <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700">
+                ${seriesInfoDTO.description}
+            </div>
         </div>
     </div>
 </section>
@@ -142,37 +142,8 @@
                 </a>
             </c:forEach>
         </div>
-    </div>
-</section>
-<script>
-    const genreButton = document.getElementById("genreButton");
-    const genreMenu = document.getElementById("genreMenu");
-
-    genreButton.addEventListener("click", () => {
-        genreMenu.classList.toggle("hidden");
-    });
-
-    // Ẩn menu khi click ra ngoài
-    document.addEventListener("click", (e) => {
-        if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
-            genreMenu.classList.add("hidden");
-        }
-    });
-
-    const BtnAvatar = document.getElementById("BtnAvatar");
-    const MenuAvatar = document.getElementById("MenuAvatar");
-
-    BtnAvatar.addEventListener("click", () => {
-        MenuAvatar.classList.toggle("hidden");
-    });
-
-    // Ẩn menu khi click ra ngoài
-    document.addEventListener("click", (e) => {
-        if (!BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
-            MenuAvatar.classList.add("hidden");
-        }
-    });
-</script>
+    </section>
+</main>
 
 
 <!-- ✅ Modal đưa ra ngoài container -->

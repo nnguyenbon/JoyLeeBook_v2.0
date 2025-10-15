@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-screen">
+<section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-[100vw]">
     <img src="${pageContext.request.contextPath}/img/shared/hero-reading.png" class="w-full" alt=""/>
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
@@ -50,10 +50,10 @@
     </div>
 </section>
 <main class="">
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-5 relative">
+    <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <div class="col-span-9">
             <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>
-            <div class="border border-neutral-800/50 rounded-xl pt-6 overflow-hidden shadow-xl">
+            <div class="border border-gray-300 rounded-xl pt-8 overflow-hidden shadow-xl">
                 <div class="flex overflow-x-hidden snap-x snap-mandatory scroll-smooth">
                     <c:forEach
                             var="hotSeries"
@@ -64,7 +64,7 @@
                                 id="slide-${hotSeries.seriesId}"
                                 class="snap-start shrink-0 w-full h-full origin-center flex gap-16 px-16"
                         >
-                            <div class="flex-1 overflow-hidden rounded-lg">
+                            <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
                                         src="${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
@@ -72,21 +72,21 @@
                                 />
                             </div>
 
-                            <div class="flex-3">
-                                <p class="text-2xl font-bold">${hotSeries.title}</p>
-                                <p class="text-gray-400 text-lg">
-                                    by <span class="text-primary">
-                                    <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
-                                        ${author}<c:if test="${!loop.last}">, </c:if>
-                                    </c:forEach>
-                                </span>
-                                </p>
-                                <p class="mt-2 whitespace-pre-line text-lg">
-                                        ${hotSeries.description}
-                                </p>
+                            <div class="flex-3 flex flex-col justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
+                                    <p class="text-gray-400">
+                                        by <span class="text-primary">
+                                        <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
+                                            ${author}<c:if test="${!loop.last}">, </c:if>
+                                        </c:forEach>
+                                    </span>
+                                    </p>
+                                </div>
+                                <p class="flex-1 mt-2 whitespace-pre-line text-lg line-clamp-5">${hotSeries.description}</p>
                                 <a
                                         href="${pageContext.request.contextPath}/series-detail?seriesId=${hotSeries.seriesId}"
-                                        class="inline-block py-2 px-4 mt-4 bg-primary rounded-md"
+                                        class="inline-block w-32 text-center py-2 px-4 mt-2 bg-primary rounded-md"
                                 >
                                     Read now
                                 </a>
@@ -95,11 +95,11 @@
                     </c:forEach>
                 </div>
 
-                <ul class="flex justify-center gap-4 mt-6 mb-3" id="indicator">
+                <ul class="flex justify-center gap-4 mt-8 mb-4" id="indicator">
                     <c:forEach var="hotSeries" items="${hotSeriesList}" varStatus="loop">
                         <li>
                             <a
-                                    class="block size-2 rounded-full border border-sky-500"
+                                    class="block size-3 rounded-full border border-[#195da9]"
                                     href="#slide-${hotSeries.seriesId}"
                                     onclick="toggleIndicator(${loop.index}, event)"
                             ></a>
@@ -130,14 +130,14 @@
         </div>
     </section>
 
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-5 relative">
+    <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <!-- New Release Section (col-span-9) -->
         <div class="col-span-9">
             <p class="font-bold text-3xl pt-6 pb-4">New release</p>
 
-            <ul class="grid grid-cols-4 gap-6">
+            <ul class="flex  gap-8">
                 <c:forEach var="newReleaseSeries" items="${newReleaseSeriesList}" varStatus="loop">
-                    <li class="relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
+                    <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
                         <a href="${pageContext.request.contextPath}/series-detail?seriesId=${newReleaseSeries.seriesId}">
                             <!-- Hình ảnh -->
                             <div class="aspect-[3/4] overflow-hidden relative">
@@ -173,7 +173,9 @@
                                         ${newReleaseSeries.title}
                                 </p>
                                 <div class="flex justify-between text-sm text-gray-500">
-                                    <p>by <span class="text-gray-700 font-medium">${newReleaseSeries.authorsName.get(0)}</span></p>
+                                    <p>by <span
+                                            class="text-gray-700 font-medium">${newReleaseSeries.authorsName.get(0)}</span>
+                                    </p>
                                     <p>${newReleaseSeries.totalChapters} chapters</p>
                                 </div>
                                 <p class="text-sm text-gray-600">
@@ -208,7 +210,7 @@
             </div>
         </div>
     </section>
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-5 relative">
+    <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <!-- Recently Updated Section (col-span-12) -->
         <div class="col-span-12 flex justify-between items-center">
             <p class="font-bold text-3xl">Recently Update</p>
@@ -216,61 +218,52 @@
         </div>
 
 
-        <ul class="col-span-12 grid grid-cols-5 gap-[30px] pt-6">
+        <ul class="col-span-12 flex justify-between gap-5 pt-6">
             <c:forEach var="recentlyUpdatedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
-                <li class="relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-3000">
-                    <a href="${pageContext.request.contextPath}/series-detail?seriesId=${recentlyUpdatedSeries.seriesId}" >
-                            <%--                        <!-- Hình ảnh -->--%>
-                            <%--                        <div class="aspect-[3/4] overflow-hidden">--%>
-                            <%--                            <img--%>
-                            <%--                                    src="${recentlyUpdatedSeries.coverImgUrl}"--%>
-                            <%--                                    class="w-full h-full object-cover"--%>
-                            <%--                                    alt="${recentlyUpdatedSeries.title}"--%>
-                            <%--                            />--%>
+                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
 
-                            <%--                        </div>--%>
-                        <!-- Hình ảnh -->
-                        <div class="aspect-[3/4] overflow-hidden relative">
-                            <img
-                                    src="${recentlyUpdatedSeries.coverImgUrl}"
-                                    class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
-                                    alt="${recentlyUpdatedSeries.title}"
-                            />
+                    <div class="aspect-[3/4] overflow-hidden relative">
+                        <img
+                                src="${recentlyUpdatedSeries.coverImgUrl}"
+                                class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
+                                alt="${recentlyUpdatedSeries.title}"
+                        />
 
-                            <!-- Overlay chứa nút -->
-                            <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${recentlyUpdatedSeries.seriesId}&chapterId=1"
-                                   class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                                    Read now
-                                </a>
-                                <a href="${pageContext.request.contextPath}/series-detail?seriesId=${recentlyUpdatedSeries.seriesId}"
-                                   class="bg-white text-[#195DA9] px-7 py-2 rounded-md border border-[#195DA9] hover:bg-gray-100 transition">
-                                    Detail
-                                </a>
-                            </div>
+                        <!-- Overlay chứa nút -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
+                            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${recentlyUpdatedSeries.seriesId}&chapterId=1"
+                               class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                                Read now
+                            </a>
+                            <a href="${pageContext.request.contextPath}/series-detail?seriesId=${recentlyUpdatedSeries.seriesId}"
+                               class="bg-white text-[#195DA9] px-7 py-2 rounded-md border border-[#195DA9] hover:bg-gray-100 transition">
+                                Detail
+                            </a>
                         </div>
-                        <!-- Nội dung -->
-                        <div class="p-3 flex flex-col justify-between flex-grow">
-                            <div>
-                                <ul class="flex flex-wrap gap-2 text-xs mb-1">
-                                    <c:forEach var="category" items="${recentlyUpdatedSeries.categories}" varStatus="status">
-                                        <c:if test="${status.index < 2}">
-                                            <li class="rounded-md bg-blue-100 px-1">${category}</li>
-                                        </c:if>
-                                    </c:forEach>
-                                </ul>
-                                <p class="font-semibold text-lg truncate mb-1">
-                                        ${recentlyUpdatedSeries.title}
-                                </p>
-                            </div>
-                            <div class="text-sm opacity-70">
-                                <div class="flex justify-between">
-                                    <p>by <span class="font-medium">${recentlyUpdatedSeries.authorsName.get(0)}</span></p>
-                                    <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
-                                </div>
-                                <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
-                            </div>
+                    </div>
+                    <!-- Nội dung -->
+                    <div class="p-3 flex flex-col justify-between flex-grow">
+                        <div>
+                            <ul class="flex flex-wrap gap-2 text-xs mb-1">
+                                <c:forEach var="category" items="${recentlyUpdatedSeries.categories}"
+                                           varStatus="status">
+                                    <c:if test="${status.index < 2}">
+                                        <li class="rounded-md bg-blue-100 px-1">${category}</li>
+                                    </c:if>
+                                </c:forEach>
+                            </ul>
+                            <p class="font-semibold text-lg truncate mb-1">
+                                    ${recentlyUpdatedSeries.title}
+                            </p>
                         </div>
+                        <div class="text-sm opacity-70">
+                            <div class="flex justify-between">
+                                <p>by <span class="font-medium">${recentlyUpdatedSeries.authorsName.get(0)}</span></p>
+                                <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
+                            </div>
+                            <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
+                        </div>
+                    </div>
                     </a>
                 </li>
             </c:forEach>
@@ -282,31 +275,35 @@
         <p class="font-bold text-6xl">Explore by Genre</p>
         <ul class="flex justify-center gap-8 mt-12">
             <c:forEach var="category" items="${categoryList}" varStatus="loop">
-                <li class="p-12 bg-white rounded-lg">
-                    <p class="text-primary mb-2 text-3xl font-semibold">
-                            ${category.name}
-                    </p>
-                    <p class="text-neutral-500" text-xl>
-                            ${category.totalSeries} series
-                    </p>
+                <li class=" bg-white rounded-lg hover:shadow-4xl hover:scale-110 transition duration-300">
+                    <a class="p-8 inline-block"
+                       href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}">
+                        <p class="text-primary mb-2 text-3xl font-semibold">
+                                ${category.name}
+                        </p>
+                        <p class="text-neutral-500 text-xl">
+                                ${category.totalSeries} series
+                        </p>
+                    </a>
                 </li>
             </c:forEach>
         </ul>
     </section>
     <!-- Completed Series Section -->
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-5 relative">
+    <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
 
         <!-- Tiêu đề + View all -->
         <div class="col-span-12 flex justify-between items-center">
             <p class="font-bold text-3xl">Completed Series</p>
-            <a href="${pageContext.request.contextPath}/search?searchType=&status=completed" class="hover:text-neutral-600 text-right">View all</a>
+            <a href="${pageContext.request.contextPath}/search?searchType=&status=completed"
+               class="hover:text-neutral-600 text-right">View all</a>
         </div>
 
         <!-- Danh sách series -->
-        <ul class="col-span-12 grid grid-cols-5 gap-[30px] pt-6">
+        <ul class="col-span-12 flex justify-between gap-5 pt-6">
             <c:forEach var="completedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
-                <li class="relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-3000">
-                    <a href="${pageContext.request.contextPath}/series-detail?seriesId=${completedSeries.seriesId}" >
+                <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
+                    <a href="${pageContext.request.contextPath}/series-detail?seriesId=${completedSeries.seriesId}">
                         <!-- Hình ảnh -->
                         <div class="aspect-[3/4] overflow-hidden relative">
                             <img
@@ -356,7 +353,7 @@
             </c:forEach>
         </ul>
     </section>
-    <section class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-5 relative">
+    <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <!-- Call to Action Section -->
         <div class="col-span-12 bg-gradient-to-r from-[#4B2BAE] to-[#1A56B6] rounded-2xl p-24 text-center text-white relative overflow-hidden mb-10">
             <!-- Lớp overlay để làm mờ ảnh nền -->
@@ -366,7 +363,8 @@
             <div class="relative z-10">
                 <h2 class="text-5xl font-extrabold mb-4">Unleash Your Imagination</h2>
                 <p class="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">
-                    Share your stories with millions of readers, inspire new worlds, and become part of a thriving community of authors.
+                    Share your stories with millions of readers, inspire new worlds, and become part of a thriving
+                    community of authors.
                 </p>
                 <a src=""
                    class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-2xl px-3 py-1 rounded-xl border-2 border-[#E3E346]">

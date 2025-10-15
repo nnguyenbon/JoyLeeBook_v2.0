@@ -332,10 +332,7 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP ("+ limit +")s.series_id, title, rating_points, description, cover_image_url, status, updated_at,  SUM(r.score) AS total_rating " +
-                "FROM series s JOIN ratings r ON s.series_id = r.series_id " +
-                "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " +
-                "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at ORDER BY total_rating DESC";
+        String sql = "SELECT TOP (" + limit + ")s.series_id, title, rating_points, description, cover_image_url, status, updated_at,  SUM(r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at ORDER BY total_rating DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -366,6 +363,7 @@ public class SeriesDAO {
             return seriesList;
         }
     }
+
     /**
      * Utility method to extract a Series object from a ResultSet.
      *
@@ -378,7 +376,9 @@ public class SeriesDAO {
         s.setSeriesId(rs.getInt("series_id"));
         s.setTitle(rs.getString("title"));
         s.setDescription(rs.getString("description"));
-        s.setCoverImgUrl(rs.getString("cover_image_url"));
+//        s.setCoverImgUrl(rs.getString("cover_image_url"));
+
+        s.setCoverImgUrl("img/thenewkidinschool.png");
         s.setStatus(rs.getString("status"));
         s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
