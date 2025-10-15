@@ -79,7 +79,8 @@ public class ChapterDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean insert(Chapter chapter, int seriesId, int authorId) throws SQLException {
-        String sql = "INSERT INTO chapters " + "(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO chapters " + "(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at, user_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             Timestamp now = Timestamp.valueOf(java.time.LocalDateTime.now());
@@ -93,6 +94,7 @@ public class ChapterDAO {
             ps.setBoolean(7, false);   // SQL Server BIT <- 0
             ps.setTimestamp(8, now);
             ps.setTimestamp(9, now);
+            ps.setInt(10, chapter.getUserId());
 
             int affected = ps.executeUpdate();
             if (affected > 0) {
@@ -113,7 +115,8 @@ public class ChapterDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean update(Chapter chapter) throws SQLException {
-        String sql = "UPDATE chapters SET " + "chapter_number = ?, title = ?, content = ?, status = ?, updated_at = ? " + "WHERE chapter_id = ? AND is_deleted = 0";
+        String sql = "UPDATE chapters SET " + "chapter_number = ?, title = ?, content = ?, status = ?, updated_at = ? "
+                + "WHERE chapter_id = ? AND is_deleted = 0";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, chapter.getChapterNumber());
