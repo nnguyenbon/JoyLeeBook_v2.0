@@ -25,7 +25,7 @@
             rel="stylesheet"
     />
 </head>
-<body>
+<body class="overflow-x-hidden">
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
 <div class="max-w-7xl mx-auto">
 

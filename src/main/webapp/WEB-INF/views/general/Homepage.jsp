@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<section class="relative h-auto left-1/2 right-1/2 -mx-[50.5vw] w-screen">
+<section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-[100vw]">
     <img src="${pageContext.request.contextPath}/img/shared/hero-reading.png" class="w-full" alt=""/>
     <div
             class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] absolute top-0 bottom-0 right-0 left-0 opacity-95"
@@ -270,7 +270,7 @@
         </ul>
     </section>
     <section
-            class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center col-span-12 relative left-1/2 right-1/2 -mx-[50.5vw] w-screen"
+            class="bg-gradient-to-r from-[#6531B4] to-[#195DA9] py-20 text-white mt-8 text-center col-span-12 relative left-1/2 right-1/2 -mx-[50vw] w-screen"
     >
         <p class="font-bold text-6xl">Explore by Genre</p>
         <ul class="flex justify-center gap-8 mt-12">

@@ -21,7 +21,7 @@ change this template use File | Settings | File Templates. --%>
 <header class="relative top-0 left-0 right-0 shadow-md bg-white ">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
-            <a href="homepage">
+            <a href="${pageContext.request.contextPath}/homepage">
                 <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
             </a>
         </div>
