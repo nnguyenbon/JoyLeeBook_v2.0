@@ -4,6 +4,7 @@ import dao.ChapterDAO;
 import dao.LikesDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
+import dao.UserDAO;
 import dto.author.AuthorItemDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +18,13 @@ import java.util.List;
 
 public class AuthorServices {
     private final Connection connection;
+
     public AuthorServices(Connection connection) {
         this.connection = connection;
     }
 
-    public void extractDataFromAuthorId (List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
-        try{
+    public void extractDataFromAuthorId(List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
+        try {
             LikesDAO likesDAO = new LikesDAO(connection);
             RatingDAO ratingDAO = new RatingDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
@@ -37,7 +39,11 @@ public class AuthorServices {
                 totalRating += ratingDAO.getRatingSumBySeriesId(series.getSeriesId());
                 ratingCount += ratingDAO.getRatingCount(series.getSeriesId());
             }
-            avgRating = (double) Math.round(((double) totalRating / ratingCount) * 10) / 10;
+            if (ratingCount > 0) {
+                avgRating = (double) Math.round(((double) totalRating / ratingCount) * 10) / 10;
+            } else {
+                avgRating = 0.0;
+            }
             request.setAttribute("totalLike", totalLike);
             request.setAttribute("avgRating", avgRating);
         } catch (Exception e) {
@@ -45,7 +51,7 @@ public class AuthorServices {
         }
     }
 
-    public AuthorItemDTO buildAuthorItemDTO (User author) throws SQLException {
+    public AuthorItemDTO buildAuthorItemDTO(User author) throws SQLException {
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         AuthorItemDTO authorItemDTO = new AuthorItemDTO();
         authorItemDTO.setAuthorId(author.getUserId());
@@ -54,11 +60,16 @@ public class AuthorServices {
         return authorItemDTO;
     }
 
-    public List<AuthorItemDTO> buildAuthorItemDTOList (List<User> authors) throws SQLException {
+    public List<AuthorItemDTO> buildAuthorItemDTOList(List<User> authors) throws SQLException {
         List<AuthorItemDTO> authorItemDTOList = new ArrayList<>();
         for (User author : authors) {
             authorItemDTOList.add(buildAuthorItemDTO(author));
         }
         return authorItemDTOList;
+    }
+
+    public boolean registerAsAuthor(User user) throws SQLException, ClassNotFoundException {
+        UserDAO userDAO = new UserDAO(connection);
+        return userDAO.updateUserRoleToAuthor(user.getUserId());
     }
 }
