@@ -1,0 +1,212 @@
+<changelist name="Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]" date="1760521095031" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 10/15/2025 4:33 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/ReadingHistoryDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/UserDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/the_epi_of_leviathan.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/BadgesUserDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/css/fontawesome/webfonts/fa-brands-400.woff2" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/goddess_medical_doctor.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/SeriesCategories.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/ChapterDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/ChapterDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/ChapterDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Staff.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/SeriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/css/fontawesome/webfonts/fa-regular-400.woff2" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/monarch_of_time.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/CommentDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Rating.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Category.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/css/fontawesome/webfonts/fa-solid-900.woff2" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/The_Mech_Touch.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/StaffDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/logo2.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/LikesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/StaffDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/StaffDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/StaffDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/SavedSeriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/BadgeDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/cau_be_thong_minh.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/ReportDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Comment.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/SeriesCategoriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/ReviewSeriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/SeriesAuthor.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/the-legendary-mechanic-novel.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/shared/hero-reading.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/ReadingHistory.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/BadgesUser.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/SavedSeries.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/thanh_giong.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/Embers_Ad_Infinitum.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/Evolving_infinitely_from_ground_zero.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/dungeon_diver_stealing_a_monster.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/css/fontawesome/webfonts/fa-v4compatibility.woff2" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/the-world-of-otome-games-is-toug.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/SeriesDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/SeriesDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/SeriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/sorce_stone.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/tensei_shitara_slime_datta_ken.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/thenewkidinschool.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/SeriesAuthorDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/ReviewSeries.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/ChapterDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/User.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Like.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/CategoryDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Chapter.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Notification.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/UserDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/UserDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/UserDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Badge.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/shared/logo.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/shadow_slave.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Report.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/CategoryDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/CategoryDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_15_2025_4_33_PM_[Changes]/CategoryDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/model/Series.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/so_dua.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/supreme-magus-webnovel.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/RatingDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/The_Legend_of_Mai_An_Tiem.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/Son_Tinh_Thuy_Tinh.avif" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/dao/NotificationsDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="src/main/webapp/img/Infinite_Mana_In_The_Apocalypse.avif" />
+  </binary>
+</changelist>

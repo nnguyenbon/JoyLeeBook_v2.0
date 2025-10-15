@@ -1,0 +1,4017 @@
+Index: src/main/java/dao/SavedSeriesDAO.java
+===================================================================
+diff --git a/src/main/java/dao/SavedSeriesDAO.java b/src/main/java/dao/SavedSeriesDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/SavedSeriesDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,87 +0,0 @@
+-package dao;
+-
+-import model.SavedSeries;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class SavedSeriesDAO {
+-    private final Connection conn;
+-
+-    public SavedSeriesDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    private SavedSeries mapResultSetToSavedSeries(ResultSet rs) throws SQLException {
+-        SavedSeries ss = new SavedSeries();
+-        ss.setUserId(rs.getInt("user_id"));
+-        ss.setSeriesId(rs.getInt("series_id"));
+-
+-        Timestamp ts = rs.getTimestamp("save_at");
+-        ss.setSavedAt(ts != null ? ts.toLocalDateTime() : null);
+-
+-        return ss;
+-    }
+-
+-    public boolean insert(SavedSeries ss) throws SQLException {
+-        String sql = "INSERT INTO saved_series (user_id, series_id, save_at) VALUES (?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, ss.getUserId());
+-            stmt.setInt(2, ss.getSeriesId());
+-            stmt.setTimestamp(3, Timestamp.valueOf(ss.getSavedAt() != null ? ss.getSavedAt() : LocalDateTime.now()));
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<SavedSeries> getAll() throws SQLException {
+-        List<SavedSeries> list = new ArrayList<>();
+-        String sql = "SELECT * FROM saved_series ORDER BY save_at DESC";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToSavedSeries(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public List<SavedSeries> getByUserId(int userId) throws SQLException {
+-        List<SavedSeries> list = new ArrayList<>();
+-        String sql = "SELECT * FROM saved_series WHERE user_id = ? ORDER BY save_at DESC";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToSavedSeries(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public boolean isSaved(int userId, int seriesId) throws SQLException {
+-        String sql = "SELECT 1 FROM saved_series WHERE user_id = ? AND series_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            stmt.setInt(2, seriesId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                return rs.next();
+-            }
+-        }
+-    }
+-
+-    public boolean delete(int userId, int seriesId) throws SQLException {
+-        String sql = "DELETE FROM saved_series WHERE user_id = ? AND series_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            stmt.setInt(2, seriesId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-}
+Index: src/main/java/dao/ReviewSeriesDAO.java
+===================================================================
+diff --git a/src/main/java/dao/ReviewSeriesDAO.java b/src/main/java/dao/ReviewSeriesDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/ReviewSeriesDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,112 +0,0 @@
+-package dao;
+-
+-import model.ReviewSeries;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class ReviewSeriesDAO {
+-    private final Connection conn;
+-
+-    public ReviewSeriesDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    public List<ReviewSeries> getAll() throws SQLException {
+-        List<ReviewSeries> list = new ArrayList<>();
+-        String sql = "SELECT * FROM review_series ORDER BY created_at DESC";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToReview(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public ReviewSeries findById(int chapterId, int staffId) throws SQLException {
+-        String sql = "SELECT * FROM review_series WHERE chapter_id = ? AND staff_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, chapterId);
+-            stmt.setInt(2, staffId);
+-
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToReview(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public List<ReviewSeries> findByChapter(int chapterId) throws SQLException {
+-        List<ReviewSeries> list = new ArrayList<>();
+-        String sql = "SELECT * FROM review_series WHERE chapter_id = ? ORDER BY created_at DESC";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, chapterId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToReview(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public boolean insert(ReviewSeries review) throws SQLException {
+-        String sql = "INSERT INTO review_series (chapter_id, staff_id, status, comment, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, review.getChapterId());
+-            stmt.setInt(2, review.getStaffId());
+-            stmt.setString(3, review.getStatus());
+-            stmt.setString(4, review.getComment());
+-            stmt.setTimestamp(5, Timestamp.valueOf(review.getCreatedAt() != null ? review.getCreatedAt() : LocalDateTime.now()));
+-            stmt.setTimestamp(6, Timestamp.valueOf(review.getUpdatedAt() != null ? review.getUpdatedAt() : LocalDateTime.now()));
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean update(ReviewSeries review) throws SQLException {
+-        String sql = "UPDATE review_series SET status = ?, comment = ?, updated_at = ? WHERE chapter_id = ? AND staff_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, review.getStatus());
+-            stmt.setString(2, review.getComment());
+-            stmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+-            stmt.setInt(4, review.getChapterId());
+-            stmt.setInt(5, review.getStaffId());
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int chapterId, int staffId) throws SQLException {
+-        String sql = "DELETE FROM review_series WHERE chapter_id = ? AND staff_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, chapterId);
+-            stmt.setInt(2, staffId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    private ReviewSeries mapResultSetToReview(ResultSet rs) throws SQLException {
+-        ReviewSeries review = new ReviewSeries();
+-        review.setChapterId(rs.getInt("chapter_id"));
+-        review.setStaffId(rs.getInt("staff_id"));
+-        review.setStatus(rs.getString("status"));
+-        review.setComment(rs.getString("comment"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        Timestamp updated = rs.getTimestamp("updated_at");
+-        review.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-        review.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
+-
+-        return review;
+-    }
+-}
+Index: .gitignore
+===================================================================
+diff --git a/.gitignore b/.gitignore
+deleted file mode 100644
+--- a/.gitignore	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,2 +0,0 @@
+-.idea/
+-target/
+\ No newline at end of file
+Index: src/main/java/dao/CommentDAO.java
+===================================================================
+diff --git a/src/main/java/dao/CommentDAO.java b/src/main/java/dao/CommentDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/CommentDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,128 +0,0 @@
+-package dao;
+-
+-import model.Comment;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class CommentDAO {
+-    private final Connection conn;
+-
+-    public CommentDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    // ✅ Lấy tất cả comment (trừ comment đã xóa)
+-    public List<Comment> getAll() throws SQLException {
+-        List<Comment> list = new ArrayList<>();
+-        String sql = "SELECT * FROM comments WHERE is_delete = 0 ORDER BY created_at DESC";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToComment(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // ✅ Lấy comment theo ID
+-    public Comment findById(int id) throws SQLException {
+-        String sql = "SELECT * FROM comments WHERE comment_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToComment(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    // ✅ Lấy tất cả comment của 1 chương
+-    public List<Comment> findByChapter(int chapterId) throws SQLException {
+-        List<Comment> list = new ArrayList<>();
+-        String sql = "SELECT * FROM comments WHERE chapter_id = ? AND is_delete = 0 ORDER BY created_at ASC";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, chapterId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToComment(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // ✅ Thêm comment mới
+-    public boolean insert(Comment cmt) throws SQLException {
+-        String sql = "INSERT INTO comments (user_id, chapter_id, content, is_delete, created_at, updated_at) " +
+-                "VALUES (?, ?, ?, 0, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, cmt.getUserId());
+-            stmt.setInt(2, cmt.getChapterId());
+-            stmt.setString(3, cmt.getContent());
+-            stmt.setTimestamp(4, Timestamp.valueOf(
+-                    cmt.getCreatedAt() != null ? cmt.getCreatedAt() : LocalDateTime.now()));
+-            stmt.setTimestamp(5, Timestamp.valueOf(
+-                    cmt.getUpdatedAt() != null ? cmt.getUpdatedAt() : LocalDateTime.now()));
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ✅ Cập nhật nội dung comment
+-    public boolean update(Comment cmt) throws SQLException {
+-        String sql = "UPDATE comments SET content = ?, updated_at = ? WHERE comment_id = ? AND is_delete = 0";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, cmt.getContent());
+-            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+-            stmt.setInt(3, cmt.getCommentId());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ✅ Đánh dấu xóa mềm
+-    public boolean softDelete(int commentId) throws SQLException {
+-        String sql = "UPDATE comments SET is_delete = 1, updated_at = ? WHERE comment_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+-            stmt.setInt(2, commentId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ✅ Xóa vĩnh viễn
+-    public boolean hardDelete(int commentId) throws SQLException {
+-        String sql = "DELETE FROM comments WHERE comment_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, commentId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ✅ Map ResultSet → Comment
+-    private Comment mapResultSetToComment(ResultSet rs) throws SQLException {
+-        Comment cmt = new Comment();
+-        cmt.setCommentId(rs.getInt("comment_id"));
+-        cmt.setUserId(rs.getInt("user_id"));
+-        cmt.setChapterId(rs.getInt("chapter_id"));
+-        cmt.setContent(rs.getString("content"));
+-        cmt.setDeleted(rs.getBoolean("is_delete"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        Timestamp updated = rs.getTimestamp("updated_at");
+-
+-        cmt.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-        cmt.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
+-        return cmt;
+-    }
+-}
+Index: src/main/java/model/Report.java
+===================================================================
+diff --git a/src/main/java/model/Report.java b/src/main/java/model/Report.java
+deleted file mode 100644
+--- a/src/main/java/model/Report.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,102 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Report {
+-    private int reportId;
+-    private int reporterId;
+-    private int staffId;
+-    private String type;
+-    private int reportTypeId;
+-    private String reason;
+-    private String status;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-    public Report(int reportId, int reporterId, int staffId, String type, int reportTypeId, String reason, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.reportId = reportId;
+-        this.reporterId = reporterId;
+-        this.staffId = staffId;
+-        this.type = type;
+-        this.reportTypeId = reportTypeId;
+-        this.reason = reason;
+-        this.status = status;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public Report() {
+-    }
+-
+-    public int getReportId() {
+-        return reportId;
+-    }
+-
+-    public void setReportId(int reportId) {
+-        this.reportId = reportId;
+-    }
+-
+-    public int getReporterId() {
+-        return reporterId;
+-    }
+-
+-    public void setReporterId(int reporterId) {
+-        this.reporterId = reporterId;
+-    }
+-
+-    public int getStaffId() {
+-        return staffId;
+-    }
+-
+-    public void setStaffId(int staffId) {
+-        this.staffId = staffId;
+-    }
+-
+-    public String getType() {
+-        return type;
+-    }
+-
+-    public void setType(String type) {
+-        this.type = type;
+-    }
+-
+-    public int getReportTypeId() {
+-        return reportTypeId;
+-    }
+-
+-    public void setReportTypeId(int reportTypeId) {
+-        this.reportTypeId = reportTypeId;
+-    }
+-
+-    public String getReason() {
+-        return reason;
+-    }
+-
+-    public void setReason(String reason) {
+-        this.reason = reason;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-}
+Index: src/main/java/model/SeriesCategories.java
+===================================================================
+diff --git a/src/main/java/model/SeriesCategories.java b/src/main/java/model/SeriesCategories.java
+deleted file mode 100644
+--- a/src/main/java/model/SeriesCategories.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,28 +0,0 @@
+-package model;
+-
+-public class SeriesCategories {
+-    private int seriesId;
+-    private int categoryId;
+-
+-    public SeriesCategories(int seriesId, int categoryId) {
+-        this.seriesId = seriesId;
+-        this.categoryId = categoryId;
+-    }
+-
+-    public SeriesCategories() {}
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public int getCategoryId() {
+-        return categoryId;
+-    }
+-
+-    public void setCategoryId(int categoryId) {
+-        this.categoryId = categoryId;
+-    }
+-}
+Index: src/main/webapp/WEB-INF/web.xml
+===================================================================
+diff --git a/src/main/webapp/WEB-INF/web.xml b/src/main/webapp/WEB-INF/web.xml
+deleted file mode 100644
+--- a/src/main/webapp/WEB-INF/web.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,14 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+-         version="6.0">
+-    <session-config>
+-        <session-timeout>
+-            30
+-        </session-timeout>
+-    </session-config>
+-    <welcome-file-list>
+-        <welcome-file>home.html</welcome-file>
+-    </welcome-file-list>
+-</web-app>
+\ No newline at end of file
+Index: src/main/java/dao/BadgesUserDAO.java
+===================================================================
+diff --git a/src/main/java/dao/BadgesUserDAO.java b/src/main/java/dao/BadgesUserDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/BadgesUserDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,96 +0,0 @@
+-package dao;
+-
+-import model.BadgesUser;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class BadgesUserDAO {
+-    private final Connection conn;
+-
+-    public BadgesUserDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    // Lấy toàn bộ bản ghi
+-    public List<BadgesUser> getAll() throws SQLException {
+-        List<BadgesUser> list = new ArrayList<>();
+-        String sql = "SELECT * FROM badges_users";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-
+-            while (rs.next()) {
+-                list.add(mapResultSetToBadgesUsers(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // Tìm theo khóa chính
+-    public BadgesUser findById(int badgeId, int userId) throws SQLException {
+-        String sql = "SELECT * FROM badges_users WHERE badge_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, badgeId);
+-            stmt.setInt(2, userId);
+-
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToBadgesUsers(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    // Thêm mới
+-    public boolean insert(BadgesUser bu) throws SQLException {
+-        String sql = "INSERT INTO badges_users (badge_id, user_id, awarded_at) VALUES (?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, bu.getBadgeId());
+-            stmt.setInt(2, bu.getUserId());
+-            stmt.setTimestamp(3, Timestamp.valueOf(
+-                    bu.getAwardedAt() != null ? bu.getAwardedAt() : LocalDateTime.now()
+-            ));
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Cập nhật (ví dụ cập nhật thời điểm trao huy hiệu)
+-    public boolean update(BadgesUser bu) throws SQLException {
+-        String sql = "UPDATE badges_users SET awarded_at = ? WHERE badge_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setTimestamp(1, Timestamp.valueOf(bu.getAwardedAt()));
+-            stmt.setInt(2, bu.getBadgeId());
+-            stmt.setInt(3, bu.getUserId());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Xóa một dòng (gỡ huy hiệu khỏi user)
+-    public boolean delete(int badgeId, int userId) throws SQLException {
+-        String sql = "DELETE FROM badges_users WHERE badge_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, badgeId);
+-            stmt.setInt(2, userId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Hàm ánh xạ từ ResultSet sang đối tượng
+-    private BadgesUser mapResultSetToBadgesUsers(ResultSet rs) throws SQLException {
+-        BadgesUser bu = new BadgesUser();
+-        bu.setBadgeId(rs.getInt("badge_id"));
+-        bu.setUserId(rs.getInt("user_id"));
+-
+-        Timestamp awarded = rs.getTimestamp("awarded_at");
+-        bu.setAwardedAt(awarded != null ? awarded.toLocalDateTime() : LocalDateTime.now());
+-
+-        return bu;
+-    }
+-}
+Index: .idea/data_source_mapping.xml
+===================================================================
+diff --git a/.idea/data_source_mapping.xml b/.idea/data_source_mapping.xml
+deleted file mode 100644
+--- a/.idea/data_source_mapping.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,7 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="DataSourcePerFileMappings">
+-    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/731e08b8-a996-454b-a146-0a1ad5ef45dd/console.sql" value="731e08b8-a996-454b-a146-0a1ad5ef45dd" />
+-    <file url="file://$PROJECT_DIR$/src/main/java/dao/SeriesDAO.java" value="731e08b8-a996-454b-a146-0a1ad5ef45dd" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: src/main/java/model/ReviewSeries.java
+===================================================================
+diff --git a/src/main/java/model/ReviewSeries.java b/src/main/java/model/ReviewSeries.java
+deleted file mode 100644
+--- a/src/main/java/model/ReviewSeries.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,72 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class ReviewSeries {
+-    private int staffId;
+-    private int chapterId;
+-    private String status;
+-    private String comment;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-    public ReviewSeries(int staffId, int chapterId, String status, String comment, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.staffId = staffId;
+-        this.chapterId = chapterId;
+-        this.status = status;
+-        this.comment = comment;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public ReviewSeries() {
+-    }
+-
+-    public int getStaffId() {
+-        return staffId;
+-    }
+-
+-    public void setStaffId(int staffId) {
+-        this.staffId = staffId;
+-    }
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public String getComment() {
+-        return comment;
+-    }
+-
+-    public void setComment(String comment) {
+-        this.comment = comment;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-}
+Index: src/main/java/dao/ReportDAO.java
+===================================================================
+diff --git a/src/main/java/dao/ReportDAO.java b/src/main/java/dao/ReportDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/ReportDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,98 +0,0 @@
+-package dao;
+-
+-import model.Report;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class ReportDAO {
+-    private final Connection conn;
+-
+-    public ReportDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    private Report extractReportFromResultSet(ResultSet rs) throws SQLException {
+-        Report r = new Report();
+-        r.setReportId(rs.getInt("report_id"));
+-        r.setReporterId(rs.getInt("reporter_id"));
+-        int staffId = rs.getInt("staff_id");
+-        r.setStaffId(rs.wasNull() ? null : staffId);
+-        r.setType(rs.getString("type"));
+-        r.setReportTypeId(rs.getInt("report_type_id"));
+-        r.setReason(rs.getString("reason"));
+-        r.setStatus(rs.getString("status"));
+-        Timestamp created = rs.getTimestamp("created_at");
+-        Timestamp updated = rs.getTimestamp("updated_at");
+-        r.setCreatedAt(created != null ? created.toLocalDateTime() : null);
+-        r.setUpdatedAt(updated != null ? updated.toLocalDateTime() : null);
+-        return r;
+-    }
+-
+-    public boolean insert(Report report) throws SQLException {
+-        String sql = "INSERT INTO reports (reporter_id, staff_id, type, report_type_id, reason, status, created_at, updated_at) " +
+-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, report.getReporterId());
+-            if (report.getStaffId() != 0)
+-                ps.setInt(2, report.getStaffId());
+-            ps.setString(3, report.getType());
+-            ps.setInt(4, report.getReportTypeId());
+-            ps.setString(5, report.getReason());
+-            ps.setString(6, report.getStatus());
+-            ps.setTimestamp(7, Timestamp.valueOf(report.getCreatedAt()));
+-            ps.setTimestamp(8, report.getUpdatedAt() != null ? Timestamp.valueOf(report.getUpdatedAt()) : null);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<Report> getAll() throws SQLException {
+-        List<Report> list = new ArrayList<>();
+-        String sql = "SELECT * FROM reports";
+-        try (PreparedStatement st = conn.prepareStatement(sql);
+-             ResultSet rs = st.executeQuery(sql)) {
+-            while (rs.next()) {
+-                list.add(extractReportFromResultSet(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public Report getById(int reportId) throws SQLException {
+-        String sql = "SELECT * FROM reports WHERE report_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, reportId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) return extractReportFromResultSet(rs);
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public boolean update(Report report) throws SQLException {
+-        String sql = "UPDATE reports SET staff_id=?, type=?, report_type_id=?, reason=?, status=?, updated_at=? WHERE report_id=?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            if (report.getStaffId() != 0)
+-                ps.setInt(1, report.getStaffId());
+-            ps.setString(2, report.getType());
+-            ps.setInt(3, report.getReportTypeId());
+-            ps.setString(4, report.getReason());
+-            ps.setString(5, report.getStatus());
+-            ps.setTimestamp(6, Timestamp.valueOf(report.getUpdatedAt()));
+-            ps.setInt(7, report.getReportId());
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int reportId) throws SQLException {
+-        String sql = "DELETE FROM reports WHERE report_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, reportId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-}
+Index: src/main/java/dao/StaffDAO.java
+===================================================================
+diff --git a/src/main/java/dao/StaffDAO.java b/src/main/java/dao/StaffDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/StaffDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,120 +0,0 @@
+-package dao;
+-
+-import model.Staff;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-
+-public class StaffDAO {
+-    private final Connection conn;
+-
+-    public StaffDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-
+-    public List<Staff> getAll() throws SQLException {
+-        List<Staff> list = new ArrayList<>();
+-        String sql = "SELECT * FROM staffs WHERE is_deleted = FALSE";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-
+-            while (rs.next()) {
+-                list.add(mapResultSetToStaff(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-
+-    public Staff findById(int id) throws SQLException {
+-        String sql = "SELECT * FROM staffs WHERE staff_id = ? AND is_deleted = FALSE";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToStaff(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-
+-    public boolean insert(Staff staff) throws SQLException {
+-        String sql = "INSERT INTO staffs (username, password_hash, full_name, role, is_deleted, created_at)VALUES (?, ?, ?, ?, ?, ?)";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, staff.getUsername());
+-            stmt.setString(2, staff.getPasswordHash());
+-            stmt.setString(3, staff.getFullName());
+-            stmt.setString(4, staff.getRole());
+-            stmt.setBoolean(5, false);
+-            stmt.setTimestamp(6, Timestamp.valueOf(staff.getCreatedAt()));
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-
+-    public boolean update(Staff staff) throws SQLException {
+-        String sql = "UPDATE staffs SET username = ?, password_hash = ?, full_name = ?, role = ?, is_deleted = ? WHERE staff_id = ? AND is_deleted = FALSE";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, staff.getUsername());
+-            stmt.setString(2, staff.getPasswordHash());
+-            stmt.setString(3, staff.getFullName());
+-            stmt.setString(4, staff.getRole());
+-            stmt.setBoolean(5, staff.isDeleted());
+-            stmt.setInt(6, staff.getStaffId());
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-
+-    public boolean delete(int id) throws SQLException {
+-        String sql = "UPDATE staffs SET is_deleted = TRUE WHERE staff_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<Staff> findByUsername(String username) throws SQLException {
+-        List<Staff> staffList = new ArrayList<>();
+-        String sql = "SELECT * FROM staffs WHERE username = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, "%" + username + "%");
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    staffList.add(mapResultSetToStaff(rs));
+-                }
+-            }
+-            return staffList;
+-        }
+-    }
+-
+-    private Staff mapResultSetToStaff(ResultSet rs) throws SQLException {
+-        Staff staff = new Staff();
+-        staff.setStaffId(rs.getInt("staff_id"));
+-        staff.setUsername(rs.getString("username"));
+-        staff.setPasswordHash(rs.getString("password_hash"));
+-        staff.setFullName(rs.getString("full_name"));
+-        staff.setRole(rs.getString("role"));
+-        staff.setDeleted(rs.getBoolean("is_deleted"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        staff.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-
+-        return staff;
+-    }
+-}
+Index: src/main/java/dao/ChapterDAO.java
+===================================================================
+diff --git a/src/main/java/dao/ChapterDAO.java b/src/main/java/dao/ChapterDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/ChapterDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,106 +0,0 @@
+-package dao;
+-
+-import java.sql.*;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-import model.Chapter;
+-
+-public class ChapterDAO {
+-    private final Connection conn;
+-
+-    public ChapterDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    public List<Chapter> getAll() throws SQLException {
+-        List<Chapter> chapters = new ArrayList<>();
+-        String sql = "SELECT * FROM chapters WHERE is_deleted = false";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-             ResultSet rs = ps.executeQuery()) {
+-            while (rs.next()) {
+-                chapters.add(extractChapterFromResultSet(rs));
+-            }
+-        }
+-        return chapters;
+-    }
+-
+-    public Chapter findById(int chapterId) throws SQLException {
+-        String sql = "SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = false";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, chapterId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) {
+-                    return extractChapterFromResultSet(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public boolean insert(Chapter chapter, int seriesId, int authorId) throws SQLException {
+-        String sql = "INSERT INTO chapters (series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, false, ?, ?)";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+-            ps.setInt(1, seriesId);
+-            ps.setInt(2, authorId);
+-            ps.setInt(3, chapter.getChapterNumber());
+-            ps.setString(4, chapter.getTitle());
+-            ps.setString(5, chapter.getContent());
+-            ps.setString(6, chapter.getStatus());
+-            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+-
+-            int affected = ps.executeUpdate();
+-            if (affected > 0) {
+-                try (ResultSet rs = ps.getGeneratedKeys()) {
+-                    if (rs.next()) {
+-                        chapter.setChapterId(rs.getInt(1));
+-                    }
+-                }
+-                return true;
+-            }
+-        }
+-        return false;
+-    }
+-
+-    public boolean update(Chapter chapter) throws SQLException {
+-        String sql = "UPDATE chapters SET chapter_number = ?, title = ?, content = ?, status = ?, updated_at = ? WHERE chapter_id = ? AND is_deleted = false";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, chapter.getChapterNumber());
+-            ps.setString(2, chapter.getTitle());
+-            ps.setString(3, chapter.getContent());
+-            ps.setString(4, chapter.getStatus());
+-            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setInt(6, chapter.getChapterId());
+-
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int chapterId) throws SQLException {
+-        String sql = "UPDATE chapters SET is_deleted = true, updated_at = ? WHERE chapter_id = ?";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setInt(2, chapterId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {
+-        Chapter chapter = new Chapter();
+-        chapter.setChapterId(rs.getInt("chapter_id"));
+-        chapter.setChapterNumber(rs.getInt("chapter_number"));
+-        chapter.setTitle(rs.getString("title"));
+-        chapter.setContent(rs.getString("content"));
+-        chapter.setStatus(rs.getString("status"));
+-        chapter.setDeleted(rs.getBoolean("is_deleted"));
+-        chapter.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+-        chapter.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+-        return chapter;
+-    }
+-}
+Index: src/main/java/dao/PointHistoryDAO.java
+===================================================================
+diff --git a/src/main/java/dao/PointHistoryDAO.java b/src/main/java/dao/PointHistoryDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/PointHistoryDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,127 +0,0 @@
+-package dao;
+-
+-import model.PointHistory;
+-import java.sql.*;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class PointHistoryDAO {
+-    private final Connection conn;
+-
+-    public PointHistoryDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    // ===========================================
+-    // 1. Insert new record
+-    // ===========================================
+-    public boolean insert(PointHistory history) throws SQLException {
+-        String sql = """
+-            INSERT INTO point_history (user_id, point_change, reason, reference_type, reference_id, created_at)
+-            VALUES (?, ?, ?, ?, ?, ?)
+-            """;
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, history.getUserId());
+-            ps.setInt(2, history.getPointChange());
+-            ps.setString(3, history.getReason());
+-            ps.setString(4, history.getReferenceType());
+-            if (history.getReferenceId() != 0) {
+-                ps.setInt(5, history.getReferenceId());
+-            } else {
+-                ps.setNull(5, Types.INTEGER);
+-            }
+-            ps.setTimestamp(6, Timestamp.valueOf(
+-                    history.getCreatedAt() != null ? history.getCreatedAt() : LocalDateTime.now()
+-            ));
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ===========================================
+-    // 2. Get record by ID
+-    // ===========================================
+-    public PointHistory getById(int historyId) throws SQLException {
+-        String sql = "SELECT * FROM point_history WHERE history_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, historyId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) {
+-                    return extractFromResultSet(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    // ===========================================
+-    // 3. Get all records
+-    // ===========================================
+-    public List<PointHistory> getAll() throws SQLException {
+-        List<PointHistory> list = new ArrayList<>();
+-        String sql = "SELECT * FROM point_history ORDER BY created_at DESC";
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-             ResultSet rs = ps.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(extractFromResultSet(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // ===========================================
+-    // 4. Get records by User ID
+-    // ===========================================
+-    public List<PointHistory> getByUserId(int userId) throws SQLException {
+-        List<PointHistory> list = new ArrayList<>();
+-        String sql = "SELECT * FROM point_history WHERE user_id = ? ORDER BY created_at DESC";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, userId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(extractFromResultSet(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // ===========================================
+-    // 5. Delete by ID
+-    // ===========================================
+-    public boolean delete(int historyId) throws SQLException {
+-        String sql = "DELETE FROM point_history WHERE history_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, historyId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ===========================================
+-    // 6. Delete all by user_id (nếu cần thủ công)
+-    // ===========================================
+-    public boolean deleteByUserId(int userId) throws SQLException {
+-        String sql = "DELETE FROM point_history WHERE user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, userId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // ===========================================
+-    // Helper: convert ResultSet -> PointHistory
+-    // ===========================================
+-    private PointHistory extractFromResultSet(ResultSet rs) throws SQLException {
+-        PointHistory ph = new PointHistory();
+-        ph.setHistoryId(rs.getInt("history_id"));
+-        ph.setUserId(rs.getInt("user_id"));
+-        ph.setPointChange(rs.getInt("point_change"));
+-        ph.setReason(rs.getString("reason"));
+-        ph.setReferenceType(rs.getString("reference_type"));
+-        int refId = rs.getInt("reference_id");
+-        ph.setReferenceId(rs.wasNull() ? 0 : refId);
+-        Timestamp ts = rs.getTimestamp("created_at");
+-        ph.setCreatedAt(ts != null ? ts.toLocalDateTime() : null);
+-        return ph;
+-    }
+-}
+Index: src/main/java/dao/UserDAO.java
+===================================================================
+diff --git a/src/main/java/dao/UserDAO.java b/src/main/java/dao/UserDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/UserDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,145 +0,0 @@
+-package dao;
+-
+-import model.User;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class UserDAO {
+-    private final Connection conn;
+-
+-    public UserDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-
+-    public List<User> getAll() throws SQLException {
+-        List<User> users = new ArrayList<>();
+-        String sql = "SELECT * FROM users WHERE status <> 'inactive'";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                users.add(mapResultSetToUser(rs));
+-            }
+-        }
+-        return users;
+-    }
+-
+-
+-    public User findById(int id) throws SQLException {
+-        String sql = "SELECT * FROM users WHERE user_id = ? AND status <> 'inactive'";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToUser(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-
+-    public boolean insert(User user) throws SQLException {
+-        String sql = "INSERT INTO users (email, username, password_hash, full_name, role, email_otp,is_verified, status, google_id, created_at, points)VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, user.getEmail());
+-            stmt.setString(2, user.getUsername());
+-            stmt.setString(3, user.getPasswordHash());
+-            stmt.setString(4, user.getFullName());
+-            stmt.setString(5, user.getRole());
+-            stmt.setString(6, user.getEmailOtp());
+-            stmt.setBoolean(7, user.isVerified());
+-            stmt.setString(8, "active");
+-            stmt.setString(9, user.getGoogleAccountId());
+-            stmt.setTimestamp(10, Timestamp.valueOf(user.getCreatedAt()));
+-            stmt.setInt(11, user.getPoints());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-
+-    public boolean update(User user) throws SQLException {
+-        String sql = "UPDATE users SET email = ?, username = ?, password_hash = ?, full_name = ?, role = ?, email_otp = ?, is_verified = ?, status = ?, google_id = ?, points = ? WHERE user_id = ? AND status <> 'inactive'";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, user.getEmail());
+-            stmt.setString(2, user.getUsername());
+-            stmt.setString(3, user.getPasswordHash());
+-            stmt.setString(4, user.getFullName());
+-            stmt.setString(5, user.getRole());
+-            stmt.setString(6, user.getEmailOtp());
+-            stmt.setBoolean(7, user.isVerified());
+-            stmt.setString(8, user.getStatus());
+-            stmt.setString(9, user.getGoogleAccountId());
+-            stmt.setInt(10, user.getUserId());
+-            stmt.setInt(11, user.getPoints());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-
+-    public boolean delete(int id) throws SQLException {
+-        String sql = "UPDATE users SET status = '?' WHERE user_id = ? AND status <> 'inactive'";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, "inactive");
+-            stmt.setInt(2, id);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<User> findByName(String name) throws SQLException {
+-        List<User> usersList = new ArrayList<>();
+-        String sql = "SELECT * FROM users WHERE username LIKE ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, "%" + name + "%");
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    usersList.add(mapResultSetToUser(rs));
+-                }
+-            }
+-            return usersList;
+-        }
+-    }
+-
+-    public List<User> selectTopUserPoints(int rank) throws SQLException {
+-        List<User> usersList = new ArrayList<>();
+-        String sql = "SELECT TOP (" + rank + " FROM users ORDER BY points DESC ";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                usersList.add(mapResultSetToUser(rs));
+-            }
+-            return usersList;
+-        }
+-    }
+-
+-    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+-        User user = new User();
+-        user.setUserId(rs.getInt("user_id"));
+-        user.setEmail(rs.getString("email"));
+-        user.setUsername(rs.getString("username"));
+-        user.setPasswordHash(rs.getString("password_hash"));
+-        user.setFullName(rs.getString("full_name"));
+-        user.setRole(rs.getString("role"));
+-        user.setEmailOtp(rs.getString("email_otp"));
+-        user.setVerified(rs.getBoolean("is_verified"));
+-        user.setStatus(rs.getString("status"));
+-        user.setGoogleAccountId(rs.getString("google_id"));
+-        user.setPoints(rs.getInt("points"));
+-        user.setGoogleAccount(user.getGoogleAccountId() != null);
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        user.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-
+-        return user;
+-    }
+-}
+Index: src/main/java/dao/CategoryDAO.java
+===================================================================
+diff --git a/src/main/java/dao/CategoryDAO.java b/src/main/java/dao/CategoryDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/CategoryDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,102 +0,0 @@
+-package dao;
+-
+-import model.Category;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-/**
+- * DAO class for managing 'categories' table.
+- * Includes CRUD and find methods.
+- */
+-public class CategoryDAO {
+-    private final Connection conn;
+-
+-    public CategoryDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    /**
+-     * Get all category records.
+-     */
+-    public List<Category> getAll() throws SQLException {
+-        List<Category> list = new ArrayList<>();
+-        String sql = "SELECT * FROM categories";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-
+-            while (rs.next()) {
+-                list.add(mapResultSetToCategory(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    /**
+-     * Find category by ID.
+-     */
+-    public Category findById(int id) throws SQLException {
+-        String sql = "SELECT * FROM categories WHERE category_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToCategory(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    /**
+-     * Insert a new category.
+-     */
+-    public boolean insert(Category category) throws SQLException {
+-        String sql = "INSERT INTO categories (name, description) VALUES (?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, category.getName());
+-            stmt.setString(2, category.getDescription());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    /**
+-     * Update an existing category.
+-     */
+-    public boolean update(Category category) throws SQLException {
+-        String sql = "UPDATE categories SET name = ?, description = ? WHERE category_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, category.getName());
+-            stmt.setString(2, category.getDescription());
+-            stmt.setInt(3, category.getCategoryId());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    /**
+-     * Delete a category by ID.
+-     */
+-    public boolean delete(int id) throws SQLException {
+-        String sql = "DELETE FROM categories WHERE category_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    /**
+-     * Helper: Map a ResultSet row into a Category object.
+-     */
+-    private Category mapResultSetToCategory(ResultSet rs) throws SQLException {
+-        Category category = new Category();
+-        category.setCategoryId(rs.getInt("category_id"));
+-        category.setName(rs.getString("name"));
+-        category.setDescription(rs.getString("description"));
+-        return category;
+-    }
+-}
+Index: src/main/java/dao/SeriesAuthorDAO.java
+===================================================================
+diff --git a/src/main/java/dao/SeriesAuthorDAO.java b/src/main/java/dao/SeriesAuthorDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/SeriesAuthorDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,85 +0,0 @@
+-package dao;
+-
+-import model.SeriesAuthor;
+-import java.sql.PreparedStatement;
+-
+-import java.sql.Connection;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class SeriesAuthorDAO {
+-    private final Connection conn;
+-
+-    public SeriesAuthorDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    public boolean add(SeriesAuthor sa) throws SQLException {
+-        String sql = "INSERT INTO series_author (series_id, user_id, added_at) VALUES (?, ?, ?)";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, sa.getSeriesId());
+-            ps.setInt(2, sa.getAuthorId());
+-            ps.setTimestamp(3, Timestamp.valueOf(sa.getAddedAt() != null ? sa.getAddedAt() : LocalDateTime.now()));
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public SeriesAuthor findById(int seriesId, int userId) throws SQLException {
+-        String sql = "SELECT * FROM series_author WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, seriesId);
+-            ps.setInt(2, userId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToSeriesAuthor(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public List<SeriesAuthor> findAll() throws SQLException {
+-        String sql = "SELECT * FROM series_author";
+-        List<SeriesAuthor> list = new ArrayList<>();
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-             ResultSet rs = ps.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToSeriesAuthor(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public boolean update(SeriesAuthor sa) throws SQLException {
+-        String sql = "UPDATE series_author SET added_at = ? WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setTimestamp(1, Timestamp.valueOf(sa.getAddedAt()));
+-            ps.setInt(2, sa.getSeriesId());
+-            ps.setInt(3, sa.getAuthorId());
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int seriesId, int userId) throws SQLException {
+-        String sql = "DELETE FROM series_author WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, seriesId);
+-            ps.setInt(2, userId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    private SeriesAuthor mapResultSetToSeriesAuthor(ResultSet rs) throws SQLException {
+-        SeriesAuthor seriesAuthor = new SeriesAuthor();
+-        seriesAuthor.setAuthorId(rs.getInt("user_id"));
+-        seriesAuthor.setSeriesId(rs.getInt("series_id"));
+-        Timestamp created = rs.getTimestamp("created_at");
+-        seriesAuthor.setAddedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-        return seriesAuthor;
+-    }
+-}
+-
+Index: src/main/java/dao/BadgeDAO.java
+===================================================================
+diff --git a/src/main/java/dao/BadgeDAO.java b/src/main/java/dao/BadgeDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/BadgeDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,95 +0,0 @@
+-package dao;
+-
+-import model.Badge;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class BadgeDAO {
+-    private final Connection conn;
+-
+-    public BadgeDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    public List<Badge> getAll() throws SQLException {
+-        List<Badge> list = new ArrayList<>();
+-        String sql = "SELECT * FROM badges";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-
+-            while (rs.next()) {
+-                list.add(mapResultSetToBadges(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public Badge findById(int badgeId) throws SQLException {
+-        String sql = "SELECT * FROM badges WHERE badge_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, badgeId);
+-
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToBadges(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public boolean insert(Badge badge) throws SQLException {
+-        String sql = "INSERT INTO badges (icon_url, name, description, created_at) VALUES (?, ?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, badge.getIconUrl());
+-            stmt.setString(2, badge.getName());
+-            stmt.setString(3, badge.getDescription());
+-            stmt.setTimestamp(4, Timestamp.valueOf(
+-                    badge.getCreatedAt() != null ? badge.getCreatedAt() : LocalDateTime.now()
+-            ));
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean update(Badge badge) throws SQLException {
+-        String sql = "UPDATE badges SET icon_url = ?, name = ?, description = ?, created_at = ? WHERE badge_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setString(1, badge.getIconUrl());
+-            stmt.setString(2, badge.getName());
+-            stmt.setString(3, badge.getDescription());
+-            stmt.setTimestamp(4, Timestamp.valueOf(badge.getCreatedAt()));
+-            stmt.setInt(5, badge.getBadgeId());
+-
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int badgeId) throws SQLException {
+-        String sql = "DELETE FROM badges WHERE badge_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, badgeId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    private Badge mapResultSetToBadges(ResultSet rs) throws SQLException {
+-        Badge badge = new Badge();
+-        badge.setBadgeId(rs.getInt("badge_id"));
+-        badge.setIconUrl(rs.getString("icon_url"));
+-        badge.setName(rs.getString("name"));
+-        badge.setDescription(rs.getString("description"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        badge.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-
+-        return badge;
+-    }
+-}
+Index: src/main/java/dao/SeriesCategoriesDAO.java
+===================================================================
+diff --git a/src/main/java/dao/SeriesCategoriesDAO.java b/src/main/java/dao/SeriesCategoriesDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/SeriesCategoriesDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,127 +0,0 @@
+-package dao;
+-
+-import java.sql.*;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-import model.SeriesCategories;
+-
+-/**
+- * DAO for series_categories table.
+- * Uses external Connection for better transaction control.
+- */
+-public class SeriesCategoriesDAO {
+-
+-    /**
+-     * Get all series-category mappings.
+-     *
+-     * @param conn The active database connection.
+-     * @return List of SeriesCategory objects.
+-     * @throws SQLException if any SQL error occurs.
+-     */
+-    public List<SeriesCategories> getAll(Connection conn) throws SQLException {
+-        List<SeriesCategories> list = new ArrayList<>();
+-        String sql = "SELECT series_id, category_id FROM series_categories";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-             ResultSet rs = ps.executeQuery()) {
+-
+-            while (rs.next()) {
+-                SeriesCategories sc = new SeriesCategories();
+-                sc.setSeriesId(rs.getInt("series_id"));
+-                sc.setCategoryId(rs.getInt("category_id"));
+-                list.add(sc);
+-            }
+-        }
+-
+-        return list;
+-    }
+-
+-    /**
+-     * Find a specific series-category record.
+-     *
+-     * @param conn       Active DB connection.
+-     * @param seriesId   Series ID.
+-     * @param categoryId Category ID.
+-     * @return SeriesCategory or null if not found.
+-     * @throws SQLException if any SQL error occurs.
+-     */
+-    public SeriesCategories findById(Connection conn, int seriesId, int categoryId) throws SQLException {
+-        String sql = "SELECT series_id, category_id FROM series_categories WHERE series_id = ? AND category_id = ?";
+-        SeriesCategories sc = null;
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, seriesId);
+-            ps.setInt(2, categoryId);
+-
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) {
+-                    sc = new SeriesCategories();
+-                    sc.setSeriesId(rs.getInt("series_id"));
+-                    sc.setCategoryId(rs.getInt("category_id"));
+-                }
+-            }
+-        }
+-
+-        return sc;
+-    }
+-
+-    /**
+-     * Insert a new series-category record.
+-     *
+-     * @param conn Active DB connection.
+-     * @param sc   The SeriesCategory object to insert.
+-     * @return true if inserted successfully.
+-     * @throws SQLException if any SQL error occurs.
+-     */
+-    public boolean insert(Connection conn, SeriesCategories sc) throws SQLException {
+-        String sql = "INSERT INTO series_categories (series_id, category_id) VALUES (?, ?)";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, sc.getSeriesId());
+-            ps.setInt(2, sc.getCategoryId());
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    /**
+-     * Update an existing record.
+-     *
+-     * @param conn          Active DB connection.
+-     * @param oldSeriesId   Old series ID.
+-     * @param oldCategoryId Old category ID.
+-     * @param newData       New data to update.
+-     * @return true if updated successfully.
+-     * @throws SQLException if any SQL error occurs.
+-     */
+-    public boolean update(Connection conn, int oldSeriesId, int oldCategoryId, SeriesCategories newData) throws SQLException {
+-        String sql = "UPDATE series_categories SET series_id = ?, category_id = ? WHERE series_id = ? AND category_id = ? ";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, newData.getSeriesId());
+-            ps.setInt(2, newData.getCategoryId());
+-            ps.setInt(3, oldSeriesId);
+-            ps.setInt(4, oldCategoryId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    /**
+-     * Delete a record by seriesId and categoryId.
+-     *
+-     * @param conn       Active DB connection.
+-     * @param seriesId   Series ID.
+-     * @param categoryId Category ID.
+-     * @return true if deleted successfully.
+-     * @throws SQLException if any SQL error occurs.
+-     */
+-    public boolean delete(Connection conn, int seriesId, int categoryId) throws SQLException {
+-        String sql = "DELETE FROM series_categories WHERE series_id = ? AND category_id = ?";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, seriesId);
+-            ps.setInt(2, categoryId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-}
+Index: .idea/encodings.xml
+===================================================================
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+deleted file mode 100644
+--- a/.idea/encodings.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,7 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Encoding">
+-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: src/main/java/dao/LikesDAO.java
+===================================================================
+diff --git a/src/main/java/dao/LikesDAO.java b/src/main/java/dao/LikesDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/LikesDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,107 +0,0 @@
+-package dao;
+-
+-import model.Like;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class LikesDAO {
+-    private final Connection conn;
+-
+-    public LikesDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    // Lấy tất cả Like
+-    public List<Like> getAll() throws SQLException {
+-        List<Like> list = new ArrayList<>();
+-        String sql = "SELECT * FROM likes";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToLike(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // Kiểm tra xem user đã like chapter chưa
+-    public boolean exists(int userId, int chapterId) throws SQLException {
+-        String sql = "SELECT 1 FROM likes WHERE user_id = ? AND chapter_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            stmt.setInt(2, chapterId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                return rs.next();
+-            }
+-        }
+-    }
+-
+-    // Thêm like
+-    public boolean insert(Like like) throws SQLException {
+-        String sql = "INSERT INTO likes (user_id, chapter_id, liked_at) VALUES (?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, like.getUserId());
+-            stmt.setInt(2, like.getChapterId());
+-            stmt.setTimestamp(3, Timestamp.valueOf(
+-                    like.getLikedAt() != null ? like.getLikedAt() : LocalDateTime.now()
+-            ));
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Xóa like
+-    public boolean delete(int userId, int chapterId) throws SQLException {
+-        String sql = "DELETE FROM likes WHERE user_id = ? AND chapter_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            stmt.setInt(2, chapterId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Lấy tất cả likes của 1 user
+-    public List<Like> findByUser(int userId) throws SQLException {
+-        List<Like> list = new ArrayList<>();
+-        String sql = "SELECT * FROM likes WHERE user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToLike(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // Đếm tổng số like của 1 chapter
+-    public int countLikesByChapter(int chapterId) throws SQLException {
+-        String sql = "SELECT COUNT(*) AS total FROM likes WHERE chapter_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, chapterId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return rs.getInt("total");
+-                }
+-            }
+-        }
+-        return 0;
+-    }
+-
+-    // Ánh xạ ResultSet → Likes
+-    private Like mapResultSetToLike(ResultSet rs) throws SQLException {
+-        Like like = new Like();
+-        like.setUserId(rs.getInt("user_id"));
+-        like.setChapterId(rs.getInt("chapter_id"));
+-        Timestamp ts = rs.getTimestamp("liked_at");
+-        like.setLikedAt(ts != null ? ts.toLocalDateTime() : LocalDateTime.now());
+-        return like;
+-    }
+-}
+Index: src/main/java/model/Rating.java
+===================================================================
+diff --git a/src/main/java/model/Rating.java b/src/main/java/model/Rating.java
+deleted file mode 100644
+--- a/src/main/java/model/Rating.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,60 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Rating {
+-    private int ratingValue;
+-    private int userId;
+-    private int seriesId;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-    public Rating(int ratingValue, int userId, int seriesId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.ratingValue = ratingValue;
+-        this.userId = userId;
+-        this.seriesId = seriesId;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-    public Rating(){}
+-
+-    public int getRatingValue() {
+-        return ratingValue;
+-    }
+-
+-    public void setRatingValue(int ratingValue) {
+-        this.ratingValue = ratingValue;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-}
+Index: .idea/sqldialects.xml
+===================================================================
+diff --git a/.idea/sqldialects.xml b/.idea/sqldialects.xml
+deleted file mode 100644
+--- a/.idea/sqldialects.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="SqlDialectMappings">
+-    <file url="file://$PROJECT_DIR$/src/main/java/dao/SeriesDAO.java" dialect="TSQL" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: src/main/java/dao/RatingDAO.java
+===================================================================
+diff --git a/src/main/java/dao/RatingDAO.java b/src/main/java/dao/RatingDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/RatingDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,146 +0,0 @@
+-package dao;
+-
+-import model.Rating;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class RatingDAO {
+-    private final Connection conn;
+-
+-    public RatingDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    private Rating mapResultSetToRating(ResultSet rs) throws SQLException {
+-        Rating r = new Rating();
+-        r.setSeriesId(rs.getInt("series_id"));
+-        r.setUserId(rs.getInt("user_id"));
+-        r.setRatingValue(rs.getByte("rating_value"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        Timestamp updated = rs.getTimestamp("updated_at");
+-        r.setCreatedAt(created != null ? created.toLocalDateTime() : null);
+-        r.setUpdatedAt(updated != null ? updated.toLocalDateTime() : null);
+-
+-        return r;
+-    }
+-
+-    public boolean insert(Rating rating) throws SQLException {
+-        String sql = "INSERT INTO ratings (series_id, user_id, rating_value, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, rating.getSeriesId());
+-            stmt.setInt(2, rating.getUserId());
+-            stmt.setInt(3, rating.getRatingValue());
+-            stmt.setTimestamp(4, Timestamp.valueOf(rating.getCreatedAt() != null ? rating.getCreatedAt() : LocalDateTime.now()));
+-            stmt.setTimestamp(5, Timestamp.valueOf(rating.getUpdatedAt() != null ? rating.getUpdatedAt() : LocalDateTime.now()));
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<Rating> getAll() throws SQLException {
+-        List<Rating> list = new ArrayList<>();
+-        String sql = "SELECT * FROM ratings";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToRating(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public List<Rating> getByUserId(int userId) throws SQLException {
+-        List<Rating> list = new ArrayList<>();
+-        String sql = "SELECT * FROM ratings WHERE user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToRating(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public List<Rating> getBySeriesId(int seriesId) throws SQLException {
+-        List<Rating> list = new ArrayList<>();
+-        String sql = "SELECT * FROM ratings WHERE series_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, seriesId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToRating(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public Rating findById(int seriesId, int userId) throws SQLException {
+-        String sql = "SELECT * FROM ratings WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, seriesId);
+-            stmt.setInt(2, userId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToRating(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public boolean update(Rating rating) throws SQLException {
+-        String sql = "UPDATE ratings SET rating_value = ?, updated_at = ? WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, rating.getRatingValue());
+-            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+-            stmt.setInt(3, rating.getSeriesId());
+-            stmt.setInt(4, rating.getUserId());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int seriesId, int userId) throws SQLException {
+-        String sql = "DELETE FROM ratings WHERE series_id = ? AND user_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, seriesId);
+-            stmt.setInt(2, userId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public double getAverageRating(int seriesId) throws SQLException {
+-        String sql = "SELECT AVG(CAST(rating_value AS FLOAT)) AS avg_rating FROM ratings WHERE series_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, seriesId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return rs.getDouble("avg_rating");
+-                }
+-            }
+-        }
+-        return 0.0;
+-    }
+-
+-    public int getRatingCount(int seriesId) throws SQLException {
+-        String sql = "SELECT COUNT(*) AS total FROM ratings WHERE series_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, seriesId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return rs.getInt("total");
+-                }
+-            }
+-        }
+-        return 0;
+-    }
+-}
+\ No newline at end of file
+Index: src/main/java/model/BadgesUser.java
+===================================================================
+diff --git a/src/main/java/model/BadgesUser.java b/src/main/java/model/BadgesUser.java
+deleted file mode 100644
+--- a/src/main/java/model/BadgesUser.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,42 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class BadgesUser {
+-    private int badgeId;
+-    private int userId;
+-    private LocalDateTime awardedAt;
+-
+-    public BadgesUser(int badgeId, int userId, LocalDateTime awardedAt) {
+-        this.badgeId = badgeId;
+-        this.userId = userId;
+-        this.awardedAt = awardedAt;
+-    }
+-
+-    public BadgesUser() {
+-    }
+-
+-    public int getBadgeId() {
+-        return badgeId;
+-    }
+-
+-    public void setBadgeId(int badgeId) {
+-        this.badgeId = badgeId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public LocalDateTime getAwardedAt() {
+-        return awardedAt;
+-    }
+-
+-    public void setAwardedAt(LocalDateTime awardedAt) {
+-        this.awardedAt = awardedAt;
+-    }
+-}
+Index: src/main/java/model/Staff.java
+===================================================================
+diff --git a/src/main/java/model/Staff.java b/src/main/java/model/Staff.java
+deleted file mode 100644
+--- a/src/main/java/model/Staff.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,91 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Staff {
+-    private int staffId;
+-    private String username;
+-    private String passwordHash;
+-    private String fullName;
+-    private String role;
+-    private boolean isDeleted;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-
+-    public Staff(int staffId, String username, String passwordHash, String fullName, String role, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.staffId = staffId;
+-        this.username = username;
+-        this.passwordHash = passwordHash;
+-        this.fullName = fullName;
+-        this.role = role;
+-        this.isDeleted = isDeleted;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public Staff() {}
+-    public String getRole() {
+-        return role;
+-    }
+-
+-    public void setRole(String role) {
+-        this.role = role;
+-    }
+-
+-    public int getStaffId() {
+-        return staffId;
+-    }
+-
+-    public void setStaffId(int staffId) {
+-        this.staffId = staffId;
+-    }
+-
+-    public String getUsername() {
+-        return username;
+-    }
+-
+-    public void setUsername(String username) {
+-        this.username = username;
+-    }
+-
+-    public String getPasswordHash() {
+-        return passwordHash;
+-    }
+-
+-    public void setPasswordHash(String passwordHash) {
+-        this.passwordHash = passwordHash;
+-    }
+-
+-    public String getFullName() {
+-        return fullName;
+-    }
+-
+-    public void setFullName(String fullName) {
+-        this.fullName = fullName;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public boolean isDeleted() {
+-        return isDeleted;
+-    }
+-
+-    public void setDeleted(boolean deleted) {
+-        this.isDeleted = deleted;
+-    }
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+-}
+Index: .idea/compiler.xml
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+deleted file mode 100644
+--- a/.idea/compiler.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,13 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="CompilerConfiguration">
+-    <annotationProcessing>
+-      <profile name="Maven default annotation processors profile" enabled="true">
+-        <sourceOutputDir name="target/generated-sources/annotations" />
+-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+-        <outputRelativeToContentRoot value="true" />
+-        <module name="JoyLeeBook" />
+-      </profile>
+-    </annotationProcessing>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: src/main/java/model/Category.java
+===================================================================
+diff --git a/src/main/java/model/Category.java b/src/main/java/model/Category.java
+deleted file mode 100644
+--- a/src/main/java/model/Category.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,38 +0,0 @@
+-package model;
+-
+-public class Category {
+-    private int categoryId;
+-    private String name;
+-    private String description;
+-
+-    public Category(int categoryId, String name, String description) {
+-        this.categoryId = categoryId;
+-        this.name = name;
+-        this.description = description;
+-    }
+-
+-    public Category() {}
+-    public int getCategoryId() {
+-        return categoryId;
+-    }
+-
+-    public void setCategoryId(int categoryId) {
+-        this.categoryId = categoryId;
+-    }
+-
+-    public String getName() {
+-        return name;
+-    }
+-
+-    public void setName(String name) {
+-        this.name = name;
+-    }
+-
+-    public String getDescription() {
+-        return description;
+-    }
+-
+-    public void setDescription(String description) {
+-        this.description = description;
+-    }
+-}
+Index: src/main/java/model/ReadingHistory.java
+===================================================================
+diff --git a/src/main/java/model/ReadingHistory.java b/src/main/java/model/ReadingHistory.java
+deleted file mode 100644
+--- a/src/main/java/model/ReadingHistory.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,40 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class ReadingHistory {
+-    private int userId;
+-    private int chapterId;
+-    private LocalDateTime lastReadAt;
+-
+-    public ReadingHistory(int userId, int chapterId, LocalDateTime lastReadAt) {
+-        this.userId = userId;
+-        this.chapterId = chapterId;
+-        this.lastReadAt = lastReadAt;
+-    }
+-
+-    public ReadingHistory() {}
+-    public LocalDateTime getLastReadAt() {
+-        return lastReadAt;
+-    }
+-
+-    public void setLastReadAt(LocalDateTime lastReadAt) {
+-        this.lastReadAt = lastReadAt;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-}
+Index: .idea/.gitignore
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+--- a/.idea/.gitignore	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,8 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+-# Editor-based HTTP Client requests
+-/httpRequests/
+-# Datasource local storage ignored files
+-/dataSources/
+-/dataSources.local.xml
+Index: src/main/java/model/Badge.java
+===================================================================
+diff --git a/src/main/java/model/Badge.java b/src/main/java/model/Badge.java
+deleted file mode 100644
+--- a/src/main/java/model/Badge.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,82 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Badge {
+-    private int badgeId;
+-    private String name;
+-    private String iconUrl;
+-    private String description;
+-    private LocalDateTime createdAt;
+-    private String requirementType;
+-    private String requirementValue;
+-
+-    public Badge(int badgeId, String name, String iconUrl, String description, LocalDateTime createdAt, String requirementType, String requirementValue) {
+-        this.badgeId = badgeId;
+-        this.name = name;
+-        this.iconUrl = iconUrl;
+-        this.description = description;
+-        this.createdAt = createdAt;
+-        this.requirementType = requirementType;
+-        this.requirementValue = requirementValue;
+-    }
+-
+-    public Badge() {
+-    }
+-
+-    public int getBadgeId() {
+-        return badgeId;
+-    }
+-
+-    public void setBadgeId(int badgeId) {
+-        this.badgeId = badgeId;
+-    }
+-
+-    public String getName() {
+-        return name;
+-    }
+-
+-    public void setName(String name) {
+-        this.name = name;
+-    }
+-
+-    public String getIconUrl() {
+-        return iconUrl;
+-    }
+-
+-    public void setIconUrl(String iconUrl) {
+-        this.iconUrl = iconUrl;
+-    }
+-
+-    public String getDescription() {
+-        return description;
+-    }
+-
+-    public void setDescription(String description) {
+-        this.description = description;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public String getRequirementType() {
+-        return requirementType;
+-    }
+-
+-    public void setRequirementType(String requirementType) {
+-        this.requirementType = requirementType;
+-    }
+-
+-    public String getRequirementValue() {
+-        return requirementValue;
+-    }
+-
+-    public void setRequirementValue(String requirementValue) {
+-        this.requirementValue = requirementValue;
+-    }
+-}
+Index: src/main/java/model/SavedSeries.java
+===================================================================
+diff --git a/src/main/java/model/SavedSeries.java b/src/main/java/model/SavedSeries.java
+deleted file mode 100644
+--- a/src/main/java/model/SavedSeries.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,41 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class SavedSeries {
+-    private int seriesId;
+-    private int userId;
+-    private LocalDateTime savedAt;
+-
+-    public SavedSeries(int seriesId, int userId, LocalDateTime savedAt) {
+-        this.seriesId = seriesId;
+-        this.userId = userId;
+-        this.savedAt = savedAt;
+-    }
+-
+-    public SavedSeries() {}
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public LocalDateTime getSavedAt() {
+-        return savedAt;
+-    }
+-
+-    public void setSavedAt(LocalDateTime savedAt) {
+-        this.savedAt = savedAt;
+-    }
+-}
+Index: src/main/java/model/Series.java
+===================================================================
+diff --git a/src/main/java/model/Series.java b/src/main/java/model/Series.java
+deleted file mode 100644
+--- a/src/main/java/model/Series.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,111 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Series {
+-    private int seriesId;
+-    private String title;
+-    private String description;
+-    private String coverImgUrl;
+-    private int status;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-    private int authorId;
+-    private boolean isDeleted;
+-    private int points;
+-
+-    public Series(int seriesId, String title, String description, String coverImgUrl, int status, LocalDateTime createdAt, LocalDateTime updatedAt, int authorId, boolean isDeleted, int points) {
+-        this.seriesId = seriesId;
+-        this.title = title;
+-        this.description = description;
+-        this.coverImgUrl = coverImgUrl;
+-        this.status = status;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-        this.authorId = authorId;
+-        this.isDeleted = isDeleted;
+-        this.points = points;
+-    }
+-
+-    public Series() {}
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public String getDescription() {
+-        return description;
+-    }
+-
+-    public void setDescription(String description) {
+-        this.description = description;
+-    }
+-
+-    public String getCoverImgUrl() {
+-        return coverImgUrl;
+-    }
+-
+-    public void setCoverImgUrl(String coverImgUrl) {
+-        this.coverImgUrl = coverImgUrl;
+-    }
+-
+-    public int getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(int status) {
+-        this.status = status;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public int getAuthorId() {
+-        return authorId;
+-    }
+-
+-    public void setAuthorId(int authorId) {
+-        this.authorId = authorId;
+-    }
+-
+-    public boolean isDeleted() {
+-        return isDeleted;
+-    }
+-
+-    public void setDeleted(boolean deleted) {
+-        isDeleted = deleted;
+-    }
+-
+-    public int getPoints() {
+-        return points;
+-    }
+-
+-    public void setPoints(int points) {
+-        this.points = points;
+-    }
+-}
+Index: src/main/java/dao/NotificationsDAO.java
+===================================================================
+diff --git a/src/main/java/dao/NotificationsDAO.java b/src/main/java/dao/NotificationsDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/NotificationsDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,134 +0,0 @@
+-package dao;
+-
+-import model.Notification;
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class NotificationsDAO {
+-    private final Connection conn;
+-
+-    public NotificationsDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    // Lấy toàn bộ thông báo
+-    public List<Notification> getAll() throws SQLException {
+-        List<Notification> list = new ArrayList<>();
+-        String sql = "SELECT * FROM notifications ORDER BY created_at DESC";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql);
+-             ResultSet rs = stmt.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(mapResultSetToNotification(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // Tìm thông báo theo ID
+-    public Notification findById(int id) throws SQLException {
+-        String sql = "SELECT * FROM notifications WHERE notification_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, id);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                if (rs.next()) {
+-                    return mapResultSetToNotification(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    // Lấy tất cả thông báo của một user
+-    public List<Notification> findByUserId(int userId) throws SQLException {
+-        List<Notification> list = new ArrayList<>();
+-        String sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
+-
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, userId);
+-            try (ResultSet rs = stmt.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(mapResultSetToNotification(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // Thêm thông báo mới
+-    public boolean insert(Notification noti) throws SQLException {
+-        String sql = "INSERT INTO notifications (user_id, type, title, message, is_read, url_redirect, created_at) " +
+-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, noti.getUserId());
+-            stmt.setString(2, noti.getType());
+-            stmt.setString(3, noti.getTitle());
+-            stmt.setString(4, noti.getMessage());
+-            stmt.setBoolean(5, noti.isRead());
+-            stmt.setString(6, noti.getUrlRedirect());
+-            stmt.setTimestamp(7, Timestamp.valueOf(
+-                    noti.getCreatedAt() != null ? noti.getCreatedAt() : LocalDateTime.now()
+-            ));
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Cập nhật nội dung thông báo (hoặc trạng thái đã đọc)
+-    public boolean update(Notification noti) throws SQLException {
+-        String sql = "UPDATE notifications SET " +
+-                "user_id = ?, type = ?, title = ?, message = ?, is_read = ?, url_redirect = ?, created_at = ? " +
+-                "WHERE notification_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, noti.getUserId());
+-            stmt.setString(2, noti.getType());
+-            stmt.setString(3, noti.getTitle());
+-            stmt.setString(4, noti.getMessage());
+-            stmt.setBoolean(5, noti.isRead());
+-            stmt.setString(6, noti.getUrlRedirect());
+-            stmt.setTimestamp(7, Timestamp.valueOf(noti.getCreatedAt()));
+-            stmt.setInt(8, noti.getNotificationId());
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Đánh dấu đã đọc
+-    public boolean markAsRead(int notificationId) throws SQLException {
+-        String sql = "UPDATE notifications SET is_read = 1 WHERE notification_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, notificationId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Xóa thông báo
+-    public boolean delete(int notificationId) throws SQLException {
+-        String sql = "DELETE FROM notifications WHERE notification_id = ?";
+-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+-            stmt.setInt(1, notificationId);
+-            return stmt.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // Hàm ánh xạ dữ liệu từ ResultSet
+-    private Notification mapResultSetToNotification(ResultSet rs) throws SQLException {
+-        Notification n = new Notification();
+-        n.setNotificationId(rs.getInt("notification_id"));
+-        n.setUserId(rs.getInt("user_id"));
+-        n.setType(rs.getString("type"));
+-        n.setTitle(rs.getString("title"));
+-        n.setMessage(rs.getString("message"));
+-        n.setRead(rs.getBoolean("is_read"));
+-        n.setUrlRedirect(rs.getString("url_redirect"));
+-
+-        Timestamp created = rs.getTimestamp("created_at");
+-        n.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+-
+-        return n;
+-    }
+-}
+Index: src/main/java/model/Chapter.java
+===================================================================
+diff --git a/src/main/java/model/Chapter.java b/src/main/java/model/Chapter.java
+deleted file mode 100644
+--- a/src/main/java/model/Chapter.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,111 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Chapter {
+-    private int chapterId;
+-    private int chapterNumber;
+-    private int seriesId;
+-    private int userId;
+-    private String title;
+-    private String content;
+-    private String status;
+-    private boolean isDeleted;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-    public Chapter(int chapterId, int chapterNumber, int seriesId, int userId, String title, String content, String status, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.chapterId = chapterId;
+-        this.chapterNumber = chapterNumber;
+-        this.seriesId = seriesId;
+-        this.userId = userId;
+-        this.title = title;
+-        this.content = content;
+-        this.status = status;
+-        this.isDeleted = isDeleted;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public Chapter() {}
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public boolean isDeleted() {
+-        return isDeleted;
+-    }
+-
+-    public void setDeleted(boolean deleted) {
+-        isDeleted = deleted;
+-    }
+-
+-    public int getChapterNumber() {
+-        return chapterNumber;
+-    }
+-
+-    public void setChapterNumber(int chapterNumber) {
+-        this.chapterNumber = chapterNumber;
+-    }
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public String getContent() {
+-        return content;
+-    }
+-
+-    public void setContent(String content) {
+-        this.content = content;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-}
+Index: src/main/java/model/Comment.java
+===================================================================
+diff --git a/src/main/java/model/Comment.java b/src/main/java/model/Comment.java
+deleted file mode 100644
+--- a/src/main/java/model/Comment.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,81 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Comment {
+-    private int commentId;
+-    private int userId;
+-    private int chapterId;
+-    private String content;
+-    private boolean isDeleted;
+-    private LocalDateTime createdAt;
+-    private LocalDateTime updatedAt;
+-
+-    public Comment(int commentId, int userId, int chapterId, String content, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
+-        this.commentId = commentId;
+-        this.userId = userId;
+-        this.chapterId = chapterId;
+-        this.content = content;
+-        this.isDeleted = isDeleted;
+-        this.createdAt = createdAt;
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public Comment() {}
+-
+-    public int getCommentId() {
+-        return commentId;
+-    }
+-
+-    public void setCommentId(int commentId) {
+-        this.commentId = commentId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public String getContent() {
+-        return content;
+-    }
+-
+-    public void setContent(String content) {
+-        this.content = content;
+-    }
+-
+-    public boolean isDeleted() {
+-        return isDeleted;
+-    }
+-
+-    public void setDeleted(boolean deleted) {
+-        isDeleted = deleted;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-}
+Index: .idea/jarRepositories.xml
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+deleted file mode 100644
+--- a/.idea/jarRepositories.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="RemoteRepositoriesConfiguration">
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Central Repository" />
+-      <option name="url" value="https://repo.maven.apache.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Maven Central repository" />
+-      <option name="url" value="https://repo1.maven.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="jboss.community" />
+-      <option name="name" value="JBoss Community repository" />
+-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+-    </remote-repository>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: src/main/java/model/Notification.java
+===================================================================
+diff --git a/src/main/java/model/Notification.java b/src/main/java/model/Notification.java
+deleted file mode 100644
+--- a/src/main/java/model/Notification.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,92 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Notification {
+-    private int notificationId;
+-    private int userId;
+-    private String type;
+-    private String title;
+-    private String message;
+-    private boolean isRead;
+-    private String urlRedirect;
+-    private LocalDateTime createdAt;
+-
+-    public Notification(int notificationId, int userId, String type, String title, String message, boolean isRead, String urlRedirect, LocalDateTime createdAt) {
+-        this.notificationId = notificationId;
+-        this.userId = userId;
+-        this.type = type;
+-        this.title = title;
+-        this.message = message;
+-        this.isRead = isRead;
+-        this.urlRedirect = urlRedirect;
+-        this.createdAt = createdAt;
+-    }
+-
+-    public Notification() {
+-    }
+-
+-    public int getNotificationId() {
+-        return notificationId;
+-    }
+-
+-    public void setNotificationId(int notificationId) {
+-        this.notificationId = notificationId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public String getType() {
+-        return type;
+-    }
+-
+-    public void setType(String type) {
+-        this.type = type;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public String getMessage() {
+-        return message;
+-    }
+-
+-    public void setMessage(String message) {
+-        this.message = message;
+-    }
+-
+-    public boolean isRead() {
+-        return isRead;
+-    }
+-
+-    public void setRead(boolean read) {
+-        isRead = read;
+-    }
+-
+-    public String getUrlRedirect() {
+-        return urlRedirect;
+-    }
+-
+-    public void setUrlRedirect(String urlRedirect) {
+-        this.urlRedirect = urlRedirect;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-}
+Index: src/main/java/model/User.java
+===================================================================
+diff --git a/src/main/java/model/User.java b/src/main/java/model/User.java
+deleted file mode 100644
+--- a/src/main/java/model/User.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,147 +0,0 @@
+-package model;
+-import java.time.LocalDateTime;
+-
+-public class User {
+-    private int userId;
+-    private String username;
+-    private String fullName;
+-    private String passwordHash;
+-    private String role;
+-    private String email;
+-    private String status;
+-    private String emailOtp;
+-    private boolean isVerified;
+-    private boolean isGoogleAccount;
+-    private String googleAccountId;
+-    private LocalDateTime createdAt;
+-    private int points;
+-    private boolean isDeleted;
+-
+-    public User(int userId, String username, String fullName, String passwordHash, String role, String email, String status, String emailOtp, boolean isVerified, boolean isGoogleAccount, String googleAccountId, LocalDateTime createdAt, int points, boolean isDeleted) {
+-        this.userId = userId;
+-        this.username = username;
+-        this.fullName = fullName;
+-        this.passwordHash = passwordHash;
+-        this.role = role;
+-        this.email = email;
+-        this.status = status;
+-        this.emailOtp = emailOtp;
+-        this.isVerified = isVerified;
+-        this.isGoogleAccount = isGoogleAccount;
+-        this.googleAccountId = googleAccountId;
+-        this.createdAt = createdAt;
+-        this.points = points;
+-        this.isDeleted = isDeleted;
+-    }
+-
+-    public User() {
+-    }
+-    public int getUserId() {
+-        return userId;
+-    }
+-    public void setUserId(int userId) {}
+-
+-    public String getUsername() {
+-        return username;
+-    }
+-
+-    public void setUsername(String username) {
+-        this.username = username;
+-    }
+-
+-    public String getFullName() {
+-        return fullName;
+-    }
+-
+-    public void setFullName(String fullName) {
+-        this.fullName = fullName;
+-    }
+-
+-    public String getPasswordHash() {
+-        return passwordHash;
+-    }
+-
+-    public void setPasswordHash(String passwordHash) {
+-        this.passwordHash = passwordHash;
+-    }
+-
+-    public String getRole() {
+-        return role;
+-    }
+-
+-    public void setRole(String role) {
+-        this.role = role;
+-    }
+-
+-    public String getEmail() {
+-        return email;
+-    }
+-
+-    public void setEmail(String email) {
+-        this.email = email;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public String getEmailOtp() {
+-        return emailOtp;
+-    }
+-
+-    public void setEmailOtp(String emailOtp) {
+-        this.emailOtp = emailOtp;
+-    }
+-
+-    public boolean isVerified() {
+-        return isVerified;
+-    }
+-
+-    public void setVerified(boolean verified) {
+-        isVerified = verified;
+-    }
+-
+-    public boolean isGoogleAccount() {
+-        return isGoogleAccount;
+-    }
+-
+-    public void setGoogleAccount(boolean googleAccount) {
+-        isGoogleAccount = googleAccount;
+-    }
+-
+-    public String getGoogleAccountId() {
+-        return googleAccountId;
+-    }
+-
+-    public void setGoogleAccountId(String googleAccountId) {
+-        this.googleAccountId = googleAccountId;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public int getPoints() {
+-        return points;
+-    }
+-
+-    public void setPoints(int points) {
+-        this.points = points;
+-    }
+-
+-    public boolean isDeleted() {
+-        return isDeleted;
+-    }
+-
+-    public void setDeleted(boolean deleted) {
+-        isDeleted = deleted;
+-    }
+-}
+Index: pom.xml
+===================================================================
+diff --git a/pom.xml b/pom.xml
+deleted file mode 100644
+--- a/pom.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,78 +0,0 @@
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-    <groupId>com</groupId>
+-    <artifactId>JoyLeeBook</artifactId>
+-    <version>2.0</version>
+-    <packaging>war</packaging>
+-    <name>JoyLeeBook-2.0</name>
+-
+-    <properties>
+-        <maven.compiler.source>17</maven.compiler.source>
+-        <maven.compiler.target>17</maven.compiler.target>
+-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+-        <failOnMissingWebXml>false</failOnMissingWebXml>
+-    </properties>
+-
+-    <dependencies>
+-        <!-- Jakarta Servlet API -->
+-        <dependency>
+-            <groupId>jakarta.servlet</groupId>
+-            <artifactId>jakarta.servlet-api</artifactId>
+-            <version>6.0.0</version>
+-            <scope>provided</scope>
+-        </dependency>
+-        <!-- JSTL API -->
+-        <dependency>
+-            <groupId>jakarta.servlet.jsp.jstl</groupId>
+-            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+-            <version>3.0.0</version>
+-        </dependency>
+-
+-        <!-- JSTL Implementation -->
+-        <dependency>
+-            <groupId>org.glassfish.web</groupId>
+-            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+-            <version>3.0.1</version>
+-        </dependency>
+-        <!-- Microsoft SQL Server JDBC Driver -->
+-        <dependency>
+-            <groupId>com.microsoft.sqlserver</groupId>
+-            <artifactId>mssql-jdbc</artifactId>
+-            <version>12.6.0.jre11</version>
+-        </dependency>
+-
+-        <!--Jakarta RESTful Web Services (JAX-RS)-->
+-        <dependency>
+-            <groupId>jakarta.ws.rs</groupId>
+-            <artifactId>jakarta.ws.rs-api</artifactId>
+-            <version>3.1.0</version>
+-            <scope>provided</scope>
+-        </dependency>
+-    </dependencies>
+-
+-    <build>
+-        <plugins>
+-            <!-- Compiler Plugin -->
+-            <plugin>
+-                <groupId>org.apache.maven.plugins</groupId>
+-                <artifactId>maven-compiler-plugin</artifactId>
+-                <version>3.11.0</version>
+-                <configuration>
+-                    <source>17</source>
+-                    <target>17</target>
+-                </configuration>
+-            </plugin>
+-
+-            <!-- WAR Plugin -->
+-            <plugin>
+-                <groupId>org.apache.maven.plugins</groupId>
+-                <artifactId>maven-war-plugin</artifactId>
+-                <version>3.4.0</version>
+-                <configuration>
+-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+-                </configuration>
+-            </plugin>
+-        </plugins>
+-    </build>
+-</project>
+\ No newline at end of file
+Index: src/main/java/model/SeriesAuthor.java
+===================================================================
+diff --git a/src/main/java/model/SeriesAuthor.java b/src/main/java/model/SeriesAuthor.java
+deleted file mode 100644
+--- a/src/main/java/model/SeriesAuthor.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,43 +0,0 @@
+-package model;
+-
+-
+-import java.time.LocalDateTime;
+-
+-public class SeriesAuthor {
+-    private int seriesId;
+-    private int authorId;
+-    private LocalDateTime addedAt;
+-
+-    public SeriesAuthor(int seriesId, int authorId, LocalDateTime addedAt) {
+-        this.seriesId = seriesId;
+-        this.authorId = authorId;
+-        this.addedAt = addedAt;
+-    }
+-
+-    public SeriesAuthor() {
+-    }
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public int getAuthorId() {
+-        return authorId;
+-    }
+-
+-    public void setAuthorId(int authorId) {
+-        this.authorId = authorId;
+-    }
+-
+-    public LocalDateTime getAddedAt() {
+-        return addedAt;
+-    }
+-
+-    public void setAddedAt(LocalDateTime addedAt) {
+-        this.addedAt = addedAt;
+-    }
+-}
+Index: src/main/java/dao/SeriesDAO.java
+===================================================================
+diff --git a/src/main/java/dao/SeriesDAO.java b/src/main/java/dao/SeriesDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/SeriesDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,259 +0,0 @@
+-package dao;
+-
+-import java.sql.Connection;
+-import java.sql.PreparedStatement;
+-import java.sql.ResultSet;
+-import java.sql.SQLException;
+-import java.sql.Statement;
+-import java.sql.Timestamp;
+-import java.time.LocalDateTime;
+-import java.util.*;
+-
+-import jakarta.ws.rs.core.Link;
+-import model.Series;
+-import model.SeriesAuthor;
+-import org.eclipse.tags.shaded.org.apache.regexp.RE;
+-
+-public class SeriesDAO {
+-    private final Connection conn;
+-
+-    public SeriesDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    public List<Series> getAll() throws SQLException {
+-        List<Series> list = new ArrayList<>();
+-        String sql = "SELECT * FROM series WHERE is_deleted = false";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-             ResultSet rs = ps.executeQuery()) {
+-            while (rs.next()) {
+-                list.add(extractSeriesFromResultSet(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    public Series findById(int seriesId) throws SQLException {
+-        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = false";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, seriesId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                if (rs.next()) {
+-                    return extractSeriesFromResultSet(rs);
+-                }
+-            }
+-        }
+-        return null;
+-    }
+-
+-    public boolean insert(Series series, int authorId) throws SQLException {
+-        String sql = "INSERT INTO series (title, description, cover_image_url, status, created_at, updated_at, is_deleted, points)VALUES (?, ?, ?, ?, ?, ?, ?, false, 0)";
+-
+-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+-            ps.setString(1, series.getTitle());
+-            ps.setInt(2, authorId);
+-            ps.setString(3, series.getDescription());
+-            ps.setString(4, series.getCoverImgUrl());
+-            ps.setInt(5, series.getStatus());
+-            ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+-
+-            int affected = ps.executeUpdate();
+-            if (affected > 0) {
+-                try (ResultSet rs = ps.getGeneratedKeys()) {
+-                    if (rs.next()) {
+-                        series.setSeriesId(rs.getInt(1));
+-                    }
+-                    SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+-                    SeriesAuthor seriesAuthor = new SeriesAuthor(series.getSeriesId(), authorId, LocalDateTime.now());
+-                    seriesAuthorDAO.add(seriesAuthor);
+-                }
+-                return true;
+-            }
+-        }
+-        return false;
+-    }
+-
+-    public boolean update(Series series) throws SQLException {
+-        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, points = ? WHERE series_id = ? AND is_deleted = false";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setString(1, series.getTitle());
+-            ps.setString(2, series.getDescription());
+-            ps.setString(3, series.getCoverImgUrl());
+-            ps.setInt(4, series.getStatus());
+-            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setInt(6, series.getSeriesId());
+-            ps.setInt(7, series.getPoints());
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public boolean delete(int seriesId) throws SQLException {
+-        String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+-            ps.setInt(2, seriesId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    public List<Series> getTopRatedSeries(int limit) throws SQLException {
+-        List<Series> topSerieslist = new ArrayList<>();
+-        String sql = "SELECT TOP (" + limit +") s.series_id, title, points" +
+-                "FROM series s ORDER BY points DESC";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                Series series = new Series();
+-                series.setSeriesId(rs.getInt("series_id"));
+-                series.setTitle(rs.getString("title"));
+-                series.setPoints(rs.getInt("points"));
+-                topSerieslist.add(series);
+-            }
+-            return topSerieslist;
+-        }
+-    }
+-
+-    public int getTotalSeriesCount() throws SQLException {
+-        String sql = "SELECT COUNT(*) FROM series";
+-        try (PreparedStatement ps = conn.prepareStatement(sql);
+-        ResultSet rs = ps.executeQuery()){
+-            if (rs.next()) {
+-                return rs.getInt(1);
+-            }
+-        }
+-        return 0;
+-    }
+-
+-    public int countSeriesByCategory(int categoryId) throws SQLException {
+-        String sql = "SELECT COUNT(*) FROM series s " +
+-                "JOIN series_categories sc ON s.series_id = sc.series_id " +
+-                "WHERE sc.category_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ps.setInt(1, categoryId);
+-            ResultSet rs = ps.executeQuery();
+-            if (rs.next()) {
+-                return rs.getInt(1);
+-            }
+-        }
+-        return 0;
+-    }
+-
+-    public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT * FROM series s " +
+-                "JOIN dbo.series_author sa ON s.series_id = sa.series_id " +
+-                "WHERE sa.user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ps.setInt(1, authorId);
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    public List<Series> getSeriesByCategoryId(int categoryId) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT * FROM series s JOIN series_categories sc ON s.series_id = sc.series_id WHERE sc.category_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ps.setInt(1, categoryId);
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    public List<Series> getSeriesByStatus (int limit, String status) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT TOP (" + limit + ") FROM series WHERE status = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ps.setString(1, status);
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-
+-
+-    public List<Series> findByName(String name) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT * FROM series WHERE title LIKE ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ps.setString(1, "%" + name + "%");
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    public List<Series> getRecentlyUpdated (int limit) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT TOP ("+ limit +") * FROM series ORDER BY updated_at DESC";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    public List<Series> getNewReleasedSeries(int limit) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT TOP (" + limit +") * FROM series ORDER BY created_at DESC";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    public List<Series> getWeeklySeries(int limit) throws SQLException {
+-        List<Series> seriesList = new ArrayList<>();
+-        String sql = "SELECT TOP (" + limit +")" +
+-                "    s.series_id," +
+-                "    s.title," +
+-                "    SUM(r.rating_value) AS total_rating" +
+-                "FROM series s" +
+-                "JOIN Rating r ON s.series_id = r.series_id" +
+-                "WHERE DATEPART(WEEK, r.rating_date) = DATEPART(WEEK, GETDATE())" +
+-                "  AND DATEPART(YEAR, r.rating_date) = DATEPART(YEAR, GETDATE())" +
+-                "GROUP BY s.series_id, s.title" +
+-                "ORDER BY total_rating DESC;";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)){
+-            ResultSet rs = ps.executeQuery();
+-            while (rs.next()) {
+-                seriesList.add(extractSeriesFromResultSet(rs));
+-            }
+-            return seriesList;
+-        }
+-    }
+-
+-    private Series extractSeriesFromResultSet(ResultSet rs) throws SQLException {
+-        Series s = new Series();
+-        s.setSeriesId(rs.getInt("series_id"));
+-        s.setTitle(rs.getString("title"));
+-        s.setDescription(rs.getString("description"));
+-        s.setCoverImgUrl(rs.getString("cover_image_url"));
+-        s.setStatus(rs.getInt("status"));
+-        s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+-        s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+-        s.setDeleted(rs.getBoolean("is_deleted"));
+-        s.setPoints(rs.getInt("points"));
+-        return s;
+-    }
+-
+-
+-}
+Index: src/main/java/model/PointHistory.java
+===================================================================
+diff --git a/src/main/java/model/PointHistory.java b/src/main/java/model/PointHistory.java
+deleted file mode 100644
+--- a/src/main/java/model/PointHistory.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,81 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class PointHistory {
+-    private int historyId;
+-    private int userId;
+-    private int pointChange;
+-    private String reason;
+-    private String referenceType;
+-    private int referenceId;
+-    private LocalDateTime createdAt;
+-
+-    public PointHistory(int historyId, int userId, int pointChange, String reason, String referenceType, int referenceId, LocalDateTime createdAt) {
+-        this.historyId = historyId;
+-        this.userId = userId;
+-        this.pointChange = pointChange;
+-        this.reason = reason;
+-        this.referenceType = referenceType;
+-        this.referenceId = referenceId;
+-        this.createdAt = createdAt;
+-    }
+-
+-    public PointHistory() {}
+-
+-    public int getHistoryId() {
+-        return historyId;
+-    }
+-
+-    public void setHistoryId(int historyId) {
+-        this.historyId = historyId;
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public int getPointChange() {
+-        return pointChange;
+-    }
+-
+-    public void setPointChange(int pointChange) {
+-        this.pointChange = pointChange;
+-    }
+-
+-    public String getReason() {
+-        return reason;
+-    }
+-
+-    public void setReason(String reason) {
+-        this.reason = reason;
+-    }
+-
+-    public String getReferenceType() {
+-        return referenceType;
+-    }
+-
+-    public void setReferenceType(String referenceType) {
+-        this.referenceType = referenceType;
+-    }
+-
+-    public int getReferenceId() {
+-        return referenceId;
+-    }
+-
+-    public void setReferenceId(int referenceId) {
+-        this.referenceId = referenceId;
+-    }
+-
+-    public LocalDateTime getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(LocalDateTime createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-}
+Index: src/main/java/dao/ReadingHistoryDAO.java
+===================================================================
+diff --git a/src/main/java/dao/ReadingHistoryDAO.java b/src/main/java/dao/ReadingHistoryDAO.java
+deleted file mode 100644
+--- a/src/main/java/dao/ReadingHistoryDAO.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,83 +0,0 @@
+-package dao;
+-
+-import model.ReadingHistory;
+-import java.sql.*;
+-import java.util.ArrayList;
+-import java.util.List;
+-
+-public class ReadingHistoryDAO {
+-    private final Connection conn;
+-
+-    public ReadingHistoryDAO(Connection conn) {
+-        this.conn = conn;
+-    }
+-
+-    private ReadingHistory extractReadingHistoryFromResultSet(ResultSet rs) throws SQLException {
+-        ReadingHistory rh = new ReadingHistory();
+-        rh.setUserId(rs.getInt("user_id"));
+-        rh.setChapterId(rs.getInt("chapter_id"));
+-        Timestamp ts = rs.getTimestamp("last_read_at");
+-        rh.setLastReadAt(ts != null ? ts.toLocalDateTime() : null);
+-        return rh;
+-    }
+-
+-    // CREATE (insert)
+-    public boolean insert(ReadingHistory rh) throws SQLException {
+-        String sql = "INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES (?, ?, ?)";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, rh.getUserId());
+-            ps.setInt(2, rh.getChapterId());
+-            ps.setTimestamp(3, Timestamp.valueOf(rh.getLastReadAt()));
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // READ (get all)
+-    public List<ReadingHistory> getAll() throws SQLException {
+-        List<ReadingHistory> list = new ArrayList<>();
+-        String sql = "SELECT * FROM reading_history";
+-        try (Statement st = conn.createStatement();
+-             ResultSet rs = st.executeQuery(sql)) {
+-            while (rs.next()) {
+-                list.add(extractReadingHistoryFromResultSet(rs));
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // READ by user_id
+-    public List<ReadingHistory> getByUserId(int userId) throws SQLException {
+-        List<ReadingHistory> list = new ArrayList<>();
+-        String sql = "SELECT * FROM reading_history WHERE user_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, userId);
+-            try (ResultSet rs = ps.executeQuery()) {
+-                while (rs.next()) {
+-                    list.add(extractReadingHistoryFromResultSet(rs));
+-                }
+-            }
+-        }
+-        return list;
+-    }
+-
+-    // UPDATE
+-    public boolean update(ReadingHistory rh) throws SQLException {
+-        String sql = "UPDATE reading_history SET last_read_at = ? WHERE user_id = ? AND chapter_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setTimestamp(1, Timestamp.valueOf(rh.getLastReadAt()));
+-            ps.setInt(2, rh.getUserId());
+-            ps.setInt(3, rh.getChapterId());
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-
+-    // DELETE
+-    public boolean delete(int userId, int chapterId) throws SQLException {
+-        String sql = "DELETE FROM reading_history WHERE user_id = ? AND chapter_id = ?";
+-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+-            ps.setInt(1, userId);
+-            ps.setInt(2, chapterId);
+-            return ps.executeUpdate() > 0;
+-        }
+-    }
+-}
+Index: src/main/java/model/Like.java
+===================================================================
+diff --git a/src/main/java/model/Like.java b/src/main/java/model/Like.java
+deleted file mode 100644
+--- a/src/main/java/model/Like.java	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ /dev/null	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
+@@ -1,42 +0,0 @@
+-package model;
+-
+-import java.time.LocalDateTime;
+-
+-public class Like {
+-    private int userId;
+-    private int chapterId;
+-    private LocalDateTime likedAt;
+-
+-    public Like(int userId, int chapterId, LocalDateTime likedAt) {
+-        this.userId = userId;
+-        this.chapterId = chapterId;
+-        this.likedAt = likedAt;
+-    }
+-
+-    public Like() {
+-    }
+-
+-    public int getUserId() {
+-        return userId;
+-    }
+-
+-    public void setUserId(int userId) {
+-        this.userId = userId;
+-    }
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public LocalDateTime getLikedAt() {
+-        return likedAt;
+-    }
+-
+-    public void setLikedAt(LocalDateTime likedAt) {
+-        this.likedAt = likedAt;
+-    }
+-}
+Index: .idea/Project.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/Project.iml b/.idea/Project.iml
+new file mode 100644
+--- /dev/null	(date 1760533548688)
++++ b/.idea/Project.iml	(date 1760533548688)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	(date 1760533548708)
++++ b/.idea/modules.xml	(date 1760533548708)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/Project.iml" filepath="$PROJECT_DIR$/.idea/Project.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/artifacts/unnamed.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/artifacts/unnamed.xml b/.idea/artifacts/unnamed.xml
+new file mode 100644
+--- /dev/null	(date 1760533548725)
++++ b/.idea/artifacts/unnamed.xml	(date 1760533548725)
+@@ -0,0 +1,9 @@
++<component name="ArtifactManager">
++  <artifact type="exploded-war" name="unnamed">
++    <output-path>$PROJECT_DIR$/out/artifacts/unnamed</output-path>
++    <root id="root">
++      <element id="dir-copy" path="$PROJECT_DIR$/JoyLeeBook_v2.0/src/main/webapp/META-INF" />
++      <element id="dir-copy" path="$PROJECT_DIR$/JoyLeeBook_v2.0/src/main/webapp/WEB-INF" />
++    </root>
++  </artifact>
++</component>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"VcsDirectoryMappings\">\r\n    <mapping directory=\"\" vcs=\"Git\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+--- a/.idea/vcs.xml	(revision c3fe4f947b5c32634b14f300d9e956b03c964a14)
++++ b/.idea/vcs.xml	(date 1760533548666)
+@@ -2,5 +2,6 @@
+ <project version="4">
+   <component name="VcsDirectoryMappings">
+     <mapping directory="" vcs="Git" />
++    <mapping directory="$PROJECT_DIR$/JoyLeeBook_v2.0" vcs="Git" />
+   </component>
+ </project>
+\ No newline at end of file

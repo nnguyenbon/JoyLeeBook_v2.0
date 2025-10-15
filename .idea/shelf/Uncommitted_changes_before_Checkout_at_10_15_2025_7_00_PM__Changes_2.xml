@@ -1,0 +1,19 @@
+<changelist name="Uncommitted_changes_before_Checkout_at_10_15_2025_7_00_PM_[Changes]2" date="1760529681025" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_15_2025_7_00_PM_[Changes]2/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 10/15/2025 7:00 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/ChapterDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/ChapterDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_15_2025_7_00_PM_[Changes]2/ChapterDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/SeriesDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/SeriesDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_15_2025_7_00_PM_[Changes]2/SeriesDAO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="JoyLeeBook_v2.0/target/classes/dao/UserDAO.class" />
+    <option name="AFTER_PATH" value="JoyLeeBook_v2.0/target/classes/dao/UserDAO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_10_15_2025_7_00_PM_[Changes]2/UserDAO.class" />
+  </binary>
+</changelist>

@@ -1,0 +1,400 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: KHAI TOAN
+  Date: 10/11/2025
+  Time: 9:56 PM
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page buffer="32kb" autoFlush="true" %>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chapter Content</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+            rel="stylesheet" />
+</head>
+
+<body>
+<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
+<main class=" mb-10">
+    <div class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
+        <!-- Nội dung chính -->
+        <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow">
+            <h1 class="text-4xl font-bold text-center mb-3">${chapterDetailDTO.seriesTitle}</h1>
+
+            <h2 class="text-center font-semibold text-gray-700 mb-3">by
+                <c:forEach var="author" items="${chapterDetailDTO.authorsName}" varStatus="loop">
+                    ${author}<c:if test="${!loop.last}">, </c:if>
+                </c:forEach>
+            </h2>
+            <div class="flex items-center justify-center gap-3 mb-6">
+
+                <div class="relative flex gap-3 w-fit mx-auto mb-10">
+                    <!-- Nút mở danh sách chương -->
+                    <button id="chapterListBtn"
+                            class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
+                        <span>Chapter ${chapterDetailDTO.chapterNumber}: ${chapterDetailDTO.title}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="lucide lucide-list">
+                            <path d="M3 5h.01" />
+                            <path d="M3 12h.01" />
+                            <path d="M3 19h.01" />
+                            <path d="M8 5h13" />
+                            <path d="M8 12h13" />
+                            <path d="M8 19h13" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown danh sách chương -->
+                    <div id="chapterList"
+                         class="hidden absolute left-1/2 -translate-x-1/2 top-full mt-2 w-100 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                        <div class="text-base">
+                            <h4
+                                    class="mb-2 bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold">
+                                Chapter List
+                            </h4>
+                            <hr class="mb-3 border-gray-300" />
+
+                            <c:forEach var="chapterItem" items="${chapterInfoDTOList}" varStatus="">
+                                <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
+                                    <button
+                                            class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                        Chapter ${chapterItem.chapterNumber}: ${chapterItem.title}
+                                    </button>
+                                </a>
+                            </c:forEach>
+                            <!-- Các chương -->
+                        </div>
+                    </div>
+                    <div class="relative inline-block">
+                        <!-- Nút settings -->
+                        <button id="settingsBtn"
+                                class="text-gray-600 px-3 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="lucide lucide-settings">
+                                <path
+                                        d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <!-- <div id="settingsMenu"
+                            class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 space-y-3 transition-all duration-200">
+                            <h3 class="text-lg font-semibold mb-3">Reading Settings</h3>
+                            Font size -->
+                        <!-- <div class="mb-4">
+                                <label class="block text-sm font-medium mb-2">Font Size</label>
+                                <div class="flex items-center justify-between">
+                                    <button id="decreaseFont"
+                                        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md text-xl hover:bg-gray-100 transition">
+                                        −
+                                    </button>
+                                    <span id="fontSizeDisplay" class="text-base font-medium">16px</span>
+                                    <button id="increaseFont"
+                                        class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-md text-xl hover:bg-gray-100 transition">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="contentArea" class="mt-6 text-gray-800 text-base transition-all duration-200">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    ${chapterDetailDTO.content}
+                </p>
+            </div>
+            <!-- Navigation buttons -->
+            <div class="flex items-center justify-between mt-8">
+                <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=previous">
+                <button class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100">
+                    &lt; Previous Chapter
+                </button>
+                </a>
+
+
+                <!-- Reactions -->
+                <div class="flex items-center gap-5">
+                    <button
+                            class="text-gray-600 px-2 py-1  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200"><svg
+                            xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag">
+                        <path
+                                d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />
+                    </svg></button>
+
+                    <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber} of ${chapterInfoDTOList.size()}</p>
+                    <button
+                            class="flex items-center justify-center text-gray-600 gap-2 w-19 px-4 py-1 border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up">
+                            <path d="M7 10v12" />
+                            <path
+                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+                        </svg>
+                        <span>${chapterDetailDTO.totalLike}</span>
+                    </button>
+                </div>
+                <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=next">
+                    <button class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        Next Chapter &gt;
+                    </button>
+                </a>
+
+            </div>
+
+
+
+            <!-- Comment box -->
+            <div class="mt-8">
+                    <textarea
+                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            rows="1" placeholder="Write a comment..."></textarea>
+            </div>
+
+            <!-- Comments -->
+            <div class="mt-6 space-y-4">
+                <!-- Comment 1 -->
+                <c:forEach var="comment" items="${commentDetailDTOList}" varStatus="loop">
+                    <div class="flex justify-between gap-3">
+                        <div class="flex gap-5">
+                            <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${comment.username}</p>
+                                <p class="text-gray-600 text-sm">${comment.content}</p>
+                                <p class="text-xs text-gray-400 mt-1">${comment.updateAt}</p>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="lucide lucide-ellipsis">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="19" cy="12" r="1" />
+                                    <circle cx="5" cy="12" r="1" />
+                                </svg>
+                            </button>
+
+                            <div
+                                    class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+
+                                <button
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Report</button>
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <script>
+                document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Ngăn việc click lan ra ngoài
+                        const menu = btn.nextElementSibling; // Tìm menu liền sau button
+                        document.querySelectorAll('.dropdown-menu').forEach(m => {
+                            if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+                        });
+                        menu.classList.toggle('hidden');
+                    });
+                });
+
+                window.addEventListener('click', () => {
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+                });
+            </script>
+
+            <div class="text-center">
+                <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
+                    more</button>
+            </div>
+        </div>
+
+
+    </div>
+
+</main>
+<footer class="bg-white h-2 text-gray-600 text-center py-3 border-t border-gray-200 relative">
+    <!-- Logo -->
+    <div class="max-w-3xl mx-auto px-4">
+        <h2 class="text-xl font-bold mb-2">
+            <span class="text-2xl text-blue-700">J</span><span class="text-blue-600">oyLeeBook</span>
+        </h2>
+
+        <!-- Description -->
+        <p class="text-sm leading-relaxed mb-4">
+            Your gateway to endless stories. Discover, read, and connect with millions of readers worldwide
+            in the ultimate reading experience.
+        </p>
+
+        <!-- Social icons -->
+        <div class="flex justify-center gap-5 text-gray-500 mb-4">
+            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                    stroke-linejoin="round" class="lucide lucide-twitter-icon lucide-twitter w-5 h-5">
+                <path
+                        d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+            </svg></a>
+
+            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                    stroke-linejoin="round" class="lucide lucide-facebook-icon lucide-facebook w-5 h-5">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+            </svg></a>
+            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                    stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram w-5 h-5">
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+            </svg></a>
+            <a href="#" class="hover:text-gray-800 transition"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                    class="w-5 h-5 lucide lucide-mail-icon lucide-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+            </svg></a>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-300 w-5/5 mx-auto mb-3"></div>
+
+        <!-- Copyright -->
+        <p class="text-xs text-gray-500">
+            © 2024 <span class="font-medium text-gray-700">JoyLeeBook</span>. All rights reserved.
+        </p>
+    </div>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="absolute right-6 top-7 text-gray-400 hover:text-gray-700 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+    </a>
+</footer>
+
+<script>
+    const genreButton = document.getElementById("genreButton");
+    const genreMenu = document.getElementById("genreMenu");
+
+    genreButton.addEventListener("click", () => {
+        genreMenu.classList.toggle("hidden");
+    });
+
+    // Ẩn menu khi click ra ngoài
+    document.addEventListener("click", (e) => {
+        if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
+            genreMenu.classList.add("hidden");
+        }
+    });
+
+    const BtnAvatar = document.getElementById("BtnAvatar");
+    const MenuAvatar = document.getElementById("MenuAvatar");
+
+    BtnAvatar.addEventListener("click", () => {
+        MenuAvatar.classList.toggle("hidden");
+    });
+
+    // Ẩn menu khi click ra ngoài
+    document.addEventListener("click", (e) => {
+        if (!BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
+            MenuAvatar.classList.add("hidden");
+        }
+    });
+
+    const chapterListBtn = document.getElementById("chapterListBtn");
+    const chapterList = document.getElementById("chapterList");
+
+    chapterListBtnl.addEventListener("click", () => {
+        chapterList.classList.toggle("hidden");
+    })
+    document.addEventListener("click", (e) => {
+        if (!chapterListBtn.contains(e.target) && !chapterList.contains(e.target)) {
+            chapterList.classList.add("hidden");
+        }
+    })
+</script>
+<script>
+    // Toggle dropdown
+    document.getElementById("chapterListBtn").addEventListener("click", () => {
+        document.getElementById("chapterList").classList.toggle("hidden");
+    });
+
+    // Đóng khi click ra ngoài
+    window.addEventListener("click", (e) => {
+        const btn = document.getElementById("chapterListBtn");
+        const list = document.getElementById("chapterList");
+        if (!btn.contains(e.target) && !list.contains(e.target)) {
+            list.classList.add("hidden");
+        }
+    });
+</script>
+
+<!-- <script>
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const fontButtons = document.querySelectorAll('.font-btn');
+    const content = document.getElementById('contentArea');
+    const lightBtn = document.getElementById('lightMode');
+    const darkBtn = document.getElementById('darkMode');
+
+    // Toggle dropdown
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsMenu.classList.toggle('hidden');
+    });
+
+    // Font size change
+    fontButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const size = btn.dataset.size;
+            if (size === 'small') content.className = 'mt-6 text-gray-800 text-sm transition-all duration-200';
+            if (size === 'medium') content.className = 'mt-6 text-gray-800 text-base transition-all duration-200';
+            if (size === 'large') content.className = 'mt-6 text-gray-800 text-lg transition-all duration-200';
+        });
+    });
+
+    // Theme change
+    lightBtn.addEventListener('click', () => {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('bg-gray-900', 'text-white');
+        document.body.classList.add('bg-white', 'text-gray-800');
+    });
+
+    darkBtn.addEventListener('click', () => {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('bg-gray-900', 'text-white');
+        document.body.classList.remove('bg-white', 'text-gray-800');
+    });
+
+    // Đóng khi click ra ngoài
+    window.addEventListener('click', (e) => {
+        if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+            settingsMenu.classList.add('hidden');
+        }
+    });
+</script> -->
+
+</body>
+
+</html>

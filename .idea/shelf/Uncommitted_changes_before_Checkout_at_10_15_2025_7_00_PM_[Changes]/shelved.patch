@@ -1,0 +1,365 @@
+Index: JoyLeeBook_v2.0/src/main/java/dao/ChapterDAO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/**\r\n * cần chỉnh sửa xem xem có cho xem các chapter chưa approved không\r\n */\r\n\r\npackage dao;\r\n\r\nimport java.sql.*;\r\nimport java.time.LocalDateTime;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\nimport model.Chapter;\r\nimport dto.chapter.ChapterItemDTO;\r\n\r\n/**\r\n * Data Access Object (DAO) for Chapter entity.\r\n * Provides CRUD operations and specific queries.\r\n *\r\n * @author KToan, HaiDD-dev\r\n */\r\npublic class ChapterDAO {\r\n    private final Connection conn;\r\n\r\n    /**\r\n     * Constructor to initialize the DAO with a database connection.\r\n     *\r\n     * @param conn the database connection\r\n     */\r\n    public ChapterDAO(Connection conn) {\r\n        this.conn = conn;\r\n    }\r\n\r\n    /**\r\n     * Retrieve all non-deleted chapters.\r\n     *\r\n     * @return a list of all non-deleted chapters\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public List<Chapter> getAll() throws SQLException {\r\n        List<Chapter> chapters = new ArrayList<>();\r\n        String sql = \"SELECT * FROM chapters WHERE is_deleted = 0\";\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {\r\n            while (rs.next()) {\r\n                chapters.add(extractChapterFromResultSet(rs));\r\n            }\r\n        }\r\n        return chapters;\r\n    }\r\n\r\n    /**\r\n     * Find a chapter by its ID.\r\n     *\r\n     * @param chapterId the ID of the chapter\r\n     * @return the Chapter object if found, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findById(int chapterId) throws SQLException {\r\n        String sql = \"SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = 0\";\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, chapterId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                if (rs.next()) {\r\n                    return extractChapterFromResultSet(rs);\r\n                }\r\n            }\r\n        }\r\n        return null;\r\n    }\r\n\r\n    /**\r\n     * Insert a new chapter into the database.\r\n     *\r\n     * @param chapter  the Chapter object to insert\r\n     * @param seriesId the ID of the series the chapter belongs to\r\n     * @param authorId the ID of the author creating the chapter\r\n     * @return true if insertion was successful, false otherwise\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public boolean insert(Chapter chapter, int seriesId, int authorId) throws SQLException {\r\n        String sql = \"INSERT INTO chapters \" + \"(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at) \" + \"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\";\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {\r\n            Timestamp now = Timestamp.valueOf(java.time.LocalDateTime.now());\r\n\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, authorId);\r\n            ps.setInt(3, chapter.getChapterNumber());\r\n            ps.setString(4, chapter.getTitle());\r\n            ps.setString(5, chapter.getContent());\r\n            ps.setString(6, chapter.getStatus());\r\n            ps.setBoolean(7, false);   // SQL Server BIT <- 0\r\n            ps.setTimestamp(8, now);\r\n            ps.setTimestamp(9, now);\r\n\r\n            int affected = ps.executeUpdate();\r\n            if (affected > 0) {\r\n                try (ResultSet rs = ps.getGeneratedKeys()) {\r\n                    if (rs.next()) chapter.setChapterId(rs.getInt(1));\r\n                }\r\n                return true;\r\n            }\r\n            return false;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Update an existing chapter in the database.\r\n     *\r\n     * @param chapter the Chapter object with updated data\r\n     * @return true if update was successful, false otherwise\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public boolean update(Chapter chapter) throws SQLException {\r\n        String sql = \"UPDATE chapters SET \" + \"chapter_number = ?, title = ?, content = ?, status = ?, updated_at = ? \" + \"WHERE chapter_id = ? AND is_deleted = 0\";\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, chapter.getChapterNumber());\r\n            ps.setString(2, chapter.getTitle());\r\n            ps.setString(3, chapter.getContent());\r\n            ps.setString(4, chapter.getStatus());\r\n            ps.setTimestamp(5, Timestamp.valueOf(java.time.LocalDateTime.now()));\r\n            ps.setInt(6, chapter.getChapterId());\r\n            return ps.executeUpdate() > 0;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Soft delete a chapter by setting its is_deleted flag to true.\r\n     *\r\n     * @param chapterId the ID of the chapter to delete\r\n     * @return true if deletion was successful, false otherwise\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public boolean delete(int chapterId) throws SQLException {\r\n        String sql = \"UPDATE chapters SET is_deleted = 1, updated_at = ? WHERE chapter_id = ?\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));\r\n            ps.setInt(2, chapterId);\r\n            return ps.executeUpdate() > 0;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Retrieve a paginated list of chapters authored by a specific user with optional filters.\r\n     * Author mode\r\n     *\r\n     * @param userId       the ID of the author\r\n     * @param offset       the starting point for pagination\r\n     * @param pageSize     the number of records to retrieve\r\n     * @param statusFilter optional status filter (e.g., \"published\", \"draft\")\r\n     * @param keyword      optional keyword to search in series or chapter titles\r\n     * @return a list of ChapterListItem objects matching the criteria\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public List<ChapterItemDTO> getAuthoredChapters(int userId, int offset, int pageSize, String statusFilter, String keyword) throws SQLException {\r\n\r\n        StringBuilder sql = new StringBuilder(\"SELECT c.chapter_id, c.series_id, s.title AS series_title, c.chapter_number, c.title AS chapter_title, c.status, c.updated_at FROM chapters c \" + \"JOIN series s ON c.series_id = s.series_id \" + \"JOIN series_author sa ON sa.series_id = s.series_id \" + \"WHERE sa.user_id = ? \");\r\n\r\n        List<Object> params = new ArrayList<>();\r\n        params.add(userId);\r\n\r\n        if (statusFilter != null && !statusFilter.isBlank()) {\r\n            sql.append(\"AND c.status = ? \");\r\n            params.add(statusFilter);\r\n        }\r\n        if (keyword != null && !keyword.isBlank()) {\r\n            sql.append(\"AND (s.title LIKE ? OR c.title LIKE ?) \");\r\n            params.add(\"%\" + keyword + \"%\");\r\n            params.add(\"%\" + keyword + \"%\");\r\n        }\r\n\r\n        sql.append(\"ORDER BY c.updated_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY\");\r\n        params.add(offset);\r\n        params.add(pageSize);\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {\r\n            for (int i = 0; i < params.size(); i++) {\r\n                ps.setObject(i + 1, params.get(i));\r\n            }\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                List<ChapterItemDTO> list = new ArrayList<>();\r\n                while (rs.next()) {\r\n                    ChapterItemDTO it = new ChapterItemDTO();\r\n                    it.setChapterId(rs.getInt(\"chapter_id\"));\r\n                    it.setSeriesId(rs.getInt(\"series_id\"));\r\n                    it.setSeriesTitle(rs.getString(\"series_title\"));\r\n                    it.setChapterNumber(rs.getInt(\"chapter_number\"));\r\n                    it.setChapterTitle(rs.getString(\"chapter_title\"));\r\n                    it.setStatus(rs.getString(\"status\"));\r\n                    Timestamp up = rs.getTimestamp(\"updated_at\");\r\n                    it.setUpdatedAt(up != null ? up.toLocalDateTime() : null);\r\n                    list.add(it);\r\n                }\r\n                return list;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Count the total number of chapters authored by a specific user with optional filters.\r\n     *\r\n     * @param userId       the ID of the author\r\n     * @param statusFilter optional status filter (e.g., \"published\", \"draft\")\r\n     * @param keyword      optional keyword to search in series or chapter titles\r\n     * @return the total count of chapters matching the criteria\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public int countAuthoredChapters(int userId, String statusFilter, String keyword) throws SQLException {\r\n        StringBuilder sql = new StringBuilder(\"SELECT COUNT(*) \" + \"FROM chapters c \" + \"JOIN series s ON c.series_id = s.series_id \" + \"JOIN series_author sa ON sa.series_id = s.series_id \" + \"WHERE sa.user_id = ? \");\r\n\r\n        List<Object> params = new ArrayList<>();\r\n        params.add(userId);\r\n\r\n        if (statusFilter != null && !statusFilter.isBlank()) {\r\n            sql.append(\"AND c.status = ? \");\r\n            params.add(statusFilter);\r\n        }\r\n        if (keyword != null && !keyword.isBlank()) {\r\n            sql.append(\"AND (s.title LIKE ? OR c.title LIKE ?) \");\r\n            params.add(\"%\" + keyword + \"%\");\r\n            params.add(\"%\" + keyword + \"%\");\r\n        }\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {\r\n            for (int i = 0; i < params.size(); i++) {\r\n                ps.setObject(i + 1, params.get(i));\r\n            }\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? rs.getInt(1) : 0;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Retrieve a paginated list of chapters from a user's reading history with optional keyword filter.\r\n     * History mode\r\n     *\r\n     * @param userId   the ID of the user\r\n     * @param offset   the starting point for pagination\r\n     * @param pageSize the number of records to retrieve\r\n     * @param keyword  optional keyword to search in series or chapter titles\r\n     * @return a list of ChapterListItem objects from the user's reading history matching the criteria\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public List<ChapterItemDTO> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {\r\n\r\n        StringBuilder sql = new StringBuilder(\"SELECT c.chapter_id, c.series_id, s.title AS series_title, \" + \"       c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at, cover_image_url \" + \"FROM reading_history h \" + \"JOIN chapters c ON c.chapter_id = h.chapter_id \" + \"JOIN series s ON s.series_id = c.series_id \" + \"WHERE h.user_id = ? \");\r\n\r\n        List<Object> params = new ArrayList<>();\r\n        params.add(userId);\r\n\r\n        if (keyword != null && !keyword.isBlank()) {\r\n            sql.append(\"AND (s.title LIKE ? OR c.title LIKE ?) \");\r\n            params.add(\"%\" + keyword + \"%\");\r\n            params.add(\"%\" + keyword + \"%\");\r\n        }\r\n\r\n        sql.append(\"ORDER BY h.last_read_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY\");\r\n        params.add(offset);\r\n        params.add(pageSize);\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {\r\n            for (int i = 0; i < params.size(); i++) {\r\n                ps.setObject(i + 1, params.get(i));\r\n            }\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                List<ChapterItemDTO> list = new ArrayList<>();\r\n                while (rs.next()) {\r\n                    ChapterItemDTO it = new ChapterItemDTO();\r\n                    it.setChapterId(rs.getInt(\"chapter_id\"));\r\n                    it.setSeriesId(rs.getInt(\"series_id\"));\r\n                    it.setSeriesTitle(rs.getString(\"series_title\"));\r\n                    it.setChapterNumber(rs.getInt(\"chapter_number\"));\r\n                    it.setChapterTitle(rs.getString(\"chapter_title\"));\r\n                    it.setStatus(rs.getString(\"status\"));\r\n                    it.setCoverImgUrl(rs.getString(\"cover_image_url\"));\r\n                    Timestamp up = rs.getTimestamp(\"updated_at\");\r\n                    it.setUpdatedAt(up != null ? up.toLocalDateTime() : null);\r\n                    Timestamp lr = rs.getTimestamp(\"last_read_at\");\r\n                    it.setLastReadAt(lr != null ? lr.toLocalDateTime() : null);\r\n                    list.add(it);\r\n                }\r\n                return list;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Count the total number of chapters in a user's reading history with optional keyword filter.\r\n     *\r\n     * @param userId  the ID of the user\r\n     * @param keyword optional keyword to search in series or chapter titles\r\n     * @return the total count of chapters in the user's reading history matching the criteria\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public int countReadingHistoryChapters(int userId, String keyword) throws SQLException {\r\n        StringBuilder sql = new StringBuilder(\"SELECT COUNT(*) \" + \"FROM reading_history h \" + \"JOIN chapters c ON c.chapter_id = h.chapter_id \" + \"JOIN series s ON s.series_id = c.series_id \" + \"WHERE h.user_id = ? \");\r\n\r\n        List<Object> params = new ArrayList<>();\r\n        params.add(userId);\r\n\r\n        if (keyword != null && !keyword.isBlank()) {\r\n            sql.append(\"AND (s.title LIKE ? OR c.title LIKE ?) \");\r\n            params.add(\"%\" + keyword + \"%\");\r\n            params.add(\"%\" + keyword + \"%\");\r\n        }\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {\r\n            for (int i = 0; i < params.size(); i++) {\r\n                ps.setObject(i + 1, params.get(i));\r\n            }\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? rs.getInt(1) : 0;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Get the latest chapter number of a series.\r\n     *\r\n     * @param seriesId ID of the series.\r\n     * @return number of the latest chapter. If no chapters exist, returns 0.\r\n     */\r\n    public int getLatestChapterNumber(int seriesId) throws SQLException {\r\n        String sql = \"SELECT MAX(chapter_number) FROM chapters WHERE series_id = ?\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                if (rs.next()) {\r\n                    return rs.getInt(1);\r\n                }\r\n            }\r\n        }\r\n        return 0;\r\n    }\r\n\r\n\r\n\r\n    /**\r\n     * Add a new chapter and return the Chapter object with the generated ID.\r\n     *\r\n     * @param chapter the Chapter object to add (without chapterId)\r\n     * @return the Chapter object with the generated chapterId, or null if insertion failed\r\n     */\r\n    public Chapter addChapter(Chapter chapter) throws SQLException {\r\n        String sql = \"INSERT INTO chapters (series_id, chapter_number, title, content, status, created_at, updated_at) \" + \"VALUES (?, ?, ?, ?, ?, GETDATE(), GETDATE())\";\r\n\r\n        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {\r\n            ps.setInt(1, chapter.getSeriesId());\r\n            ps.setInt(2, chapter.getChapterNumber());\r\n            ps.setString(3, chapter.getTitle());\r\n            ps.setString(4, chapter.getContent());\r\n            ps.setString(5, chapter.getStatus());\r\n\r\n            int affectedRows = ps.executeUpdate();\r\n\r\n            if (affectedRows > 0) {\r\n                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {\r\n                    if (generatedKeys.next()) {\r\n                        chapter.setChapterId(generatedKeys.getInt(1));\r\n                        return chapter;\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return null;\r\n    }\r\n\r\n    /**\r\n     * Find an approved chapter by its ID.\r\n     *\r\n     * @param chapterId the ID of the chapter\r\n     * @return the Chapter object if found and approved, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findApprovedById(int chapterId) throws SQLException {\r\n        String sql = \"\"\"\r\n                    SELECT * FROM chapters\r\n                    WHERE chapter_id = ? AND is_deleted = 0 AND status = 'approved'\r\n                \"\"\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, chapterId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Find an approved chapter by its series ID and chapter number.\r\n     *\r\n     * @param seriesId      the ID of the series\r\n     * @param chapterNumber the chapter number within the series\r\n     * @return the Chapter object if found and approved, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findApprovedBySeriesAndNumber(int seriesId, int chapterNumber) throws SQLException {\r\n        String sql = \"\"\"\r\n                    SELECT * FROM chapters\r\n                    WHERE series_id = ? AND chapter_number = ? AND is_deleted = 0 AND status = 'approved'\r\n                \"\"\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, chapterNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Find the next approved chapter in a series after the given chapter number.\r\n     *\r\n     * @param seriesId      the ID of the series\r\n     * @param currentNumber the current chapter number\r\n     * @return the next approved Chapter object if found, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findPrevApproved(int seriesId, int currentNumber) throws SQLException {\r\n        String sql = \"\"\"\r\n                    SELECT TOP 1 * FROM chapters\r\n                    WHERE series_id = ? AND is_deleted = 0 AND status = 'approved'\r\n                      AND chapter_number < ?\r\n                    ORDER BY chapter_number DESC\r\n                \"\"\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, currentNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Find the next approved chapter in a series after the current chapter number.\r\n     *\r\n     * @param seriesId      the ID of the series\r\n     * @param currentNumber the current chapter number\r\n     * @return the next approved Chapter object if found, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findNextApproved(int seriesId, int currentNumber) throws SQLException {\r\n        String sql = \"\"\"\r\n                    SELECT TOP 1 * FROM chapters\r\n                    WHERE series_id = ? AND is_deleted = 0 AND status = 'approved'\r\n                      AND chapter_number > ?\r\n                    ORDER BY chapter_number ASC\r\n                \"\"\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, currentNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Map the current row of the ResultSet to a Chapter object.\r\n     *\r\n     * @param rs the ResultSet positioned at the desired row\r\n     * @return a Chapter object populated with data from the ResultSet\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    private Chapter map(ResultSet rs) throws SQLException {\r\n        Chapter c = new Chapter();\r\n\r\n        c.setChapterId(rs.getInt(\"chapter_id\"));\r\n        c.setSeriesId(rs.getInt(\"series_id\"));\r\n        c.setChapterNumber(rs.getInt(\"chapter_number\"));\r\n        c.setTitle(rs.getString(\"title\"));\r\n        c.setContent(rs.getString(\"content\"));\r\n        c.setStatus(rs.getString(\"status\"));\r\n        c.setDeleted(rs.getBoolean(\"is_deleted\"));\r\n        Timestamp cr = rs.getTimestamp(\"created_at\");\r\n        Timestamp up = rs.getTimestamp(\"updated_at\");\r\n        c.setCreatedAt(cr != null ? cr.toLocalDateTime() : LocalDateTime.now());\r\n        c.setUpdatedAt(up != null ? up.toLocalDateTime() : LocalDateTime.now());\r\n        return c;\r\n    }\r\n\r\n    /**\r\n     * Find a chapter by its ID if it is not marked as deleted.\r\n     *\r\n     * @param chapterId the ID of the chapter\r\n     * @return the Chapter object if found and not deleted, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findByIdIfNotDeleted(int chapterId) throws SQLException {\r\n        String sql = \"SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = 0\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, chapterId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Find a chapter by its series ID and chapter number if it is not marked as deleted.\r\n     *\r\n     * @param seriesId      the ID of the series\r\n     * @param chapterNumber the chapter number within the series\r\n     * @return the Chapter object if found and not deleted, otherwise null\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    public Chapter findBySeriesAndNumberIfNotDeleted(int seriesId, int chapterNumber) throws SQLException {\r\n        String sql = \"\"\"\r\n                    SELECT * FROM chapters\r\n                    WHERE series_id = ? AND chapter_number = ? AND is_deleted = 0\r\n                \"\"\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, chapterNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? map(rs) : null;\r\n            }\r\n        }\r\n    }\r\n\r\n    public int countChapterBySeriesId(int seriesId) throws SQLException {\r\n        String sql = \"SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                return rs.next() ? rs.getInt(1) : 0;\r\n            }\r\n        }\r\n    }\r\n\r\n\r\n    public List<Chapter> findChapterBySeriesId(int seriesId) throws SQLException {\r\n        String sql = \"SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0\";\r\n        List<Chapter> chapterList = new ArrayList<>();\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                while (rs.next()) {\r\n                chapterList.add(extractChapterFromResultSet(rs));\r\n                }\r\n            }\r\n            return chapterList;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Retrieves the next chapter in a series based on the chapter index.\r\n     *\r\n     * @param seriesId     the ID of the series\r\n     * @param chapterNumber the index of the current chapter\r\n     * @return the next Chapter object if it exists, or null if there is no next\r\n     *         chapter.\r\n     * @throws SQLException If a database access error occurs.\r\n     */\r\n    public Chapter getNextChapter(int seriesId, int chapterNumber) throws SQLException {\r\n        String sql = \"SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number > ? ORDER BY chapter_number \";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, chapterNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                if (rs.next()) {\r\n                    return extractChapterFromResultSet(rs);\r\n                }\r\n            }\r\n        }\r\n        return null;\r\n    }\r\n\r\n    /**\r\n     * Retrieves the previous chapter in a series based on the chapter index.\r\n     *\r\n     * @param seriesId     the ID of the series\r\n     * @param chapterNumber the index of the current chapter\r\n     * @return the previous Chapter object if it exists, or null if there is no\r\n     *         previous chapter.\r\n     * @throws SQLException If a database access error occurs.\r\n     */\r\n    public Chapter getPreviousChapter(int seriesId, int chapterNumber) throws SQLException {\r\n        String sql = \"SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number < ? ORDER BY chapter_number DESC\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            ps.setInt(2, chapterNumber);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                if (rs.next()) {\r\n                    return extractChapterFromResultSet(rs);\r\n                }\r\n            }\r\n        }\r\n        return null;\r\n    }\r\n\r\n\r\n    /**\r\n     * Get the latest chapter number of a series.\r\n     *\r\n     * @param seriesId ID of the series.\r\n     * @return number of the latest chapter. If no chapters exist, returns 0.\r\n     */\r\n    public int getFirstChapterNumber(int seriesId) throws SQLException {\r\n        String sql = \"SELECT MIN(chapter_number) FROM chapters WHERE series_id = ?\";\r\n        try (PreparedStatement ps = conn.prepareStatement(sql)) {\r\n            ps.setInt(1, seriesId);\r\n            try (ResultSet rs = ps.executeQuery()) {\r\n                if (rs.next()) {\r\n                    return rs.getInt(1);\r\n                }\r\n            }\r\n        }\r\n        return 0;\r\n    }\r\n    /**\r\n     * Extract a Chapter object from the current row of the ResultSet.\r\n     *\r\n     * @param rs the ResultSet positioned at the desired row\r\n     * @return a Chapter object populated with data from the ResultSet\r\n     * @throws SQLException if a database access error occurs\r\n     */\r\n    private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {\r\n        Chapter chapter = new Chapter();\r\n        chapter.setSeriesId(rs.getInt(\"series_id\"));\r\n        chapter.setChapterId(rs.getInt(\"chapter_id\"));\r\n        chapter.setChapterNumber(rs.getInt(\"chapter_number\"));\r\n        chapter.setTitle(rs.getString(\"title\"));\r\n        chapter.setContent(rs.getString(\"content\"));\r\n        chapter.setStatus(rs.getString(\"status\"));\r\n        chapter.setDeleted(rs.getBoolean(\"is_deleted\"));\r\n        chapter.setCreatedAt(rs.getTimestamp(\"created_at\").toLocalDateTime());\r\n        chapter.setUpdatedAt(rs.getTimestamp(\"updated_at\").toLocalDateTime());\r\n        return chapter;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/JoyLeeBook_v2.0/src/main/java/dao/ChapterDAO.java b/JoyLeeBook_v2.0/src/main/java/dao/ChapterDAO.java
+--- a/JoyLeeBook_v2.0/src/main/java/dao/ChapterDAO.java	(revision 708ab8da304c39fe221ba87cdff1a8de36d45f5a)
++++ b/JoyLeeBook_v2.0/src/main/java/dao/ChapterDAO.java	(date 1760521354488)
+@@ -79,7 +79,7 @@
+      * @throws SQLException if a database access error occurs
+      */
+     public boolean insert(Chapter chapter, int seriesId, int authorId) throws SQLException {
+-        String sql = "INSERT INTO chapters " + "(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
++        String sql = "INSERT INTO chapters " + "(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at, user_id) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+ 
+         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             Timestamp now = Timestamp.valueOf(java.time.LocalDateTime.now());
+@@ -93,6 +93,7 @@
+             ps.setBoolean(7, false);   // SQL Server BIT <- 0
+             ps.setTimestamp(8, now);
+             ps.setTimestamp(9, now);
++            ps.setTimestamp(10, chapter.getUserId());
+ 
+             int affected = ps.executeUpdate();
+             if (affected > 0) {
+Index: JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterItemDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dto.chapter;\r\n\r\nimport java.time.LocalDateTime;\r\nimport java.time.ZoneId;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.util.Date;\r\n\r\n/**\r\n * ChapterListItem class represents a chapter item in a list view.\r\n * It includes details about the chapter and its associated series.\r\n *\r\n * @author HaiDD-dev\r\n */\r\npublic class ChapterItemDTO {\r\n    private int chapterId;\r\n    private int seriesId;\r\n    private String seriesTitle;\r\n    private int chapterNumber;\r\n    private String chapterTitle;\r\n    private String status;\r\n    private String coverImgUrl;\r\n    private LocalDateTime updatedAt;\r\n    private LocalDateTime lastReadAt;\r\n\r\n    public String getCoverImgUrl() {\r\n        return coverImgUrl;\r\n    }\r\n\r\n    public void setCoverImgUrl(String coverImgUrl) {\r\n        this.coverImgUrl = coverImgUrl;\r\n    }\r\n\r\n    // getters/setters\r\n    public int getChapterId() {\r\n        return chapterId;\r\n    }\r\n\r\n    public void setChapterId(int chapterId) {\r\n        this.chapterId = chapterId;\r\n    }\r\n\r\n    public int getSeriesId() {\r\n        return seriesId;\r\n    }\r\n\r\n    public void setSeriesId(int seriesId) {\r\n        this.seriesId = seriesId;\r\n    }\r\n\r\n    public String getSeriesTitle() {\r\n        return seriesTitle;\r\n    }\r\n\r\n    public void setSeriesTitle(String seriesTitle) {\r\n        this.seriesTitle = seriesTitle;\r\n    }\r\n\r\n    public int getChapterNumber() {\r\n        return chapterNumber;\r\n    }\r\n\r\n    public void setChapterNumber(int chapterNumber) {\r\n        this.chapterNumber = chapterNumber;\r\n    }\r\n\r\n    public String getChapterTitle() {\r\n        return chapterTitle;\r\n    }\r\n\r\n    public void setChapterTitle(String chapterTitle) {\r\n        this.chapterTitle = chapterTitle;\r\n    }\r\n\r\n    public String getStatus() {\r\n        return status;\r\n    }\r\n\r\n    public void setStatus(String status) {\r\n        this.status = status;\r\n    }\r\n\r\n    public LocalDateTime getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(LocalDateTime updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public LocalDateTime getLastReadAt() {\r\n        return lastReadAt;\r\n    }\r\n\r\n    public void setLastReadAt(LocalDateTime lastReadAt) {\r\n        this.lastReadAt = lastReadAt;\r\n    }\r\n\r\n    public Date getUpdatedAtAsDate() {\r\n        return updatedAt != null ? Date.from(updatedAt.atZone(ZoneId.systemDefault()).toInstant()) : null;\r\n    }\r\n\r\n    public Date getLastReadAtAsDate() {\r\n        return lastReadAt != null ? Date.from(lastReadAt.atZone(ZoneId.systemDefault()).toInstant()) : null;\r\n    }\r\n\r\n\r\n    public String getLastReadAtFormatted() {\r\n        return lastReadAt != null\r\n                ? lastReadAt.format(DateTimeFormatter.ofPattern(\"dd/MM/yyyy HH:mm\"))\r\n                : \"\";\r\n    }\r\n\r\n}\r\n
+===================================================================
+diff --git a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterItemDTO.java b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterItemDTO.java
+--- a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterItemDTO.java	(revision 708ab8da304c39fe221ba87cdff1a8de36d45f5a)
++++ b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterItemDTO.java	(date 1760529565363)
+@@ -11,82 +11,12 @@
+  *
+  * @author HaiDD-dev
+  */
+-public class ChapterItemDTO {
+-    private int chapterId;
++public class ChapterItemDTO extends BaseChapterDTO{
+     private int seriesId;
+     private String seriesTitle;
+-    private int chapterNumber;
+-    private String chapterTitle;
+-    private String status;
+     private String coverImgUrl;
+-    private LocalDateTime updatedAt;
+     private LocalDateTime lastReadAt;
+ 
+-    public String getCoverImgUrl() {
+-        return coverImgUrl;
+-    }
+-
+-    public void setCoverImgUrl(String coverImgUrl) {
+-        this.coverImgUrl = coverImgUrl;
+-    }
+-
+-    // getters/setters
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public int getSeriesId() {
+-        return seriesId;
+-    }
+-
+-    public void setSeriesId(int seriesId) {
+-        this.seriesId = seriesId;
+-    }
+-
+-    public String getSeriesTitle() {
+-        return seriesTitle;
+-    }
+-
+-    public void setSeriesTitle(String seriesTitle) {
+-        this.seriesTitle = seriesTitle;
+-    }
+-
+-    public int getChapterNumber() {
+-        return chapterNumber;
+-    }
+-
+-    public void setChapterNumber(int chapterNumber) {
+-        this.chapterNumber = chapterNumber;
+-    }
+-
+-    public String getChapterTitle() {
+-        return chapterTitle;
+-    }
+-
+-    public void setChapterTitle(String chapterTitle) {
+-        this.chapterTitle = chapterTitle;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public LocalDateTime getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(LocalDateTime updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+     public LocalDateTime getLastReadAt() {
+         return lastReadAt;
+     }
+@@ -95,10 +25,6 @@
+         this.lastReadAt = lastReadAt;
+     }
+ 
+-    public Date getUpdatedAtAsDate() {
+-        return updatedAt != null ? Date.from(updatedAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
+-    }
+-
+     public Date getLastReadAtAsDate() {
+         return lastReadAt != null ? Date.from(lastReadAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
+     }
+Index: JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterDetailDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dto.chapter;\r\n\r\nimport java.util.List;\r\n\r\npublic class ChapterDetailDTO {\r\n    private int chapterId;\r\n    private int seriesId;\r\n    private int chapterNumber;\r\n    private String seriesTitle;\r\n    private List<String> authorsName;\r\n    private String title;\r\n    private String content;\r\n    private String status;\r\n    private String action;\r\n    private String updatedAt;\r\n    private String createdAt;\r\n    private int totalLike;\r\n\r\n    public String getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(String updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public String getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(String createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public String getStatus() {\r\n        return status;\r\n    }\r\n\r\n    public void setStatus(String status) {\r\n        this.status = status;\r\n    }\r\n\r\n    public String getAction() {\r\n        return action;\r\n    }\r\n\r\n    public void setAction(String action) {\r\n        this.action = action;\r\n    }\r\n\r\n    public int getSeriesId() {\r\n        return seriesId;\r\n    }\r\n\r\n    public void setSeriesId(int seriesId) {\r\n        this.seriesId = seriesId;\r\n    }\r\n\r\n    public int getChapterId() {\r\n        return chapterId;\r\n    }\r\n\r\n    public void setChapterId(int chapterId) {\r\n        this.chapterId = chapterId;\r\n    }\r\n\r\n    public int getChapterNumber() {\r\n        return chapterNumber;\r\n    }\r\n\r\n    public void setChapterNumber(int chapterNumber) {\r\n        this.chapterNumber = chapterNumber;\r\n    }\r\n\r\n    public String getSeriesTitle() {\r\n        return seriesTitle;\r\n    }\r\n\r\n    public void setSeriesTitle(String seriesTitle) {\r\n        this.seriesTitle = seriesTitle;\r\n    }\r\n\r\n    public List<String> getAuthorsName() {\r\n        return authorsName;\r\n    }\r\n\r\n    public void setAuthorsName(List<String> authorsName) {\r\n        this.authorsName = authorsName;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public String getContent() {\r\n        return content;\r\n    }\r\n\r\n    public void setContent(String content) {\r\n        this.content = content;\r\n    }\r\n\r\n    public int getTotalLike() {\r\n        return totalLike;\r\n    }\r\n\r\n    public void setTotalLike(int totalLike) {\r\n        this.totalLike = totalLike;\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterDetailDTO.java b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterDetailDTO.java
+--- a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterDetailDTO.java	(revision 708ab8da304c39fe221ba87cdff1a8de36d45f5a)
++++ b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterDetailDTO.java	(date 1760529503609)
+@@ -2,51 +2,15 @@
+ 
+ import java.util.List;
+ 
+-public class ChapterDetailDTO {
+-    private int chapterId;
++public class ChapterDetailDTO extends BaseChapterDTO{
+     private int seriesId;
+-    private int chapterNumber;
+     private String seriesTitle;
+-    private List<String> authorsName;
+-    private String title;
++    private String authorsName;
+     private String content;
+-    private String status;
+     private String action;
+-    private String updatedAt;
+     private String createdAt;
+     private int totalLike;
+-
+-    public String getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(String updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public String getCreatedAt() {
+-        return createdAt;
+-    }
+-
+-    public void setCreatedAt(String createdAt) {
+-        this.createdAt = createdAt;
+-    }
+-
+-    public String getStatus() {
+-        return status;
+-    }
+-
+-    public void setStatus(String status) {
+-        this.status = status;
+-    }
+-
+-    public String getAction() {
+-        return action;
+-    }
+-
+-    public void setAction(String action) {
+-        this.action = action;
+-    }
++    private int userId;
+ 
+     public int getSeriesId() {
+         return seriesId;
+@@ -56,22 +20,6 @@
+         this.seriesId = seriesId;
+     }
+ 
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+-
+-    public int getChapterNumber() {
+-        return chapterNumber;
+-    }
+-
+-    public void setChapterNumber(int chapterNumber) {
+-        this.chapterNumber = chapterNumber;
+-    }
+-
+     public String getSeriesTitle() {
+         return seriesTitle;
+     }
+@@ -80,22 +28,14 @@
+         this.seriesTitle = seriesTitle;
+     }
+ 
+-    public List<String> getAuthorsName() {
++    public String getAuthorsName() {
+         return authorsName;
+     }
+ 
+-    public void setAuthorsName(List<String> authorsName) {
++    public void setAuthorsName(String authorsName) {
+         this.authorsName = authorsName;
+     }
+ 
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+     public String getContent() {
+         return content;
+     }
+@@ -104,6 +44,22 @@
+         this.content = content;
+     }
+ 
++    public String getAction() {
++        return action;
++    }
++
++    public void setAction(String action) {
++        this.action = action;
++    }
++
++    public String getCreatedAt() {
++        return createdAt;
++    }
++
++    public void setCreatedAt(String createdAt) {
++        this.createdAt = createdAt;
++    }
++
+     public int getTotalLike() {
+         return totalLike;
+     }
+@@ -111,4 +67,12 @@
+     public void setTotalLike(int totalLike) {
+         this.totalLike = totalLike;
+     }
++
++    public int getUserId() {
++        return userId;
++    }
++
++    public void setUserId(int userId) {
++        this.userId = userId;
++    }
+ }
+Index: JoyLeeBook_v2.0/src/main/java/db/DBConnection.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package db;\r\n\r\nimport java.sql.Connection;\r\nimport java.sql.DriverManager;\r\nimport java.sql.SQLException;\r\n\r\npublic class DBConnection {\r\n    public static Connection getConnection() throws SQLException, ClassNotFoundException {\r\n        try {\r\n            String url = \"jdbc:sqlserver://localhost:1433;databaseName=JoyLeeBook;encrypt=true;trustServerCertificate=true;\";\r\n            String username = \"sa\";\r\n            String password = \"04072005Toan\";\r\n            Class.forName(\"com.microsoft.sqlserver.jdbc.SQLServerDriver\");\r\n            return DriverManager.getConnection(url, username, password);\r\n        }catch (ClassNotFoundException | SQLException e) {\r\n            throw new RuntimeException(e);\r\n        }\r\n    }\r\n}
+===================================================================
+diff --git a/JoyLeeBook_v2.0/src/main/java/db/DBConnection.java b/JoyLeeBook_v2.0/src/main/java/db/DBConnection.java
+--- a/JoyLeeBook_v2.0/src/main/java/db/DBConnection.java	(revision 708ab8da304c39fe221ba87cdff1a8de36d45f5a)
++++ b/JoyLeeBook_v2.0/src/main/java/db/DBConnection.java	(date 1760521065414)
+@@ -7,13 +7,16 @@
+ public class DBConnection {
+     public static Connection getConnection() throws SQLException, ClassNotFoundException {
+         try {
+-            String url = "jdbc:sqlserver://localhost:1433;databaseName=JoyLeeBook;encrypt=true;trustServerCertificate=true;";
++            String url = "jdbc:sqlserver://MAYTINHCUABON\\MSSQLSERVER:1433;databaseName=JoyLeeBook2;encrypt=false;trustServerCertificate=true";;
+             String username = "sa";
+-            String password = "04072005Toan";
++            String password = "admin123";
+             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+             return DriverManager.getConnection(url, username, password);
+-        }catch (ClassNotFoundException | SQLException e) {
+-            throw new RuntimeException(e);
++        } catch (SQLException e) {
++            e.printStackTrace();
++        } catch (ClassNotFoundException e) {
++            e.printStackTrace();
+         }
++        return null;
+     }
+-}
+\ No newline at end of file
++}
+Index: JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterInfoDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package dto.chapter;\r\n\r\npublic class ChapterInfoDTO {\r\n    private int chapterId;\r\n    private String title;\r\n    private int chapterNumber;\r\n    private String updatedAt;\r\n    private int totalLikes;\r\n\r\n    public int getTotalLikes() {\r\n        return totalLikes;\r\n    }\r\n\r\n    public void setTotalLikes(int totalLikes) {\r\n        this.totalLikes = totalLikes;\r\n    }\r\n\r\n    public String getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(String updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n\r\n    public int getChapterNumber() {\r\n        return chapterNumber;\r\n    }\r\n\r\n    public void setChapterNumber(int chapterNumber) {\r\n        this.chapterNumber = chapterNumber;\r\n    }\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public int getChapterId() {\r\n        return chapterId;\r\n    }\r\n\r\n    public void setChapterId(int chapterId) {\r\n        this.chapterId = chapterId;\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterInfoDTO.java b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterInfoDTO.java
+--- a/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterInfoDTO.java	(revision 708ab8da304c39fe221ba87cdff1a8de36d45f5a)
++++ b/JoyLeeBook_v2.0/src/main/java/dto/chapter/ChapterInfoDTO.java	(date 1760521987539)
+@@ -1,10 +1,6 @@
+ package dto.chapter;
+ 
+-public class ChapterInfoDTO {
+-    private int chapterId;
+-    private String title;
+-    private int chapterNumber;
+-    private String updatedAt;
++public class ChapterInfoDTO extends BaseChapterDTO{
+     private int totalLikes;
+ 
+     public int getTotalLikes() {
+@@ -14,36 +10,4 @@
+     public void setTotalLikes(int totalLikes) {
+         this.totalLikes = totalLikes;
+     }
+-
+-    public String getUpdatedAt() {
+-        return updatedAt;
+-    }
+-
+-    public void setUpdatedAt(String updatedAt) {
+-        this.updatedAt = updatedAt;
+-    }
+-
+-    public int getChapterNumber() {
+-        return chapterNumber;
+-    }
+-
+-    public void setChapterNumber(int chapterNumber) {
+-        this.chapterNumber = chapterNumber;
+-    }
+-
+-    public String getTitle() {
+-        return title;
+-    }
+-
+-    public void setTitle(String title) {
+-        this.title = title;
+-    }
+-
+-    public int getChapterId() {
+-        return chapterId;
+-    }
+-
+-    public void setChapterId(int chapterId) {
+-        this.chapterId = chapterId;
+-    }
+ }
