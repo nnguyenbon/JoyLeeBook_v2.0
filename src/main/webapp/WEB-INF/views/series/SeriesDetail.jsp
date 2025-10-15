@@ -125,25 +125,22 @@
                 ${seriesInfoDTO.description}
             </div>
         </div>
-    </section>
-    <!-- Chapter List -->
-    <section class="col-span-12 mb-16 grid grid-cols-12 gap-8">
-        <div class="col-span-10 col-start-2">
-            <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
-            <div class="space-y-3 border-2 border-neutral-400 p-3 rounded-lg  ">
-                <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
-                    <c:forEach var="chapter" items="${chapterInfoDTOList}">
-                        <li>
-                            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
-                                <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                                    <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                                    <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
-                                </div>
-                            </a>
-                        </li>
-                    </c:forEach>
-                </ul>
-            </div>
+    </div>
+</section>
+<!-- Chapter List -->
+<section class=" mx-auto mt-5 mb-20 grid grid-cols-12 gap-[30px]">
+    <div class="col-span-10 col-start-2">
+        <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
+        <div class="space-y-3 border-2 border-[#0D2E55] p-3 rounded-lg ">
+            <c:forEach var="chapter" items="${chapterInfoDTOList}">
+                <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                    <div
+                            class="flex justify-between items-center border rounded-lg px-4 mb-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                        <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
+                        <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
+                    </div>
+                </a>
+            </c:forEach>
         </div>
     </section>
 </main>
