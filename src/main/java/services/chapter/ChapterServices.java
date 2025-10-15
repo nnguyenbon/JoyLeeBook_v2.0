@@ -4,6 +4,7 @@ import dao.*;
 import db.DBConnection;
 import dto.chapter.ChapterDetailDTO;
 import dto.chapter.ChapterInfoDTO;
+import dto.chapter.ChapterItemDTO;
 import dto.chapter.ChapterViewDTO;
 import model.Chapter;
 import model.Series;
@@ -20,7 +21,12 @@ import java.util.List;
  * @author HaiDD-dev
  */
 public class ChapterServices {
-
+    private final Connection connection;
+    private final ChapterDAO chapterDAO;
+    public ChapterServices () throws SQLException, ClassNotFoundException {
+        this.connection = DBConnection.getConnection();
+        this.chapterDAO = new ChapterDAO(connection);
+    }
 
     /**
      * Load chapter view by chapter ID or series ID and chapter number
@@ -91,7 +97,7 @@ public class ChapterServices {
         }
     }
 
-    public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter, Connection connection) throws SQLException {
+    public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter) throws SQLException {
         LikesDAO   likesDAO   = new LikesDAO(connection);
         ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
         chapterInfoDTO.setChapterId(chapter.getChapterId());
@@ -102,15 +108,15 @@ public class ChapterServices {
         return chapterInfoDTO;
     }
 
-    public List<ChapterInfoDTO> buildChapterInfoDTOList(List<Chapter> chapterList, Connection connection) throws SQLException {
+    public List<ChapterInfoDTO> buildChapterInfoDTOList(List<Chapter> chapterList) throws SQLException {
         List<ChapterInfoDTO> chapterInfoDTOList = new ArrayList<>();
         for (Chapter chapter : chapterList) {
-            chapterInfoDTOList.add(buildChapterInfoDTO(chapter, connection));
+            chapterInfoDTOList.add(buildChapterInfoDTO(chapter));
         }
         return chapterInfoDTOList;
     }
 
-    public ChapterDetailDTO buildChapterDetailDTO(Chapter chapter, Connection connection) throws SQLException {
+    public ChapterDetailDTO buildChapterDetailDTO(Chapter chapter) throws SQLException {
         SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(connection);
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         LikesDAO likesDAO = new LikesDAO(connection);
@@ -130,11 +136,38 @@ public class ChapterServices {
         return  chapterDetailDTO;
     }
 
-    public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList, Connection connection) throws SQLException {
+    public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList) throws SQLException {
         List<ChapterDetailDTO> chapterDetailDTOList = new ArrayList<>();
         for (Chapter chapter : chapterList) {
-            chapterDetailDTOList.add(buildChapterDetailDTO(chapter, connection));
+            chapterDetailDTOList.add(buildChapterDetailDTO(chapter));
         }
         return chapterDetailDTOList;
+    }
+
+    public List<ChapterItemDTO> historyChaptersFromUser(int userId, int offset, int pagesize, String keyword) throws SQLException, ClassNotFoundException {
+        return chapterDAO.getReadingHistoryChapters(userId, offset, pagesize, keyword);
+    }
+
+    public List<ChapterDetailDTO> chaptersFromSeries (int seriesId) throws SQLException, ClassNotFoundException {
+        return buildChapterDetailDTOList(chapterDAO.findChapterBySeriesId(seriesId));
+    }
+
+    public ChapterDetailDTO buildChapterDetailDTO(int chapterId) throws SQLException {
+        return buildChapterDetailDTO(chapterDAO.findById(chapterId));
+    }
+
+    public int getFirstChapterNumber(int seriesId) throws SQLException {
+        return chapterDAO.getFirstChapterNumber(seriesId);
+    }
+
+    public static String getRedirectUrl(String action, int seriesId, int chapterNumber) throws SQLException, ClassNotFoundException {
+        Chapter chapter = new Chapter();
+        ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
+        if (action.equals("next")) {
+            chapter = chapterDAO.getNextChapter(seriesId, chapterNumber);
+        } else if (action.equals("previous")){
+            chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
+        }
+        return String.format("chapter-content?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
 }

@@ -5,6 +5,7 @@ import dao.LikesDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
 import dao.UserDAO;
+import db.DBConnection;
 import dto.author.AuthorItemDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;

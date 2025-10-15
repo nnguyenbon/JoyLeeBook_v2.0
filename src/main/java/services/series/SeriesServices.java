@@ -1,9 +1,7 @@
 package services.series;
 
-import dao.CategoryDAO;
-import dao.ChapterDAO;
-import dao.RatingDAO;
-import dao.SeriesAuthorDAO;
+import dao.*;
+import db.DBConnection;
 import dto.series.SeriesInfoDTO;
 import model.Category;
 import model.Series;
@@ -19,13 +17,16 @@ public class SeriesServices {
     private final RatingDAO ratingDAO ;
     private final ChapterDAO chapterDAO ;
     private final SeriesAuthorDAO seriesAuthorDAO ;
+    private final SeriesDAO seriesDAO;
     
 
-    public SeriesServices(Connection connection) throws SQLException, ClassNotFoundException {
+    public SeriesServices() throws SQLException, ClassNotFoundException {
+        Connection connection = DBConnection.getConnection();
         this.categoryDAO = new CategoryDAO(connection);
         this.ratingDAO = new RatingDAO(connection);
         this.chapterDAO = new ChapterDAO(connection);
         this.seriesAuthorDAO = new SeriesAuthorDAO(connection);
+        this.seriesDAO = new SeriesDAO(connection);
     }
 
     public List<SeriesInfoDTO> buildSeriesInfoDTOList(List<Series> seriesList) throws SQLException, ClassNotFoundException {
@@ -60,5 +61,41 @@ public class SeriesServices {
         dto.setAuthorsName(seriesAuthorDAO.authorsOfSeries(series.getSeriesId()));
 
         return dto;
+    }
+
+    public List<SeriesInfoDTO> hotSeriesList (int limit) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getTopRatedSeries(limit));
+    }
+
+    public List<SeriesInfoDTO> weeklySeriesList (int limit) throws SQLException, ClassNotFoundException {
+        List<SeriesInfoDTO> seriesList = buildSeriesInfoDTOList(seriesDAO.getWeeklySeries(limit));
+        for (SeriesInfoDTO series : seriesList){
+            series.setAvgRating(Math.round(series.getAvgRating()*series.getCountRatings()));
+        }
+        return seriesList;
+    }
+
+    public List<SeriesInfoDTO> newReleaseSeries (int limit) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getNewReleasedSeries(limit));
+    }
+
+    public List<SeriesInfoDTO> recentlyUpdatedSeries (int limit) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getRecentlyUpdated(limit));
+    }
+
+    public List<SeriesInfoDTO> completedSeries (int limit, String status ) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getSeriesByStatus(limit, status));
+    }
+
+    public List<SeriesInfoDTO> savedSeriesFromUser (int userId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getSeriesByUserId(userId));
+    }
+
+    public List<SeriesInfoDTO> seriesFromAuthor (int authorId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(authorId));
+    }
+
+    public SeriesInfoDTO buildSeriesInfoDTO(int seriesId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTO(seriesDAO.findById(seriesId));
     }
 }

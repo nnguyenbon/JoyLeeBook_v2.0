@@ -31,7 +31,7 @@ public class SearchServices {
         List<Series> allSeries = seriesDAO.getAll();
         List<SeriesInfoDTO> result = new ArrayList<>();
 
-        SeriesServices seriesServices = new SeriesServices(connection);
+        SeriesServices seriesServices = new SeriesServices();
         for (Series s : allSeries) {
             boolean matchStatus = statuses.isEmpty() || statuses.contains(s.getStatus());
             boolean matchGenre = genres.isEmpty() || categoryDAO.matchGenres(s.getSeriesId(), genres);
@@ -47,7 +47,7 @@ public class SearchServices {
                                      HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
         CategoryDAO categoryDAO = new CategoryDAO(connection);
         UserDAO userDAO = new UserDAO(connection);
-        SeriesServices seriesServices = new SeriesServices(connection);
+        SeriesServices seriesServices = new SeriesServices();
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         if ("title".equals(searchType) || searchType == null) {
             List<Category> categories = categoryDAO.getAll();
@@ -81,7 +81,7 @@ public class SearchServices {
                     .forward(request, response);
             return true;
         } else if ("author".equals(searchType)) {
-            AuthorServices authorServices = new AuthorServices(connection);
+            AuthorServices authorServices = new AuthorServices();
             List<AuthorItemDTO> authorItemDTOList = authorServices.buildAuthorItemDTOList(userDAO.findByName(keyword));
             request.setAttribute("authorItemDTOList", authorItemDTOList);
 
@@ -91,5 +91,11 @@ public class SearchServices {
             }
         }
         return false;
+    }
+
+    public List<String> extractParameters (String parametersUrl){
+       return  (parametersUrl != null && !parametersUrl.isEmpty())
+                ? List.of(parametersUrl.split(","))
+                : new ArrayList<>();
     }
 }
