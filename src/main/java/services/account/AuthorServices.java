@@ -4,6 +4,7 @@ import dao.ChapterDAO;
 import dao.LikesDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
+import db.DBConnection;
 import dto.author.AuthorItemDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +18,8 @@ import java.util.List;
 
 public class AuthorServices {
     private final Connection connection;
-    public AuthorServices(Connection connection) {
-        this.connection = connection;
+    public AuthorServices() throws SQLException, ClassNotFoundException {
+        this.connection = DBConnection.getConnection();
     }
 
     public void extractDataFromAuthorId (List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {

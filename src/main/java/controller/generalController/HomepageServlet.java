@@ -18,9 +18,9 @@ public class HomepageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            UserServices userServices = new UserServices(DBConnection.getConnection());
-            SeriesServices seriesServices = new SeriesServices(DBConnection.getConnection());
-            CategoryServices categoryServices = new CategoryServices(DBConnection.getConnection());
+            UserServices userServices = new UserServices();
+            SeriesServices seriesServices = new SeriesServices();
+            CategoryServices categoryServices = new CategoryServices();
 
             request.setAttribute("hotSeriesList", seriesServices.hotSeriesList(3));
             request.setAttribute("weeklySeriesList", seriesServices.weeklySeriesList(8));

@@ -19,8 +19,8 @@ public class LibraryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
         try {
-            ChapterServices chapterServices = new ChapterServices(DBConnection.getConnection());
-            SeriesServices seriesServices = new SeriesServices(DBConnection.getConnection());
+            ChapterServices chapterServices = new ChapterServices();
+            SeriesServices seriesServices = new SeriesServices();
 
             request.setAttribute("savedSeries", seriesServices.savedSeriesFromUser(userId));
             request.setAttribute("historyChapters", chapterServices.historyChaptersFromUser(userId, 0, Integer.MAX_VALUE, null));

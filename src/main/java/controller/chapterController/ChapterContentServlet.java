@@ -23,28 +23,18 @@ import java.util.List;
 public class ChapterContentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String seriesIdParam = request.getParameter("seriesId");
-        int seriesId = ValidationInput.isPositiveInteger(seriesIdParam) ? Integer.parseInt(seriesIdParam) : 0;
+        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 0;
 
         try {
-            Connection connection = DBConnection.getConnection();
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            CommentDAO commentDAO = new CommentDAO(connection);
-
-
-            String chapterIdParam = request.getParameter("chapterId");
-            int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterDAO.getFirstChapterNumber(seriesId);
-
             ChapterServices chapterServices = new ChapterServices();
-            ChapterDetailDTO chapterDetailDTO = chapterServices.buildChapterDetailDTO(chapterDAO.findById(chapterId), connection);
-            List<ChapterInfoDTO> chapterInfoDTOList = chapterServices.buildChapterInfoDTOList(chapterDAO.findChapterBySeriesId(seriesId), connection);
-
             CommentServices commentServices = new CommentServices();
-            List<CommentDetailDTO>  commentDetailDTOList = commentServices.buildCommentDetailDTOList(commentDAO.findByChapter(chapterId), connection);
+            String chapterIdParam = request.getParameter("chapterId");
+            int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
 
-            request.setAttribute("chapterDetailDTO", chapterDetailDTO);
-            request.setAttribute("chapterInfoDTOList", chapterInfoDTOList);
-            request.setAttribute("commentDetailDTOList", commentDetailDTOList);
+
+            request.setAttribute("chapterDetailDTO", chapterServices.buildChapterDetailDTO(chapterId));
+            request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
+            request.setAttribute("commentDetailDTOList", commentServices.commentsFromChapter(chapterId));
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
