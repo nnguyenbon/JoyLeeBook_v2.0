@@ -33,7 +33,7 @@
             </li>
         </ul>
         <p class="pt-1 pb-2 text-neutral-600 border-t mt-4">
-            © 2024 JoyLeeBook. All rights reserved.
+            &copy; 2024 JoyLeeBook. All rights reserved.
         </p>
     </div>
 </footer>
