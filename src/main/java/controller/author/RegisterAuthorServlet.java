@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 @WebServlet(name = "RegisterAuthorServlet", value = "/register-author")
 public class RegisterAuthorServlet extends HttpServlet {
@@ -32,8 +33,9 @@ public class RegisterAuthorServlet extends HttpServlet {
         User user = (User) session.getAttribute("user");
 
         if (user != null && "reader".equals(user.getRole())) {
-            try (Connection conn = DBConnection.getConnection()) {
-                AuthorServices authorServices = new AuthorServices(conn);
+            AuthorServices authorServices = null;
+            try {
+                authorServices = new AuthorServices();
                 if (authorServices.registerAsAuthor(user)) {
                     user.setRole("author");
                     session.setAttribute("user", user);
@@ -41,9 +43,8 @@ public class RegisterAuthorServlet extends HttpServlet {
                 } else {
                     response.sendRedirect(request.getContextPath() + "/error/error.jsp");
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                response.sendRedirect(request.getContextPath() + "/error/error.jsp");
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         } else {
             response.sendRedirect(request.getContextPath() + "/login");
