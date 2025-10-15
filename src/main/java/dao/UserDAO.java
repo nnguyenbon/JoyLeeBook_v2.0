@@ -146,7 +146,7 @@ public class UserDAO {
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         }
-      
+    }
     /**
      * Find user by username for authentication
      *
