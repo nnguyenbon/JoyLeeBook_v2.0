@@ -132,6 +132,22 @@ public class UserDAO {
     }
 
     /**
+     * Update user role to 'author' by user ID.
+     *
+     * @param userId The ID of the user to update.
+     * @return true if the update was successful, false otherwise.
+     * @throws SQLException           If a database access error occurs.
+     * @throws ClassNotFoundException If the JDBC driver class is not found.
+     */
+    public boolean updateUserRoleToAuthor(int userId) throws SQLException, ClassNotFoundException {
+        String sql = "UPDATE Users SET role = 'author' WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+      
+    /**
      * Find user by username for authentication
      *
      * @return User object or null if not found
