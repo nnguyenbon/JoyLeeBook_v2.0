@@ -19,8 +19,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE is_deleted = 0";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
             }
@@ -147,6 +146,30 @@ public class UserDAO {
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         }
+    }
+
+    /**
+     * Find user by username for authentication
+     *
+     * @return User object or null if not found
+     */
+    public User findByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        User user = null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    user = new User();
+                    user.setUserId(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    user.setRole(rs.getString("role"));
+                    // Set other user properties as needed
+                }
+            }
+        }
+        return user;
     }
 
     // Hàm map dữ liệu từ ResultSet sang đối tượng User
