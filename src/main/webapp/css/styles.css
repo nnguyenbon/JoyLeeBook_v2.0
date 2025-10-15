@@ -71,10 +71,11 @@ img {
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: #f3f4f6;
+    border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #d1d5db;
-    border-radius: 4px;
+    border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
