@@ -64,6 +64,6 @@ public class StaffServices {
         return false;
     }
     public Staff getStaffAccount(int staffId) throws SQLException, ClassNotFoundException {
-        return  staffDAO.findById(staffId);
+        return staffDAO.findById(staffId);
     }
 }
