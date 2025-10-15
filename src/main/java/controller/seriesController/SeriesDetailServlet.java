@@ -22,23 +22,14 @@ import java.util.List;
 public class SeriesDetailServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String seriesIdParam = request.getParameter("seriesId");
-
-
-        int seriesId = ValidationInput.isPositiveInteger(seriesIdParam) ? Integer.parseInt(seriesIdParam) : 0;
+        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 0;
 
         try {
-            Connection connection = DBConnection.getConnection();
-            SeriesDAO seriesDAO = new SeriesDAO(connection);
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-
-            SeriesServices seriesServices = new SeriesServices(connection);
-            SeriesInfoDTO seriesInfoDTO = seriesServices.buildSeriesInfoDTO(seriesDAO.findById(seriesId));
-
+            SeriesServices seriesServices = new SeriesServices();
             ChapterServices chapterServices = new ChapterServices();
-            List<ChapterInfoDTO> chapterInfoDTOList = chapterServices.buildChapterInfoDTOList(chapterDAO.findChapterBySeriesId(seriesInfoDTO.getSeriesId()), connection);
-            request.setAttribute("seriesInfoDTO", seriesInfoDTO);
-            request.setAttribute("chapterInfoDTOList", chapterInfoDTOList);
+
+            request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
+            request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
             request.setAttribute("pageTitle","Series Detail");
             request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesDetail.jsp");
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);

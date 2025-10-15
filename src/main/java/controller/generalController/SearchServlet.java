@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import model.User;
+import services.account.UserServices;
 import services.general.SearchServices;
 import services.series.SeriesServices;
 
@@ -23,47 +24,33 @@ import java.util.List;
 
 @WebServlet("/search")
 public class SearchServlet extends HttpServlet {
-    private static boolean isFirstDirect = true;
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String statusParam = request.getParameter("status");
         String genresParam = request.getParameter("genres");
-        List<String> statuses = (statusParam != null && !statusParam.isEmpty())
-                ? List.of(statusParam.split(","))
-                : new ArrayList<>();
-
-        List<String> genres = (genresParam != null && !genresParam.isEmpty())
-                ? List.of(genresParam.split(","))
-                : new ArrayList<>();
         String keyword = request.getParameter("keyword") == null ? "" : request.getParameter("keyword");
         String searchType = request.getParameter("searchType");
-        boolean isAjaxRequest = searchType != null;
+        try {
+            SeriesServices seriesServices = new SeriesServices();
+            UserServices userServices = new UserServices();
+            SearchServices searchServices = new SearchServices();
 
-            try {
-                Connection connection = DBConnection.getConnection();
-                SeriesDAO seriesDAO = new SeriesDAO(connection);
-                UserDAO userDAO = new UserDAO(connection);
-
-                SeriesServices seriesServices = new SeriesServices(connection);
-                List<SeriesInfoDTO> weeklySeriesList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getWeeklySeries(8));
-
-                List<User> userList = userDAO.selectTopUserPoints(8);
-
-                SearchServices searchServices = new SearchServices();
-                if (searchServices.handleSearchByType(searchType, keyword, isAjaxRequest, connection, request, response)){
-                    return;
-                }
-
-                request.setAttribute("weeklySeriesList", weeklySeriesList);
-                request.setAttribute("userList", userList);
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            if (searchServices.handleSearchByType(searchType, keyword, searchType != null, DBConnection.getConnection(), request, response)) {
+                return;
             }
-            request.setAttribute("statusParam", statuses);
-            request.setAttribute("genresParam", genres);
+
+            request.setAttribute("weeklySeriesList", seriesServices.weeklySeriesList(8));
+            request.setAttribute("userList", userServices.topUsersPoints(8));
+            request.setAttribute("statusParam", searchServices.extractParameters(statusParam));
+            request.setAttribute("genresParam", searchServices.extractParameters(genresParam));
             request.setAttribute("searchType", searchType != null ? searchType : "title");
             request.setAttribute("keyword", keyword);
             request.getRequestDispatcher("/WEB-INF/views/general/SearchPage.jsp").forward(request, response);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    }
 }
 

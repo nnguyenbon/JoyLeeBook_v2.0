@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Chapter;
+import services.chapter.ChapterServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -19,31 +20,16 @@ public class NavigateChapterServlet extends HttpServlet {
         doGet(request, response);
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String seriesIdParam = request.getParameter("seriesId");
+        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
 
-
-        int seriesId = ValidationInput.isPositiveInteger(seriesIdParam) ? Integer.parseInt(seriesIdParam) : 1;
-
-        String chapterNumberParam = request.getParameter("chapterNumber");
-        int chapterNumber = ValidationInput.isPositiveInteger(chapterNumberParam) ? Integer.parseInt(chapterNumberParam) : 1;
+        int chapterNumber = ValidationInput.isPositiveInteger(request.getParameter("chapterNumber")) ? Integer.parseInt(request.getParameter("chapterNumber")) : 1;
         String action = request.getParameter("action");
 
         try {
-            String redirectUrl = getRedirectUrl(action, seriesId, chapterNumber);
+            String redirectUrl = ChapterServices.getRedirectUrl(action, seriesId, chapterNumber);
             response.sendRedirect(redirectUrl);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static String getRedirectUrl(String action, int seriesId, int chapterNumber) throws SQLException, ClassNotFoundException {
-        Chapter chapter = new Chapter();
-        ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
-        if (action.equals("next")) {
-            chapter = chapterDAO.getNextChapter(seriesId, chapterNumber);
-        } else if (action.equals("previous")){
-             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
-        }
-        return String.format("chapter-content?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
 }

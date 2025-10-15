@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
+import services.account.UserServices;
+import services.general.BadgesServices;
 import services.series.SeriesServices;
 import utils.ValidationInput;
 
@@ -22,29 +24,21 @@ import java.util.List;
 public class AuthorProfileServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String authorIdParam = request.getParameter("authorId");
-
-        int authorId = ValidationInput.isPositiveInteger(authorIdParam) ? Integer.parseInt(authorIdParam) : 0;
-
+        int authorId = ValidationInput.isPositiveInteger(request.getParameter("authorId")) ? Integer.parseInt(request.getParameter("authorId")) : 0;
         try {
-            Connection connection = DBConnection.getConnection();
-            UserDAO userDAO = new UserDAO(connection);
-            SeriesDAO seriesDAO = new SeriesDAO(connection);
-            BadgesUserDAO badgesUserDAO = new BadgesUserDAO(connection);
+            SeriesServices seriesServices = new SeriesServices();
+            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.seriesFromAuthor(authorId);
 
-            SeriesServices seriesServices = new SeriesServices(connection);
-            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(authorId));
-
-            AuthorServices authorServices = new AuthorServices(connection);
+            AuthorServices authorServices = new AuthorServices();
             authorServices.extractDataFromAuthorId(seriesInfoDTOList,request);
 
-            User user = userDAO.findById(authorId);
-            List<Badge> badgeList = badgesUserDAO.getBadgesByUserId(authorId);
+            BadgesServices badgesServices = new BadgesServices();
+            UserServices userServices = new UserServices();
 
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
             request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
-            request.setAttribute("user", user);
-            request.setAttribute("badgeList", badgeList);
+            request.setAttribute("user", userServices.getUser(authorId));
+            request.setAttribute("badgeList", badgesServices.badgeListFromUser(authorId));
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
