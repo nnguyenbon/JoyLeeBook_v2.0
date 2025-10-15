@@ -17,6 +17,7 @@ import java.util.List;
 
 public class AuthorServices {
     private final Connection connection;
+
     public AuthorServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
     }

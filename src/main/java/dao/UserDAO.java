@@ -147,46 +147,6 @@ public class UserDAO {
             return rowsAffected > 0;
         }
     }
-    /**
-     * Find user by username for authentication
-     *
-     * @return User object or null if not found
-     */
-    public User findByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
-        User user = null;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    user = new User();
-                    user.setUserId(rs.getInt("user_id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setEmail(rs.getString("email"));
-                    user.setRole(rs.getString("role"));
-                    // Set other user properties as needed
-                }
-            }
-        }
-        return user;
-    }
-
-    /**
-     * Update user role to 'author' by user ID.
-     *
-     * @param userId The ID of the user to update.
-     * @return true if the update was successful, false otherwise.
-     * @throws SQLException           If a database access error occurs.
-     * @throws ClassNotFoundException If the JDBC driver class is not found.
-     */
-    public boolean updateUserRoleToAuthor(int userId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE Users SET role = 'author' WHERE id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
-        }
-    }
 
     /**
      * Find user by username for authentication
