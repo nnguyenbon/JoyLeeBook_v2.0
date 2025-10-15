@@ -27,7 +27,7 @@
                 <img src="${pageContext.request.contextPath}/img/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
             </div>
             <nav class="">
-                <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
+                <a href="${pageContext.request.contextPath}/staff" class="flex items-center px-4 py-2 hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="lucide lucide-book-open-text-icon lucide-book-open-text">
@@ -41,7 +41,7 @@
                     </svg>
                     <span class="ml-2">Series List</span>
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium">
+                <a href="${pageContext.request.contextPath}/report" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="lucide lucide-octagon-alert-icon lucide-octagon-alert">

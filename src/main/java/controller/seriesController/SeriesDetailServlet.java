@@ -1,9 +1,6 @@
 package controller.seriesController;
 
 import dao.*;
-import db.DBConnection;
-import dto.chapter.ChapterInfoDTO;
-import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,9 +11,8 @@ import services.series.SeriesServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
+
 
 @WebServlet("/series-detail")
 public class SeriesDetailServlet extends HttpServlet {

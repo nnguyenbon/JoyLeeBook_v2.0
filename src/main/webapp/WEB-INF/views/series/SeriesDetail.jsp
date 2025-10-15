@@ -137,7 +137,7 @@
                     <div
                             class="flex justify-between items-center border rounded-lg px-4 mb-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                         <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                        <span class="text-sm text-gray-500">${chapter.totalLikes} Likes · ${chapter.updatedAt}</span>
+                        <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
                     </div>
                 </a>
             </c:forEach>
