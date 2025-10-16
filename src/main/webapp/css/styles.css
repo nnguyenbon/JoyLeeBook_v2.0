@@ -79,3 +79,18 @@ img {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
+
+
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
