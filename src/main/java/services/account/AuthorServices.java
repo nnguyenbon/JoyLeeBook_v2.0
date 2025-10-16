@@ -1,5 +1,6 @@
 package services.account;
 
+import db.DBConnection;
 import dao.ChapterDAO;
 import dao.LikeDAO;
 import dao.RatingDAO;
@@ -9,6 +10,7 @@ import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import model.Chapter;
 import model.User;
+import dao.UserDAO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
