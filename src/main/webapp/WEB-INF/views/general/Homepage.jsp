@@ -66,7 +66,7 @@
                         >
                             <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
-                                        src="${hotSeries.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/img/${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
                                         alt="hehe"
                                 />
@@ -142,7 +142,7 @@
                             <!-- Hình ảnh -->
                             <div class="aspect-[3/4] overflow-hidden relative">
                                 <img
-                                        src="${newReleaseSeries.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/img/${newReleaseSeries.coverImgUrl}"
                                         class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                         alt="${newReleaseSeries.title}"
                                 />
@@ -224,7 +224,7 @@
 
                     <div class="aspect-[3/4] overflow-hidden relative">
                         <img
-                                src="${recentlyUpdatedSeries.coverImgUrl}"
+                                src="${pageContext.request.contextPath}/img/${recentlyUpdatedSeries.coverImgUrl}"
                                 class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                 alt="${recentlyUpdatedSeries.title}"
                         />
@@ -307,7 +307,7 @@
                         <!-- Hình ảnh -->
                         <div class="aspect-[3/4] overflow-hidden relative">
                             <img
-                                    src="${completedSeries.coverImgUrl}"
+                                    src="${pageContext.request.contextPath}/img/${completedSeries.coverImgUrl}"
                                     class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                     alt="${completedSeries.title}"
                             />
