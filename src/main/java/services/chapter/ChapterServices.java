@@ -42,7 +42,7 @@ public class ChapterServices {
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             SeriesDAO  seriesDAO  = new SeriesDAO(conn);
-            LikesDAO   likesDAO   = new LikesDAO(conn);
+            LikeDAO likesDAO   = new LikeDAO(conn);
             CommentDAO commentDAO = new CommentDAO(conn);
             SeriesAuthorDAO saDAO = new SeriesAuthorDAO(conn);
 
@@ -98,7 +98,7 @@ public class ChapterServices {
     }
 
     public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter) throws SQLException {
-        LikesDAO   likesDAO   = new LikesDAO(connection);
+        LikeDAO likesDAO   = new LikeDAO(connection);
         ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
         chapterInfoDTO.setChapterId(chapter.getChapterId());
         chapterInfoDTO.setTitle(chapter.getTitle());
@@ -119,7 +119,7 @@ public class ChapterServices {
     public ChapterDetailDTO buildChapterDetailDTO(Chapter chapter) throws SQLException {
         SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(connection);
         SeriesDAO seriesDAO = new SeriesDAO(connection);
-        LikesDAO likesDAO = new LikesDAO(connection);
+        LikeDAO likesDAO = new LikeDAO(connection);
         UserDAO userDAO = new UserDAO(connection);
         ChapterDetailDTO chapterDetailDTO = new ChapterDetailDTO();
         chapterDetailDTO.setSeriesId(chapter.getSeriesId());

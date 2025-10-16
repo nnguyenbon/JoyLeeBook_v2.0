@@ -16,10 +16,10 @@ import java.util.List;
  *
  * @author KToan, HaiDD-dev
  */
-public class LikesDAO {
+public class LikeDAO {
     private final Connection conn;
 
-    public LikesDAO(Connection conn) {
+    public LikeDAO(Connection conn) {
         this.conn = conn;
     }
 

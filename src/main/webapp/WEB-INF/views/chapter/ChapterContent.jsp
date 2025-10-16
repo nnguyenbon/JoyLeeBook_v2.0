@@ -46,16 +46,7 @@
                     <button id="chapterListBtn"
                             class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
                         <span>Chapter ${chapterDetailDTO.chapterNumber}: ${chapterDetailDTO.title}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round" class="lucide lucide-list">
-                            <path d="M3 5h.01" />
-                            <path d="M3 12h.01" />
-                            <path d="M3 19h.01" />
-                            <path d="M8 5h13" />
-                            <path d="M8 12h13" />
-                            <path d="M8 19h13" />
-                        </svg>
+                        <i class="fa-solid fa-list-ul"></i>
                     </button>
 
                     <!-- Dropdown danh sách chương -->
@@ -82,14 +73,8 @@
                     <div class="relative inline-block">
                         <!-- Nút settings -->
                         <button id="settingsBtn"
-                                class="text-gray-600 px-3 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="lucide lucide-settings">
-                                <path
-                                        d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-                                <circle cx="12" cy="12" r="3" />
-                            </svg>
+                                class="text-gray-600 px-2 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                            <i class="fa-solid fa-gear text-2xl"></i>
                         </button>
 
                         <!-- Dropdown menu -->
@@ -133,26 +118,19 @@
                 <!-- Reactions -->
                 <div class="flex items-center gap-5">
                     <button
-                            class="text-gray-600 px-2 py-1  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag">
-                        <path
-                                d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />
-                    </svg></button>
+                            class="text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                        <i class="fa-regular fa-flag"></i></button>
 
                     <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber} of ${chapterInfoDTOList.size()}</p>
-                    <button
-                            class="flex items-center justify-center text-gray-600 gap-2 w-19 px-4 py-1 border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up">
-                            <path d="M7 10v12" />
-                            <path
-                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
-                        </svg>
-                        <span>${chapterDetailDTO.totalLike}</span>
+                    <button id="likeBtn"
+                            class="like-btn flex items-center justify-center gap-5 w-19 px-2 py-1 border rounded-full transition-all duration-200
+                             text-gray-600 hover:bg-[#195DA9] hover:text-white"
+                            data-user-id="${10}"
+                            data-chapter-id="${chapterDetailDTO.chapterId}">
+                        <i id="like" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart'}"></i>
+                        <span id="likeCount">${chapterDetailDTO.totalLike}</span>
                     </button>
+
                 </div>
                 <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=next">
                     <button class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
@@ -204,13 +182,7 @@
 
                         <div class="relative">
                             <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="lucide lucide-ellipsis">
-                                    <circle cx="12" cy="12" r="1" />
-                                    <circle cx="19" cy="12" r="1" />
-                                    <circle cx="5" cy="12" r="1" />
-                                </svg>
+                                <i class="fa-solid fa-ellipsis"></i>
                             </button>
 
                             <div
@@ -236,23 +208,6 @@
                     </div>
                 </c:forEach>
             </div>
-
-            <script>
-                document.querySelectorAll('.dropdown-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Ngăn việc click lan ra ngoài
-                        const menu = btn.nextElementSibling; // Tìm menu liền sau button
-                        document.querySelectorAll('.dropdown-menu').forEach(m => {
-                            if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
-                        });
-                        menu.classList.toggle('hidden');
-                    });
-                });
-
-                window.addEventListener('click', () => {
-                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
-                });
-            </script>
 
             <div class="text-center">
                 <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
@@ -378,6 +333,64 @@
         if (!btn.contains(e.target) && !list.contains(e.target)) {
             list.classList.add("hidden");
         }
+    });
+
+
+</script>
+<script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+        const likeBtn = document.getElementById("likeBtn");
+
+        likeBtn.addEventListener("click", function() {
+        // Nếu người dùng đã like rồi thì không cho click nữa
+        if (likeBtn.classList.contains("liked")) return;
+
+        const userId = likeBtn.dataset.userId;
+        const chapterId = likeBtn.dataset.chapterId;
+        const icon = likeBtn.querySelector("i");
+        const likeCount = likeBtn.querySelector("span");
+
+        // Gửi yêu cầu đến server
+        fetch("like-chapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "userId=" + encodeURIComponent(userId) +
+        "&chapterId=" + encodeURIComponent(chapterId)
+    })
+        .then(response => response.json())
+        .then(data => {
+        if (data.success && data.liked) {
+        // Cập nhật giao diện
+        likeBtn.classList.add("liked");
+        likeCount.textContent = data.newLikeCount;
+
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid", "text-red-500");
+
+        // Chặn click tiếp
+        likeBtn.disabled = true;
+    }
+    })
+        .catch(error => console.error("Error:", error));
+    });
+    });
+
+</script>
+<script>
+    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Ngăn việc click lan ra ngoài
+            const menu = btn.nextElementSibling; // Tìm menu liền sau button
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+            });
+            menu.classList.toggle('hidden');
+        });
+    });
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
 </script>
 
