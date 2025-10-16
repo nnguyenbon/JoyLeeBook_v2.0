@@ -8,29 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-            rel="stylesheet" />
-
-    <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen justify-center">
-<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
-<div class="w-[900px] mt-10">
+<div class=" mt-10">
     <!-- Tabs -->
     <div class="flex border-b border-gray-300 mb-6">
         <button id="tab-saved"
@@ -50,13 +28,12 @@
             <a href="${pageContext.request.contextPath}/series-detail?seriesId=${series.seriesId}">
                 <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <!-- Bookmark Remove Icon -->
-                    <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition" title="Remove from saved">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M5 5l14 14M5 19V5a2 2 0 012-2h10a2 2 0 012 2v14l-7-3-7 3z" />
-                        </svg>
-                    </button>
+                    <form action="${pageContext.request.contextPath}/Library" method="post">
+                        <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition"
+                                type="submit" title="Remove from saved">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
 
                     <!-- Content -->
                     <img src="${series.coverImgUrl}" alt="cover" class="w-24 h-32 object-cover rounded-md">
@@ -115,13 +92,11 @@
                         <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.chapterTitle}</p>
                     </div>
                     <div class="text-sm text-gray-500">${chapter.lastReadAtFormatted}</div>
-                    <button class="ml-4 text-gray-400 hover:text-red-500" title="Delete">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                             class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M6 7h12M9 7v10m6-10v10M4 7h16l-1 13a2 2 0 01-2 2H7a2 2 0 01-2-2L4 7zM9 4h6a1 1 0 011 1v1H8V5a1 1 0 011-1z" />
-                        </svg>
-                    </button>
+                    <form action="${pageContext.request.contextPath}/Library" method="post">
+                        <button class="ml-4 text-gray-400 hover:text-red-500" type="submit" title="Delete">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
                 </div>
             </a>
         </c:forEach>
@@ -132,7 +107,8 @@
         <button class="px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-600 hover:bg-gray-200">
             Load more stories
         </button>
-        <p class="text-xs text-gray-500 mt-2">You are seeing ${savedSeries.size()} of ${savedSeries.size()}.</p> <%-- Phần này chưa phân ra của saved và history + chưa phân trang--%>
+        <p class="text-xs text-gray-500 mt-2">You are seeing ${savedSeries.size()}
+            of ${savedSeries.size()}.</p> <%-- Phần này chưa phân ra của saved và history + chưa phân trang--%>
     </div>
 </div>
 
@@ -160,7 +136,3 @@
         contentHistory.classList.remove('hidden');
     });
 </script>
-
-</body>
-
-</html>
