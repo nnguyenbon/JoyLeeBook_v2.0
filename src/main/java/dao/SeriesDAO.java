@@ -377,7 +377,7 @@ public class SeriesDAO {
         s.setTitle(rs.getString("title"));
         s.setDescription(rs.getString("description"));
 
-        s.setCoverImgUrl("img/thenewkidinschool.png");
+        s.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
         s.setStatus(rs.getString("status"));
         s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());

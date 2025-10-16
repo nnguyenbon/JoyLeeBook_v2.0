@@ -1,7 +1,7 @@
 package services.account;
 
 import dao.ChapterDAO;
-import dao.LikesDAO;
+import dao.LikeDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
 import dto.author.AuthorItemDTO;
@@ -24,7 +24,7 @@ public class AuthorServices {
 
     public void extractDataFromAuthorId(List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
         try {
-            LikesDAO likesDAO = new LikesDAO(connection);
+            LikeDAO likesDAO = new LikeDAO(connection);
             RatingDAO ratingDAO = new RatingDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
             int totalLike = 0;
