@@ -113,7 +113,7 @@
 
 <!-- dialog for edit profile -->
 <dialog closedby="any" id="editProfileDialog">
-    <form action="" method="post">
+    <form action="${pageContext.request.contextPath}/profile" method="post">
         <div class="min-w-3xl px-4">
             <p class="font-semibold text-xl">Edit Profile</p>
             <div class="flex py-6">
@@ -188,7 +188,7 @@
 </dialog>
 
 <dialog closedby="any" id="changePasswordDialog">
-    <form action="" method="post">
+    <form action="${pageContext.request.contextPath}/change-password"  method="post">
         <div class="min-w-md">
             <p class="font-semibold text-xl">Edit Profile</p>
 
@@ -261,6 +261,13 @@
     </form>
 </dialog>
 
+<c:if test="${not empty message}">
+    <script>
+        alert("${message}")
+        <c:remove var="message" scope="session"/>
+    </script>
+</c:if>
+
 <script>
     const editProfileButton = document.getElementById('editProfile');
     const changePasswordButton = document.getElementById('changePassword');
@@ -270,10 +277,6 @@
     const changePasswordDialog = document.getElementById(
         'changePasswordDialog'
     );
-
-    const avatarInput = document.getElementById('avatar');
-    const avatarPreview = document.getElementById('avatar-preview');
-
     editProfileButton.addEventListener('click', () => {
         editProfileDialog.showModal();
     });
@@ -289,20 +292,6 @@
         });
     });
 
-    avatarInput.addEventListener('change', function (event) {
-        if (event.target.files && event.target.files[0]) {
-            const file = event.target.files[0];
-
-            const objectURL = URL.createObjectURL(file);
-
-            avatarPreview.src = objectURL;
-
-            avatarPreview.onload = function () {
-                URL.revokeObjectURL(objectURL);
-            };
-        }
-    });
-
     function togglePassword(iconElement, id) {
         const inputElement = document.getElementById(id);
         iconElement.classList.toggle('fa-eye-slash');
@@ -314,4 +303,6 @@
             inputElement.type = 'password';
         }
     }
+
+
 </script>
