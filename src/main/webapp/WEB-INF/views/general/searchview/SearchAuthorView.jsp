@@ -1,6 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <div class="col-span-8 col-start-5">
     <p class="text-sm text-gray-500">${authorItemDTOList.size()} results</p>
 </div>
