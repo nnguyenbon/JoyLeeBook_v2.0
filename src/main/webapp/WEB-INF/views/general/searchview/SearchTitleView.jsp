@@ -1,9 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<div class="grid grid-cols-12 gap-6">
+<div class="grid grid-cols-12 gap-6 mt-4">
     <!-- FILTER -->
-    <div class="col-span-4 bg-white rounded-xl shadow p-5">
+    <div class="col-span-4 bg-white rounded-xl shadow p-4 h-fit">
         <h2 class="text-xl font-semibold mb-4">Filter</h2>
         <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>
 

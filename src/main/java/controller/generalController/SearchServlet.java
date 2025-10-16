@@ -44,7 +44,10 @@ public class SearchServlet extends HttpServlet {
             request.setAttribute("genresParam", searchServices.extractParameters(genresParam));
             request.setAttribute("searchType", searchType != null ? searchType : "title");
             request.setAttribute("keyword", keyword);
-            request.getRequestDispatcher("/WEB-INF/views/general/SearchPage.jsp").forward(request, response);
+
+            request.setAttribute("pageTitle", "Search " + (searchType != null ? searchType : "title"));
+            request.setAttribute("contentPage", "/WEB-INF/views/general/SearchPage.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

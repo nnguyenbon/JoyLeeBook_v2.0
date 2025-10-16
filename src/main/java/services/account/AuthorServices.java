@@ -1,16 +1,16 @@
 package services.account;
 
+import db.DBConnection;
 import dao.ChapterDAO;
-import dao.LikesDAO;
+import dao.LikeDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
-import db.DBConnection;
-import dao.UserDAO;
 import dto.author.AuthorItemDTO;
 import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import model.Chapter;
 import model.User;
+import dao.UserDAO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -26,7 +26,7 @@ public class AuthorServices {
 
     public void extractDataFromAuthorId(List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
         try {
-            LikesDAO likesDAO = new LikesDAO(connection);
+            LikeDAO likesDAO = new LikeDAO(connection);
             RatingDAO ratingDAO = new RatingDAO(connection);
             ChapterDAO chapterDAO = new ChapterDAO(connection);
             int totalLike = 0;

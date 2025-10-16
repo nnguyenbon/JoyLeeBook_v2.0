@@ -148,6 +148,7 @@ public class UserDAO {
             return rowsAffected > 0;
         }
     }
+
     /**
      * Find user by username for authentication
      *
