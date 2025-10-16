@@ -18,7 +18,7 @@
             Your gateway to endless stories. Discover, read, and connect with
             millions of readers worldwide in the ultimate reading experience.
         </p>
-        <ul class="flex justify-center gap-6 mt-4 opacity-50">
+        <ul class="flex justify-center gap-6 mt-2 opacity-50">
             <li class="size-6">
                 <i class="fa-brands fa-twitter"></i>
             </li>
@@ -32,7 +32,7 @@
                 <i class="fa-solid fa-envelope"></i>
             </li>
         </ul>
-        <p class="pt-1 pb-2 text-neutral-600 border-t mt-4">
+        <p class="pt-1 pb-2 text-neutral-600 border-t mt-2">
             &copy; 2024 JoyLeeBook. All rights reserved.
         </p>
     </div>
