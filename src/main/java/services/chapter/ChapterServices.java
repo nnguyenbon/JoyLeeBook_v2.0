@@ -6,6 +6,7 @@ import dto.chapter.ChapterDetailDTO;
 import dto.chapter.ChapterInfoDTO;
 import dto.chapter.ChapterItemDTO;
 import dto.chapter.ChapterViewDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import model.Chapter;
 import model.Series;
 import services.general.FormatServices;
@@ -171,4 +172,16 @@ public class ChapterServices {
         }
         return String.format("chapter-content?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
+
+//    public boolean insertChapter(HttpServletRequest request) throws SQLException, ClassNotFoundException {
+//        String chapterNumber = request.getParameter("chapterNumber");
+//        String seriesId = request.getParameter("seriesId");
+//        String authorId = request.getParameter("authorId");
+//
+//
+//        Chapter chapter = new Chapter();
+//        chapter.setChapterNumber(chapterNumber);
+//        ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
+//        return chapterDAO.insert(chapter, seriesId,authorId)
+//    }
 }
