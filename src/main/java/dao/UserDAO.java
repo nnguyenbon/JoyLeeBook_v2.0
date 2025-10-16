@@ -34,6 +34,7 @@ public class UserDAO {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println(mapResultSetToUser(rs).getUsername());
                     return mapResultSetToUser(rs);
                 }
             }
