@@ -36,15 +36,22 @@ public class ChapterContentServlet extends HttpServlet {
             String chapterIdParam = request.getParameter("chapterId");
             int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
 
+
             request.setAttribute("chapterDetailDTO", chapterServices.buildChapterDetailDTO(chapterId));
             request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
             request.setAttribute("commentDetailDTOList", commentServices.commentsFromChapter(chapterId));
             request.setAttribute("liked", likeService.hasUserLiked(userId, chapterId));
             request.setAttribute("pageTitle","Chapter Content");
             request.setAttribute("contentPage", "/WEB-INF/views/chapter/ChapterContent.jsp");
+            request.setAttribute("seriesId", seriesId);
+            request.setAttribute("chapterId", chapterId);
+            System.out.println("ChapterId = " + chapterId);
+            System.out.println("SeriesId = " + seriesId);
+
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        request.getRequestDispatcher("WEB-INF/views/chapter/ChapterContent.jsp").forward(request, response);
     }
 }

@@ -51,7 +51,7 @@ public class CommentServices {
 
         int chapterId;
         try {
-            chapterId = Integer.parseInt(chapterIdParam);
+            chapterId = Integer.parseInt(chapterIdParam.trim());
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid chapter ID");
         }
@@ -70,6 +70,54 @@ public class CommentServices {
                 throw new SQLException("Failed to insert comment into database.");
             }
             return comment;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while creating comment", e);
+        }
+    }
+
+    public Comment editComment(int userId, String commentId, String content) {
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("Content cannot be empty.");
+        }
+        if (commentId == null || !commentId.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid comment ID.");
+        }
+
+        int commentIdParam = Integer.parseInt(commentId);
+
+        Comment comment = new Comment();
+        comment.setCommentId(commentIdParam);
+        comment.setUserId(userId);
+        comment.setContent(content);
+        comment.setUpdatedAt(LocalDateTime.now());
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setUpdatedAt(LocalDateTime.now());
+
+        try {
+            boolean success = commentDAO.update(comment);
+            if (!success) {
+                throw new SQLException("Failed to update comment into database.");
+            }
+            return comment;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while editing comment", e);
+        }
+    }
+
+    public void deleteComment(int userId, String commentId) {
+        if (commentId == null || !commentId.matches("\\d+")) {
+            throw new IllegalArgumentException("Invalid comment ID.");
+        }
+
+        int commentIdParam = Integer.parseInt(commentId);
+
+        try {
+            boolean success = commentDAO.softDelete(commentIdParam);
+            if (!success) {
+                throw new SQLException("Failed to insert comment into database.");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Database error while creating comment", e);
