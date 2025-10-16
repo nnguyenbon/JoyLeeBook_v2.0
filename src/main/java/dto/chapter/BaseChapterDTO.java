@@ -1,22 +1,17 @@
 package dto.chapter;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.time.ZoneId;
-
 public class BaseChapterDTO {
     private int chapterId;
     private int chapterNumber;
     private String title;
     private String status;
-    private LocalDateTime updatedAt;
+    private String updatedAt;
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
@@ -50,9 +45,5 @@ public class BaseChapterDTO {
 
     public void setChapterId(int chapterId) {
         this.chapterId = chapterId;
-    }
-
-    public Date getUpdatedAtAsDate() {
-        return updatedAt != null ? Date.from(updatedAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
     }
 }

@@ -15,17 +15,37 @@ public class ChapterItemDTO extends BaseChapterDTO{
     private int seriesId;
     private String seriesTitle;
     private String coverImgUrl;
-    private LocalDateTime lastReadAt;
+    private String lastReadAt;
 
-    public Date getLastReadAtAsDate() {
-        return lastReadAt != null ? Date.from(lastReadAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
+    public String getSeriesTitle() {
+        return seriesTitle;
     }
 
-
-    public String getLastReadAtFormatted() {
-        return lastReadAt != null
-                ? lastReadAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                : "";
+    public void setSeriesTitle(String seriesTitle) {
+        this.seriesTitle = seriesTitle;
     }
 
+    public int getSeriesId() {
+        return seriesId;
+    }
+
+    public void setSeriesId(int seriesId) {
+        this.seriesId = seriesId;
+    }
+
+    public String getCoverImgUrl() {
+        return coverImgUrl;
+    }
+
+    public void setCoverImgUrl(String coverImgUrl) {
+        this.coverImgUrl = coverImgUrl;
+    }
+
+    public String getLastReadAt() {
+        return lastReadAt;
+    }
+
+    public void setLastReadAt(String lastReadAt) {
+        this.lastReadAt = lastReadAt;
+    }
 }

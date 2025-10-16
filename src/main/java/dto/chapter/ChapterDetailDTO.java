@@ -10,6 +10,15 @@ public class ChapterDetailDTO extends BaseChapterDTO{
     private int totalLike;
     private int userId;
     private String createdAt;
+    private String action;
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
 
     public String getCreatedAt() {
         return createdAt;

@@ -43,7 +43,7 @@ public class SeriesServices {
         dto.setSeriesId(series.getSeriesId());
         dto.setTitle(series.getTitle());
         dto.setDescription(series.getDescription());
-        dto.setCoverImgUrl(series.getCoverImgUrl());
+        dto.setCoverImgUrl("img/" + series.getCoverImgUrl());
         dto.setStatus(FormatServices.formatString(series.getStatus()));
         dto.setUpdatedAt(FormatServices.formatDate(series.getUpdatedAt()));
 
