@@ -1,0 +1,125 @@
+[33mb9fda0b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mBN[m[33m)[m fix
+[33mfdd0866[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #23 from nnguyenbon/BN
+[33m7ecbccc[m[33m ([m[1;31morigin/BN[m[33m, [m[1;32mmain[m[33m)[m Create BaseChapterDTO
+[33m708ab8d[m Merge pull request #22 from nnguyenbon/KToan
+[33m1ad2579[m[33m ([m[1;31morigin/KToan[m[33m)[m Fix bug in merge branch
+[33m2ed7734[m Fix error logic in load connection of author services
+[33m033849a[m add feature co-authors
+[33mb3e9410[m add feature Register-as-Author
+[33m7e0f15b[m add scroll bar for chapters
+[33m20ddb9e[m Merge pull request #21 from nnguyenbon/KToan
+[33m7037517[m Merge branch 'main' into KToan
+[33m3b8d8b0[m add direct url in sidebar of staff view
+[33m7e8209d[m Add logic load in Report list page, report chapter view and report comment view
+[33m61f8219[m Merge pull request #20 from nnguyenbon/Register-as-Author
+[33m6e47766[m[33m ([m[1;31morigin/Register-as-Author[m[33m)[m Merge branch 'main' into Register-as-Author
+[33m4d4508b[m Merge pull request #19 from nnguyenbon/co-authors
+[33m5dddd84[m[33m ([m[1;31morigin/co-authors[m[33m)[m add feature co-authors
+[33m1b0703e[m Merge pull request #18 from nnguyenbon/KToan
+[33mff12660[m[33m ([m[1;31morigin/DuyPhuc[m[33m)[m Update structure, connection pool, remove unused class, duplicate code
+[33m9fe81e2[m add feature Register-as-Author
+[33m4641321[m fixing width overflow
+[33m346419c[m Update way to code based on services class
+[33m98117e3[m add scroll bar for chapters
+[33m6e1aaf0[m add style for scrollbar
+[33m4435419[m and css for section hot series
+[33m58f4154[m replace cover_url_image of series for testing
+[33md0cc8c3[m replace the url for local database
+[33mded594a[m Add logic load data in chapter content for staff, add url to redirect
+[33m89ee1fe[m Merge pull request #16 from nnguyenbon/KToan
+[33mee419e6[m Merge branch 'main' into KToan
+[33m0903cae[m Add logic load data for genre list, series detail for staff, fix bug logic in pagination
+[33mc79eb04[m update url for DBconnection
+[33m3fb6df6[m Using AJAX to load staff page with two options series or chapter
+[33m0100d78[m Add url profile, renamed MyProfile page, fix logic load status
+[33m47d4923[m Add logic load img for libray
+[33mae9805f[m Merge pull request #15 from nnguyenbon/KToan
+[33m07bb0a3[m Fix logic status
+[33mcbe811f[m Merge pull request #14 from nnguyenbon/KToan
+[33m40450fd[m Config homepage, staff dashboard
+[33m1c1e4db[m Update logic direct JSP, add logic filter by genres and status
+[33ma3b0f3f[m Upload JSP file, way to load date
+[33mfd498e5[m add layout test
+[33m63b2909[m move myProfile to folder profile
+[33mb66b476[m Clean code, remove warning, unified code format
+[33mca5c9cd[m Complete filter in search page, fix logic css
+[33m97705b5[m WIP: Save local progress before pulling DuyPhuc
+[33m04e8a23[m add layout test
+[33ma874f5f[m Connect _header and _footer to homepage.jsp
+[33m1537bd8[m move myProfile to folder profile
+[33m5e39f47[m Ignore node_modules folder
+[33m001359a[m Clean code, remove warning, unified code format
+[33m7a3b47e[m Complete filter in search page, fix logic css
+[33m1795c59[m WIP: Save local progress before pulling DuyPhuc
+[33mfa28efa[m add layout test
+[33m19384da[m Connect _header and _footer to homepage.jsp
+[33m090adc6[m move myProfile to folder profile
+[33mcc646f8[m add myProfile view
+[33m4be2b3d[m Clean code, remove warning, unified code format
+[33m216c7da[m Complete filter in search page, fix logic css
+[33m44a07a4[m Merge branch 'DuyPhuc' of https://github.com/nnguyenbon/JoyLeeBook_v2.0 into KToan
+[33md7f45d2[m WIP: Save local progress before pulling DuyPhuc
+[33mcee314e[m Merge pull request #13 from nnguyenbon/KToan
+[33mbf44058[m Add service for series, optimize code, update logic direct page
+[33m182add9[m Add logic load data for library
+[33m7e9d63a[m fixing slide and logo homepage
+[33mfcd4a7f[m Merge pull request #11 from nnguyenbon/KToan
+[33mdff7267[m Add logic load data in search page by AJAX, update view author profile, add more dto, fix logic display
+[33m77f2cb2[m Merge pull request #10 from nnguyenbon/KToan
+[33m4145e26[m Remove duplicate class in JSP
+[33md134f23[m Add logic load date AuthorProfile page, add search title and author page with controller for these
+[33mf82ceb4[m Merge pull request #9 from nnguyenbon/KToan
+[33mb6da2fd[m Add logic load data chapter content, navigate chapter logic, fix bug can't redirect another page in series details
+[33mace22c7[m Merge pull request #8 from nnguyenbon/KToan
+[33mc107e0f[m Add logic add data for series detail page
+[33mf135929[m pull from main and update dbconnection
+[33m2418903[m Merge branch 'main' of https://github.com/nnguyenbon/JoyLeeBook_v2.0 into DuyPhuc
+[33mc59dfd3[m fix login button
+[33m3c51532[m Merge branch 'Trunguyen' of https://github.com/nnguyenbon/JoyLeeBook_v2.0 into KToan
+[33m3af1a83[m Merge pull request #7 from nnguyenbon/KToan
+[33m1e5416c[m Optimize logic, style display
+[33mfee401b[m add SeriesDetailForStaff.html
+[33m3bb384a[m Merge pull request #6 from nnguyenbon/KToan
+[33mca0d46d[m Add dynamic header to homepage
+[33mf42f745[m Merge branch 'DuyPhuc' of https://github.com/nnguyenbon/JoyLeeBook_v2.0 into KToan
+[33md7ffa2b[m Add logic load data for homepage
+[33m7b355b1[m add genres.html, chapterReview.html, modify seriesListforStaff
+[33m488f61d[m add logo2.png add seriesListforStaff.html
+[33md27e312[m Clear commit
+[33m8b7f8e8[m Merge pull request #5 from nnguyenbon/KToan
+[33me04c8e9[m Add connection for project
+[33m0379a39[m add file ChapterContent.html
+[33md973fa7[m Merge pull request #4 from nnguyenbon/Trunguyen
+[33m5ceed1c[m Merge pull request #3 from nnguyenbon/BNguyen
+[33mc3fe4f9[m[33m ([m[1;31morigin/BNguyen[m[33m, [m[1;32mBNguyen[m[33m)[m Add Library View
+[33m18ffa3a[m Merge pull request #2 from nnguyenbon/HaiDD-dev
+[33m77198e5[m update UI add-chapter.jsp
+[33m608e84e[m add feature Delete Chapter
+[33m808aed9[m add feature Update Chapter
+[33mde613e0[m add some folder
+[33mea52b13[m add _header.jsp
+[33mcf215a9[m add toggleIndicator function
+[33md15b9e2[m add some style for home page
+[33m9b1af5d[m add view home page
+[33mf1754d8[m add file SeriesDetail.html
+[33m24fb77e[m rewrite according to the structure
+[33me575c9d[m rewrite according to the structure
+[33m1045ac1[m rewrite according to the structure
+[33m808f178[m add feature View Chapter
+[33m432f490[m add feature Add Chapter
+[33mce3a4e6[m fix Series model and DAO Add isUserAuthorOfSeries method to SeriesAuthorDAO
+[33m3f9b649[m Update model class based on new DB, add PointHistory model and dao
+[33m339f71f[m Delete src/main/java/db/DBConnection.java
+[33ma4e8c9a[m View My Chapter List feature
+[33m1bea1ae[m Update StaffDAO.java
+[33m9f1c773[m Update UserDAO.java
+[33m111f585[m Update StaffDAO.java
+[33macfc58d[m add Header2.html test header
+[33mcea22e9[m Merge pull request #1 from nnguyenbon/KToan
+[33m7894d38[m Update IntelliJ config and add gitignore
+[33mb258c35[m Add more function for class SeriesDAO
+[33md4de749[m Add findByName for Staff, User, Series; add selectTopPoints for User, Series
+[33m20ab5c6[m Add model class and DAO class following model
+[33m81f649a[m Add 17 model class and DAO class following model
+[33m7471fab[m add first look
+[33mf214300[m first commit

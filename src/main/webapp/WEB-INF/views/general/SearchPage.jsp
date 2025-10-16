@@ -8,30 +8,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Search Page</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
-    <link
-            rel="stylesheet"
-            href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link
-            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-            rel="stylesheet"/>
-</head>
-
-<body>
-<jsp:include page="/WEB-INF/views/components/_header.jsp"/>
 <!-- Content -->
-<main class="main max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-x-[30px]">
+<main class="mt-10 grid grid-cols-12 gap-x-8">
     <div class="col-span-12 border-b-1 border-gray-300 flex items-center">
         <button id="btn-title" class="tab-btn font-bold text-2xl px-4" onclick="loadResults('title')">Series</button>
         <button id="btn-author" class="tab-btn font-bold text-2xl px-4" onclick="loadResults('author')">Author</button>
@@ -163,5 +142,3 @@
         }
     });
 </script>
-</body>
-</html>

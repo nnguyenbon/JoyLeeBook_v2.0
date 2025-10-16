@@ -13,7 +13,7 @@
     <title>
         ${pageTitle}
     </title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
             rel="stylesheet"
             href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
@@ -29,9 +29,9 @@
 <body class="overflow-x-hidden">
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
 <div class="max-w-7xl mx-auto">
-
-    <c:import url="${contentPage}"/>
-
+    <c:if test="${not empty contentPage}">
+        <c:import url="${contentPage}" />
+    </c:if>
 </div>
 <c:import url="/WEB-INF/views/components/_footer.jsp"/>
 

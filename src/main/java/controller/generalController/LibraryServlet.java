@@ -24,7 +24,11 @@ public class LibraryServlet extends HttpServlet {
 
             request.setAttribute("savedSeries", seriesServices.savedSeriesFromUser(userId));
             request.setAttribute("historyChapters", chapterServices.historyChaptersFromUser(userId, 0, Integer.MAX_VALUE, null));
-            request.getRequestDispatcher("/WEB-INF/views/general/Library.jsp").forward(request, response);
+
+            request.setAttribute("pageTitle", "Library");
+            request.setAttribute("contentPage", "/WEB-INF/views/general/Library.jsp");
+
+            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
