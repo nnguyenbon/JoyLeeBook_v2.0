@@ -21,7 +21,13 @@ public class LikeChapterServlet extends HttpServlet {
        try {
             try {
                 LikeService likeService = new LikeService();
-                int newLikeCount = likeService.likeChapter(request);
+
+                int userId = Integer.parseInt(request.getParameter("userId"));
+                int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+                Like like = new Like();
+                like.setUserId(userId);
+                like.setChapterId(chapterId);
+                int newLikeCount = likeService.likeChapter(like);
 
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
