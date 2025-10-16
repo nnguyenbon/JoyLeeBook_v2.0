@@ -8,6 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -164,11 +165,28 @@
 
 
             <!-- Comment box -->
-            <div class="mt-8">
-                    <textarea
-                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            rows="1" placeholder="Write a comment..."></textarea>
-            </div>
+            <form id="commentForm"
+                  action="${pageContext.request.contextPath}/create-comment?seriesId=${seriesId}&chapterId=${chapterId}"
+                  method="post"
+                  class="mt-8 flex items-center gap-2">
+
+                <!-- Hidden khi edit -->
+                <input type="hidden" id="commentId" name="commentId" value="">
+
+                <input type="text" id="commentContent" name="content"
+                       class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                       placeholder="Write a comment..." />
+
+                <button id="commentSubmitBtn" type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 10l9-6 9 6m-9 4v10m0-10L3 10m9 4l9-4" />
+                    </svg>
+                </button>
+            </form>
+
 
             <!-- Comments -->
             <div class="mt-6 space-y-4">
@@ -199,7 +217,20 @@
                                     class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
 
                                 <button
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Report</button>
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onclick="editComment(${comment.commentId}, '${fn:escapeXml(comment.content)}')">
+                                    Edit
+                                </button>
+
+
+                                <a href="${pageContext.request.contextPath}/delete-comment?commentId=${comment.commentId}&seriesId=${seriesId}&chapterId=${chapterId}"
+                                   class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Delete
+                                </a>
+
+                                <button
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onclick="reportComment()">Report</button>
                             </div>
                         </div>
                     </div>
@@ -349,6 +380,34 @@
         }
     });
 </script>
+
+<script>
+    function editComment(commentId, content) {
+        // Gán dữ liệu vào form hiện tại
+        const form = document.getElementById('commentForm');
+        const inputContent = document.getElementById('commentContent');
+        const hiddenId = document.getElementById('commentId');
+        const btn = document.getElementById('commentSubmitBtn');
+
+        // Gán dữ liệu cũ
+        inputContent.value = content;
+        hiddenId.value = commentId;
+
+        // Đổi action form sang edit-comment
+        form.action = form.action.replace('create-comment', 'edit-comment');
+
+        // Đổi màu nút để dễ nhận biết
+        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        btn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+
+        // Đổi placeholder
+        inputContent.placeholder = "Edit your comment...";
+
+        // Khi bấm lại nút, ta quay lại chế độ create (nếu user muốn hủy)
+        inputContent.focus();
+    }
+</script>
+
 
 <!-- <script>
     const settingsBtn = document.getElementById('settingsBtn');

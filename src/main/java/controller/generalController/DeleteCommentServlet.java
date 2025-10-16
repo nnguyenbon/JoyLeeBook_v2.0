@@ -5,33 +5,30 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Comment;
 import services.general.CommentServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("/create-comment")
-public class CreateCommentServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+@WebServlet("/delete-comment")
+public class DeleteCommentServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
         try {
-            String content = request.getParameter("content");
-            String chapterId = request.getParameter("chapterId");
+            String commentId = request.getParameter("commentId");
             String seriesId = request.getParameter("seriesId");
+            String chapterId = request.getParameter("chapterId");
 
-            System.out.println("Content = " + content);
-            System.out.println("ChapterId = " + chapterId);
-            System.out.println("SeriesId = " + seriesId);
-
-            CommentServices commentServices = new CommentServices();
-            commentServices.createComment(1, chapterId, content);
+            CommentServices commentService = new CommentServices();
+            commentService.deleteComment(1, commentId);
 
             response.sendRedirect(request.getContextPath()
                     + "/chapter-content?seriesId=" + seriesId + "&chapterId=" + chapterId);
-        } catch (Exception e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        }}
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        }
     }
 }
