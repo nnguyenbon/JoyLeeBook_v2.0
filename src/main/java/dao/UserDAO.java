@@ -68,11 +68,50 @@ public class UserDAO {
     }
 
     // Cập nhật thông tin user
-    public boolean update(User user) throws SQLException {
+//    public boolean update(User user) throws SQLException {
+//        String sql = """
+//                UPDATE users
+//                SET username = ?, full_name = ?, bio = ?, email = ?, password_hash = ?,
+//                    role = ?, is_verified = ?, is_deleted = ?, status = ?, points = ?, updated_at = ?
+//                WHERE user_id = ? AND is_deleted = 0
+//                """;
+//
+//        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+//            stmt.setString(1, user.getUsername());
+//            stmt.setString(2, user.getFullName());
+//            stmt.setString(3, user.getBio());
+//            stmt.setString(4, user.getEmail());
+//            stmt.setString(5, user.getPasswordHash());
+//            stmt.setString(6, user.getRole());
+//            stmt.setBoolean(7, user.isVerified());
+//            stmt.setBoolean(8, user.isDeleted());
+//            stmt.setString(9, user.getStatus());
+//            stmt.setInt(10, user.getPoints());
+//            stmt.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+//            stmt.setInt(12, user.getUserId());
+//            return stmt.executeUpdate() > 0;
+//        }
+//    }
+
+    public boolean updatePassword(int userId, String password) throws SQLException {
         String sql = """
                 UPDATE users
-                SET username = ?, full_name = ?, bio = ?, email = ?, password_hash = ?, 
-                    role = ?, is_verified = ?, is_deleted = ?, status = ?, points = ?, updated_at = ?
+                SET password_hash = ?, updated_at = ?
+                WHERE user_id = ? AND is_deleted = 0
+                """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, password);
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updateProfile(User user) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET username = ?, full_name = ?, bio = ?, updated_at = ?
                 WHERE user_id = ? AND is_deleted = 0
                 """;
 
@@ -80,18 +119,12 @@ public class UserDAO {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getFullName());
             stmt.setString(3, user.getBio());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getPasswordHash());
-            stmt.setString(6, user.getRole());
-            stmt.setBoolean(7, user.isVerified());
-            stmt.setBoolean(8, user.isDeleted());
-            stmt.setString(9, user.getStatus());
-            stmt.setInt(10, user.getPoints());
-            stmt.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
-            stmt.setInt(12, user.getUserId());
+            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+            stmt.setInt(5, user.getUserId());
             return stmt.executeUpdate() > 0;
         }
     }
+
 
     // Xóa mềm user (chuyển cờ is_deleted = 1)
     public boolean delete(int id) throws SQLException {
