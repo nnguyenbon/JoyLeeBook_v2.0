@@ -11,7 +11,7 @@
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="${pageContext.request.contextPath}/img/${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/>
+        <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->

@@ -98,7 +98,7 @@
                     <li class="w-1/3 text-center">
                         <div class="size-32 mx-auto mb-1 rounded-full overflow-hidden bg-transparent">
                             <img
-                                    src="${pageContext.request.contextPath}/img/Badges/${badge.iconUrl}"
+                                    src="${badge.iconUrl}"
                                     class="w-full h-full object-center"
                                     alt="${user.username}"
                             />

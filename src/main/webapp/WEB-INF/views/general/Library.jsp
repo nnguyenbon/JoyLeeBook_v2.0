@@ -36,7 +36,7 @@
                     </form>
 
                     <!-- Content -->
-                    <img src="${pageContext.request.contextPath}/img/${series.coverImgUrl}" alt="cover" class="w-24 h-32 object-cover rounded-md">
+                    <img src="${series.coverImgUrl}" alt="cover" class="w-24 h-32 object-cover rounded-md">
                     <div class="ml-4 flex-1">
                         <h3 class="font-semibold text-gray-900">${series.title}</h3>
                         <p class="text-sm text-gray-500 mb-1">by
