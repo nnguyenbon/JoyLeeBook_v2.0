@@ -120,13 +120,14 @@ public class ChapterServices {
         SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(connection);
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         LikesDAO likesDAO = new LikesDAO(connection);
+        UserDAO userDAO = new UserDAO(connection);
         ChapterDetailDTO chapterDetailDTO = new ChapterDetailDTO();
         chapterDetailDTO.setSeriesId(chapter.getSeriesId());
         chapterDetailDTO.setChapterId(chapter.getChapterId());
         chapterDetailDTO.setTitle(chapter.getTitle());
         chapterDetailDTO.setContent(chapter.getContent());
         chapterDetailDTO.setChapterNumber(chapter.getChapterNumber());
-        chapterDetailDTO.setAuthorsName(seriesAuthorDAO.authorsOfSeries(chapter.getSeriesId()));
+        chapterDetailDTO.setAuthorsName(userDAO.findById(chapter.getUserId()).getUsername());
         chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapterDetailDTO.setTotalLike(likesDAO.countByChapter(chapter.getChapterId()));
         chapterDetailDTO.setStatus(FormatServices.formatString(chapter.getStatus()));

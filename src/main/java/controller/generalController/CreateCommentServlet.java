@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/createComment")
-public class createCommentServlet {
+public class CreateCommentServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;

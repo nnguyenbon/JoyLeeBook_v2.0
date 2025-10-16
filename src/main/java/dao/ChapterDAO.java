@@ -190,10 +190,10 @@ public class ChapterDAO {
                     it.setSeriesId(rs.getInt("series_id"));
                     it.setSeriesTitle(rs.getString("series_title"));
                     it.setChapterNumber(rs.getInt("chapter_number"));
-                    it.setChapterTitle(rs.getString("chapter_title"));
+                    it.setTitle(rs.getString("chapter_title"));
                     it.setStatus(rs.getString("status"));
-                    Timestamp up = rs.getTimestamp("updated_at");
-                    it.setUpdatedAt(up != null ? up.toLocalDateTime() : null);
+                    String up = rs.getString("updated_at");
+                    it.setUpdatedAt(up != null ? up : null);
                     list.add(it);
                 }
                 return list;
@@ -276,13 +276,13 @@ public class ChapterDAO {
                     it.setSeriesId(rs.getInt("series_id"));
                     it.setSeriesTitle(rs.getString("series_title"));
                     it.setChapterNumber(rs.getInt("chapter_number"));
-                    it.setChapterTitle(rs.getString("chapter_title"));
+                    it.setTitle(rs.getString("chapter_title"));
                     it.setStatus(rs.getString("status"));
                     it.setCoverImgUrl(rs.getString("cover_image_url"));
-                    Timestamp up = rs.getTimestamp("updated_at");
-                    it.setUpdatedAt(up != null ? up.toLocalDateTime() : null);
-                    Timestamp lr = rs.getTimestamp("last_read_at");
-                    it.setLastReadAt(lr != null ? lr.toLocalDateTime() : null);
+                    String up = rs.getString("updated_at");
+                    it.setUpdatedAt(up != null ? up : null);
+                    String lr = rs.getString("last_read_at");
+                    it.setLastReadAt(lr != null ? lr : null);
                     list.add(it);
                 }
                 return list;
@@ -603,7 +603,7 @@ public class ChapterDAO {
      * @return number of the latest chapter. If no chapters exist, returns 0.
      */
     public int getFirstChapterNumber(int seriesId) throws SQLException {
-        String sql = "SELECT MIN(chapter_number) FROM chapters WHERE series_id = ?";
+        String sql = "SELECT MIN(chapter_id) FROM chapters WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -626,6 +626,7 @@ public class ChapterDAO {
         chapter.setSeriesId(rs.getInt("series_id"));
         chapter.setChapterId(rs.getInt("chapter_id"));
         chapter.setChapterNumber(rs.getInt("chapter_number"));
+        chapter.setUserId(rs.getInt("user_id"));
         chapter.setTitle(rs.getString("title"));
         chapter.setContent(rs.getString("content"));
         chapter.setStatus(rs.getString("status"));
