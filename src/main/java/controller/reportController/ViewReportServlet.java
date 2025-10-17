@@ -1,4 +1,4 @@
-package controller.generalController;
+package controller.reportController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/report")
-public class ReportServlet extends HttpServlet {
+public class ViewReportServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");

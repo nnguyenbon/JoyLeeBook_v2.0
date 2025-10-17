@@ -1,4 +1,4 @@
-package controller.generalController;
+package controller.reportController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

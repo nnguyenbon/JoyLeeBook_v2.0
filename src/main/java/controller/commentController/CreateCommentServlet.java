@@ -1,4 +1,4 @@
-package controller.generalController;
+package controller.commentController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,7 +9,6 @@ import services.general.CommentServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 @WebServlet("/create-comment")
 public class CreateCommentServlet extends HttpServlet {
