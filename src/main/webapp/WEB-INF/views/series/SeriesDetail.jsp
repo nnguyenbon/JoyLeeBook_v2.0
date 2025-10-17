@@ -64,35 +64,35 @@
                 <span class="font-semibold text-lg">${seriesInfoDTO.totalChapters}</span>
                 Chapters
             </div>
-            <div class="flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center justify-center">
 
-                <div class="text-gray-500 font-semibold text-lg mb-1">
-                    <span class="text-yellow-400">★ ${seriesInfoDTO.avgRating}</span>
-                    <span>(${seriesInfoDTO.countRatings})</span>
+                    <div class="text-gray-500 font-semibold text-lg mb-1">
+                        <span id="avgRatingDisplay" class="text-yellow-400">★ ${seriesInfoDTO.avgRating}</span>
+                        <span id="totalRatingsDisplay">(${seriesInfoDTO.countRatings})</span>
+                    </div>
+
+                    <div id="starRatingContainer" class="flex">
+                        <input type="radio" name="rating" id="star1" value="1" class="hidden"/>
+                        <label for="star1"
+                               class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                        <input type="radio" name="rating" id="star2" value="2" class="hidden"/>
+                        <label for="star2"
+                               class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                        <input type="radio" name="rating" id="star3" value="3" class="hidden"/>
+                        <label for="star3"
+                               class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                        <input type="radio" name="rating" id="star4" value="4" class="hidden"/>
+                        <label for="star4"
+                               class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                        <input type="radio" name="rating" id="star5" value="5" class="hidden"/>
+                        <label for="star5"
+                               class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+                    </div>
                 </div>
-
-                <div id="starRatingContainer" class="flex">
-                    <input type="radio" name="rating" id="star1" value="1" class="hidden"/>
-                    <label for="star1"
-                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                    <input type="radio" name="rating" id="star2" value="2" class="hidden"/>
-                    <label for="star2"
-                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                    <input type="radio" name="rating" id="star3" value="3" class="hidden"/>
-                    <label for="star3"
-                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                    <input type="radio" name="rating" id="star4" value="4" class="hidden"/>
-                    <label for="star4"
-                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-
-                    <input type="radio" name="rating" id="star5" value="5" class="hidden"/>
-                    <label for="star5"
-                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                </div>
-            </div>
         </div>
 
 
@@ -146,54 +146,73 @@
 </main>
 
 
-<!-- ✅ Modal đưa ra ngoài container -->
-<div id="confirmModal"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md relative">
-        <h2 class="text-xl font-semibold mb-4">Confirm Rating</h2>
-        <p id="confirmText" class="mb-6 text-gray-700"></p>
-        <button id="confirmBtn"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            OK
-        </button>
-    </div>
-</div>
-
 <script>
-    const starContainer = document.getElementById('starRatingContainer');
-    const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
-    const labels = starContainer.querySelectorAll('label');
-    const modal = document.getElementById('confirmModal');
-    const confirmText = document.getElementById('confirmText');
-    const confirmBtn = document.getElementById('confirmBtn');
+    const userId = 10;
+    const seriesId = "${seriesInfoDTO.seriesId}";
 
-    let currentRating = 0;
+        const starContainer = document.getElementById('starRatingContainer');
+        const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
+        const labels = starContainer.querySelectorAll('label');
 
-    function colorStars(ratingValue) {
+        let currentRating = ${userRating};
+
+        function colorStars(ratingValue) {
+            labels.forEach((label, index) => {
+                if (index < ratingValue) {
+                    label.classList.add('text-yellow-400');
+                    label.classList.remove('text-gray-400');
+                } else {
+                    label.classList.add('text-gray-400');
+                    label.classList.remove('text-yellow-400');
+                }
+            });
+        }
+
+        //
+        colorStars(currentRating);
+        // Khi hover qua sao
         labels.forEach((label, index) => {
-            if (index < ratingValue) {
-                label.classList.add('text-yellow-400');
-                label.classList.remove('text-gray-400');
-            } else {
-                label.classList.add('text-gray-400');
-                label.classList.remove('text-yellow-400');
-            }
-        });
-    }
+            const ratingValue = index + 1;
 
-    labels.forEach((label, index) => {
-        const ratingValue = index + 1;
-        label.addEventListener('mouseover', () => colorStars(ratingValue));
-        label.addEventListener('click', () => {
-            currentRating = ratingValue;
-            radioButtons[index].checked = true;
-            confirmText.textContent = `You confirm ${currentRating}-star rating?`;
-            modal.classList.remove('hidden');
-        });
-    });
+            label.addEventListener('mouseover', () => colorStars(ratingValue));
 
-    starContainer.addEventListener('mouseout', () => colorStars(currentRating));
-    confirmBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            label.addEventListener('click', () => {
+                currentRating = ratingValue;
+                radioButtons[index].checked = true;
+                colorStars(currentRating);
+
+                // Gửi request
+                fetch("rate-series", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        userId: userId,
+                        seriesId: seriesId,
+                        rating: currentRating
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("⭐ Rating saved:", data.rating);
+
+                            // Cập nhật hiển thị trung bình và tổng
+                            const avgDisplay = document.getElementById("avgRatingDisplay");
+                            const totalDisplay = document.getElementById("totalRatingsDisplay");
+                            if (avgDisplay) avgDisplay.textContent = "★ " + data.avgRating.toFixed(1);
+                            if (totalDisplay) totalDisplay.textContent = "(" + data.totalRatings + ")";
+                        } else {
+                            console.error("❌ Error saving rating!");
+                        }
+                    })
+                    .catch(error => console.error("⚠️ Fetch error:", error));
+            });
+        });
+
+        // Khi rời chuột ra ngoài
+        starContainer.addEventListener('mouseout', () => colorStars(currentRating));
+
+
 
     document.getElementById("saveBtn").addEventListener("click", function() {
         const saveBtn = this;
@@ -226,6 +245,4 @@
             })
             .catch(error => console.error("Error:", error));
     });
-
-
 </script>
