@@ -123,6 +123,14 @@ public class ReadingHistoryDAO {
         }
     }
 
+    public boolean deleteByChapterId(int chapterId) throws SQLException {
+        String sql = "DELETE FROM reading_history WHERE chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     /**
      * Upserts a ReadingHistory record in the database. If a record with the given userId and chapterId exists,
      * it updates the last_read_at timestamp. If it does not exist, it inserts a new record.

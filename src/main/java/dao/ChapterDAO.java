@@ -145,6 +145,15 @@ public class ChapterDAO {
         }
     }
 
+    public boolean deleteBySeriesId(int seriesId) throws SQLException {
+        String sql = "UPDATE chapters SET is_deleted = 1, updated_at = ? WHERE series_id = ? AND is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(2, seriesId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     /**
      * Retrieve a paginated list of chapters authored by a specific user with optional filters.
      * Author mode

@@ -116,11 +116,11 @@ public class CommentServices {
         try {
             boolean success = commentDAO.softDelete(commentIdParam);
             if (!success) {
-                throw new SQLException("Failed to insert comment into database.");
+                throw new SQLException("Failed to delete comment in database.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Database error while creating comment", e);
+            throw new RuntimeException("Database error while delete comment", e);
         }
     }
 }

@@ -74,16 +74,15 @@ public class SeriesDAO {
      * Inserts a new series into the database.
      *
      * @param series   the Series object to insert
-     * @param authorId the ID of the author associated with the series
      * @return true if the insertion was successful, otherwise false
      * @throws SQLException if a database access error occurs
      */
-    public boolean insert(Series series, int authorId) throws SQLException {
+    public boolean insert(Series series) throws SQLException {
         String sql = "INSERT INTO series (title, description, cover_image_url, status, created_at, updated_at, is_deleted, rating_points) VALUES (?, ?, ?, ?, ?, ?, false, 0)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, series.getTitle());
-            ps.setInt(2, authorId);
+            ps.setInt(2, series.getAuthorId());
             ps.setString(3, series.getDescription());
             ps.setString(4, series.getCoverImgUrl());
             ps.setString(5, series.getStatus());
@@ -97,7 +96,7 @@ public class SeriesDAO {
                         series.setSeriesId(rs.getInt(1));
                     }
                     SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-                    SeriesAuthor seriesAuthor = new SeriesAuthor(series.getSeriesId(), authorId, LocalDateTime.now());
+                    SeriesAuthor seriesAuthor = new SeriesAuthor(series.getSeriesId(), series.getAuthorId(), LocalDateTime.now());
                     seriesAuthorDAO.add(seriesAuthor);
                 }
                 return true;

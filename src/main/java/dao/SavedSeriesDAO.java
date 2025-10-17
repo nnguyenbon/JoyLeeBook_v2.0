@@ -84,4 +84,12 @@ public class SavedSeriesDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+
+    public boolean deleteBySeriesId(int seriesId) throws SQLException {
+        String sql = "DELETE FROM saved_series WHERE series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, seriesId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
 }
