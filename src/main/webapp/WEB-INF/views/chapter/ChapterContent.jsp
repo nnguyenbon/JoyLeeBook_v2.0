@@ -29,7 +29,6 @@
 
 <body>
 <jsp:include page="/WEB-INF/views/components/_header.jsp"/>
-<div>${chapterId}</div>
 <main class=" mb-10">
     <div class="max-w-[1290px] mx-auto mt-10 grid grid-cols-12 gap-[30px]">
         <!-- Nội dung chính -->

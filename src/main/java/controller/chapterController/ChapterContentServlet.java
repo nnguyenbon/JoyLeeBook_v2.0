@@ -36,7 +36,7 @@ public class ChapterContentServlet extends HttpServlet {
             String chapterIdParam = request.getParameter("chapterId");
             int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
 
-            request.setAttribute("chapterId", chapterId);
+
             request.setAttribute("chapterDetailDTO", chapterServices.buildChapterDetailDTO(chapterId));
             request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
             request.setAttribute("commentDetailDTOList", commentServices.commentsFromChapter(chapterId));
