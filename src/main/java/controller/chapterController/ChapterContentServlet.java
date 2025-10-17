@@ -48,7 +48,7 @@ public class ChapterContentServlet extends HttpServlet {
             System.out.println("ChapterId = " + chapterId);
             System.out.println("SeriesId = " + seriesId);
 
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+//            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
