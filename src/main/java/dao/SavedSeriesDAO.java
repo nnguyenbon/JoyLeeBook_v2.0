@@ -30,7 +30,7 @@ public class SavedSeriesDAO {
     }
 
     public boolean insert(SavedSeries ss) throws SQLException {
-        String sql = "INSERT INTO saved_series (user_id, series_id, save_at) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO saved_series (user_id, series_id, saved_at) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, ss.getUserId());
             stmt.setInt(2, ss.getSeriesId());
@@ -41,7 +41,7 @@ public class SavedSeriesDAO {
 
     public List<SavedSeries> getAll() throws SQLException {
         List<SavedSeries> list = new ArrayList<>();
-        String sql = "SELECT * FROM saved_series ORDER BY save_at DESC";
+        String sql = "SELECT * FROM saved_series ORDER BY saved_at DESC";
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -53,7 +53,7 @@ public class SavedSeriesDAO {
 
     public List<SavedSeries> getByUserId(int userId) throws SQLException {
         List<SavedSeries> list = new ArrayList<>();
-        String sql = "SELECT * FROM saved_series WHERE user_id = ? ORDER BY save_at DESC";
+        String sql = "SELECT * FROM saved_series WHERE user_id = ? ORDER BY saved_at DESC";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             try (ResultSet rs = stmt.executeQuery()) {

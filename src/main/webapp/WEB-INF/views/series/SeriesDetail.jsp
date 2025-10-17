@@ -105,14 +105,11 @@
             </a>
 
 
-            <button
-                    class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="lucide lucide-bookmark">
-                    <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                </svg>
-                Add to Library
+            <button id="saveBtn"
+                    class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                    data-user-id="10" data-series-id="${seriesInfoDTO.seriesId}">
+                <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
+
             </button>
         </div>
 
@@ -197,4 +194,38 @@
 
     starContainer.addEventListener('mouseout', () => colorStars(currentRating));
     confirmBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+    document.getElementById("saveBtn").addEventListener("click", function() {
+        const saveBtn = this;
+        const saveIcon = saveBtn.querySelector("i");
+
+        const userId = saveBtn.dataset.userId;
+        const seriesId = saveBtn.dataset.seriesId;
+
+        const action = saveBtn.classList.contains("saved") ? "unsave" : "save";
+
+        fetch("save-series", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: "userId=" + encodeURIComponent(userId) +
+                  "&seriesId=" + encodeURIComponent(seriesId) +
+                "&action=" + encodeURIComponent(action)
+
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.saved) {
+                        saveBtn.classList.add("saved");
+                        saveIcon.classList.replace("fa-regular", "fa-solid");
+                    } else {
+                        saveBtn.classList.remove("saved");
+                        saveIcon.classList.replace("fa-solid", "fa-regular");
+                    }
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
+
+
 </script>

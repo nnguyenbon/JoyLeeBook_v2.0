@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import services.chapter.ChapterServices;
+import services.series.SavedSeriesService;
 import services.series.SeriesServices;
 import utils.ValidationInput;
 
@@ -23,9 +24,11 @@ public class SeriesDetailServlet extends HttpServlet {
         try {
             SeriesServices seriesServices = new SeriesServices();
             ChapterServices chapterServices = new ChapterServices();
-
+            SavedSeriesService savedSeriesService = new SavedSeriesService();
+            int userId = 10;
             request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
             request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
+            request.setAttribute("saved", savedSeriesService.hasUserSavedSeries(userId, seriesId) );
             request.setAttribute("pageTitle","Series Detail");
             request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesDetail.jsp");
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
