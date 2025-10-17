@@ -24,6 +24,7 @@
     <link
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
             rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <body>
@@ -118,7 +119,7 @@
                 <!-- Reactions -->
                 <div class="flex items-center gap-5">
                     <button
-                            class="text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                            class="openReportChapterBtn text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
                         <i class="fa-regular fa-flag"></i></button>
 
                     <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber} of ${chapterInfoDTOList.size()}</p>
@@ -141,6 +142,83 @@
             </div>
 
 
+            <!-- Modal Report Chapter -->
+            <div id="reportChapterModal"
+                 class="fixed inset-0 flex items-center justify-center bg-opacity-50 hidden z-50">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+
+                    <!-- Nút đóng -->
+                    <button id="closeReportChapterBtn"
+                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+
+                    <!-- Header -->
+                    <div class="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 4v16m0-12h16l-4 4 4 4H4" />
+                        </svg>
+                        <div>
+                            <h2 class="text-lg font-bold text-red-600">Report Chapter</h2>
+                            <p class="text-sm text-gray-500">Help us maintain a safe community</p>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form action="${pageContext.request.contextPath}/report-chapter?seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                        <input type="hidden" name="chapterId" id="reportChapterId">
+
+                        <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
+
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Inappropriate Content" required>
+                                <span>Inappropriate Content</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Copyright violation">
+                                <span>Copyright violation</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Spam or misleading">
+                                <span>Spam or misleading</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Hate speech">
+                                <span>Hate speech</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Violence content">
+                                <span>Violence content</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Other">
+                                <span>Other</span>
+                            </label>
+                        </div>
+
+                        <label class="font-medium text-gray-700 mb-1 block">
+                            Additional details (optional):
+                        </label>
+                        <textarea name="description"
+                                  placeholder="Please describe the issue briefly..."
+                                  maxlength="300"
+                                  class="w-full border border-blue-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none"
+                                  rows="3"></textarea>
+
+                        <div class="flex justify-end space-x-2 mt-5">
+                            <button type="submit"
+                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                Submit
+                            </button>
+                            <button type="button" id="cancelReportChapterBtn"
+                                    class="px-5 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- Comment box -->
             <form id="commentForm"
@@ -200,13 +278,89 @@
                                     Delete
                                 </a>
 
-                                <button
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onclick="reportComment()">Report</button>
+                                <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        data-comment-id="${comment.commentId}">
+                                    Report</button>
                             </div>
                         </div>
                     </div>
                 </c:forEach>
+            </div>
+
+            <!-- Modal Report -->
+            <div id="reportModal"
+                 class="fixed inset-0 flex items-center justify-center bg-opacity-50 hidden z-50">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+                    <!-- Nút đóng -->
+                    <button id="closeReportBtn"
+                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+
+                    <!-- Header -->
+                    <div class="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 4v16m0-12h16l-4 4 4 4H4" />
+                        </svg>
+                        <div>
+                            <h2 class="text-lg font-bold text-red-600">Report Comment</h2>
+                            <p class="text-sm text-gray-500">Help us maintain a safe community</p>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <form action="${pageContext.request.contextPath}/report-comment?seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                        <input type="hidden" name="commentId" id="reportCommentId">
+                        <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
+
+                        <div class="space-y-2 mb-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Hate Speech/Harassment" required>
+                                <span>Hate Speech/Harassment</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Spam/Misleading Content">
+                                <span>Spam/Misleading Content</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Violence/Threats">
+                                <span>Violence/Threats</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Inappropriate/Explicit Content">
+                                <span>Inappropriate/Explicit Content</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Impersonation">
+                                <span>Impersonation</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="reason" value="Other">
+                                <span>Other</span>
+                            </label>
+                        </div>
+
+                        <label class="font-medium text-gray-700 mb-1 block">
+                            Additional details (optional):
+                        </label>
+                        <textarea name="description"
+                                  placeholder="Please provide more information about the issue..."
+                                  maxlength="300"
+                                  class="w-full border border-blue-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none"
+                                  rows="3"></textarea>
+
+                        <div class="flex justify-end space-x-2 mt-5">
+                            <button type="submit"
+                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                Submit
+                            </button>
+                            <button type="button" id="cancelReportBtn"
+                                    class="px-5 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div class="text-center">
@@ -419,6 +573,42 @@
         // Khi bấm lại nút, ta quay lại chế độ create (nếu user muốn hủy)
         inputContent.focus();
     }
+</script>
+
+<%--Modal Report--%>
+<script>
+        document.querySelectorAll('.openReportCmtBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const commentId = btn.dataset.commentId;
+            document.getElementById('reportCommentId').value = commentId;
+            document.getElementById('reportModal').classList.remove('hidden');
+        });
+    });
+
+        document.getElementById('closeReportBtn').addEventListener('click', () => {
+        document.getElementById('reportModal').classList.add('hidden');
+    });
+        document.getElementById('cancelReportBtn').addEventListener('click', () => {
+        document.getElementById('reportModal').classList.add('hidden');
+    });
+</script>
+
+<%--Report Chapter Modal--%>
+<script>
+    document.querySelectorAll('.openReportChapterBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const chapterId = btn.dataset.chapterId;
+            document.getElementById('reportChapterId').value = chapterId;
+            document.getElementById('reportChapterModal').classList.remove('hidden');
+        });
+    });
+
+    document.getElementById('closeReportChapterBtn').addEventListener('click', () => {
+        document.getElementById('reportChapterModal').classList.add('hidden');
+    });
+    document.getElementById('cancelReportChapterBtn').addEventListener('click', () => {
+        document.getElementById('reportChapterModal').classList.add('hidden');
+    });
 </script>
 
 
