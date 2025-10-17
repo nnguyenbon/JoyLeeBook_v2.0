@@ -65,13 +65,9 @@ public class SearchServices {
             String statusParam = request.getParameter("status");
             String genresParam = request.getParameter("genres");
 
-            List<String> statuses = (statusParam != null && !statusParam.isEmpty())
-                    ? List.of(statusParam.split(","))
-                    : new ArrayList<>();
+            List<String> statuses = extractParameters(statusParam);
 
-            List<String> genres = (genresParam != null && !genresParam.isEmpty())
-                    ? List.of(genresParam.split(","))
-                    : new ArrayList<>();
+            List<String> genres = extractParameters(genresParam);
 
             SearchServices filterServices = new SearchServices();
             List<SeriesInfoDTO> filteredSeries = filterServices.filterSeries(statuses, genres, connection);

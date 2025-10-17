@@ -8,6 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page buffer="32kb" autoFlush="true" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,16 +46,7 @@
                     <button id="chapterListBtn"
                             class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
                         <span>Chapter ${chapterDetailDTO.chapterNumber}: ${chapterDetailDTO.title}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round" class="lucide lucide-list">
-                            <path d="M3 5h.01" />
-                            <path d="M3 12h.01" />
-                            <path d="M3 19h.01" />
-                            <path d="M8 5h13" />
-                            <path d="M8 12h13" />
-                            <path d="M8 19h13" />
-                        </svg>
+                        <i class="fa-solid fa-list-ul"></i>
                     </button>
 
                     <!-- Dropdown danh sách chương -->
@@ -81,14 +73,8 @@
                     <div class="relative inline-block">
                         <!-- Nút settings -->
                         <button id="settingsBtn"
-                                class="text-gray-600 px-3 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="lucide lucide-settings">
-                                <path
-                                        d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
-                                <circle cx="12" cy="12" r="3" />
-                            </svg>
+                                class="text-gray-600 px-2 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                            <i class="fa-solid fa-gear text-2xl"></i>
                         </button>
 
                         <!-- Dropdown menu -->
@@ -132,26 +118,19 @@
                 <!-- Reactions -->
                 <div class="flex items-center gap-5">
                     <button
-                            class="text-gray-600 px-2 py-1  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag">
-                        <path
-                                d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />
-                    </svg></button>
+                            class="text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                        <i class="fa-regular fa-flag"></i></button>
 
                     <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber} of ${chapterInfoDTOList.size()}</p>
-                    <button
-                            class="flex items-center justify-center text-gray-600 gap-2 w-19 px-4 py-1 border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                             stroke-linejoin="round" class="lucide lucide-thumbs-up-icon lucide-thumbs-up">
-                            <path d="M7 10v12" />
-                            <path
-                                    d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
-                        </svg>
-                        <span>${chapterDetailDTO.totalLike}</span>
+                    <button id="likeBtn"
+                            class="like-btn flex items-center justify-center gap-5 w-19 px-2 py-1 border rounded-full transition-all duration-200
+                             text-gray-600 hover:bg-[#195DA9] hover:text-white"
+                            data-user-id="${10}"
+                            data-chapter-id="${chapterDetailDTO.chapterId}">
+                        <i id="like" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart'}"></i>
+                        <span id="likeCount">${chapterDetailDTO.totalLike}</span>
                     </button>
+
                 </div>
                 <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=next">
                     <button class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
@@ -164,11 +143,28 @@
 
 
             <!-- Comment box -->
-            <div class="mt-8">
-                    <textarea
-                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            rows="1" placeholder="Write a comment..."></textarea>
-            </div>
+            <form id="commentForm"
+                  action="${pageContext.request.contextPath}/create-comment?seriesId=${seriesId}&chapterId=${chapterId}"
+                  method="post"
+                  class="mt-8 flex items-center gap-2">
+
+                <!-- Hidden khi edit -->
+                <input type="hidden" id="commentId" name="commentId" value="">
+
+                <input type="text" id="commentContent" name="content"
+                       class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                       placeholder="Write a comment..." />
+
+                <button id="commentSubmitBtn" type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 10l9-6 9 6m-9 4v10m0-10L3 10m9 4l9-4" />
+                    </svg>
+                </button>
+            </form>
+
 
             <!-- Comments -->
             <div class="mt-6 space-y-4">
@@ -186,42 +182,32 @@
 
                         <div class="relative">
                             <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="lucide lucide-ellipsis">
-                                    <circle cx="12" cy="12" r="1" />
-                                    <circle cx="19" cy="12" r="1" />
-                                    <circle cx="5" cy="12" r="1" />
-                                </svg>
+                                <i class="fa-solid fa-ellipsis"></i>
                             </button>
 
                             <div
                                     class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
 
                                 <button
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Report</button>
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onclick="editComment(${comment.commentId}, '${fn:escapeXml(comment.content)}')">
+                                    Edit
+                                </button>
+
+
+                                <a href="${pageContext.request.contextPath}/delete-comment?commentId=${comment.commentId}&seriesId=${seriesId}&chapterId=${chapterId}"
+                                   class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Delete
+                                </a>
+
+                                <button
+                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onclick="reportComment()">Report</button>
                             </div>
                         </div>
                     </div>
                 </c:forEach>
             </div>
-
-            <script>
-                document.querySelectorAll('.dropdown-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Ngăn việc click lan ra ngoài
-                        const menu = btn.nextElementSibling; // Tìm menu liền sau button
-                        document.querySelectorAll('.dropdown-menu').forEach(m => {
-                            if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
-                        });
-                        menu.classList.toggle('hidden');
-                    });
-                });
-
-                window.addEventListener('click', () => {
-                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
-                });
-            </script>
 
             <div class="text-center">
                 <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
@@ -348,7 +334,93 @@
             list.classList.add("hidden");
         }
     });
+
+
 </script>
+<script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+        const likeBtn = document.getElementById("likeBtn");
+
+        likeBtn.addEventListener("click", function() {
+        // Nếu người dùng đã like rồi thì không cho click nữa
+        if (likeBtn.classList.contains("liked")) return;
+
+        const userId = likeBtn.dataset.userId;
+        const chapterId = likeBtn.dataset.chapterId;
+        const icon = likeBtn.querySelector("i");
+        const likeCount = likeBtn.querySelector("span");
+
+        // Gửi yêu cầu đến server
+        fetch("like-chapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "userId=" + encodeURIComponent(userId) +
+        "&chapterId=" + encodeURIComponent(chapterId)
+    })
+        .then(response => response.json())
+        .then(data => {
+        if (data.success && data.liked) {
+        // Cập nhật giao diện
+        likeBtn.classList.add("liked");
+        likeCount.textContent = data.newLikeCount;
+
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid", "text-red-500");
+
+        // Chặn click tiếp
+        likeBtn.disabled = true;
+    }
+    })
+        .catch(error => console.error("Error:", error));
+    });
+    });
+
+</script>
+<script>
+    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Ngăn việc click lan ra ngoài
+            const menu = btn.nextElementSibling; // Tìm menu liền sau button
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+            });
+            menu.classList.toggle('hidden');
+        });
+    });
+
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+    });
+</script>
+
+<script>
+    function editComment(commentId, content) {
+        // Gán dữ liệu vào form hiện tại
+        const form = document.getElementById('commentForm');
+        const inputContent = document.getElementById('commentContent');
+        const hiddenId = document.getElementById('commentId');
+        const btn = document.getElementById('commentSubmitBtn');
+
+        // Gán dữ liệu cũ
+        inputContent.value = content;
+        hiddenId.value = commentId;
+
+        // Đổi action form sang edit-comment
+        form.action = form.action.replace('create-comment', 'edit-comment');
+
+        // Đổi màu nút để dễ nhận biết
+        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        btn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+
+        // Đổi placeholder
+        inputContent.placeholder = "Edit your comment...";
+
+        // Khi bấm lại nút, ta quay lại chế độ create (nếu user muốn hủy)
+        inputContent.focus();
+    }
+</script>
+
 
 <!-- <script>
     const settingsBtn = document.getElementById('settingsBtn');

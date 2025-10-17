@@ -6,27 +6,26 @@ public class Report {
     private int reportId;
     private int reporterId;
     private int staffId;
-    private String type;
-    private int reportTypeId;
+    private int targetId;
+    private String targetType;
     private String reason;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Report(int reportId, int reporterId, int staffId, String type, int reportTypeId, String reason, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Report(int reportId, int reporterId, int staffId, int targetId, String targetType, String reason, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.reportId = reportId;
         this.reporterId = reporterId;
         this.staffId = staffId;
-        this.type = type;
-        this.reportTypeId = reportTypeId;
+        this.targetId = targetId;
+        this.targetType = targetType;
         this.reason = reason;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public Report() {
-    }
+    public Report() {}
 
     public int getReportId() {
         return reportId;
@@ -52,20 +51,21 @@ public class Report {
         this.staffId = staffId;
     }
 
-    public String getType() {
-        return type;
+
+    public int getTargetId() {
+        return targetId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTargetId(int targetId) {
+        this.targetId = targetId;
     }
 
-    public int getReportTypeId() {
-        return reportTypeId;
+    public String getTargetType() {
+        return targetType;
     }
 
-    public void setReportTypeId(int reportTypeId) {
-        this.reportTypeId = reportTypeId;
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
 
     public String getReason() {

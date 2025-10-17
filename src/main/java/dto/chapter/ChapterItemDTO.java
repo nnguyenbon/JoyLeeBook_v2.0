@@ -11,32 +11,18 @@ import java.util.Date;
  *
  * @author HaiDD-dev
  */
-public class ChapterItemDTO {
-    private int chapterId;
+public class ChapterItemDTO extends BaseChapterDTO{
     private int seriesId;
     private String seriesTitle;
-    private int chapterNumber;
-    private String chapterTitle;
-    private String status;
     private String coverImgUrl;
-    private LocalDateTime updatedAt;
-    private LocalDateTime lastReadAt;
+    private String lastReadAt;
 
-    public String getCoverImgUrl() {
-        return coverImgUrl;
+    public String getSeriesTitle() {
+        return seriesTitle;
     }
 
-    public void setCoverImgUrl(String coverImgUrl) {
-        this.coverImgUrl = coverImgUrl;
-    }
-
-    // getters/setters
-    public int getChapterId() {
-        return chapterId;
-    }
-
-    public void setChapterId(int chapterId) {
-        this.chapterId = chapterId;
+    public void setSeriesTitle(String seriesTitle) {
+        this.seriesTitle = seriesTitle;
     }
 
     public int getSeriesId() {
@@ -47,67 +33,19 @@ public class ChapterItemDTO {
         this.seriesId = seriesId;
     }
 
-    public String getSeriesTitle() {
-        return seriesTitle;
+    public String getCoverImgUrl() {
+        return coverImgUrl;
     }
 
-    public void setSeriesTitle(String seriesTitle) {
-        this.seriesTitle = seriesTitle;
+    public void setCoverImgUrl(String coverImgUrl) {
+        this.coverImgUrl = coverImgUrl;
     }
 
-    public int getChapterNumber() {
-        return chapterNumber;
-    }
-
-    public void setChapterNumber(int chapterNumber) {
-        this.chapterNumber = chapterNumber;
-    }
-
-    public String getChapterTitle() {
-        return chapterTitle;
-    }
-
-    public void setChapterTitle(String chapterTitle) {
-        this.chapterTitle = chapterTitle;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getLastReadAt() {
+    public String getLastReadAt() {
         return lastReadAt;
     }
 
-    public void setLastReadAt(LocalDateTime lastReadAt) {
+    public void setLastReadAt(String lastReadAt) {
         this.lastReadAt = lastReadAt;
     }
-
-    public Date getUpdatedAtAsDate() {
-        return updatedAt != null ? Date.from(updatedAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
-    }
-
-    public Date getLastReadAtAsDate() {
-        return lastReadAt != null ? Date.from(lastReadAt.atZone(ZoneId.systemDefault()).toInstant()) : null;
-    }
-
-
-    public String getLastReadAtFormatted() {
-        return lastReadAt != null
-                ? lastReadAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                : "";
-    }
-
 }

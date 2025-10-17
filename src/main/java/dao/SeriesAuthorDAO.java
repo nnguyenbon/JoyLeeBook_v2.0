@@ -1,6 +1,7 @@
 package dao;
 
 import model.SeriesAuthor;
+import model.User;
 
 import java.sql.PreparedStatement;
 
@@ -144,6 +145,62 @@ public class SeriesAuthorDAO {
             }
         }
     }
+
+    /**
+     * Finds all users associated with a given series.
+     *
+     * @param seriesId The ID of the series.
+     * @return A list of User objects.
+     */
+    public List<User> findUsersBySeriesId(int seriesId) throws SQLException {
+        List<User> users = new ArrayList<>();
+        // Assumes a JOIN between SeriesAuthors and Users tables
+        String sql = "SELECT u.* FROM Users u JOIN series_author sa ON u.user_id = sa.user_id WHERE sa.series_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setUserId(rs.getInt("user_id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    users.add(user);
+                }
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Adds an author to a series.
+     *
+     * @param seriesId The ID of the series.
+     * @param userId   The ID of the user to add.
+     */
+    public void addAuthorToSeries(int seriesId, int userId) throws SQLException {
+        String sql = "INSERT INTO series_author (series_id, user_id) VALUES (?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Removes an author from a series.
+     *
+     * @param seriesId The ID of the series.
+     * @param userId   The ID of the user to remove.
+     */
+    public void removeAuthorFromSeries(int seriesId, int userId) throws SQLException {
+        String sql = "DELETE FROM series_author WHERE series_id = ? AND user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     /**
      * Utility method to map a ResultSet row to a SeriesAuthor object.
      *

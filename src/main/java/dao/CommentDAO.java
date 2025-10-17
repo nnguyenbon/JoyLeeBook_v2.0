@@ -91,7 +91,7 @@ public class CommentDAO {
      * @throws SQLException If an SQL error occurs during the insertion
      */
     public boolean insert(Comment cmt) throws SQLException {
-        String sql = "INSERT INTO comments (user_id, chapter_id, content, is_delete, created_at, updated_at) " + "VALUES (?, ?, ?, 0, ?, ?)";
+        String sql = "INSERT INTO comments (user_id, chapter_id, content, is_deleted, created_at, updated_at) " + "VALUES (?, ?, ?, 0, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cmt.getUserId());
             stmt.setInt(2, cmt.getChapterId());
@@ -111,7 +111,7 @@ public class CommentDAO {
      * @throws SQLException If an SQL error occurs during the update
      */
     public boolean update(Comment cmt) throws SQLException {
-        String sql = "UPDATE comments SET content = ?, updated_at = ? WHERE comment_id = ? AND is_delete = 0";
+        String sql = "UPDATE comments SET content = ?, updated_at = ? WHERE comment_id = ? AND is_deleted = 0";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, cmt.getContent());
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
@@ -128,7 +128,7 @@ public class CommentDAO {
      * @throws SQLException If an SQL error occurs during the soft delete
      */
     public boolean softDelete(int commentId) throws SQLException {
-        String sql = "UPDATE comments SET is_delete = 1, updated_at = ? WHERE comment_id = ?";
+        String sql = "UPDATE comments SET is_deleted = 1, updated_at = ? WHERE comment_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             stmt.setInt(2, commentId);

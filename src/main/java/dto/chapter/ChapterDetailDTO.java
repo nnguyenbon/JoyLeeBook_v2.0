@@ -2,26 +2,22 @@ package dto.chapter;
 
 import java.util.List;
 
-public class ChapterDetailDTO {
-    private int chapterId;
+public class ChapterDetailDTO extends BaseChapterDTO{
     private int seriesId;
-    private int chapterNumber;
     private String seriesTitle;
-    private List<String> authorsName;
-    private String title;
+    private String authorsName;
     private String content;
-    private String status;
-    private String action;
-    private String updatedAt;
-    private String createdAt;
     private int totalLike;
+    private int userId;
+    private String createdAt;
+    private String action;
 
-    public String getUpdatedAt() {
-        return updatedAt;
+    public String getAction() {
+        return action;
     }
 
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public String getCreatedAt() {
@@ -32,68 +28,20 @@ public class ChapterDetailDTO {
         this.createdAt = createdAt;
     }
 
-    public String getStatus() {
-        return status;
+    public int getTotalLike() {
+        return totalLike;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setTotalLike(int totalLike) {
+        this.totalLike = totalLike;
     }
 
-    public String getAction() {
-        return action;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public int getSeriesId() {
-        return seriesId;
-    }
-
-    public void setSeriesId(int seriesId) {
-        this.seriesId = seriesId;
-    }
-
-    public int getChapterId() {
-        return chapterId;
-    }
-
-    public void setChapterId(int chapterId) {
-        this.chapterId = chapterId;
-    }
-
-    public int getChapterNumber() {
-        return chapterNumber;
-    }
-
-    public void setChapterNumber(int chapterNumber) {
-        this.chapterNumber = chapterNumber;
-    }
-
-    public String getSeriesTitle() {
-        return seriesTitle;
-    }
-
-    public void setSeriesTitle(String seriesTitle) {
-        this.seriesTitle = seriesTitle;
-    }
-
-    public List<String> getAuthorsName() {
-        return authorsName;
-    }
-
-    public void setAuthorsName(List<String> authorsName) {
-        this.authorsName = authorsName;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getContent() {
@@ -104,11 +52,27 @@ public class ChapterDetailDTO {
         this.content = content;
     }
 
-    public int getTotalLike() {
-        return totalLike;
+    public String getSeriesTitle() {
+        return seriesTitle;
     }
 
-    public void setTotalLike(int totalLike) {
-        this.totalLike = totalLike;
+    public void setSeriesTitle(String seriesTitle) {
+        this.seriesTitle = seriesTitle;
+    }
+
+    public String getAuthorsName() {
+        return authorsName;
+    }
+
+    public void setAuthorsName(String authorsName) {
+        this.authorsName = authorsName;
+    }
+
+    public int getSeriesId() {
+        return seriesId;
+    }
+
+    public void setSeriesId(int seriesId) {
+        this.seriesId = seriesId;
     }
 }
