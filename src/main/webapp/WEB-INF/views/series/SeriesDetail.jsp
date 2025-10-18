@@ -7,15 +7,15 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<main class=" mt-10 grid grid-cols-12 gap-8 items-center">
+<main class="mt-10 grid grid-cols-12 gap-8 items-center">
 
     <!-- Left Image -->
-    <div class="col-span-3 col-start-2">
+    <div class="col-span-2 col-start-4">
         <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
-    <div class="col-span-7 h-full flex flex-col justify-between">
+    <div class="col-span-6 h-full flex flex-col justify-between">
         <h1 class="text-4xl font-bold">${seriesInfoDTO.title}</h1>
 
         <!-- Tác giả -->
@@ -23,7 +23,10 @@
             by
             <span class="font-semibold">
             <c:forEach var="author" items="${seriesInfoDTO.authorsName}" varStatus="loop">
-                ${author}<c:if test="${!loop.last}">, </c:if>
+<%--                <a href="${pageContext.request.contextPath}/author-profile?authorId=${author.authorId}">--%>
+                        ${author}
+<%--                </a>--%>
+                <c:if test="${!loop.last}">, </c:if>
             </c:forEach>
         </span>
         </p>
@@ -118,7 +121,7 @@
     <section class="col-span-12 grid grid-cols-12 gap-8">
         <div class="col-span-10 col-start-2">
             <h2 class="font-semibold text-xl mb-3">Summary</h2>
-            <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700">
+            <div class="border-2 border-gray-500 rounded-lg bg-white p-5 leading-relaxed text-gray-700">
                 ${seriesInfoDTO.description}
             </div>
         </div>
@@ -127,12 +130,12 @@
     <section class="col-span-12 mb-16 grid grid-cols-12 gap-8">
         <div class="col-span-10 col-start-2">
             <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
-            <div class="space-y-3 border-2 border-neutral-400 p-3 rounded-lg  ">
-                <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
+            <div class="space-y-3 border-2 border-gray-500 rounded-lg">
+                <ul class="overflow-y-auto custom-scrollbar max-h-100">
                     <c:forEach var="chapter" items="${chapterInfoDTOList}">
                         <li>
                             <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
-                                <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                                <div class="flex justify-between items-center px-5 py-3 rounded-lg hover:bg-gray-200 cursor-pointer">
                                     <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                     <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
                                 </div>
