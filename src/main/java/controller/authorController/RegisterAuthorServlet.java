@@ -1,6 +1,5 @@
-package controller.author;
+package controller.authorController;
 
-import db.DBConnection;
 import model.User;
 import services.account.AuthorServices;
 
@@ -12,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet(name = "RegisterAuthorServlet", value = "/register-author")
