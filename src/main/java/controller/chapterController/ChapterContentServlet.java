@@ -46,7 +46,6 @@ public class ChapterContentServlet extends HttpServlet {
             request.setAttribute("seriesId", seriesId);
             request.setAttribute("chapterId", chapterId);
 
-//            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

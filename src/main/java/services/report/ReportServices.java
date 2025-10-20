@@ -6,14 +6,12 @@ import dto.category.CategoryInfoDTO;
 import dto.chapter.ChapterDetailDTO;
 import dto.report.ReportChapterDTO;
 import dto.report.ReportCommentDTO;
-import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Chapter;
 import model.Comment;
 import model.Report;
-import services.chapter.ChapterServices;
 import services.general.FormatServices;
 import services.general.PaginationServices;
 
@@ -32,6 +30,7 @@ public class ReportServices {
     private final ChapterDAO chapterDAO;
     private final SeriesDAO seriesDAO;
     private final CommentDAO commentDAO;
+
     public ReportServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
         this.reportDAO = new ReportDAO(connection);
