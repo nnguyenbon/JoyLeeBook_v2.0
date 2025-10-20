@@ -544,6 +544,17 @@ public class ChapterDAO {
         }
     }
 
+    public int countChapterByUserId(int userId, String status) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0 ";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
 
     public List<Chapter> findChapterBySeriesId(int seriesId) throws SQLException {
         String sql = "SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0";

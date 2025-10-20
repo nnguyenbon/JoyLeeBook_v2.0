@@ -5,35 +5,35 @@
   Time: 2:38 PM
   To change this template use File | Settings | File Templates.
 --%>
-<footer class="border-t border-neutral-800/70 text-center mt-8 relative left-1/2 right-1/2 -mx-[50vw] w-screen">
-    <div class="max-w-2/5 mx-auto">
-        <div class="w-44 h-20 mx-auto">
+<footer class="border-t border-neutral-300 mt-8 bg-white">
+    <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 items-center text-center md:text-left gap-4">
+        <!-- Cột 1: Logo -->
+        <div class="flex justify-center md:justify-start">
             <img
                     src="${pageContext.request.contextPath}/img/shared/logo.png"
-                    class="w-full h-full"
-                    alt="day la mot cai logo"
+                    alt="JoyLeeBook Logo"
+                    class="w-40 h-auto object-contain"
             />
         </div>
-        <p class=" text-neutral-500 py-1">
-            Your gateway to endless stories. Discover, read, and connect with
-            millions of readers worldwide in the ultimate reading experience.
-        </p>
-        <ul class="flex justify-center gap-6 mt-2 opacity-50">
-            <li class="size-6">
-                <i class="fa-brands fa-twitter"></i>
-            </li>
-            <li class="size-6">
-                <i class="fa-brands fa-facebook"></i>
-            </li>
-            <li class="size-6">
-                <i class="fa-brands fa-instagram"></i>
-            </li>
-            <li class="size-6">
-                <i class="fa-solid fa-envelope"></i>
-            </li>
-        </ul>
-        <p class="pt-1 pb-2 text-neutral-600 border-t mt-2">
-            &copy; 2024 JoyLeeBook. All rights reserved.
-        </p>
+
+        <!-- Cột 2: Mô tả -->
+        <div class="col-span-2">
+            <p class="text-neutral-500 text-sm leading-snug">
+                Your gateway to endless stories. Discover, read, and connect with millions of readers worldwide in the ultimate reading experience.
+            </p>
+        </div>
+
+        <!-- Cột 3: Mạng xã hội -->
+        <div class="flex justify-center md:justify-end gap-4 text-neutral-500 text-lg">
+            <a href="#" class="hover:text-blue-400"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="hover:text-blue-600"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" class="hover:text-pink-500"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="hover:text-red-500"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+    </div>
+
+    <!-- Dòng bản quyền -->
+    <div class="border-t border-neutral-200 text-center py-2 text-neutral-600 text-xs">
+        &copy; 2025 JoyLeeBook. All rights reserved.
     </div>
 </footer>

@@ -26,9 +26,9 @@
             rel="stylesheet"
     />
 </head>
-<body class="overflow-x-hidden">
+<body class="overflow-x-hidden min-h-screen flex flex-col">
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto flex-grow">
     <c:if test="${not empty contentPage}">
         <c:import url="${contentPage}" />
     </c:if>

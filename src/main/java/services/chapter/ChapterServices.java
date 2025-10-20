@@ -171,4 +171,8 @@ public class ChapterServices {
         }
         return String.format("chapter-content?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
+
+    public int getCountMyChapterByUserId(int userId, String status)  throws SQLException, ClassNotFoundException {
+        return chapterDAO.countChapterByUserId(userId, status);
+    }
 }

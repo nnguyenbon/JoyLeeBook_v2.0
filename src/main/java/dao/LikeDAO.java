@@ -127,6 +127,17 @@ public class LikeDAO {
         }
     }
 
+    public int countLikesOfAuthor(int userId) throws SQLException {
+        String sql = "SELECT COUNT(l.user_id) AS total_likes FROM likes l JOIN chapters c ON l.chapter_id = c.chapter_id WHERE c.user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+
+    }
+
     /**
      * Checks if a specific user has liked a specific chapter.
      *

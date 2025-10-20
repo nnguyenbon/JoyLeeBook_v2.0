@@ -27,12 +27,8 @@ public class LikeService {
 //        return  likesDAO.countByChapter(like.getChapterId());
 //    }
 
-    public int likeChapter(HttpServletRequest request) throws SQLException {
-        int userId = Integer.parseInt(request.getParameter("userId"));
-        int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-        Like like = new Like();
-        like.setUserId(userId);
-        like.setChapterId(chapterId);
+    public int likeChapter(Like like) throws SQLException {
+
         if (likesDAO.isLikedByUser(like.getUserId(), like.getChapterId())) {
             return likesDAO.countByChapter(like.getChapterId());
         }
@@ -42,5 +38,9 @@ public class LikeService {
 
     public boolean hasUserLiked(int userId, int chapterId) throws SQLException {
         return  likesDAO.isLikedByUser(userId, chapterId);
+    }
+
+    public int countLikesOfAuthor (int userId)  throws SQLException {
+        return likesDAO.countLikesOfAuthor(userId);
     }
 }
