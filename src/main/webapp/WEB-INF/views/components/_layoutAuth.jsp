@@ -1,0 +1,72 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: tvphu
+  Date: 10/19/2025
+  Time: 6:22 PM
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page buffer="32kb" autoFlush="true" %>
+<html>
+<head>
+    <title>
+        ${pageTitle}
+    </title>
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
+    <link
+            rel="stylesheet"
+            href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+            rel="stylesheet"
+    />
+</head>
+<body class="min-h-screen w-full relative">
+<!-- Radial Gradient Background from Bottom -->
+<div class="absolute inset-0 z-0"
+     style="
+        background: radial-gradient(
+          125% 125% at 50% 90%,
+          #fff 40%,
+          #475569 100%
+        );
+      "
+></div>
+
+<!-- Your Content/Components -->
+<div
+        class="relative z-10 flex flex-col items-center justify-center h-screen w-full max-w-lg mx-auto"
+>
+    <div class="w-1/4 mx-auto">
+        <a href="${pageContext.request.contextPath}/homepage" class="block">
+            <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
+        </a>
+    </div>
+    <div class="rounded-lg ring px-6 py-4 w-full">
+        <c:if test="${not empty contentPage}">
+            <c:import url="${contentPage}" />
+        </c:if>
+    </div>
+</div>
+
+<script>
+    function togglePassword(iconElement, id) {
+        const inputElement = document.getElementById(id);
+        iconElement.classList.toggle('fa-eye-slash');
+        iconElement.classList.toggle('fa-eye');
+
+        if (inputElement.type === 'password') {
+            inputElement.type = 'text';
+        } else {
+            inputElement.type = 'password';
+        }
+    }
+</script>
+</body>
+</html>
