@@ -1,6 +1,7 @@
 package dao;
 
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -19,7 +20,8 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE is_deleted = 0";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
             }
@@ -34,7 +36,6 @@ public class UserDAO {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    System.out.println(mapResultSetToUser(rs).getUsername());
                     return mapResultSetToUser(rs);
                 }
             }
@@ -45,34 +46,69 @@ public class UserDAO {
     // Thêm user mới
     public boolean insert(User user) throws SQLException {
         String sql = """
-                INSERT INTO users (username, full_name, bio, email, password_hash, role, 
-                                   is_verified, is_deleted, status, points, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO users (username, full_name, email, password_hash, 
+                                   is_deleted, points, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getFullName());
-            stmt.setString(3, user.getBio());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getPasswordHash());
-            stmt.setString(6, user.getRole());
-            stmt.setBoolean(7, user.isVerified());
-            stmt.setBoolean(8, user.isDeleted());
-            stmt.setString(9, user.getStatus());
-            stmt.setInt(10, user.getPoints());
-            stmt.setTimestamp(11, Timestamp.valueOf(user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now()));
-            stmt.setTimestamp(12, Timestamp.valueOf(user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now()));
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getPasswordHash());
+            stmt.setBoolean(5, false);
+            stmt.setInt(6, 0);
+            stmt.setTimestamp(7, Timestamp.valueOf(user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now()));
+            stmt.setTimestamp(8, Timestamp.valueOf(user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         }
     }
 
     // Cập nhật thông tin user
-    public boolean update(User user) throws SQLException {
+//    public boolean update(User user) throws SQLException {
+//        String sql = """
+//                UPDATE users
+//                SET username = ?, full_name = ?, bio = ?, email = ?, password_hash = ?,
+//                    role = ?, is_verified = ?, is_deleted = ?, status = ?, points = ?, updated_at = ?
+//                WHERE user_id = ? AND is_deleted = 0
+//                """;
+//
+//        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+//            stmt.setString(1, user.getUsername());
+//            stmt.setString(2, user.getFullName());
+//            stmt.setString(3, user.getBio());
+//            stmt.setString(4, user.getEmail());
+//            stmt.setString(5, user.getPasswordHash());
+//            stmt.setString(6, user.getRole());
+//            stmt.setBoolean(7, user.isVerified());
+//            stmt.setBoolean(8, user.isDeleted());
+//            stmt.setString(9, user.getStatus());
+//            stmt.setInt(10, user.getPoints());
+//            stmt.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+//            stmt.setInt(12, user.getUserId());
+//            return stmt.executeUpdate() > 0;
+//        }
+//    }
+
+    public boolean updatePassword(int userId, String password) throws SQLException {
         String sql = """
                 UPDATE users
-                SET username = ?, full_name = ?, bio = ?, email = ?, password_hash = ?, 
-                    role = ?, is_verified = ?, is_deleted = ?, status = ?, points = ?, updated_at = ?
+                SET password_hash = ?, updated_at = ?
+                WHERE user_id = ? AND is_deleted = 0
+                """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, password);
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+            stmt.setInt(3, userId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updateProfile(User user) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET username = ?, full_name = ?, bio = ?, updated_at = ?
                 WHERE user_id = ? AND is_deleted = 0
                 """;
 
@@ -80,18 +116,12 @@ public class UserDAO {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getFullName());
             stmt.setString(3, user.getBio());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getPasswordHash());
-            stmt.setString(6, user.getRole());
-            stmt.setBoolean(7, user.isVerified());
-            stmt.setBoolean(8, user.isDeleted());
-            stmt.setString(9, user.getStatus());
-            stmt.setInt(10, user.getPoints());
-            stmt.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
-            stmt.setInt(12, user.getUserId());
+            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
+            stmt.setInt(5, user.getUserId());
             return stmt.executeUpdate() > 0;
         }
     }
+
 
     // Xóa mềm user (chuyển cờ is_deleted = 1)
     public boolean delete(int id) throws SQLException {
@@ -161,16 +191,43 @@ public class UserDAO {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    user = new User();
-                    user.setUserId(rs.getInt("user_id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setEmail(rs.getString("email"));
-                    user.setRole(rs.getString("role"));
-                    // Set other user properties as needed
+                    user = mapResultSetToUser(rs);
                 }
             }
         }
         return user;
+    }
+
+    public User findByUserLogin(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPasswordFromDB = rs.getString("password_hash");
+                    if (BCrypt.checkpw(password, hashedPasswordFromDB)) {
+                        return mapResultSetToUser(rs);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean findByUsernameOrEmail(String username, String email) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ? OR email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // Hàm map dữ liệu từ ResultSet sang đối tượng User

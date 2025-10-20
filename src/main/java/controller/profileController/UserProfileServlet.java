@@ -17,8 +17,8 @@ import java.util.List;
 
 @WebServlet("/profile")
 public class UserProfileServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
 
@@ -37,7 +37,34 @@ public class UserProfileServlet extends HttpServlet {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-
     }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+
+        try {
+            String userName = request.getParameter("username");
+            String fullName = request.getParameter("fullName");
+            String bio = request.getParameter("bio");
+
+            User user = new User();
+            user.setUserId(userId);
+            user.setUsername(userName);
+            user.setFullName(fullName);
+            user.setBio(bio);
+
+            UserServices userServices = new UserServices();
+            boolean isSuccess = userServices.editProfile(user);
+            if(isSuccess) {
+                request.getSession().setAttribute("message", "Update user successfully!");
+
+            } else {
+                request.getSession().setAttribute("message", "Something went wrong. Please try again.");
+            }
+            response.sendRedirect(request.getContextPath() + "/profile");
+        } catch(SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

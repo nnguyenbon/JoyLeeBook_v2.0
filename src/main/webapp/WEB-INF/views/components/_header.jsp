@@ -80,7 +80,7 @@ change this template use File | Settings | File Templates. --%>
                     <div class="w-10 h-10 bg-gray-300 rounded-full">
                         <img
                                 class="w-10 h-10 rounded-full"
-                                src="${pageContext.request.contextPath}/img/thenewkidinschool.png"
+                                src="${pageContext.request.contextPath}/img/shared/imgUser.png"
                         />
                     </div>
                     <i class="fa-solid fa-caret-down"></i>
@@ -95,47 +95,51 @@ change this template use File | Settings | File Templates. --%>
                             <h4
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold"
                             >
-                                Trunguyen
+                                ${loginedUser.username}
                             </h4>
-                            <p class="text-[#195DA9] text-xs">Reader</p>
+                            <p class="text-[#195DA9] text-xs">${loginedUser.role}</p>
                         </div>
                         <hr class="mb-2 border-gray-300"/>
-                        <button
-                                class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
+                        <a
+                                href="${pageContext.request.contextPath}/profile"
+                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-user"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Profile</span
                             >
-                        </button>
-                        <button
-                                class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
+                        </a>
+                        <a
+                                href="${pageContext.request.contextPath}/author"
+                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-pen"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Author</span
                             >
-                        </button>
-                        <button
-                                class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
+                        </a>
+                        <a
+                                href="${pageContext.request.contextPath}/library"
+                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-bookmark"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Library</span
                             >
-                        </button>
-                        <button
-                                class="block flex gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 text-lg"
+                        </a>
+                        <a
+                                href="${pageContext.request.contextPath}/logout"
+                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 text-lg"
                         >
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >Logout</span
                             >
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -144,14 +148,14 @@ change this template use File | Settings | File Templates. --%>
             <div class="col-span-3 text-right">
                 <button>
                     <a
-                            href="./login.html"
+                            href="${pageContext.request.contextPath}/login"
                             class="inline-block bg-sky-700 text-white py-1 px-3 rounded-lg hover:bg-sky-900"
                     >Login</a
                     >
                 </button>
                 <button>
                     <a
-                            href="./signup.html"
+                            href="${pageContext.request.contextPath}/register"
                             class="inline-block py-1 px-3 rounded-lg hover:bg-neutral-200 mx-4"
                     >Sign Up</a
                     >

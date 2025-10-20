@@ -1,7 +1,6 @@
 package controller.generalController;
 
 import dao.*;
-import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
