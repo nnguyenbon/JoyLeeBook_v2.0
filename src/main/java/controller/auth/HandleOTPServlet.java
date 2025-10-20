@@ -12,7 +12,6 @@ import services.auth.HandleOTPServices;
 import utils.EmailUtility;
 
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Random;

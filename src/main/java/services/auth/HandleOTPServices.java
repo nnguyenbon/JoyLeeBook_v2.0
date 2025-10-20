@@ -2,12 +2,12 @@ package services.auth;
 
 import dao.UserDAO;
 import db.DBConnection;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.EmailUtility;
 
-import javax.mail.MessagingException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Random;

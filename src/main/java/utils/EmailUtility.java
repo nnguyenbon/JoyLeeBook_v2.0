@@ -1,8 +1,10 @@
 package utils;
 
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+
 import java.util.Properties;
-import javax.mail.*;
-import javax.mail.internet.*;
 
 public class EmailUtility {
 
