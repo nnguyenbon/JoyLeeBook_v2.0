@@ -48,18 +48,47 @@ public class SeriesAuthorDAO {
      * @param userId   the ID of the user
      * @return the SeriesAuthor object if found, null otherwise
      */
-    public SeriesAuthor findById(int seriesId, int userId) throws SQLException {
+    public List<SeriesAuthor> findById(int seriesId, int userId) throws SQLException {
         String sql = "SELECT * FROM series_author WHERE series_id = ? AND user_id = ?";
+        List<SeriesAuthor> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             ps.setInt(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToSeriesAuthor(rs);
+                    list.add(mapResultSetToSeriesAuthor(rs));
                 }
             }
         }
-        return null;
+        return list;
+    }
+
+    public List<SeriesAuthor> findByUserId(int userId) throws SQLException {
+        String sql = "SELECT * FROM series_author WHERE user_id = ?";
+        List<SeriesAuthor> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    list.add(mapResultSetToSeriesAuthor(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    public List<SeriesAuthor> findBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT * FROM series_author WHERE series_id = ?";
+        List<SeriesAuthor> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    list.add(mapResultSetToSeriesAuthor(rs));
+                }
+            }
+        }
+        return list;
     }
 
     /**

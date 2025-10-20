@@ -6,12 +6,14 @@ import dto.series.SeriesInfoDTO;
 import model.Category;
 import model.Chapter;
 import model.Series;
+import model.SeriesAuthor;
 import services.general.FormatServices;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class SeriesServices {
@@ -70,6 +72,10 @@ public class SeriesServices {
         return dto;
     }
 
+    public SeriesInfoDTO buildSeriesInfoDTO(int seriesId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTO(seriesDAO.findById(seriesId));
+    }
+
     public List<SeriesInfoDTO> hotSeriesList (int limit) throws SQLException, ClassNotFoundException {
         return buildSeriesInfoDTOList(seriesDAO.getTopRatedSeries(limit));
     }
@@ -94,15 +100,21 @@ public class SeriesServices {
         return buildSeriesInfoDTOList(seriesDAO.getSeriesByStatus(limit, status));
     }
 
-    public List<SeriesInfoDTO> savedSeriesFromUser (int userId) throws SQLException, ClassNotFoundException {
-        return buildSeriesInfoDTOList(seriesDAO.getSeriesByUserId(userId));
-    }
-
     public List<SeriesInfoDTO> seriesFromAuthor (int authorId) throws SQLException, ClassNotFoundException {
         return buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(authorId));
     }
 
-    public SeriesInfoDTO buildSeriesInfoDTO(int seriesId) throws SQLException, ClassNotFoundException {
+    public List<SeriesInfoDTO> mySeriesList (int userId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(userId));
+    }
+
+    public SeriesInfoDTO mySeriesDetails(String seriesIdParam) throws SQLException, ClassNotFoundException {
+        int seriesId;
+        try {
+            seriesId = Integer.parseInt(seriesIdParam);
+        } catch (NumberFormatException e) {
+            throw new SQLException("Series ID is not a number");
+        }
         return buildSeriesInfoDTO(seriesDAO.findById(seriesId));
     }
 
