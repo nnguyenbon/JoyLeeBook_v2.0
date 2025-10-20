@@ -153,6 +153,37 @@ public class SeriesServices {
         }
     }
 
+    public Series editSeries(int userId, String coverImgUrl, String title, String status, String description) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be blank");
+        }
+
+        if (status == null || status.trim().isEmpty()) {
+            throw new IllegalArgumentException("Status cannot be blank");
+        }
+
+        if(title.trim().length() > 50) {
+            throw new IllegalArgumentException("Title cannot be longer than 50 characters");
+        }
+
+        Series series = new Series();
+        series.setAuthorId(userId);
+        series.setCoverImgUrl(coverImgUrl);
+        series.setTitle(title);
+        series.setDescription(description.trim());
+        series.setStatus(status.trim());
+
+        try {
+            boolean success = seriesDAO.update(series);
+            if (!success) {
+                throw new SQLException("Failed to update series into database.");
+            }
+            return series;
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while editing series", e);
+        }
+    }
+
     public void deleteSeries(String seriesIdparam) {
         int seriesId;
         try {
