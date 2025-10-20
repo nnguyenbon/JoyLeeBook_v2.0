@@ -199,10 +199,9 @@ public class UserDAO {
     }
 
     public User findByUserLogin(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ? AND password_hash = ?";
+        String sql = "SELECT * FROM users WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, password);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
