@@ -6,7 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import services.chapter.ChapterServices;
-import services.like.LikeService;
+import services.chapter.LikeChapterService;
+import services.series.RatingSeriesService;
 import services.series.SeriesServices;
 import utils.ValidationInput;
 
@@ -22,12 +23,12 @@ public class AuthorDashboard extends HttpServlet {
         try {
             SeriesServices seriesServices = new SeriesServices();
             ChapterServices chapterServices = new ChapterServices();
-            LikeService likeService = new LikeService();
-
+            LikeChapterService likeService = new LikeChapterService();
+            RatingSeriesService  ratingService = new RatingSeriesService();
             request.setAttribute("totalChapters", chapterServices.getCountMyChapterByUserId(userId, "approved"));
             request.setAttribute("pendingChapters", chapterServices.getCountMyChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeService.countLikesOfAuthor(userId));
-
+            request.setAttribute("avgRating", ratingService.getAverageRatingOfAuthor(userId));
             request.setAttribute("mySeriesList", seriesServices.seriesFromAuthor(userId));
             request.setAttribute("pageTitle", "AuthorDashboard");
             request.setAttribute("contentPage", "/WEB-INF/views/author/AuthorDashboard.jsp");

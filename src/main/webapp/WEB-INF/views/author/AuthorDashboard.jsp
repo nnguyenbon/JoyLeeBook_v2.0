@@ -41,7 +41,7 @@
             class="col-span-2 border border-rose-500 rounded-lg bg-rose-50 p-3 flex flex-col justify-between shadow-sm">
         <span class="text-lg font-semibold text-gray-700">Total Likes</span>
         <div class="flex items-center justify-between gap-3 text-rose-500">
-            <span class="text-2xl font-bold">150</span>
+            <span class="text-2xl font-bold">${totalLikes}</span>
             <i class="fa-regular fa-heart text-xl"></i>
         </div>
     </div>
@@ -50,7 +50,7 @@
             class="col-span-2 border border-violet-500 rounded-lg bg-violet-50 p-3 flex flex-col justify-between shadow-sm">
         <span class="text-lg font-semibold text-gray-700">Average Rating</span>
         <div class="flex items-center justify-between gap-3 text-violet-500">
-            <span class="text-2xl font-bold">4.8</span>
+            <span class="text-2xl font-bold">${avgRating}</span>
             <i class="fa-regular fa-star text-xl"></i>
         </div>
     </div>

@@ -1,17 +1,16 @@
-package services.like;
+package services.chapter;
 
 import dao.LikeDAO;
 import db.DBConnection;
-import jakarta.servlet.http.HttpServletRequest;
 import model.Like;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class LikeService {
+public class LikeChapterService {
     private final Connection connection;
     private final LikeDAO likesDAO;
-    public LikeService() throws SQLException, ClassNotFoundException {
+    public LikeChapterService() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
         this.likesDAO = new LikeDAO(connection);
     }

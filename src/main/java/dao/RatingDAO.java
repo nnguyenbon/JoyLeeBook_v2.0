@@ -23,23 +23,19 @@ public class RatingDAO {
         r.setSeriesId(rs.getInt("series_id"));
         r.setUserId(rs.getInt("user_id"));
         r.setRatingValue(rs.getByte("score"));
-
-        Timestamp created = rs.getTimestamp("created_at");
-        Timestamp updated = rs.getTimestamp("updated_at");
-        r.setCreatedAt(created != null ? created.toLocalDateTime() : null);
+        Timestamp updated = rs.getTimestamp("rated_at");
         r.setUpdatedAt(updated != null ? updated.toLocalDateTime() : null);
 
         return r;
     }
 
     public boolean insert(Rating rating) throws SQLException {
-        String sql = "INSERT INTO ratings (series_id, user_id, score, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ratings (series_id, user_id, score, rated_at) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, rating.getSeriesId());
             stmt.setInt(2, rating.getUserId());
             stmt.setInt(3, rating.getRatingValue());
             stmt.setTimestamp(4, Timestamp.valueOf(rating.getCreatedAt() != null ? rating.getCreatedAt() : LocalDateTime.now()));
-            stmt.setTimestamp(5, Timestamp.valueOf(rating.getUpdatedAt() != null ? rating.getUpdatedAt() : LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         }
     }
@@ -68,6 +64,27 @@ public class RatingDAO {
             }
         }
         return list;
+    }
+
+    public boolean getRatingValueByUserId(Rating rating) throws SQLException {
+        String sql = "SELECT * FROM ratings WHERE user_id = ? AND series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, rating.getUserId());
+            stmt.setInt(2, rating.getSeriesId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+        return false;
+    }
+
+    public int getRatingValueByUserId(int userId, int seriesId) throws SQLException {
+        String sql = "SELECT score FROM ratings WHERE user_id = ? AND series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, seriesId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getInt("score") : 0;
+        }
     }
 
     public List<Rating> getBySeriesId(int seriesId) throws SQLException {
@@ -99,7 +116,7 @@ public class RatingDAO {
     }
 
     public boolean update(Rating rating) throws SQLException {
-        String sql = "UPDATE ratings SET score = ?, updated_at = ? WHERE series_id = ? AND user_id = ?";
+        String sql = "UPDATE ratings SET score = ?, rated_at = ? WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, rating.getRatingValue());
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
@@ -138,6 +155,18 @@ public class RatingDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("total");
+                }
+            }
+        }
+        return 0;
+    }
+    public int getAverageRatingOfAuthor(int userId) throws SQLException {
+        String sql = "SELECT AVG(CAST(r.score AS FLOAT)) AS avg_rating FROM ratings r JOIN series_author sa ON r.series_id = sa.series_id WHERE sa.user_id = ?;";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("avg_rating");
                 }
             }
         }

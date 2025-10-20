@@ -7,12 +7,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Like;
-import services.chapter.ChapterServices;
-import services.like.LikeService;
+import services.chapter.LikeChapterService;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 @WebServlet("/like-chapter")
 public class LikeChapterServlet extends HttpServlet {
@@ -23,7 +20,7 @@ public class LikeChapterServlet extends HttpServlet {
                 int userId = Integer.parseInt(request.getParameter("userId"));
                 int chapterId = Integer.parseInt(request.getParameter("chapterId"));
 
-                LikeService likeService = new LikeService();
+                LikeChapterService likeService = new LikeChapterService();
                 Like like = new Like();
                 like.setUserId(userId);
                 like.setChapterId(chapterId);
