@@ -1,6 +1,5 @@
 package services.general;
 
-
 import dao.CommentDAO;
 import dao.UserDAO;
 import db.DBConnection;
@@ -84,8 +83,12 @@ public class CommentServices {
             throw new IllegalArgumentException("Invalid comment ID.");
         }
 
-        int commentIdParam = Integer.parseInt(commentId);
-
+        int commentIdParam;
+        try {
+            commentIdParam = Integer.parseInt(commentId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid comment ID.");
+        }
         Comment comment = new Comment();
         comment.setCommentId(commentIdParam);
         comment.setUserId(userId);

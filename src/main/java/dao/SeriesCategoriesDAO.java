@@ -132,6 +132,15 @@ public class SeriesCategoriesDAO {
         }
     }
 
+    public boolean deleteByCategoryId(int categoryId) throws SQLException {
+        String sql = "DELETE FROM series_categories WHERE category_id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public int countSeriesByCategoryId(int categoryId) throws SQLException {
         String sql = "SELECT COUNT(series_id) FROM series_categories WHERE category_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
