@@ -19,16 +19,12 @@ public class ChangePasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
-
-
         try {
             String oldPassword = request.getParameter("oldPassword");
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
-
             UserServices userServices = new UserServices();
             String message = userServices.editPassword(userId, oldPassword, newPassword, confirmPassword);
-
             request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/profile");
         } catch (SQLException | ClassNotFoundException e) {

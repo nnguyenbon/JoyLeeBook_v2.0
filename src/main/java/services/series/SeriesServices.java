@@ -108,6 +108,10 @@ public class SeriesServices {
         return buildSeriesInfoDTOList(seriesDAO.getSeriesByAuthorId(userId));
     }
 
+    public List<SeriesInfoDTO> savedSeriesFromUser (int userId) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getSeriesByUserId(userId));
+    }
+
     public SeriesInfoDTO mySeriesDetails(String seriesIdParam) throws SQLException, ClassNotFoundException {
         int seriesId;
         try {
