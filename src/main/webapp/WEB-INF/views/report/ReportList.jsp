@@ -104,10 +104,10 @@
         <div id="tab-content">
             <c:choose>
                 <c:when test="${type == 'chapter'}">
-                    <jsp:include page="/WEB-INF/views/general/reportview/ReportChapterView.jsp"/>
+                    <jsp:include page="/WEB-INF/views/report/reportview/ReportChapterView.jsp"/>
                 </c:when>
                 <c:when test="${type == 'comment'}">
-                    <jsp:include page="/WEB-INF/views/general/reportview/ReportCommentView.jsp"/>
+                    <jsp:include page="/WEB-INF/views/report/reportview/ReportCommentView.jsp"/>
                 </c:when>
             </c:choose>
         </div>
@@ -188,10 +188,10 @@
     });
     document.querySelectorAll('.dropdown-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Ngăn việc click lan ra ngoài
-            const menu = btn.nextElementSibling; // Tìm menu liền sau button
+            e.stopPropagation();
+            const menu = btn.nextElementSibling;
             document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+                if (m !== menu) m.classList.add('hidden');
             });
             menu.classList.toggle('hidden');
         });

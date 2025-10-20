@@ -45,10 +45,10 @@ public class ChapterContentServlet extends HttpServlet {
             request.setAttribute("contentPage", "/WEB-INF/views/chapter/ChapterContent.jsp");
             request.setAttribute("seriesId", seriesId);
             request.setAttribute("chapterId", chapterId);
-
+            request.getRequestDispatcher("WEB-INF/views/chapter/ChapterContent.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        request.getRequestDispatcher("WEB-INF/views/chapter/ChapterContent.jsp").forward(request, response);
+
     }
 }
