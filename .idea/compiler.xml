@@ -10,8 +10,5 @@
         <module name="JoyLeeBook" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="JoyLeeBook" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>
