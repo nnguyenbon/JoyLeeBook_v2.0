@@ -26,19 +26,25 @@
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
             rel="stylesheet"
     />
+    <style>
+        /* Hiệu ứng glow xanh mờ */
+        .blue-glow {
+            background-image: radial-gradient(
+                    circle at 30% 70%,
+                    rgba(173, 216, 230, 0.35),
+                    transparent 60%
+            ),
+            radial-gradient(
+                    circle at 70% 30%,
+                    rgba(255, 182, 193, 0.4),
+                    transparent 60%
+            );
+        }
+    </style>
 </head>
 <body class="min-h-screen w-full relative">
 <!-- Radial Gradient Background from Bottom -->
-<div class="absolute inset-0 z-0"
-     style="
-        background: radial-gradient(
-          125% 125% at 50% 90%,
-          #fff 40%,
-          #475569 100%
-        );
-      "
-></div>
-
+<div class="absolute inset-0 z-0 blue-glow"></div>
 <!-- Your Content/Components -->
 <div
         class="relative z-10 flex flex-col items-center justify-center h-screen w-full max-w-lg mx-auto"
@@ -50,7 +56,7 @@
     </div>
     <div class="rounded-lg ring px-6 py-4 w-full">
         <c:if test="${not empty contentPage}">
-            <c:import url="${contentPage}" />
+            <c:import url="${contentPage}"/>
         </c:if>
     </div>
 </div>
