@@ -11,6 +11,7 @@ import java.util.List;
 
 import model.Chapter;
 import dto.chapter.ChapterItemDTO;
+import services.general.FormatServices;
 
 /**
  * Data Access Object (DAO) for Chapter entity.
@@ -141,6 +142,15 @@ public class ChapterDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
             ps.setInt(2, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean deleteBySeriesId(int seriesId) throws SQLException {
+        String sql = "UPDATE chapters SET is_deleted = 1, updated_at = ? WHERE series_id = ? AND is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(2, seriesId);
             return ps.executeUpdate() > 0;
         }
     }
@@ -278,11 +288,11 @@ public class ChapterDAO {
                     it.setChapterNumber(rs.getInt("chapter_number"));
                     it.setTitle(rs.getString("chapter_title"));
                     it.setStatus(rs.getString("status"));
-                    it.setCoverImgUrl(rs.getString("cover_image_url"));
+                    it.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
                     String up = rs.getString("updated_at");
                     it.setUpdatedAt(up != null ? up : null);
-                    String lr = rs.getString("last_read_at");
-                    it.setLastReadAt(lr != null ? lr : null);
+                    String lr =  FormatServices.formatDate(rs.getTimestamp("last_read_at").toLocalDateTime());
+                    it.setLastReadAt(lr != null ?lr : null);
                     list.add(it);
                 }
                 return list;

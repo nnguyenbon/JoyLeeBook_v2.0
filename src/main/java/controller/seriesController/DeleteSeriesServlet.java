@@ -1,32 +1,29 @@
-package controller.generalController;
+package controller.seriesController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Comment;
-import services.general.CommentServices;
+import services.series.SeriesServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("/delete-comment")
-public class DeleteCommentServlet extends HttpServlet {
+@WebServlet("/delete-series")
+public class DeleteSeriesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+
         try {
-            String commentId = request.getParameter("commentId");
             String seriesId = request.getParameter("seriesId");
-            String chapterId = request.getParameter("chapterId");
 
-            CommentServices commentService = new CommentServices();
-            commentService.deleteComment(1, commentId);
-
+            SeriesServices seriesServices = new SeriesServices();
+            seriesServices.deleteSeries(seriesId);
             response.sendRedirect(request.getContextPath()
-                    + "/chapter-content?seriesId=" + seriesId + "&chapterId=" + chapterId);
+                    + "/series-detail?seriesId=" + seriesId);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

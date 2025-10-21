@@ -2,25 +2,20 @@ package services.report;
 
 import dao.*;
 import db.DBConnection;
-import dto.category.CategoryInfoDTO;
-import dto.chapter.ChapterDetailDTO;
+import dto.report.ReportBaseDTO;
 import dto.report.ReportChapterDTO;
 import dto.report.ReportCommentDTO;
-import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import model.Chapter;
 import model.Comment;
 import model.Report;
-import services.chapter.ChapterServices;
 import services.general.FormatServices;
-import services.general.PaginationServices;
 
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +26,7 @@ public class ReportServices {
     private final ChapterDAO chapterDAO;
     private final SeriesDAO seriesDAO;
     private final CommentDAO commentDAO;
+
     public ReportServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
         this.reportDAO = new ReportDAO(connection);
@@ -41,10 +37,23 @@ public class ReportServices {
     }
 
     public ReportChapterDTO buildReportChapterDTO(Report report) throws SQLException {
+        if (report == null) {
+            throw new IllegalArgumentException("Report cannot be null");
+        }
+
         ReportChapterDTO reportChapterDTO = new ReportChapterDTO();
         reportChapterDTO.setId(report.getReportId());
-        reportChapterDTO.setChapterId(report.getTargetId());
-        Chapter chapter = chapterDAO.findById(report.getTargetId());
+
+        Integer chapterId = report.getChapterId();
+        if (chapterId == null) {
+            throw new IllegalStateException("Report type mismatch: expected chapter report but got null chapterId");
+        }
+        reportChapterDTO.setChapterId(chapterId);
+        Chapter chapter = chapterDAO.findById(chapterId);
+        if (chapter == null) {
+            throw new SQLException("Chapter not found for id: " + chapterId);
+        }
+
         reportChapterDTO.setChapterNumber(chapter.getChapterNumber());
         reportChapterDTO.setTitle(chapter.getTitle());
         reportChapterDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
@@ -52,11 +61,13 @@ public class ReportServices {
         reportChapterDTO.setStatus(FormatServices.formatString(report.getStatus()));
         reportChapterDTO.setCreatedAt(FormatServices.formatDate(report.getCreatedAt()));
         reportChapterDTO.setUpdatedAt(FormatServices.formatDate(report.getUpdatedAt()));
+
         return reportChapterDTO;
     }
 
-    public List<ReportChapterDTO> buildReportChapterDTOList(List<Report> reportList) throws SQLException {
-        List<ReportChapterDTO> reportChapterDTOList = new ArrayList<>();
+
+    public List<ReportBaseDTO> buildReportChapterDTOList(List<Report> reportList) throws SQLException {
+        List<ReportBaseDTO> reportChapterDTOList = new ArrayList<>();
         for (Report report : reportList) {
             if(report.getTargetType().equals("chapter")) {
                 reportChapterDTOList.add(buildReportChapterDTO(report));
@@ -67,20 +78,36 @@ public class ReportServices {
 
 
     public ReportCommentDTO buildReportCommentDTO(Report report) throws SQLException {
+        if (report == null) {
+            throw new IllegalArgumentException("Report cannot be null");
+        }
+
+        Integer commentId = report.getCommentId();
+        if (commentId == null) {
+            throw new IllegalStateException("Report type mismatch: expected comment report but got null commentId");
+        }
+
         ReportCommentDTO reportCommentDTO = new ReportCommentDTO();
         reportCommentDTO.setId(report.getReportId());
-        reportCommentDTO.setCommentId(report.getTargetId());
-        Comment comment = commentDAO.findById(report.getTargetId());
-        reportCommentDTO.setReporterUsername(userDAO.findById(comment.getUserId()).getUsername());
+        reportCommentDTO.setCommentId(commentId);
+
+        Comment comment = commentDAO.findById(commentId);
+        if (comment == null) {
+            throw new SQLException("Comment not found for id: " + commentId);
+        }
+
+        reportCommentDTO.setUsernameComment(userDAO.findById(comment.getUserId()).getUsername());
         reportCommentDTO.setContent(comment.getContent());
         reportCommentDTO.setReporterUsername(userDAO.findById(report.getReporterId()).getUsername());
         reportCommentDTO.setStatus(FormatServices.formatString(report.getStatus()));
         reportCommentDTO.setCreatedAt(FormatServices.formatDate(report.getCreatedAt()));
         reportCommentDTO.setUpdatedAt(FormatServices.formatDate(report.getUpdatedAt()));
+
         return reportCommentDTO;
     }
-    public List<ReportCommentDTO> buildReportCommentDTOList(List<Report> reportList) throws SQLException {
-        List<ReportCommentDTO> reportChapterDTOList = new ArrayList<>();
+
+    public List<ReportBaseDTO> buildReportCommentDTOList(List<Report> reportList) throws SQLException {
+        List<ReportBaseDTO> reportChapterDTOList = new ArrayList<>();
         for (Report report : reportList) {
             if(report.getTargetType().equals("comment")) {
                 reportChapterDTOList.add(buildReportCommentDTO(report));
@@ -88,24 +115,65 @@ public class ReportServices {
         }
         return reportChapterDTOList;
     }
-    public boolean handleRedirect (String type, HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
-        PaginationServices paginationServices = new PaginationServices();
-        ReportServices reportServices = new ReportServices();
-        if ("chapter".equals(type)) {
-            List<ReportChapterDTO> reportList = reportServices.buildReportChapterDTOList(reportDAO.getAll());
-            List<ReportChapterDTO> reportChapterDTOList = paginationServices.handleParameterPage(reportList, request);
-            request.setAttribute("size", reportList.size());
-            request.setAttribute("reportChapterDTOList", reportChapterDTOList);
-            request.getRequestDispatcher("/WEB-INF/views/general/reportview/ReportChapterView.jsp").forward(request, response);
-            return true;
-        } else if ("comment".equals(type)) {
-            List<ReportCommentDTO> reportList = reportServices.buildReportCommentDTOList(reportDAO.getAll());
-            List<ReportCommentDTO> reportCommentDTOList = paginationServices.handleParameterPage(reportList, request);
-            request.setAttribute("size", reportList.size());
-            request.setAttribute("reportCommentDTOList", reportCommentDTOList);
-            request.getRequestDispatcher("/WEB-INF/views/general/reportview/ReportCommentView.jsp").forward(request, response);
-            return true;
+
+    public Report createReport(int userId, String type, String targetIdParam, String reason, String description) throws SQLException, ClassNotFoundException {
+        int targetId;
+        try {
+            targetId = Integer.parseInt(targetIdParam.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid target ID");
         }
-        return false;
+
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("No reason for this report");
+        }
+
+        String fullReason = reason.trim();
+        if (description != null && !description.trim().isEmpty()) {
+            fullReason += " — Details: " + description.trim();
+        }
+
+        if (fullReason.length() > 500) {
+            fullReason = fullReason.substring(0, 499);
+        }
+
+        Report report = new Report();
+        report.setReporterId(userId);
+        report.setTargetType(type);
+        report.setReason(fullReason);
+        report.setStatus("pending");
+        report.setStaffId(null);
+        report.setCreatedAt(LocalDateTime.now());
+        report.setUpdatedAt(LocalDateTime.now());
+
+        if ("comment".equalsIgnoreCase(type)) {
+            report.setCommentId(targetId);
+            report.setChapterId(null);
+        } else if ("chapter".equalsIgnoreCase(type)) {
+            report.setCommentId(null);
+            report.setChapterId(targetId);
+        } else {
+            throw new IllegalArgumentException("Invalid report type: must be 'comment' or 'chapter'");
+        }
+
+        boolean inserted = reportDAO.insert(report);
+        return inserted ? report : null;
+    }
+
+    public List<ReportBaseDTO> handleRedirect (String type) throws SQLException, ClassNotFoundException, ServletException, IOException {
+        if ("chapter".equals(type)) {
+            return buildReportChapterDTOList(reportDAO.getAll());
+        } else if ("comment".equals(type)) {
+            return buildReportCommentDTOList(reportDAO.getAll());
+        }
+        return null;
+    }
+
+    public ReportBaseDTO getReportById(int reportId, String type) throws SQLException, ClassNotFoundException, ServletException, IOException {
+        if (type.equalsIgnoreCase("comment")) {
+            return buildReportCommentDTO(reportDAO.getById(reportId));
+        } else if (type.equalsIgnoreCase("chapter")) {
+            return buildReportChapterDTO(reportDAO.getById(reportId));
+        } else return null;
     }
 }

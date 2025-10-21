@@ -1,6 +1,5 @@
 package services.general;
 
-
 import dao.CommentDAO;
 import dao.UserDAO;
 import db.DBConnection;
@@ -84,8 +83,12 @@ public class CommentServices {
             throw new IllegalArgumentException("Invalid comment ID.");
         }
 
-        int commentIdParam = Integer.parseInt(commentId);
-
+        int commentIdParam;
+        try {
+            commentIdParam = Integer.parseInt(commentId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid comment ID.");
+        }
         Comment comment = new Comment();
         comment.setCommentId(commentIdParam);
         comment.setUserId(userId);
@@ -116,11 +119,11 @@ public class CommentServices {
         try {
             boolean success = commentDAO.softDelete(commentIdParam);
             if (!success) {
-                throw new SQLException("Failed to insert comment into database.");
+                throw new SQLException("Failed to delete comment in database.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Database error while creating comment", e);
+            throw new RuntimeException("Database error while delete comment", e);
         }
     }
 }

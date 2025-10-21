@@ -23,7 +23,6 @@ public class SeriesDetailServlet extends HttpServlet {
         try {
             SeriesServices seriesServices = new SeriesServices();
             ChapterServices chapterServices = new ChapterServices();
-
             request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
             request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
             request.setAttribute("pageTitle","Series Detail");

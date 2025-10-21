@@ -5,19 +5,21 @@ import java.time.LocalDateTime;
 public class Report {
     private int reportId;
     private int reporterId;
-    private int staffId;
-    private int targetId;
+    private Integer staffId; //accept null value
+    private Integer commentId;  //accept null value
+    private Integer chapterId;  //accept null value
     private String targetType;
     private String reason;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Report(int reportId, int reporterId, int staffId, int targetId, String targetType, String reason, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Report(int reportId, int reporterId, Integer staffId, Integer chapterId, Integer commentId, String targetType, String reason, String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.reportId = reportId;
         this.reporterId = reporterId;
         this.staffId = staffId;
-        this.targetId = targetId;
+        this.commentId = commentId;
+        this.chapterId = chapterId;
         this.targetType = targetType;
         this.reason = reason;
         this.status = status;
@@ -43,21 +45,28 @@ public class Report {
         this.reporterId = reporterId;
     }
 
-    public int getStaffId() {
+    public Integer getStaffId() {
         return staffId;
     }
 
-    public void setStaffId(int staffId) {
+    public void setStaffId(Integer staffId) {
         this.staffId = staffId;
     }
 
-
-    public int getTargetId() {
-        return targetId;
+    public Integer getCommentId() {
+        return commentId;
     }
 
-    public void setTargetId(int targetId) {
-        this.targetId = targetId;
+    public void setCommentId(Integer commentId) {
+        this.commentId = commentId;
+    }
+
+    public Integer getChapterId() {
+        return chapterId;
+    }
+
+    public void setChapterId(Integer chapterId) {
+        this.chapterId = chapterId;
     }
 
     public String getTargetType() {

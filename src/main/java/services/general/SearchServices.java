@@ -43,25 +43,24 @@ public class SearchServices {
         return result;
     }
 
-    public boolean handleSearchByType(String searchType, String keyword, boolean isAjaxRequest, Connection connection,
+    public boolean handleSearchByType(String type, String keyword, boolean isAjaxRequest, Connection connection,
                                      HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
         CategoryDAO categoryDAO = new CategoryDAO(connection);
         UserDAO userDAO = new UserDAO(connection);
         SeriesServices seriesServices = new SeriesServices();
         SeriesDAO seriesDAO = new SeriesDAO(connection);
-        if ("title".equals(searchType) || searchType == null) {
+        if ("title".equals(type) || type == null) {
             List<Category> categories = categoryDAO.getAll();
             List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.findByName(keyword));
 
 
             request.setAttribute("categories", categories);
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
-
             if (isAjaxRequest) {
                 request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchTitleView.jsp").forward(request, response);
                 return true;
             }
-        } else if ("filter".equals(searchType)) {
+        } else if ("filter".equals(type)) {
             String statusParam = request.getParameter("status");
             String genresParam = request.getParameter("genres");
 
@@ -76,7 +75,7 @@ public class SearchServices {
             request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchFilterView.jsp")
                     .forward(request, response);
             return true;
-        } else if ("author".equals(searchType)) {
+        } else if ("author".equals(type)) {
             AuthorServices authorServices = new AuthorServices();
             List<AuthorItemDTO> authorItemDTOList = authorServices.buildAuthorItemDTOList(userDAO.findByName(keyword));
             request.setAttribute("authorItemDTOList", authorItemDTOList);
