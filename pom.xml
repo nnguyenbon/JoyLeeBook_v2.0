@@ -68,6 +68,13 @@
             <version>2.0.1</version>
             <type>jar</type>
         </dependency>
+
+        <!-- JSON (for Google responses) -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20250517</version>
+        </dependency>
     </dependencies>
 
     <build>

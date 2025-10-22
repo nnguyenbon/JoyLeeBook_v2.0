@@ -1,5 +1,6 @@
 package dao;
 
+import db.DBConnection;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.HashPwd;
@@ -21,8 +22,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE is_deleted = 0";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
             }
@@ -252,5 +252,88 @@ public class UserDAO {
         user.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
 
         return user;
+    }
+
+    /**
+     * Upsert a user based on Google OAuth information.
+     * If a user with the given googleId exists, update their fullName.
+     * If not, check if a user with the given email exists:
+     * - If yes, update their googleId and fullName.
+     * - If no, create a new user record.
+     *
+     * @param username The username for the new user (if created).
+     * @param fullName The full name of the user.
+     * @param email    The email of the user (can be null).
+     * @param googleId The Google ID of the user.
+     * @return The user ID of the upserted user.
+     * @throws SQLException If a database access error occurs.
+     */
+    public int upsertGoogleUser(String username, String fullName, String email, String googleId) throws SQLException {
+        conn.setAutoCommit(false);
+        try {
+            Integer userId = null;
+
+            // First, try to find the user by their Google ID
+            try (PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM users WHERE google_id=?")) {
+                ps.setString(1, googleId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        userId = rs.getInt(1);
+                    }
+                }
+            }
+
+            // If not found by Google ID, try to find by email
+            if (userId == null && email != null) {
+                try (PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM users WHERE email=?")) {
+                    ps.setString(1, email);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            userId = rs.getInt(1);
+                            // If found by email, update the google_id for this user
+                            try (PreparedStatement updatePs = conn.prepareStatement("UPDATE users SET google_id=?, updated_at=GETDATE() WHERE user_id=?")) {
+                                updatePs.setString(1, googleId);
+                                updatePs.setInt(2, userId);
+                                updatePs.executeUpdate();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If the user is still not found, create a new user record
+            if (userId == null) {
+                try (PreparedStatement ps = conn.prepareStatement("INSERT INTO users(username, full_name, email, google_id, is_verified, role, status, points) " + "VALUES (?, ?, ?, ?, 1, 'reader', 'active', 0); SELECT SCOPE_IDENTITY();")) {
+                    ps.setString(1, username);
+                    ps.setString(2, fullName);
+                    if (email != null) {
+                        ps.setString(3, email);
+                    } else {
+                        ps.setNull(3, java.sql.Types.VARCHAR);
+                    }
+                    ps.setString(4, googleId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            userId = rs.getBigDecimal(1).intValue();
+                        }
+                    }
+                }
+            } else {
+                // If the user already exists, update their full_name and the updated_at timestamp
+                try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET full_name=?, updated_at=GETDATE() WHERE user_id=?")) {
+                    ps.setString(1, fullName);
+                    ps.setInt(2, userId);
+                    ps.executeUpdate();
+                }
+            }
+
+            conn.commit();
+            return userId;
+        } catch (Exception ex) {
+            conn.rollback();
+            throw ex;
+        } finally {
+            conn.setAutoCommit(true);
+        }
     }
 }
