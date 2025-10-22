@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import services.auth.LoginServices;
-import utils.MyUltis;
+import utils.LoginUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
             User user = loginServices.checkLogin(userName, password);
             if (user != null) {
                 System.out.println("Login successful.");
-                MyUltis.storeLoginedUser(request.getSession(), user);
+                LoginUtils.storeLoginedUser(request.getSession(), user);
                 response.sendRedirect(request.getContextPath() + "/homepage");
             } else {
                 request.setAttribute("error", "Invalid username or password.");

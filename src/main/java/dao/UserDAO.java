@@ -2,6 +2,7 @@ package dao;
 
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.HashPwd;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -205,7 +206,7 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
-                    if (BCrypt.checkpw(password, hashedPasswordFromDB)) {
+                    if (HashPwd.checkPwd(password, hashedPasswordFromDB)) {
                         return mapResultSetToUser(rs);
                     } else {
                         return null;
