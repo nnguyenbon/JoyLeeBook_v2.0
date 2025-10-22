@@ -5,6 +5,9 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.User;
+import utils.LoginUtils;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +15,7 @@ import java.util.List;
 /**
  * Filter này kiểm soát quyền truy cập (Authorization) dựa trên vai trò (role).
  * Nó giả định rằng vai trò của người dùng được lưu trong Session với key là "USER_ROLE".
- *
+ * <p>
  * Các vai trò được xử lý theo thứ bậc:
  * - Admin: Có mọi quyền.
  * - Staff: Có quyền của Staff, Author, Reader.
@@ -32,36 +35,65 @@ public class AuthorizationFilter implements Filter {
             "/",
             "/handleOTP",
             "/chapter",
-            "/search"
+            "/search",
+            "/auth/google/callback",
+            "/auth/google",
+            "/chapter-content",
+            "/navigate-chapter"
     );
 
     // Các đường dẫn CHỈ DÀNH CHO ROLE "READER" (và các role cao hơn)
     private static final List<String> READER_PATHS = Arrays.asList(
             "/profile",
-            "/article/view"
-            // TODO: Thêm các đường dẫn cho Reader
+            "/register-author",
+            "report-chapter",
+            "like-chapter",
+            "/create-comment",
+            "/delete-comment",
+            "/edit-comment",
+            "/library",
+            "/profile"
+
     );
 
     // Các đường dẫn CHỈ DÀNH CHO ROLE "AUTHOR" (và các role cao hơn)
     private static final List<String> AUTHOR_PATHS = Arrays.asList(
-            "/article/create",
-            "/article/edit"
-            // TODO: Thêm các đường dẫn cho Author
+            "/my-series",
+            "/manage-coauthors",
+            "/manage-chapters",
+            "/my-chapters",
+            "/add-chapter",
+            "/delete-chapter",
+            "/update-chapter",
+            "/author-profile"
     );
 
     // Các đường dẫn CHỈ DÀNH CHO ROLE "STAFF" (và các role cao hơn)
     private static final List<String> STAFF_PATHS = Arrays.asList(
-            "/moderation",
-            "/dashboard/reports"
-            // TODO: Thêm các đường dẫn cho Staff
+            "/staff",
+            "/create-genre",
+            "/delete-genre",
+            "/edit-genre"
     );
 
     // Các đường dẫn CHỈ DÀNH CHO ROLE "ADMIN"
     private static final List<String> ADMIN_PATHS = Arrays.asList(
             "/admin",
             "/user/manage"
-            // TODO: Thêm các đường dẫn cho Admin
     );
+
+    private static final List<String> SHARED_PATHS = Arrays.asList(
+            "/logout",
+            "/change-password"
+    );
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        READER_PATHS.addAll(SHARED_PATHS);
+        AUTHOR_PATHS.addAll(SHARED_PATHS);
+        STAFF_PATHS.addAll(SHARED_PATHS);
+        ADMIN_PATHS.addAll(STAFF_PATHS);
+    }
 
     // =================================================================================
     // KẾT THÚC PHẦN TEMPLATE
@@ -74,75 +106,35 @@ public class AuthorizationFilter implements Filter {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        HttpSession session = req.getSession(false); // false: không tạo session mới nếu chưa có
+        HttpSession session = req.getSession(); // false: không tạo session mới nếu chưa có
 
-        // Lấy đường dẫn tương đối của request (ví dụ: /login, /admin/dashboard)
-        String path = req.getRequestURI().substring(req.getContextPath().length());
-        System.out.println(req.getServletPath());
-        // 1. Kiểm tra các đường dẫn public (ai cũng vào được)
-        if (isPathAllowed(path, PUBLIC_PATHS)) {
-            chain.doFilter(request, response); // Cho phép đi tiếp
-            return;
-        }
-
-        // 2. Lấy vai trò (role) từ session
-        // Mặc định là "guest" nếu không có session hoặc không có thuộc tính USER_ROLE
-        String role = "guest";
-        if (session != null && session.getAttribute("USER_ROLE") != null) {
-            role = (String) session.getAttribute("USER_ROLE");
-        }
-
-        // 3. Kiểm tra quyền hạn (Authorization Check)
-        boolean allowed ;
-
-        switch (role) {
-            case "admin":
-                // Admin được truy cập TẤT CẢ các path (bao gồm admin, staff, author, reader)
-                allowed = isPathAllowed(path, ADMIN_PATHS) ||
-                        isPathAllowed(path, STAFF_PATHS) ||
-                        isPathAllowed(path, AUTHOR_PATHS) ||
-                        isPathAllowed(path, READER_PATHS);
-                break;
-            case "staff":
-                // Staff được truy cập (staff, author, reader)
-                allowed = isPathAllowed(path, STAFF_PATHS) ||
-                        isPathAllowed(path, AUTHOR_PATHS) ||
-                        isPathAllowed(path, READER_PATHS);
-                break;
-            case "author":
-                // Author được truy cập (author, reader)
-                allowed = isPathAllowed(path, AUTHOR_PATHS) ||
-                        isPathAllowed(path, READER_PATHS);
-                break;
-            case "reader":
-                // Reader chỉ được truy cập (reader)
-                allowed = isPathAllowed(path, READER_PATHS);
-                break;
-            case "guest":
-            default:
-                // Guest đã được xử lý ở (1). Nếu đến được đây nghĩa là Guest
-                // đang cố truy cập vào trang cần đăng nhập.
-                allowed = false;
-                break;
-        }
-
-        // 4. Xử lý kết quả
-        if (allowed) {
-            chain.doFilter(request, response); // Cho phép đi tiếp
-        } else {
-            // Nếu không được phép
-            if (role.equals("guest")) {
-                // Nếu là guest (chưa đăng nhập), chuyển hướng đến trang login
-                // (Bạn có thể lưu lại trang họ định truy cập vào session để redirect lại sau khi login)
-                res.sendRedirect(req.getContextPath() + "/login"); // TODO: Đảm bảo /login có trong PUBLIC_PATHS
-            } else {
-                // Nếu đã đăng nhập nhưng không có quyền (ví dụ: Reader cố vào /admin)
-                // Gửi lỗi 403 (Forbidden - Cấm truy cập)
-                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập trang này.");
-                // Hoặc chuyển hướng về trang lỗi 403 tùy chỉnh
-                // res.sendRedirect(req.getContextPath() + "/error-403.jsp");
+        if (this.needJDBC(req)) {
+            String path = req.getServletPath();
+            String role = "guest";
+            User user = LoginUtils.getLoginedUser(session);
+            if (user != null) {
+                role = user.getRole();
             }
+            System.out.println(req.getServletPath() + " " + role);
+
+            if (isPathAllowed(path, PUBLIC_PATHS)) {
+                System.out.println(isPathAllowed(path, PUBLIC_PATHS));
+                chain.doFilter(request, response);
+            } else if (isPathAllowed(path, READER_PATHS) && role.equals("reader")) {
+                chain.doFilter(request, response);
+            } else if (isPathAllowed(path, AUTHOR_PATHS) && role.equals("author")) {
+                chain.doFilter(request, response);
+            } else if (isPathAllowed(path, STAFF_PATHS) && role.equals("staff")) {
+                chain.doFilter(request, response);
+            } else if (isPathAllowed(path, ADMIN_PATHS) && role.equals("admin")) {
+                chain.doFilter(request, response);
+            } else {
+                res.sendRedirect("/login");
+            }
+        } else {
+            chain.doFilter(request, response);
         }
+
     }
 
     /**
@@ -155,7 +147,7 @@ public class AuthorizationFilter implements Filter {
      */
     private boolean isPathAllowed(String path, List<String> allowedPaths) {
         for (String allowedPath : allowedPaths) {
-            if (path.startsWith(allowedPath)) {
+            if (path.equals(allowedPath)) {
                 return true;
             }
         }
