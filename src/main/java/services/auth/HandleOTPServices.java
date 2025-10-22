@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpSession;
 import model.User;
 import utils.EmailUtility;
 import utils.HashPwd;
-import utils.LoginUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
-import utils.MyUltis;
+import utils.LoginUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -91,7 +91,7 @@ public class GoogleCallbackServlet extends HttpServlet {
             int userId = dao.upsertGoogleUser(username, fullName, email, googleId);
 
             User u = dao.findById(userId);
-            MyUltis.storeLoginedUser(req.getSession(), u);
+            LoginUtils.storeLoginedUser(req.getSession(), u);
             resp.sendRedirect(req.getContextPath() + "/");
         } catch (SQLException | InterruptedException e) {
             throw new ServletException(e);
