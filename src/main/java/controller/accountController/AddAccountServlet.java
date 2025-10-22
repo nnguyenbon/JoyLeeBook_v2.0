@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import services.auth.RegisterServices;
 import services.series.SeriesServices;
 import utils.ValidationInput;
 
@@ -21,7 +22,13 @@ public class AddAccountServlet extends HttpServlet {
             String role = request.getParameter("role");
             String username =  request.getParameter("username");
             String fullName = request.getParameter("fullName");
-            String passwordHash = request.getParameter("passwordHash");
+            String password = request.getParameter("password");
+
+            if(role.equals("staff")){
+
+            } else {
+
+            }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }}

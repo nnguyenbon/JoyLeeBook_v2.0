@@ -66,4 +66,27 @@ public class StaffServices {
     public Staff getStaffAccount(int staffId) throws SQLException, ClassNotFoundException {
         return staffDAO.findById(staffId);
     }
+
+    public Staff createStaff(String username, String fullname, String password) throws SQLException {
+        if(username.isEmpty() || fullname.isEmpty() || password.isEmpty()){
+            throw new SQLException("Username and/or password cannot be empty");
+        }
+
+
+
+        Staff newStaff = new Staff();
+        newStaff.setUsername(username);
+        newStaff.setFullName(fullname);
+        newStaff.setPasswordHash();
+
+        try {
+            boolean success = staffDAO.insert(newStaff);
+            if (!success) {
+                throw new SQLException("Failed to create staff account into database.");
+            }
+            return newStaff;
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while creating staff account", e);
+        }
+    }
 }

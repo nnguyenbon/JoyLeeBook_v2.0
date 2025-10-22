@@ -38,4 +38,33 @@ public class UserServices {
             return "Something went wrong. Please try again.";
         }
     }
+
+    public User createUser(String username, String fullname, String password) throws SQLException {
+        if(username.isEmpty() || fullname.isEmpty() || password.isEmpty()){
+            throw new SQLException("Username and/or password cannot be empty");
+        }
+
+
+
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setFullName(fullname);
+        newUser.setPasswordHash();
+
+        try {
+            boolean success = userDAO.insert(newUser);
+            if (!success) {
+                throw new SQLException("Failed to create reader account into database.");
+            }
+            return newUser;
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while creating reader account", e);
+        }
+    }
+
+    public User editUser(String username, String fullname) throws SQLException {
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setFullName(fullname);
+    }
 }
