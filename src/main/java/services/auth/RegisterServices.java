@@ -5,6 +5,7 @@ import db.DBConnection;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
+import utils.HashPwd;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ public class RegisterServices {
 
     public boolean checkOTP(HttpSession session, String otp) {
         String hashedOTP = (String) session.getAttribute("otp");
-        return BCrypt.checkpw(otp, hashedOTP);
+        return HashPwd.checkPwd(otp, hashedOTP);
     }
 
     public User createUser(HttpSession session) throws SQLException {
@@ -28,7 +29,7 @@ public class RegisterServices {
 
 
         String password = register.getPasswordHash();
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(10));
+        String hashedPassword = HashPwd.hashPwd(password);
         register.setPasswordHash(hashedPassword);
         UserDAO userDAO = new UserDAO(conn);
         boolean isSuccess = userDAO.insert(register);
