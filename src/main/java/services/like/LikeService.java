@@ -27,9 +27,8 @@ public class LikeService {
 //        return  likesDAO.countByChapter(like.getChapterId());
 //    }
 
-    public int likeChapter(HttpServletRequest request) throws SQLException {
-        int userId = Integer.parseInt(request.getParameter("userId"));
-        int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+    public int likeChapter(int userId, int chapterId) throws SQLException {
+
         Like like = new Like();
         like.setUserId(userId);
         like.setChapterId(chapterId);

@@ -20,8 +20,10 @@ public class LikeChapterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
        try {
             try {
+                int userId = Integer.parseInt(request.getParameter("userId"));
+                int chapterId = Integer.parseInt(request.getParameter("chapterId"));
                 LikeService likeService = new LikeService();
-                int newLikeCount = likeService.likeChapter(request);
+                int newLikeCount = likeService.likeChapter(userId, chapterId);
 
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
