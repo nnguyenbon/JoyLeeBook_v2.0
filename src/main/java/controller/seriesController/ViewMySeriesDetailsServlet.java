@@ -14,11 +14,10 @@ import java.sql.SQLException;
 @WebServlet("/my-series-details")
 public class ViewMySeriesDetailsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
 
         try {
-            String seriesId = request.getParameter("seriesId");
+           int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
             SeriesServices seriesServices = new SeriesServices();
             request.setAttribute("mySeriesDetails", seriesServices.mySeriesDetails(seriesId));
         } catch (SQLException | ClassNotFoundException e) {
