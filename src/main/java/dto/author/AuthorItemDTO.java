@@ -1,9 +1,22 @@
 package dto.author;
 
+import model.Series;
+
+import java.util.List;
+
 public class AuthorItemDTO {
     private int authorId;
     private String userName;
+    private List<Series> seriesList;
     private int totalChapters;
+
+    public List<Series> getSeriesList() {
+        return seriesList;
+    }
+
+    public void setSeriesList(List<Series> seriesList) {
+        this.seriesList = seriesList;
+    }
 
     public int getAuthorId() {
         return authorId;

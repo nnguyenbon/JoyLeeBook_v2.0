@@ -19,9 +19,15 @@ import java.util.List;
 
 public class AuthorServices {
     private final Connection connection;
+    private final UserDAO userDAO;
+    private final ChapterDAO chapterDAO;
+    private final SeriesDAO seriesDAO;
 
     public AuthorServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
+        this.userDAO = new UserDAO(DBConnection.getConnection());
+        this.chapterDAO = new ChapterDAO(DBConnection.getConnection());
+        this.seriesDAO = new SeriesDAO(DBConnection.getConnection());
     }
 
     public void extractDataFromAuthorId(List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
@@ -57,6 +63,7 @@ public class AuthorServices {
         AuthorItemDTO authorItemDTO = new AuthorItemDTO();
         authorItemDTO.setAuthorId(author.getUserId());
         authorItemDTO.setUserName(author.getUsername());
+        authorItemDTO.setSeriesList(seriesDAO.getSeriesByAuthorId(author.getUserId()));
         authorItemDTO.setTotalChapters(seriesDAO.getSeriesByAuthorId(author.getUserId()).size());
         return authorItemDTO;
     }
