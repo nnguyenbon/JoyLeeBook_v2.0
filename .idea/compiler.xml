@@ -7,10 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="JoyLeeBook_v2.0" />
+        <module name="JoyLeeBook" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="JoyLeeBook" target="21" />
-    </bytecodeTargetLevel>
   </component>
 </project>

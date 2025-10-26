@@ -164,7 +164,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form action="${pageContext.request.contextPath}/report-chapter?seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                    <form action="${pageContext.request.contextPath}/report?action=report&type=chapter&seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
                         <input type="hidden" name="chapterId" id="reportChapterId">
 
                         <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
@@ -308,7 +308,7 @@
                     </div>
 
                     <!-- Form -->
-                    <form action="${pageContext.request.contextPath}/report-comment?seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                    <form action="${pageContext.request.contextPath}/report?action=report&type=comment&seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
                         <input type="hidden" name="commentId" id="reportCommentId">
                         <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
 

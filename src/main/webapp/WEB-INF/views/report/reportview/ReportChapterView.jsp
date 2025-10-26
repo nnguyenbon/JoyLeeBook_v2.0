@@ -44,16 +44,18 @@
                     </c:choose>
                     <div class="flex items-center gap-2 text-sm">
                         <p class="text-gray-500 mr-3">${report.createdAt}</p>
-                        <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
-                                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                           stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
-                                        <path
-                                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg></span>
-                            Detail
-                        </button>
+                        <a href=${pageContext.request.contextPath}/report?action=detail&reportId=${report.id}&type=chapter>
+                            <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
+                                    <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                               stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
+                                            <path
+                                                    d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg></span>
+                                Detail
+                            </button>
+                        </a>
                         <div class="relative">
                             <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
