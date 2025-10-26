@@ -7,14 +7,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
-import org.mindrot.jbcrypt.BCrypt;
 import services.auth.HandleOTPServices;
-import utils.EmailUtility;
 
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Random;
 
 @WebServlet("/handleOTP")
 public class HandleOTPServlet extends HttpServlet {

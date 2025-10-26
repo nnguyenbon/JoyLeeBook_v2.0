@@ -1,10 +1,10 @@
 package utils;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
-public class MyUltis {
+public class LoginUtils {
 
     // Lưu trữ thông tin người dùng đã login vào Session.
     public static void storeLoginedUser(HttpSession session, User loginedUser) {
