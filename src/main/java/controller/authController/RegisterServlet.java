@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.User;
 import services.auth.RegisterServices;
-import utils.MyUltis;
+import utils.LoginUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -53,7 +53,7 @@ public class RegisterServlet extends HttpServlet {
             System.out.println("Register successful.");
             session.removeAttribute("register");
             session.removeAttribute("otp");
-            MyUltis.storeLoginedUser(session, user);
+            LoginUtils.storeLoginedUser(session, user);
             response.sendRedirect(request.getContextPath() + "/login");
 
         } catch (SQLException | ClassNotFoundException e) {
