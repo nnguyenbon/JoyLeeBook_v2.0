@@ -43,6 +43,5 @@ public class LoginServlet extends HttpServlet {
             request.setAttribute("error", "Something went wrong. Please try again later.");
             request.getRequestDispatcher("/WEB-INF/views/auth/LoginPage.jsp").forward(request, response);
         }
-
     }
 }

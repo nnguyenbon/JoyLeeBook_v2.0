@@ -16,7 +16,7 @@
                         <p class="text-sm text-gray-500 mb-1">${author.totalChapters} series</p>
                     </div>
                 </div>
-                <a href="${pageContext.request.contextPath}/author-profile?authorId=${author.authorId}">
+                <a href="${pageContext.request.contextPath}/profile?userId=${author.authorId}">
                     <button class="bg-[#ECF1FE] text-[#195DA9] font-medium px-4 py-2 rounded-lg hover:bg-[#195DA9] hover:text-white transition flex items-center justify-center">
                         View Profile
                     </button>
