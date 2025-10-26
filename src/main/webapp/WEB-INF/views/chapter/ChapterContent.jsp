@@ -221,7 +221,7 @@
 
             <!-- Comment box -->
             <form id="commentForm"
-                  action="${pageContext.request.contextPath}/create-comment?seriesId=${seriesId}&chapterId=${chapterId}"
+                  action="${pageContext.request.contextPath}/comment?action=create&seriesId=${seriesId}&chapterId=${chapterId}"
                   method="post"
                   class="mt-8 flex items-center gap-2">
 
@@ -272,7 +272,7 @@
                                 </button>
 
 
-                                <a href="${pageContext.request.contextPath}/delete-comment?commentId=${comment.commentId}&seriesId=${seriesId}&chapterId=${chapterId}"
+                                <a href="${pageContext.request.contextPath}/comment?action=delete&commentId=${comment.commentId}&seriesId=${seriesId}&chapterId=${chapterId}"
                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     Delete
                                 </a>
