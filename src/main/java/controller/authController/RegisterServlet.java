@@ -1,4 +1,4 @@
-package controller.auth;
+package controller.authController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -61,6 +61,4 @@ public class RegisterServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-
-
 }

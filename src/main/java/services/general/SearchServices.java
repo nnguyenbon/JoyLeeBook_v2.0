@@ -52,8 +52,6 @@ public class SearchServices {
         if ("title".equals(type) || type == null) {
             List<Category> categories = categoryDAO.getAll();
             List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.findByName(keyword));
-
-
             request.setAttribute("categories", categories);
             request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
             if (isAjaxRequest) {

@@ -19,10 +19,6 @@ public class CreateCommentServlet extends HttpServlet {
             String chapterId = request.getParameter("chapterId");
             String seriesId = request.getParameter("seriesId");
 
-            System.out.println("Content = " + content);
-            System.out.println("ChapterId = " + chapterId);
-            System.out.println("SeriesId = " + seriesId);
-
             CommentServices commentServices = new CommentServices();
             commentServices.createComment(1, chapterId, content);
 
@@ -30,7 +26,8 @@ public class CreateCommentServlet extends HttpServlet {
                     + "/chapter-content?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }}
+        }
+    }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }
 }

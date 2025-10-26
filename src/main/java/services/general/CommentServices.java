@@ -43,7 +43,7 @@ public class CommentServices {
         return buildCommentDetailDTOList(commentDAO.findByChapter(chapterId));
     }
 
-    public Comment createComment(int userId, String chapterIdParam, String content) {
+    public boolean createComment(int userId, String chapterIdParam, String content) {
         if (content == null || content.trim().isEmpty() || chapterIdParam == null) {
             throw new IllegalArgumentException("No content for this comment");
         }
@@ -68,7 +68,7 @@ public class CommentServices {
             if (!success) {
                 throw new SQLException("Failed to insert comment into database.");
             }
-            return comment;
+            return success;
 
         } catch (SQLException e) {
             throw new RuntimeException("Database error while creating comment", e);

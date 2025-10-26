@@ -112,13 +112,7 @@ public class SeriesServices {
         return buildSeriesInfoDTOList(seriesDAO.getSeriesByUserId(userId));
     }
 
-    public SeriesInfoDTO mySeriesDetails(String seriesIdParam) throws SQLException, ClassNotFoundException {
-        int seriesId;
-        try {
-            seriesId = Integer.parseInt(seriesIdParam);
-        } catch (NumberFormatException e) {
-            throw new SQLException("Series ID is not a number");
-        }
+    public SeriesInfoDTO mySeriesDetails(int seriesId) throws SQLException, ClassNotFoundException {
         return buildSeriesInfoDTO(seriesDAO.findById(seriesId));
     }
 

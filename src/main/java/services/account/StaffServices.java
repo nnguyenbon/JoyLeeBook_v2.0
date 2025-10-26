@@ -34,7 +34,7 @@ public class StaffServices {
         this.chapterDAO = new ChapterDAO(connection);
         this.categoryDAO = new CategoryDAO(connection);
     }
-    public boolean handleRedirect (String type, HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
+    public boolean  handleRedirect (String type, HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
         PaginationServices paginationServices = new PaginationServices();
         if ("series".equals(type)) {
             SeriesServices seriesServices = new SeriesServices();
