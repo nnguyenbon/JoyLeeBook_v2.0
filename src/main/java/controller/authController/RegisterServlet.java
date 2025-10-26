@@ -61,6 +61,4 @@ public class RegisterServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-
-
 }

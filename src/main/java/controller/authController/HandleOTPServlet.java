@@ -41,8 +41,6 @@ public class HandleOTPServlet extends HttpServlet {
         }
 
         try {
-
-
             HandleOTPServices handleOTPServices = new HandleOTPServices();
             boolean isExist = handleOTPServices.checkUserExist(register);
             if(isExist) {
@@ -69,9 +67,7 @@ public class HandleOTPServlet extends HttpServlet {
 
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("Error in HandleOTPServlet: " + e.getMessage());
-
         }
-
 
     }
 }

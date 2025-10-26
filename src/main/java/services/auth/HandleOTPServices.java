@@ -40,7 +40,6 @@ public class HandleOTPServices {
         String message = "Your OTP code is: " + otp;
 
         try {
-
             EmailUtility.sendEmail(user.getEmail(), subject, message);
             return true;
         } catch (MessagingException e) {
