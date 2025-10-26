@@ -1,5 +1,6 @@
 package controller.reportController;
 
+import dto.PaginationRequest;
 import dto.report.ReportBaseDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import services.general.PaginationServices;
 import services.report.ReportServices;
+import utils.PaginationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -40,19 +42,24 @@ public class ReportServlet extends HttpServlet {
 
     private void viewReportList (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            ReportServices reportServices = new ReportServices();
             String type = request.getParameter("type") == null ? "" : request.getParameter("type");
-            PaginationServices paginationServices = new PaginationServices();
+
+            ReportServices reportServices = new ReportServices();
             List<ReportBaseDTO> reportList;
-            reportList = reportServices.handleRedirect(type);
+
+            PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
+            paginationRequest.setOrderBy("report_id");
+            reportList = reportServices.buildReportList(type, paginationRequest);
             if (type.equals("chapter")) {
-                request.setAttribute("size", reportList.size());
-                request.setAttribute("reportChapterDTOList", paginationServices.handleParameterPage(reportList, request));
+                request.setAttribute("size", reportServices.countReports("chapter"));
+                request.setAttribute("reportChapterDTOList", reportList);
+                PaginationUtils.sendParameter(request, paginationRequest);
                 request.getRequestDispatcher("/WEB-INF/views/report/reportview/ReportChapterView.jsp").forward(request, response);
                 return;
             } else if (type.equals("comment")) {
-                request.setAttribute("size", reportList.size());
-                request.setAttribute("reportCommentDTOList", paginationServices.handleParameterPage(reportList, request));
+                request.setAttribute("size", reportServices.countReports("comment"));
+                request.setAttribute("reportCommentDTOList", reportList);
+                PaginationUtils.sendParameter(request, paginationRequest);
                 request.getRequestDispatcher("/WEB-INF/views/report/reportview/ReportCommentView.jsp").forward(request, response);
                 return;
             }

@@ -2,6 +2,7 @@ package services.report;
 
 import dao.*;
 import db.DBConnection;
+import dto.PaginationRequest;
 import dto.report.ReportBaseDTO;
 import dto.report.ReportChapterDTO;
 import dto.report.ReportCommentDTO;
@@ -160,15 +161,18 @@ public class ReportServices {
         return inserted ? report : null;
     }
 
-    public List<ReportBaseDTO> handleRedirect (String type) throws SQLException, ClassNotFoundException, ServletException, IOException {
+    public List<ReportBaseDTO> buildReportList(String type, PaginationRequest paginationRequest) throws SQLException, ClassNotFoundException, ServletException, IOException {
         if ("chapter".equals(type)) {
-            return buildReportChapterDTOList(reportDAO.getAll());
+            return buildReportChapterDTOList(reportDAO.getAllWithType(type, paginationRequest));
         } else if ("comment".equals(type)) {
-            return buildReportCommentDTOList(reportDAO.getAll());
+            return buildReportCommentDTOList(reportDAO.getAllWithType(type, paginationRequest));
         }
         return null;
     }
 
+    public int countReports (String type) throws SQLException {
+        return reportDAO.countReports(type);
+    }
     public ReportBaseDTO getReportById(int reportId, String type) throws SQLException, ClassNotFoundException, ServletException, IOException {
         if (type.equalsIgnoreCase("comment")) {
             return buildReportCommentDTO(reportDAO.getById(reportId));
