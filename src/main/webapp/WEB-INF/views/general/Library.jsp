@@ -25,7 +25,7 @@
     <div id="content-saved" class="grid grid-cols-2 gap-6">
         <!-- Item -->
         <c:forEach var="series" items="${savedSeries}">
-            <a href="${pageContext.request.contextPath}/series-detail?seriesId=${series.seriesId}">
+            <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}">
                 <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <!-- Bookmark Remove Icon -->
                     <form action="${pageContext.request.contextPath}/Library" method="post">
@@ -84,7 +84,7 @@
     <!-- HISTORY TAB -->
     <div id="content-history" class="hidden flex flex-col space-y-3">
         <c:forEach var="chapter" items="${historyChapters}">
-            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
+            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                 <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <img src="${chapter.coverImgUrl}" alt="cover" class="w-16 h-20 object-cover rounded-md">
                     <div class="ml-4 flex-1">

@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.User;
 import services.chapter.ChapterServices;
 import services.series.SeriesServices;
 import utils.ValidationInput;
@@ -35,7 +36,8 @@ public class SeriesServlet extends HttpServlet {
     }
 
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String role = request.getSession().getAttribute("role").toString() == null ? "reader" : request.getSession().getAttribute("role").toString();
+        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
 
         if (role.equals("admin") || role.equals("staff")) {
@@ -71,7 +73,8 @@ public class SeriesServlet extends HttpServlet {
     }
 
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String role = request.getSession().getAttribute("role").toString() == null ? "reader" : request.getSession().getAttribute("role").toString();
+        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         if (role.equals("admin") || role.equals("staff")) {
 
         } else if (role.equals("author")) {

@@ -97,7 +97,7 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
                 <button
                         class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
                     <i class="fa-solid fa-play"></i>
@@ -131,7 +131,7 @@
                 <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
                     <c:forEach var="chapter" items="${chapterInfoDTOList}">
                         <li>
-                            <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
                                 <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                                     <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                     <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>

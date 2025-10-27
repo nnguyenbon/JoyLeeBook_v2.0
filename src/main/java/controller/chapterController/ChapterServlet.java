@@ -31,15 +31,26 @@ public class ChapterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action.equals("add")){
-
+            addChapter(request, response);
         } else if (action.equals("edit")){
-
+            updateChapter(request, response);
         } else if (action.equals("delete")){
-
+            deleteChapter(request, response);
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        String action = request.getParameter("action");
+        if (action.equals("add")){
+            showAddChapter(request, response);
+        } else if (action.equals("edit")) {
+            showUpdateChapter(request, response);
+        } else if (action.equals("detail")) {
+            viewChapterContent(request, response);
+        } else if (action.equals("navigate")) {
+            navigateChapter(request, response);
+        } else {
+            viewChapterList(request, response);
+        }
     }
 
     private void addChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -317,8 +328,8 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void viewChapterContent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String role = request.getSession().getAttribute("role").toString();
-
+        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         if (role.equals("admin") ||  role.equals("staff")) {
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : 1;
             try {
@@ -357,7 +368,8 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void viewChapterList (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String role = request.getSession().getAttribute("role").toString();
+        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         if (role.equals("admin") ||  role.equals("staff")) {
 
         } else if (role.equals("author")) {
@@ -413,6 +425,20 @@ public class ChapterServlet extends HttpServlet {
             }
         } else {
 
+        }
+    }
+
+    private void navigateChapter (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
+
+        int chapterNumber = ValidationInput.isPositiveInteger(request.getParameter("chapterNumber")) ? Integer.parseInt(request.getParameter("chapterNumber")) : 1;
+        String action = request.getParameter("type");
+
+        try {
+            String redirectUrl = ChapterServices.getRedirectUrl(action, seriesId, chapterNumber);
+            response.sendRedirect(redirectUrl);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
     private static Integer parseIntOrNull(String s) {

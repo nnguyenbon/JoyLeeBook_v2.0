@@ -61,7 +61,7 @@
                             <hr class="mb-3 border-gray-300" />
 
                             <c:forEach var="chapterItem" items="${chapterInfoDTOList}" varStatus="">
-                                <a href="${pageContext.request.contextPath}/chapter-content?seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
+                                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
                                     <button
                                             class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
                                         Chapter ${chapterItem.chapterNumber}: ${chapterItem.title}
@@ -109,7 +109,7 @@
             </div>
             <!-- Navigation buttons -->
             <div class="flex items-center justify-between mt-8">
-                <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=previous">
+                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous">
                 <button class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100">
                     &lt; Previous Chapter
                 </button>
@@ -133,7 +133,7 @@
                     </button>
 
                 </div>
-                <a href="${pageContext.request.contextPath}/navigate-chapter?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&action=next">
+                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next">
                     <button class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                         Next Chapter &gt;
                     </button>

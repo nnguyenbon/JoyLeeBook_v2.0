@@ -20,16 +20,6 @@ public class NavigateChapterServlet extends HttpServlet {
         doGet(request, response);
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
 
-        int chapterNumber = ValidationInput.isPositiveInteger(request.getParameter("chapterNumber")) ? Integer.parseInt(request.getParameter("chapterNumber")) : 1;
-        String action = request.getParameter("action");
-
-        try {
-            String redirectUrl = ChapterServices.getRedirectUrl(action, seriesId, chapterNumber);
-            response.sendRedirect(redirectUrl);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
