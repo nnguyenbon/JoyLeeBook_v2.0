@@ -27,17 +27,21 @@ public class AuthServlet extends HttpServlet {
     
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
-        if (path.equals("/login")) {
-            request.setAttribute("pageTitle", "Login");
-            request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
-        } else if (path.equals("/logout")) {
-            request.getSession().invalidate();
-            response.sendRedirect(request.getContextPath() + "/login");
-        } else if (path.equals("/register")) {
-            request.setAttribute("pageTitle", "Register");
-            request.setAttribute("contentPage", "/WEB-INF/views/auth/RegisterPage.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
+        switch (path) {
+            case "/login" -> {
+                request.setAttribute("pageTitle", "Login");
+                request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
+            }
+            case "/logout" -> {
+                request.getSession().invalidate();
+                response.sendRedirect(request.getContextPath() + "/login");
+            }
+            case "/register" -> {
+                request.setAttribute("pageTitle", "Register");
+                request.setAttribute("contentPage", "/WEB-INF/views/auth/RegisterPage.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
+            }
         }
     }
 

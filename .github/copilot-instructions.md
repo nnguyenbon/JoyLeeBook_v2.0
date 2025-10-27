@@ -62,7 +62,7 @@
 ## Suggested tasks for an AI code agent (prioritized)
 
 1. Run `mvn -q package` and report compilation errors; fix small bugs in models and DAO SQL that block build.
-2. Search for connection creation to add or improve connection pooling or resource handling.
+2. Search for connection creation to add or improve connection pooling or resources handling.
 3. Fix obvious UI JS typos (for example in `ChapterContent.html`) and re-verify the static UI behaves as expected.
 
 ---

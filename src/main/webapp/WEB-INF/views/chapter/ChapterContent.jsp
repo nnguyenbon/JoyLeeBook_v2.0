@@ -230,7 +230,7 @@
 
                 <input type="text" id="commentContent" name="content"
                        class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                       placeholder="Write a comment..." />
+                       placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""} />
 
                 <button id="commentSubmitBtn" type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
@@ -464,7 +464,7 @@
     const chapterListBtn = document.getElementById("chapterListBtn");
     const chapterList = document.getElementById("chapterList");
 
-    chapterListBtnl.addEventListener("click", () => {
+    chapterListBtn.addEventListener("click", () => {
         chapterList.classList.toggle("hidden");
     })
     document.addEventListener("click", (e) => {
@@ -505,11 +505,12 @@
         const likeCount = likeBtn.querySelector("span");
 
         // Gửi yêu cầu đến server
-        fetch("like-chapter", {
+        fetch("reaction", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "userId=" + encodeURIComponent(userId) +
-        "&chapterId=" + encodeURIComponent(chapterId)
+        "&chapterId=" + encodeURIComponent(chapterId) +
+            "&action=like"
     })
         .then(response => response.json())
         .then(data => {

@@ -30,26 +30,20 @@ public class ChapterServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action.equals("add")){
-            addChapter(request, response);
-        } else if (action.equals("edit")){
-            updateChapter(request, response);
-        } else if (action.equals("delete")){
-            deleteChapter(request, response);
+        switch (action) {
+            case "add" -> addChapter(request, response);
+            case "edit" -> updateChapter(request, response);
+            case "delete" -> deleteChapter(request, response);
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action.equals("add")){
-            showAddChapter(request, response);
-        } else if (action.equals("edit")) {
-            showUpdateChapter(request, response);
-        } else if (action.equals("detail")) {
-            viewChapterContent(request, response);
-        } else if (action.equals("navigate")) {
-            navigateChapter(request, response);
-        } else {
-            viewChapterList(request, response);
+        switch (action) {
+            case "add" -> showAddChapter(request, response);
+            case "edit" -> showUpdateChapter(request, response);
+            case "detail" -> viewChapterContent(request, response);
+            case "navigate" -> navigateChapter(request, response);
+            default -> viewChapterList(request, response);
         }
     }
 

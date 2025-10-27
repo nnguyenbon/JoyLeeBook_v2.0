@@ -1,4 +1,4 @@
-package controller.auth;
+package controller.authController;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,7 +31,7 @@ public class GoogleAuthServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             Properties p = new Properties();
-            p.load(getServletContext().getResourceAsStream("/WEB-INF/classes/auth.properties"));
+            p.load(getClass().getClassLoader().getResourceAsStream("auth.properties"));
             clientId = p.getProperty("GOOGLE_CLIENT_ID");
             redirectUri = p.getProperty("REDIRECT_URI");
         } catch (Exception e) {
@@ -48,6 +48,7 @@ public class GoogleAuthServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
         String state = UUID.randomUUID().toString();
         req.getSession().setAttribute("OAUTH_STATE", state);
         String url = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code" + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8) + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&scope=" + URLEncoder.encode("openid email profile", StandardCharsets.UTF_8) + "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8) + "&access_type=online";
