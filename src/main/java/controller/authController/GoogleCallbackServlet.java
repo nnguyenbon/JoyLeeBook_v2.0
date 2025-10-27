@@ -1,4 +1,4 @@
-package controller.auth;
+package controller.authController;
 
 import db.DBConnection;
 import dao.UserDAO;
@@ -39,7 +39,7 @@ public class GoogleCallbackServlet extends HttpServlet {
     public void init() throws ServletException {
         try {
             Properties p = new Properties();
-            p.load(getServletContext().getResourceAsStream("/WEB-INF/classes/auth.properties"));
+            p.load(getClass().getClassLoader().getResourceAsStream("auth.properties"));
             clientId = p.getProperty("GOOGLE_CLIENT_ID");
             clientSecret = p.getProperty("GOOGLE_CLIENT_SECRET");
             redirectUri = p.getProperty("REDIRECT_URI");
@@ -58,6 +58,11 @@ public class GoogleCallbackServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String error = req.getParameter("error");
+        if (error != null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
         String state = req.getParameter("state");
         String expected = (String) req.getSession().getAttribute("OAUTH_STATE");
         if (expected == null || !expected.equals(state)) {

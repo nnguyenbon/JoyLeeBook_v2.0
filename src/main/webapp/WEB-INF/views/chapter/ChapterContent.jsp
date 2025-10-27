@@ -14,16 +14,16 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Chapter Content</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-            rel="stylesheet" />
+            rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
@@ -58,7 +58,7 @@
                                     class="mb-2 bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold">
                                 Chapter List
                             </h4>
-                            <hr class="mb-3 border-gray-300" />
+                            <hr class="mb-3 border-gray-300"/>
 
                             <c:forEach var="chapterItem" items="${chapterInfoDTOList}" varStatus="">
                                 <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
@@ -109,12 +109,11 @@
             </div>
             <!-- Navigation buttons -->
             <div class="flex items-center justify-between mt-8">
-                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous">
-                <button class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100">
+                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous"
+                   class="border border-gray-300 px-4 py-2 rounded-lg
+                      <c:if test='${chapterDetailDTO.chapterId == firstChapterId}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                     &lt; Previous Chapter
-                </button>
                 </a>
-
 
                 <!-- Reactions -->
                 <div class="flex items-center gap-5">
@@ -122,7 +121,8 @@
                             class="openReportChapterBtn text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
                         <i class="fa-regular fa-flag"></i></button>
 
-                    <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber} of ${chapterInfoDTOList.size()}</p>
+                    <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber}
+                        of ${chapterInfoDTOList.size()}</p>
                     <button id="likeBtn"
                             class="like-btn flex items-center justify-center gap-5 w-19 px-2 py-1 border rounded-full transition-all duration-200
                              text-gray-600 hover:bg-[#195DA9] hover:text-white"
@@ -133,10 +133,10 @@
                     </button>
 
                 </div>
-                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next">
-                    <button class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                        Next Chapter &gt;
-                    </button>
+                <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next"
+                   class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700
+                      <c:if test='${chapterDetailDTO.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>">
+                    Next Chapter &gt;
                 </a>
             </div>
 
@@ -148,14 +148,15 @@
 
                     <!-- Nút đóng -->
                     <button id="closeReportChapterBtn"
-                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;
+                    </button>
 
                     <!-- Header -->
                     <div class="flex items-center mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 4v16m0-12h16l-4 4 4 4H4" />
+                                  d="M4 4v16m0-12h16l-4 4 4 4H4"/>
                         </svg>
                         <div>
                             <h2 class="text-lg font-bold text-red-600">Report Chapter</h2>
@@ -164,7 +165,8 @@
                     </div>
 
                     <!-- Form -->
-                    <form action="${pageContext.request.contextPath}/report?action=report&type=chapter&seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                    <form action="${pageContext.request.contextPath}/report?action=report&type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
+                          method="post" class="mt-4">
                         <input type="hidden" name="chapterId" id="reportChapterId">
 
                         <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
@@ -207,7 +209,8 @@
 
                         <div class="flex justify-end space-x-2 mt-5">
                             <button type="submit"
-                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition
+                                     <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                                 Submit
                             </button>
                             <button type="button" id="cancelReportChapterBtn"
@@ -230,14 +233,14 @@
 
                 <input type="text" id="commentContent" name="content"
                        class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                       placeholder="Write a comment..." />
+                       placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""} />
 
                 <button id="commentSubmitBtn" type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          stroke-width="2" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M3 10l9-6 9 6m-9 4v10m0-10L3 10m9 4l9-4" />
+                              d="M3 10l9-6 9 6m-9 4v10m0-10L3 10m9 4l9-4"/>
                     </svg>
                 </button>
             </form>
@@ -256,7 +259,6 @@
                                 <p class="text-xs text-gray-400 mt-1">${comment.updateAt}</p>
                             </div>
                         </div>
-
                         <div class="relative">
                             <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
                                 <i class="fa-solid fa-ellipsis"></i>
@@ -264,22 +266,22 @@
 
                             <div
                                     class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                <c:if test="${comment.userId == userId}">
+                                    <button
+                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onclick="editComment(${comment.commentId}, '${fn:escapeXml(comment.content)}')">
+                                        Edit
+                                    </button>
 
-                                <button
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onclick="editComment(${comment.commentId}, '${fn:escapeXml(comment.content)}')">
-                                    Edit
-                                </button>
-
-
-                                <a href="${pageContext.request.contextPath}/comment?action=delete&commentId=${comment.commentId}&seriesId=${seriesId}&chapterId=${chapterId}"
-                                   class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Delete
-                                </a>
-
+                                    <button onclick="deleteComment(${comment.commentId}, ${seriesId}, ${chapterId})"
+                                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Delete
+                                    </button>
+                                </c:if>
                                 <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         data-comment-id="${comment.commentId}">
-                                    Report</button>
+                                    Report
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -292,14 +294,15 @@
                 <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
                     <!-- Nút đóng -->
                     <button id="closeReportBtn"
-                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                            class="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;
+                    </button>
 
                     <!-- Header -->
                     <div class="flex items-center mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4 4v16m0-12h16l-4 4 4 4H4" />
+                                  d="M4 4v16m0-12h16l-4 4 4 4H4"/>
                         </svg>
                         <div>
                             <h2 class="text-lg font-bold text-red-600">Report Comment</h2>
@@ -308,7 +311,8 @@
                     </div>
 
                     <!-- Form -->
-                    <form action="${pageContext.request.contextPath}/report?action=report&type=comment&seriesId=${seriesId}&chapterId=${chapterId}" method="post" class="mt-4">
+                    <form action="${pageContext.request.contextPath}/report?action=report&type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
+                          method="post" class="mt-4">
                         <input type="hidden" name="commentId" id="reportCommentId">
                         <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
 
@@ -350,7 +354,8 @@
 
                         <div class="flex justify-end space-x-2 mt-5">
                             <button type="submit"
-                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                    class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition
+                                        <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                                 Submit
                             </button>
                             <button type="button" id="cancelReportBtn"
@@ -364,7 +369,8 @@
 
             <div class="text-center">
                 <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
-                    more</button>
+                    more
+                </button>
             </div>
         </div>
 
@@ -387,31 +393,40 @@
 
         <!-- Social icons -->
         <div class="flex justify-center gap-5 text-gray-500 mb-4">
-            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                    stroke-linejoin="round" class="lucide lucide-twitter-icon lucide-twitter w-5 h-5">
-                <path
-                        d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-            </svg></a>
+            <a href="#" class="hover:text-blue-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" class="lucide lucide-twitter-icon lucide-twitter w-5 h-5">
+                    <path
+                            d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+                </svg>
+            </a>
 
-            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                    stroke-linejoin="round" class="lucide lucide-facebook-icon lucide-facebook w-5 h-5">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-            </svg></a>
-            <a href="#" class="hover:text-blue-500 transition"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                                    stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram w-5 h-5">
-                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-            </svg></a>
-            <a href="#" class="hover:text-gray-800 transition"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="w-5 h-5 lucide lucide-mail-icon lucide-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                                    stroke-linecap="round" stroke-linejoin="round">
-                <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-            </svg></a>
+            <a href="#" class="hover:text-blue-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" class="lucide lucide-facebook-icon lucide-facebook w-5 h-5">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                </svg>
+            </a>
+            <a href="#" class="hover:text-blue-500 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round" class="lucide lucide-instagram-icon lucide-instagram w-5 h-5">
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+            </a>
+            <a href="#" class="hover:text-gray-800 transition">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5 lucide lucide-mail-icon lucide-mail" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/>
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                </svg>
+            </a>
         </div>
 
         <!-- Divider -->
@@ -427,7 +442,7 @@
     <a href="#" class="absolute right-6 top-7 text-gray-400 hover:text-gray-700 transition">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <path d="M12 19V5M5 12l7-7 7 7" />
+            <path d="M12 19V5M5 12l7-7 7 7"/>
         </svg>
     </a>
 </footer>
@@ -464,7 +479,7 @@
     const chapterListBtn = document.getElementById("chapterListBtn");
     const chapterList = document.getElementById("chapterList");
 
-    chapterListBtnl.addEventListener("click", () => {
+    chapterListBtn.addEventListener("click", () => {
         chapterList.classList.toggle("hidden");
     })
     document.addEventListener("click", (e) => {
@@ -492,41 +507,42 @@
 </script>
 <script>
 
-        document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
         const likeBtn = document.getElementById("likeBtn");
 
-        likeBtn.addEventListener("click", function() {
-        // Nếu người dùng đã like rồi thì không cho click nữa
-        if (likeBtn.classList.contains("liked")) return;
+        likeBtn.addEventListener("click", function () {
+            // Nếu người dùng đã like rồi thì không cho click nữa
+            if (likeBtn.classList.contains("liked")) return;
 
-        const userId = likeBtn.dataset.userId;
-        const chapterId = likeBtn.dataset.chapterId;
-        const icon = likeBtn.querySelector("i");
-        const likeCount = likeBtn.querySelector("span");
+            const userId = likeBtn.dataset.userId;
+            const chapterId = likeBtn.dataset.chapterId;
+            const icon = likeBtn.querySelector("i");
+            const likeCount = likeBtn.querySelector("span");
 
-        // Gửi yêu cầu đến server
-        fetch("like-chapter", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "userId=" + encodeURIComponent(userId) +
-        "&chapterId=" + encodeURIComponent(chapterId)
-    })
-        .then(response => response.json())
-        .then(data => {
-        if (data.success && data.liked) {
-        // Cập nhật giao diện
-        likeBtn.classList.add("liked");
-        likeCount.textContent = data.newLikeCount;
+            // Gửi yêu cầu đến server
+            fetch("reaction", {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "userId=" + encodeURIComponent(userId) +
+                    "&chapterId=" + encodeURIComponent(chapterId) +
+                    "&action=like"
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.liked) {
+                        // Cập nhật giao diện
+                        likeBtn.classList.add("liked");
+                        likeCount.textContent = data.newLikeCount;
 
-        icon.classList.remove("fa-regular");
-        icon.classList.add("fa-solid", "text-red-500");
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid", "text-red-500");
 
-        // Chặn click tiếp
-        likeBtn.disabled = true;
-    }
-    })
-        .catch(error => console.error("Error:", error));
-    });
+                        // Chặn click tiếp
+                        likeBtn.disabled = true;
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
     });
 
 </script>
@@ -560,7 +576,7 @@
         hiddenId.value = commentId;
 
         // Đổi action form sang edit-comment
-        form.action = form.action.replace('create-comment', 'edit-comment');
+        form.action = form.action.replace('create', 'edit');
 
         // Đổi màu nút để dễ nhận biết
         btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
@@ -576,7 +592,7 @@
 
 <%--Modal Report--%>
 <script>
-        document.querySelectorAll('.openReportCmtBtn').forEach(btn => {
+    document.querySelectorAll('.openReportCmtBtn').forEach(btn => {
         btn.addEventListener('click', () => {
             const commentId = btn.dataset.commentId;
             document.getElementById('reportCommentId').value = commentId;
@@ -584,10 +600,10 @@
         });
     });
 
-        document.getElementById('closeReportBtn').addEventListener('click', () => {
+    document.getElementById('closeReportBtn').addEventListener('click', () => {
         document.getElementById('reportModal').classList.add('hidden');
     });
-        document.getElementById('cancelReportBtn').addEventListener('click', () => {
+    document.getElementById('cancelReportBtn').addEventListener('click', () => {
         document.getElementById('reportModal').classList.add('hidden');
     });
 </script>
@@ -608,6 +624,22 @@
     document.getElementById('cancelReportChapterBtn').addEventListener('click', () => {
         document.getElementById('reportChapterModal').classList.add('hidden');
     });
+
+    function deleteComment(commentId, seriesId, chapterId) {
+        fetch(`comment`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: new URLSearchParams({
+                action: 'delete',
+                commentId,
+                seriesId,
+                chapterId
+            })
+        }).then(response => {
+            if (response.ok) location.reload();
+            else alert("Xóa thất bại!");
+        });
+    }
 </script>
 
 
@@ -657,5 +689,4 @@
 </script> -->
 
 </body>
-
 </html>

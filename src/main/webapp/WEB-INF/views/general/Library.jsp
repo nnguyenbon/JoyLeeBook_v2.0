@@ -28,7 +28,7 @@
             <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}">
                 <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <!-- Bookmark Remove Icon -->
-                    <form action="${pageContext.request.contextPath}/Library" method="post">
+                    <form action="${pageContext.request.contextPath}/library?action=save&type=unsave&seriesId=${series.seriesId}&isLibrary=true" method="post">
                         <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition"
                                 type="submit" title="Remove from saved">
                             <i class="fa-solid fa-trash-can"></i>
@@ -84,7 +84,7 @@
     <!-- HISTORY TAB -->
     <div id="content-history" class="hidden flex flex-col space-y-3">
         <c:forEach var="chapter" items="${historyChapters}">
-            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
+            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}&returnUrl=${pageContext.request.requestURI}">
                 <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <img src="${chapter.coverImgUrl}" alt="cover" class="w-16 h-20 object-cover rounded-md">
                     <div class="ml-4 flex-1">

@@ -1,6 +1,7 @@
 package controller.chapterController;
 
 import db.DBConnection;
+import dto.chapter.ChapterDetailDTO;
 import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,12 +16,13 @@ import services.chapter.ChapterManagementService;
 import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
-import services.like.LikeService;
+import services.chapter.LikeServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,26 +32,20 @@ public class ChapterServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action.equals("add")){
-            addChapter(request, response);
-        } else if (action.equals("edit")){
-            updateChapter(request, response);
-        } else if (action.equals("delete")){
-            deleteChapter(request, response);
+        switch (action) {
+            case "add" -> addChapter(request, response);
+            case "edit" -> updateChapter(request, response);
+            case "delete" -> deleteChapter(request, response);
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action.equals("add")){
-            showAddChapter(request, response);
-        } else if (action.equals("edit")) {
-            showUpdateChapter(request, response);
-        } else if (action.equals("detail")) {
-            viewChapterContent(request, response);
-        } else if (action.equals("navigate")) {
-            navigateChapter(request, response);
-        } else {
-            viewChapterList(request, response);
+        switch (action) {
+            case "add" -> showAddChapter(request, response);
+            case "edit" -> showUpdateChapter(request, response);
+            case "detail" -> viewChapterContent(request, response);
+            case "navigate" -> navigateChapter(request, response);
+            default -> viewChapterList(request, response);
         }
     }
 
@@ -342,18 +338,21 @@ public class ChapterServlet extends HttpServlet {
         } else if (role.equals("author")) {
 
         } else {
-            int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 0;
-
             try {
+                int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 0;
+                User user = (User) request.getSession().getAttribute("loginedUser");
+                int userId = user != null ? user.getUserId() : 0;
                 ChapterServices chapterServices = new ChapterServices();
                 CommentServices commentServices = new CommentServices();
-                LikeService likeService = new LikeService();
-                int userId = 10;
+                LikeServices likeService = new LikeServices();
                 String chapterIdParam = request.getParameter("chapterId");
                 int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
-
+                List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.chaptersFromSeries(seriesId);
+                request.setAttribute("firstChapterId", chapterDetailDTOList.get(0).getChapterId());
+                request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size()-1).getChapterId());
+                request.setAttribute("userId", userId);
                 request.setAttribute("chapterDetailDTO", chapterServices.buildChapterDetailDTO(chapterId));
-                request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
+                request.setAttribute("chapterInfoDTOList",chapterDetailDTOList );
                 request.setAttribute("commentDetailDTOList", commentServices.commentsFromChapter(chapterId));
                 request.setAttribute("liked", likeService.hasUserLiked(userId, chapterId));
                 request.setAttribute("pageTitle","Chapter Content");

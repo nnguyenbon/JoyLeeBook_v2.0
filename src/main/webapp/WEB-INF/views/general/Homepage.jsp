@@ -149,7 +149,7 @@
 
                                 <!-- Overlay chứa nút -->
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                    <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${newReleaseSeries.seriesId}&chapterId=1"
+                                    <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${newReleaseSeries.seriesId}&chapterId="
                                        class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                         Read now
                                     </a>
@@ -231,7 +231,7 @@
 
                         <!-- Overlay chứa nút -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${recentlyUpdatedSeries.seriesId}&chapterId=1"
+                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${recentlyUpdatedSeries.seriesId}&chapterId="
                                class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                 Read now
                             </a>
@@ -314,7 +314,7 @@
 
                             <!-- Overlay chứa nút -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${completedSeries.seriesId}&chapterId=1"
+                                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${completedSeries.seriesId}&chapterId="
                                    class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                     Read now
                                 </a>

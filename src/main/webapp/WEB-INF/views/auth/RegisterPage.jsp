@@ -116,7 +116,7 @@
     </div>
 
     <a
-            href="./login.html"
+            href="${pageContext.request.contextPath}/auth/google"
             class="flex items-center justify-center gap-4 ring py-2 rounded-md hover:bg-gray-200 transition duration-300"
     >
         <i class="fa-brands fa-google"></i>
