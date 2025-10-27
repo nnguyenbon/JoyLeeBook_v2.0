@@ -99,7 +99,7 @@ public class UserDAO {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, password);
+            stmt.setString(1, HashPwd.hashPwd(password));
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
             stmt.setInt(3, userId);
             return stmt.executeUpdate() > 0;
@@ -200,6 +200,7 @@ public class UserDAO {
     }
 
     public User findByUserLogin(String username, String password) throws SQLException {
+        String test = HashPwd.hashPwd(password);
         String sql = "SELECT * FROM users WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);

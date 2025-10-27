@@ -169,6 +169,6 @@ public class ChapterServices {
         } else if (action.equals("previous")){
             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
         }
-        return String.format("chapter-content?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
+        return String.format("chapter?action=detail&seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
 }

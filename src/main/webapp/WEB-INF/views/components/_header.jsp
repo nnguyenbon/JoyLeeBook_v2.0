@@ -101,7 +101,7 @@ change this template use File | Settings | File Templates. --%>
                         </div>
                         <hr class="mb-2 border-gray-300"/>
                         <a
-                                href="${pageContext.request.contextPath}/profile"
+                                href="${pageContext.request.contextPath}/profile?userId=${loginedUser.userId}"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-user"></i>

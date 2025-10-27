@@ -58,7 +58,7 @@
                     </c:choose>
 
                     <p class="text-gray-500">${series.createdAt}</p>
-                    <a href="${pageContext.request.contextPath}//staff-series?seriesId=${series.seriesId}">
+                    <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}">
                         <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
                                 <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

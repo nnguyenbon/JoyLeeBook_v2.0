@@ -1,5 +1,7 @@
 package dao;
 
+import dao.helper.PaginationDAOHelper;
+import dto.PaginationRequest;
 import model.Report;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -72,13 +74,16 @@ public class ReportDAO {
     }
 
 
-    public List<Report> getAll() throws SQLException {
+    public List<Report> getAllWithType(String type, PaginationRequest paginationRequest) throws SQLException {
         List<Report> list = new ArrayList<>();
-        String sql = "SELECT * FROM reports";
-        try (PreparedStatement st = conn.prepareStatement(sql);
-             ResultSet rs = st.executeQuery()) {
-            while (rs.next()) {
-                list.add(extractReportFromResultSet(rs));
+        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
+        String sql = "SELECT * FROM reports WHERE target_type = ?" + paginationDAOHelper.buildPaginationClause();
+        try (PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, type);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    list.add(extractReportFromResultSet(rs));
+                }
             }
         }
         return list;
@@ -95,6 +100,18 @@ public class ReportDAO {
         return null;
     }
 
+    public int countReports(String type) throws SQLException {
+        String sql = "SELECT count(*) FROM reports WHERE target_type = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, type);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return 0;
+        }
+    }
 //    public boolean update(Report report) throws SQLException {
 //        String sql = "UPDATE reports SET staff_id, target_id=?, target_type=?, reason=?, status=?, updated_at=? WHERE report_id=?";
 //        try (PreparedStatement ps = conn.prepareStatement(sql)) {

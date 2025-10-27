@@ -42,7 +42,7 @@
                     </c:choose>
                     <div class="flex items-center gap-2 text-sm">
                         <p class="text-gray-500 mr-3">${chapter.updatedAt}</p>
-                        <a href="${pageContext.request.contextPath}/staff-chapter?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
+                        <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                             <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
                                 <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
