@@ -161,12 +161,12 @@ public class ChapterServices {
         return chapterDAO.getFirstChapterNumber(seriesId);
     }
 
-    public static String getRedirectUrl(String action, int seriesId, int chapterNumber) throws SQLException, ClassNotFoundException {
+    public static String getRedirectUrl(String type, int seriesId, int chapterNumber) throws SQLException, ClassNotFoundException {
         Chapter chapter = new Chapter();
         ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
-        if (action.equals("next")) {
+        if (type.equals("next")) {
             chapter = chapterDAO.getNextChapter(seriesId, chapterNumber);
-        } else if (action.equals("previous")){
+        } else if (type.equals("previous")){
             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
         }
         return String.format("chapter?action=detail&seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());

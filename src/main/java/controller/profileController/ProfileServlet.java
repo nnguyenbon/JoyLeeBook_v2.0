@@ -7,7 +7,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Badge;
 import model.User;
 import services.account.AuthorServices;
 import services.account.UserServices;
@@ -34,15 +33,9 @@ public class ProfileServlet extends HttpServlet {
     }
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
-//        Dùng session bắt xem đây là xem profile bản thân hay tác giả, bắt luôn role
-//        int accountId = request.getSession().getAttribute("accountId") == null ? Integer.parseInt(request.getParameter("accountId")) : Integer.parseInt(request.getParameter("accountId"));
-        int accountId = -1;
-        String role = "reader";
         User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null ) {
-            accountId = user.getUserId();
-            role = user.getRole();
-        }
+        int accountId = user != null ? user.getUserId() : -1;
+        String role = user != null ? user.getRole() : null;
         try {
             UserServices userServices = new UserServices();
             BadgesServices badgesServices = new BadgesServices();
@@ -71,8 +64,8 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
-
+        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        int userId = loginedUser != null ? loginedUser.getUserId() : -1;
         try {
             String userName = request.getParameter("username");
             String fullName = request.getParameter("fullName");

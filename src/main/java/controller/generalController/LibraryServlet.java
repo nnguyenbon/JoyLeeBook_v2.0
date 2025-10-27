@@ -88,8 +88,11 @@ public class LibraryServlet extends HttpServlet {
                 saveSeriesService.unSaveSeries(savedSeries);
                 saved = false;
             }
-
             response.getWriter().write("{\"success\": true, \"saved\": " + saved + "}");
+            String returnUrl = request.getParameter("isLibrary") == null ? "" : request.getParameter("isLibrary");
+            if (returnUrl.equals("true")) {
+                response.sendRedirect("library?action=view");
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             response.getWriter().write("{\"success\": false}");

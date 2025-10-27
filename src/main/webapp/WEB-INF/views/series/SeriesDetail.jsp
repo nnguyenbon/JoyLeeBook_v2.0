@@ -97,7 +97,7 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
+            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.size() != 0 ? chapterInfoDTOList.get(0).chapterId : ""}">
                 <button
                         class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
                     <i class="fa-solid fa-play"></i>
@@ -128,18 +128,25 @@
         <div class="col-span-10 col-start-2">
             <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
             <div class="space-y-3 border-2 border-neutral-400 p-3 rounded-lg  ">
-                <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
-                    <c:forEach var="chapter" items="${chapterInfoDTOList}">
-                        <li>
-                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
-                                <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                                    <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                                    <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
-                                </div>
-                            </a>
-                        </li>
-                    </c:forEach>
-                </ul>
+                <c:choose>
+                    <c:when test="${chapterInfoDTOList.size() != 0}">
+                        <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
+                            <c:forEach var="chapter" items="${chapterInfoDTOList}">
+                                <li>
+                                    <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                                        <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                                            <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
+                                            <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                            </c:forEach>
+                        </ul>
+                    </c:when>
+                    <c:otherwise>
+                        <div>This series has no chapters</div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </section>
@@ -167,8 +174,8 @@
     var radioButtons, labels;
 
     if (starContainer) {
-         radioButtons = starContainer.querySelectorAll('input[name="rating"]');
-         labels = starContainer.querySelectorAll('label');
+        radioButtons = starContainer.querySelectorAll('input[name="rating"]');
+        labels = starContainer.querySelectorAll('label');
     }
     let currentRating = ${userRating};
 
@@ -200,7 +207,7 @@
             // Gửi request
             fetch("reaction", {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: new URLSearchParams({
                     userId: userId,
                     seriesId: seriesId,
@@ -229,14 +236,14 @@
     // Khi rời chuột ra ngoài
     starContainer.addEventListener('mouseout', () => colorStars(currentRating));
 
-    document.getElementById("saveBtn").addEventListener("click", function() {
+    document.getElementById("saveBtn").addEventListener("click", function () {
         const saveBtn = this;
         const saveIcon = saveBtn.querySelector("i");
 
         const userId = saveBtn.dataset.userId;
         const seriesId = saveBtn.dataset.seriesId;
 
-        const type = saveBtn.classList.contains("saved") ? "unsave" : "save";
+        const type = saveIcon.classList.contains("fa-solid") ? "unsave" : "save";
         colorStars(currentRating);
         fetch("library", {
             method: "POST",

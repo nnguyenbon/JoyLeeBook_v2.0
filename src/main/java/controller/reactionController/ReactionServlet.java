@@ -28,14 +28,9 @@ public class ReactionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null || user.getRole() == null || !user.getRole().equals("reader")) {
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("Please login to like chapter");
-            return;
-        }
         try {
             try {
-                int userId = Integer.parseInt(request.getParameter("userId"));
+                int userId = user != null ? user.getUserId() : 0;
                 int chapterId = Integer.parseInt(request.getParameter("chapterId"));
                 LikeServices likeService = new LikeServices();
                 int newLikeCount = likeService.likeChapter(userId, chapterId);
