@@ -67,8 +67,8 @@
             <div class="flex flex-col items-center justify-center">
 
                 <div class="text-gray-500 font-semibold text-lg mb-1">
-                    <span class="text-yellow-400">★ ${seriesInfoDTO.avgRating}</span>
-                    <span>(${seriesInfoDTO.countRatings})</span>
+                    <span id="avgRatingDisplay" class="text-yellow-400">★ ${seriesInfoDTO.avgRating}</span>
+                    <span id="totalRatingsDisplay">(${seriesInfoDTO.countRatings})</span>
                 </div>
 
                 <div id="starRatingContainer" class="flex">
@@ -106,10 +106,10 @@
             </a>
 
 
-            <button
-                    class="border border-red-400 flex items-center gap-2 text-red-400 px-5 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors">
-                <i class="fa-solid fa-bookmark"></i>
-                Add to Library
+            <button id="saveBtn"
+                    class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                    data-user-id="10" data-series-id="${seriesInfoDTO.seriesId}">
+                <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
             </button>
         </div>
 
@@ -160,14 +160,17 @@
 </div>
 
 <script>
-    const starContainer = document.getElementById('starRatingContainer');
-    const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
-    const labels = starContainer.querySelectorAll('label');
-    const modal = document.getElementById('confirmModal');
-    const confirmText = document.getElementById('confirmText');
-    const confirmBtn = document.getElementById('confirmBtn');
+    const userId = ${userId};
+    const seriesId = "${seriesInfoDTO.seriesId}";
 
-    let currentRating = 0;
+    const starContainer = document.getElementById('starRatingContainer');
+    var radioButtons, labels;
+
+    if (starContainer) {
+         radioButtons = starContainer.querySelectorAll('input[name="rating"]');
+         labels = starContainer.querySelectorAll('label');
+    }
+    let currentRating = ${userRating};
 
     function colorStars(ratingValue) {
         labels.forEach((label, index) => {
@@ -181,17 +184,81 @@
         });
     }
 
+    //
+    colorStars(currentRating);
+    // Khi hover qua sao
     labels.forEach((label, index) => {
         const ratingValue = index + 1;
+
         label.addEventListener('mouseover', () => colorStars(ratingValue));
+
         label.addEventListener('click', () => {
             currentRating = ratingValue;
             radioButtons[index].checked = true;
-            confirmText.textContent = `You confirm ${currentRating}-star rating?`;
-            modal.classList.remove('hidden');
+            colorStars(currentRating);
+
+            // Gửi request
+            fetch("reaction", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    userId: userId,
+                    seriesId: seriesId,
+                    rating: currentRating,
+                    action: "rate"
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("⭐ Rating saved:", data.rating);
+
+
+                        const avgDisplay = document.getElementById("avgRatingDisplay");
+                        const totalDisplay = document.getElementById("totalRatingsDisplay");
+                        if (avgDisplay) avgDisplay.textContent = "★ " + data.avgRating.toFixed(1);
+                        if (totalDisplay) totalDisplay.textContent = "(" + data.totalRatings + ")";
+                    } else {
+                        console.error("❌ Error saving rating!");
+                    }
+                })
+                .catch(error => console.error("⚠️ Fetch error:", error));
         });
     });
 
+    // Khi rời chuột ra ngoài
     starContainer.addEventListener('mouseout', () => colorStars(currentRating));
-    confirmBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+    document.getElementById("saveBtn").addEventListener("click", function() {
+        const saveBtn = this;
+        const saveIcon = saveBtn.querySelector("i");
+
+        const userId = saveBtn.dataset.userId;
+        const seriesId = saveBtn.dataset.seriesId;
+
+        const type = saveBtn.classList.contains("saved") ? "unsave" : "save";
+        colorStars(currentRating);
+        fetch("library", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: "userId=" + encodeURIComponent(userId) +
+                "&seriesId=" + encodeURIComponent(seriesId) +
+                "&type=" + encodeURIComponent(type) +
+                "&action=save"
+
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.saved) {
+                        saveBtn.classList.add("saved");
+                        saveIcon.classList.replace("fa-regular", "fa-solid");
+                    } else {
+                        saveBtn.classList.remove("saved");
+                        saveIcon.classList.replace("fa-solid", "fa-regular");
+                    }
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
 </script>

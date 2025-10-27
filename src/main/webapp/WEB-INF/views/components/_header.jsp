@@ -121,7 +121,7 @@ change this template use File | Settings | File Templates. --%>
                             >
                         </a>
                         <a
-                                href="${pageContext.request.contextPath}/library"
+                                href="${pageContext.request.contextPath}/library?action=view"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-bookmark"></i>

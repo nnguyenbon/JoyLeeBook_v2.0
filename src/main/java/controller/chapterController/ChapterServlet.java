@@ -15,7 +15,7 @@ import services.chapter.ChapterManagementService;
 import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
-import services.like.LikeService;
+import services.chapter.LikeServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -341,7 +341,7 @@ public class ChapterServlet extends HttpServlet {
             try {
                 ChapterServices chapterServices = new ChapterServices();
                 CommentServices commentServices = new CommentServices();
-                LikeService likeService = new LikeService();
+                LikeServices likeService = new LikeServices();
                 int userId = 10;
                 String chapterIdParam = request.getParameter("chapterId");
                 int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);

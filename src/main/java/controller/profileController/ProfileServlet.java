@@ -36,8 +36,13 @@ public class ProfileServlet extends HttpServlet {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
 //        Dùng session bắt xem đây là xem profile bản thân hay tác giả, bắt luôn role
 //        int accountId = request.getSession().getAttribute("accountId") == null ? Integer.parseInt(request.getParameter("accountId")) : Integer.parseInt(request.getParameter("accountId"));
-        int accountId = 1;
+        int accountId = -1;
         String role = "reader";
+        User user = (User) request.getSession().getAttribute("loginedUser");
+        if (user == null ) {
+            accountId = user.getUserId();
+            role = user.getRole();
+        }
         try {
             UserServices userServices = new UserServices();
             BadgesServices badgesServices = new BadgesServices();
