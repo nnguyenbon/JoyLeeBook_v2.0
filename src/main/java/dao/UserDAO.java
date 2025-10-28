@@ -1,7 +1,7 @@
 package dao;
 
 import model.User;
-import utils.HashPwd;
+import utils.AuthenticationUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -97,7 +97,7 @@ public class UserDAO {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, HashPwd.hashPwd(password));
+            stmt.setString(1, AuthenticationUtils.hashPwd(password));
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
             stmt.setInt(3, userId);
             return stmt.executeUpdate() > 0;
@@ -205,7 +205,7 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
-                    if (HashPwd.checkPwd(password, hashedPasswordFromDB)) {
+                    if (AuthenticationUtils.checkPwd(password, hashedPasswordFromDB)) {
                         return mapResultSetToUser(rs);
                     } else {
                         return null;

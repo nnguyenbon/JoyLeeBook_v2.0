@@ -5,11 +5,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Account;
 import model.User;
 import services.chapter.ChapterServices;
 import services.series.RatingSeriesService;
 import services.series.SavedSeriesService;
 import services.series.SeriesServices;
+import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -38,10 +40,9 @@ public class SeriesServlet extends HttpServlet {
     }
 
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
-
         if (role.equals("admin") || role.equals("staff")) {
             try {
                 SeriesServices seriesServices = new SeriesServices();
@@ -61,13 +62,14 @@ public class SeriesServlet extends HttpServlet {
             }
         } else {
             try {
+                User user = (User) loginedUser;
                 SeriesServices seriesServices = new SeriesServices();
                 RatingSeriesService ratingSeriesService = new RatingSeriesService();
                 ChapterServices chapterServices = new ChapterServices();
                 SavedSeriesService savedSeriesService = new SavedSeriesService();
                 int userId = 0;
                 if  (loginedUser != null) {
-                    userId = loginedUser.getUserId();
+                    userId = user.getUserId();
                 }
                 request.setAttribute("userId", userId);
                 request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
@@ -84,7 +86,7 @@ public class SeriesServlet extends HttpServlet {
     }
 
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         if (role.equals("admin") || role.equals("staff")) {
 
@@ -109,7 +111,6 @@ public class SeriesServlet extends HttpServlet {
             String[] genre = request.getParameterValues("genres");
             String status = request.getParameter("status");
             String description = request.getParameter("description");
-
             SeriesServices seriesServices = new SeriesServices();
             seriesServices.createSeries(userId, coverImgUrl, title, status, description);
         } catch (SQLException | ClassNotFoundException e) {

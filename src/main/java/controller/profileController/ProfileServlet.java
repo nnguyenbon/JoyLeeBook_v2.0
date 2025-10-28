@@ -12,6 +12,7 @@ import services.account.AuthorServices;
 import services.account.UserServices;
 import services.general.BadgesServices;
 import services.series.SeriesServices;
+import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -35,16 +36,15 @@ public class ProfileServlet extends HttpServlet {
 
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        int accountId = user != null ? user.getUserId() : -1;
-        String role = user != null ? user.getRole() : null;
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
+        String role = loginedUser != null ? loginedUser.getRole() : null;
         try {
             UserServices userServices = new UserServices();
             BadgesServices badgesServices = new BadgesServices();
 
             request.setAttribute("user", userServices.getUser(userId));
             request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
-//            request.setAttribute("badgeList", badgesServices.getAllBadges());
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
@@ -66,7 +66,7 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : -1;
         try {
             String userName = request.getParameter("username");
@@ -93,8 +93,8 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void changePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
-
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = loginedUser != null ? loginedUser.getUserId() : -1;
         try {
             String oldPassword = request.getParameter("oldPassword");
             String newPassword = request.getParameter("newPassword");

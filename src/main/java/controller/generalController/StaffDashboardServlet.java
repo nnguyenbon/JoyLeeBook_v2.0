@@ -6,8 +6,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Staff;
+import model.User;
 import services.account.StaffServices;
 
+import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -19,12 +21,12 @@ import java.sql.SQLException;
 public class StaffDashboardServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int staffId = ValidationInput.isPositiveInteger(request.getParameter("staffId")) ? Integer.parseInt(request.getParameter("staffId")) : 1;
+        Staff loginedStaff = (Staff) AuthenticationUtils.getLoginedUser(request.getSession());
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");
 
         try {
             StaffServices staffServices = new StaffServices();
-            Staff staff = staffServices.getStaffAccount(staffId);
+            Staff staff = staffServices.getStaffAccount(loginedStaff == null ? -1 : loginedStaff.getStaffId());
             if (staffServices.handleRedirect(type, request, response)) {
                 return;
             }

@@ -5,8 +5,8 @@ import db.DBConnection;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import model.User;
+import utils.AuthenticationUtils;
 import utils.EmailUtility;
-import utils.HashPwd;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,7 +37,7 @@ public class HandleOTPServices {
         int otp = 100000 + rand.nextInt(900000);
 
         // Lưu OTP vào session để xác thực sau
-        String hashedOTP = HashPwd.hashPwd(String.valueOf(otp));
+        String hashedOTP = AuthenticationUtils.hashPwd(String.valueOf(otp));
         session.setAttribute("otp", hashedOTP);
         System.out.println(otp);
         // Gửi email
