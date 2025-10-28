@@ -5,15 +5,18 @@
   Time: 5:25 PM
   To change this template use File | Settings | File Templates.
 --%>
-<main>
-    <div class="text-center mb-6">
+<main class="overflow-y-auto max-h-[80vh] px-2 custom-scrollbar">
+    <div class="text-center mb-4">
         <h1 class="font-bold text-4xl">Create your account</h1>
         <p class="text-gray-500">
             Join thousands of readers and discover amazing stories
         </p>
+        <c:if test="${not empty message}">
+            <p class="text-red-600 font-medium mt-2">${message}</p>
+        </c:if>
     </div>
 
-    <form action="${pageContext.request.contextPath}/handleOTP" method="post">
+    <form action="${pageContext.request.contextPath}/register?action=sendOtp" method="post">
         <div>
             <label class="block mt-2 mb-1" for="username">Username*</label>
             <input
@@ -22,24 +25,25 @@
                     name="username"
                     class="border border-gray-400 w-full rounded-md px-4 py-2"
                     placeholder="Enter a unique username"
+                    value="${username == null ? "" : username}"
                     required
             />
-            <p class="text-xs text-red-700">
-                username cannot contain special characters
+            <p id="username-error" class="text-xs text-red-700">
             </p>
         </div>
 
         <div>
-            <label class="block mt-2 mb-1" for="email">Full name*</label>
+            <label class="block mt-2 mb-1" for="fullName">Full name*</label>
             <input
                     type="text"
                     id="fullName"
                     name="fullName"
                     class="border border-gray-400 w-full rounded-md px-4 py-2"
                     placeholder="Enter your full name"
+                    value="${fullName == null ? "" : fullName}"
                     required
             />
-            <p class="text-xs text-red-700">letters and spaces only</p>
+            <p id="fullname-error" class="text-xs text-red-700"></p>
         </div>
 
         <div>
@@ -50,10 +54,10 @@
                     name="email"
                     class="border border-gray-400 w-full rounded-md px-4 py-2"
                     placeholder="Enter your email"
+                    value="${email == null ? "" : email}"
                     required
             />
-            <p class="text-xs text-red-700">
-                valid format, e.g. name@email.com
+            <p id="email-error" class="text-xs text-red-700">
             </p>
         </div>
 
@@ -67,6 +71,7 @@
                             name="password"
                             class="border border-gray-400 w-full rounded-md pl-4 pr-8 py-2"
                             placeholder="Enter your password"
+                            value="${password == null ? "" : password}"
                             required
                     />
                     <i
@@ -74,6 +79,8 @@
                             onclick="togglePassword(this, 'password')"
                     ></i>
                 </div>
+                <p id="password-error" class="text-xs text-red-700">
+                </p>
             </div>
 
             <div>
@@ -86,7 +93,7 @@
                             id="confirmPassword"
                             name="confirmPassword"
                             class="border border-gray-300 w-full rounded-md pl-4 pr-8 py-2"
-                            placeholder="Confirm your password"
+                            placeholder="Confirm password"
                             required
                     />
                     <i
@@ -97,14 +104,12 @@
             </div>
         </div>
 
-        <p class="text-xs text-red-700">
-            Your password should include lowercase letters, uppercase letters,
-            numbers and special characters
-        </p>
 
         <button
+                id="submit-btn"
                 class="block text-xl text-white font-bold py-1 mt-2 ring w-full rounded-md bg-sky-800 hover:bg-sky-800/80 transition duration-300 cursor-pointer"
                 type="submit"
+                disabled
         >
             Create Account
         </button>

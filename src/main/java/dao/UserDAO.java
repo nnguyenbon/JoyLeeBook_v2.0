@@ -1,8 +1,6 @@
 package dao;
 
-import db.DBConnection;
 import model.User;
-import org.mindrot.jbcrypt.BCrypt;
 import utils.HashPwd;
 
 import java.sql.*;
@@ -200,10 +198,10 @@ public class UserDAO {
     }
 
     public User findByUserLogin(String username, String password) throws SQLException {
-        String test = HashPwd.hashPwd(password);
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ? OR email = ? ";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
+            ps.setString(2, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
@@ -218,11 +216,23 @@ public class UserDAO {
         return null;
     }
 
-    public boolean findByUsernameOrEmail(String username, String email) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ? OR email = ?";
+    public boolean checkByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean checkByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return true;

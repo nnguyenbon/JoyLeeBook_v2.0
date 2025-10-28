@@ -236,7 +236,8 @@
                        placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""} />
 
                 <button id="commentSubmitBtn" type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg
+                        <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          stroke-width="2" stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -260,9 +261,11 @@
                             </div>
                         </div>
                         <div class="relative">
-                            <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <i class="fa-solid fa-ellipsis"></i>
-                            </button>
+                            <c:if test='${userId != 0}'>
+                                <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                </button>
+                            </c:if>
 
                             <div
                                     class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -278,10 +281,12 @@
                                         Delete
                                     </button>
                                 </c:if>
-                                <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        data-comment-id="${comment.commentId}">
-                                    Report
-                                </button>
+                                <c:if test="${userId != 0}">
+                                    <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            data-comment-id="${comment.commentId}">
+                                        Report
+                                    </button>
+                                </c:if>
                             </div>
                         </div>
                     </div>

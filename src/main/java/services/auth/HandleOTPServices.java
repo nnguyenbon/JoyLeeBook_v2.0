@@ -20,9 +20,14 @@ public class HandleOTPServices {
         this.conn = DBConnection.getConnection();
     }
 
-    public boolean checkUserExist(User user) throws SQLException {
+    public boolean checkExistUsername(String username) throws SQLException {
         UserDAO userDAO = new UserDAO(conn);
-        return userDAO.findByUsernameOrEmail(user.getUsername(), user.getEmail());
+        return userDAO.checkByUsername(username);
+    }
+
+    public boolean checkExistEmail(String email) throws SQLException {
+        UserDAO userDAO = new UserDAO(conn);
+        return userDAO.checkByEmail(email);
     }
 
     public boolean sendOTP(HttpSession session, User user) throws SQLException {
