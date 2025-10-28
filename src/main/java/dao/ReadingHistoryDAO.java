@@ -123,6 +123,21 @@ public class ReadingHistoryDAO {
         }
     }
 
+    /**
+     * Deletes all ReadingHistory records for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return true if the deletion was successful, false otherwise.
+     * @throws SQLException If an SQL error occurs during the deletion.
+     */
+    public boolean deleteByUserId(int userId) throws SQLException {
+        String sql = "DELETE FROM reading_history WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public boolean deleteByChapterId(int chapterId) throws SQLException {
         String sql = "DELETE FROM reading_history WHERE chapter_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

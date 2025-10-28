@@ -92,7 +92,7 @@
                         <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.title}</p>
                     </div>
                     <div class="text-sm text-gray-500">${chapter.lastReadAt }</div>
-                    <form action="${pageContext.request.contextPath}/Library" method="post">
+                    <form action="${pageContext.request.contextPath}/library?action=deleteHistory&chapterId=${chapter.chapterId}" method="post">
                         <button class="ml-4 text-gray-400 hover:text-red-500" type="submit" title="Delete">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
