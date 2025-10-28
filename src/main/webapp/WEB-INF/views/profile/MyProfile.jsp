@@ -93,25 +93,43 @@
         </div>
 
         <div class="border border-sky-600/50 rounded-xl px-4 py-8 mt-8">
-            <ul class="w-full flex flex-wrap gap-y-8">
+            <ul class="grid grid-cols-3 gap-6">
                 <c:forEach var="badge" items="${badgeList}">
-                    <li class="w-1/3 text-center">
-                        <div class="size-32 mx-auto mb-1 rounded-full overflow-hidden bg-gray-200 relative">
-                            <img
-                                    src="${badge.iconUrl}"
-                                    class="w-full h-full object-cover object-center ${badge.isUnlocked ? '' : 'grayscale opacity-50'}"
-                                    alt="${badge.name}"
-                            />
-                            <c:if test="${!badge.isUnlocked}">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <i class="fas fa-lock text-gray-600 text-2xl"></i>
+                    <li class="flex flex-col items-center">
+                        <div class="w-32 h-32 mb-2 rounded-full overflow-hidden bg-gray-200 relative flex items-center justify-center flex-shrink-0">
+                            <c:choose>
+                                <c:when test="${badge.unlocked}">
+                                    <img
+                                            src="${badge.iconUrl}"
+                                            class="w-full h-full object-cover"
+                                            alt="${badge.name}"
+                                    />
+                                </c:when>
+                                <c:otherwise>
+                                    <img
+                                            src="${badge.iconUrl}"
+                                            class="w-full h-full object-cover grayscale opacity-50"
+                                            alt="${badge.name}"
+                                    />
+                                </c:otherwise>
+                            </c:choose>
+
+                            <!-- Lock icon -->
+                            <c:if test="${!badge.unlocked}">
+                                <div class="absolute inset-0 flex items-center justify-center bg-opacity-20">
                                 </div>
                             </c:if>
                         </div>
-                        <p class="${badge.isUnlocked ? 'text-gray-900 font-medium' : 'text-gray-400'}">${badge.name}</p>
-                        <c:if test="${!badge.isUnlocked}">
-                            <p class="text-xs text-gray-400 mt-1">Locked</p>
-                        </c:if>
+
+                        <c:choose>
+                            <c:when test="${badge.unlocked}">
+                                <p class="text-sm text-gray-900 font-medium text-center">${badge.name}</p>
+                            </c:when>
+                            <c:otherwise>
+                                <p class="text-sm text-gray-400 text-center">${badge.name}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Locked</p>
+                            </c:otherwise>
+                        </c:choose>
                     </li>
                 </c:forEach>
             </ul>

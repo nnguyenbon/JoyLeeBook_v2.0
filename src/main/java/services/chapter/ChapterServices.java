@@ -158,40 +158,28 @@ public class ChapterServices {
 
         try {
             connection.setAutoCommit(false);
-
-
             if (!chapterDAO.deleteOldReadingHistory(userId, seriesId)){
                 return;
             }
-
-
             if (chapterDAO.insertReadingHistory(userId, chapterId)) {
                 PointServices.trackAction(userId, 3, "Reading chapter", "chapter", chapterId);
             }
-
             connection.commit();
         } catch (SQLException e) {
-            System.out.println("❌ Error updating reading history for user ID " + userId + " and chapter ID " + chapterId);
+            System.out.println("Error updating reading history for user ID " + userId + " and chapter ID " + chapterId);
             try {
                 connection.rollback();
             } catch (SQLException rollbackEx) {
-                System.out.println("⚠️ Error rolling back transaction");
+                System.out.println("Error rolling back transaction");
             }
             System.out.println(e.getMessage());
         } finally {
             try {
                 connection.setAutoCommit(originalAutoCommit);
             } catch (SQLException setAutoCommitEx) {
-                System.out.println("⚠️ Error restoring auto-commit setting");
+                System.out.println("Error restoring auto-commit setting");
             }
         }
-    }
-
-
-
-
-    public void trackingHistory(int userId, int chapterId) throws SQLException {
-
     }
 
     public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList) throws SQLException {

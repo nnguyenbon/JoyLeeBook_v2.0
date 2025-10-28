@@ -46,16 +46,9 @@ public class LibraryServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "view"; // Default action
-        }
+//        String action = request.getParameter("action");
 
-        if (action.equals("view")) {
-            viewLibrary(request, response);
-        } else {
-            viewLibrary(request, response);
-        }
+        viewLibrary(request, response);
     }
 
     private void viewLibrary(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

@@ -349,7 +349,6 @@ public class ChapterServlet extends HttpServlet {
                 String chapterIdParam = request.getParameter("chapterId");
                 int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
                 chapterServices.updateReadingHistory(userId, chapterId);
-
                 List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.chaptersFromSeries(seriesId);
                 request.setAttribute("firstChapterId", chapterDetailDTOList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size()-1).getChapterId());
@@ -375,13 +374,7 @@ public class ChapterServlet extends HttpServlet {
         if (role.equals("admin") ||  role.equals("staff")) {
 
         } else if (role.equals("author")) {
-
-            // get userId from session
             Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-            // testing
-            // userId = 3;
-
             if (userId == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;

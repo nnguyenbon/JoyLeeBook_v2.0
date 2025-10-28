@@ -43,8 +43,8 @@ public class ProfileServlet extends HttpServlet {
             BadgesServices badgesServices = new BadgesServices();
 
             request.setAttribute("user", userServices.getUser(userId));
-//            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
-            request.setAttribute("badgeList", badgesServices.getAllBadges());
+            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
+//            request.setAttribute("badgeList", badgesServices.getAllBadges());
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
