@@ -9,7 +9,7 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>homepage</welcome-file>
+        <welcome-file>staff</welcome-file>
     </welcome-file-list>
     <error-page>
         <error-code>404</error-code>

@@ -2,124 +2,230 @@
   Created by IntelliJ IDEA.
   User: KHAI TOAN
   Date: 10/14/2025
-  Time: 3:34 PM
+  Time: 4:07 PM
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!-- List Header -->
-<p class="text-gray-500 text-sm mb-2 px-9 mt-2">Total: ${size}</p>
 
-<!-- Content Container with Scroll -->
-<div class="h-[calc(100vh-15rem)] overflow-y-auto px-9 bg-gray-100 custom-scrollbar">
-    <!-- Series List -->
+<!-- Content -->
+<div class="main-content px-5 py-3 bg-[#F5F4FA]">
+    <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
+        <div class="flex justify-between items-center">
+            <!-- Tabs Header -->
+            <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
+                <a href="${pageContext.request.contextPath}/series?action=list" id="tab-series" data-type="series" class="tab-btn text-xl text-[#195DA9] border-b-4 py-1 border-[#195DA9]">Series List</a>
+                <a href="${pageContext.request.contextPath}/chapter?action=list&status=Pending" id="tab-chapter" data-type="chapter" class="tab-btn text-xl text-gray-500 border-b-4 border-white py-1 hover:text-[#195DA9]">Chapter Review</a>
+            </div>
 
-    <c:forEach var="series" items="${seriesInfoDTOList}">
-        <div class="space-y-3">
-            <div class="flex items-center justify-between border rounded-lg bg-white px-4 py-3 hover:shadow-sm">
-                <div class="flex items-center gap-4">
-                    <img src="${pageContext.request.contextPath}/${series.coverImgUrl}"
-                         class="w-12 h-16 rounded object-cover" alt="">
-                    <div>
-                        <p class="font-semibold text-gray-800">${series.title}</p>
-                        <c:forEach var="category" items="${series.categories}">
-                            <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
-                        </c:forEach>
-                    </div>
+            <!-- Search & Filter Form -->
+            <form method="GET" action="${pageContext.request.contextPath}/series" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
+                <input type="hidden" name="action" value="list">
+                <!-- Ô tìm kiếm -->
+                <div class="col-span-2 relative">
+                    <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                    <input type="text" name="search" id="searchInput" placeholder="Search series, chapter..."
+                           value="${search}"
+                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 </div>
-                <div class="flex items-center gap-10 text-sm">
-                    <p class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                             stroke-linecap="round" stroke-linejoin="round"
-                             class="lucide lucide-star-icon lucide-star">
-                            <path
-                                    d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
-                        </svg>
-                        <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
-                    </p>
-                    <p>${series.totalChapters} Chapters</p>
-                    <c:choose>
-                        <c:when test="${series.status == 'Completed'}">
-                                    <span class="w-20 text-center py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
-                                            ${series.status}
-                                    </span>
-                        </c:when>
-                        <c:when test="${series.status == 'Ongoing'}">
-                                    <span class="w-20 text-center py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs">
-                                            ${series.status}
-                                    </span>
-                        </c:when>
-                        <c:otherwise>
-                                    <span class="w-20 text-center py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
-                                            ${series.status}
-                                    </span>
-                        </c:otherwise>
-                    </c:choose>
 
-                    <p class="text-gray-500">${series.createdAt}</p>
-                    <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}">
-                        <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
-                                <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                           stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye">
-                                        <path
-                                                d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg></span>
-                            Detail
+                <!-- Lọc status -->
+                <div class="col-span-1">
+                    <select name="filterByStatus" id="filterByStatus"
+                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All status</option>
+                        <option value="Completed" ${status eq 'Completed' ? 'selected' : ''}>Completed</option>
+                        <option value="Ongoing" ${status eq 'Ongoing' ? 'selected' : ''}>Ongoing</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+
+        <!-- Table -->
+        <div class="overflow-x-auto rounded-sm mb-3">
+            <table class="min-w-full text-sm text-left">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+                <tr>
+                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">Cover</th>
+                    <th class="px-4 py-3">Title</th>
+                    <th class="px-4 py-3">Categories</th>
+                    <th class="px-4 py-3">Avg Rating</th>
+                    <th class="px-4 py-3">Total Chapters</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-4 text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-300">
+                <c:forEach var="series" items="${seriesInfoDTOList}">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">${series.seriesId}</td>
+                        <td class="px-4 py-3">
+                            <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="${series.title}"
+                                 class="w-10 h-12 rounded object-cover">
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-gray-800">${series.title}</td>
+                        <td class="px-4 py-3">
+                            <c:forEach var="category" items="${series.categories}" varStatus="loop">
+                                <span class="border border-gray-200 text-xs px-2 rounded-full text-gray-600 bg-gray-100 mr-1">${category}</span>
+                                <c:if test="${!loop.last}">,</c:if>
+                            </c:forEach>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700">
+                            <div class="flex items-center">
+                                <i class="fa-regular fa-star text-yellow-500 mr-1"></i>
+                                    ${series.avgRating} (${series.countRatings})
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700">${series.totalChapters} Chapters</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                <c:choose>
+                                    <c:when test="${series.status == 'Completed'}">bg-green-100 text-green-700</c:when>
+                                    <c:when test="${series.status == 'Ongoing'}">bg-yellow-100 text-yellow-700</c:when>
+                                    <c:otherwise>bg-gray-100 text-gray-700</c:otherwise>
+                                </c:choose>">
+                                    ${series.status}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700">
+                              ${series.createdAt}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="relative flex justify-end gap-2 text-left">
+                                <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}"
+                                   class="block px-2 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100">
+                                    <i class="fa-regular fa-eye mr-2"></i>Detail
+                                </a>
+
+                                <button type="button"
+                                        class="text-gray-500 hover:text-gray-700"
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+
+                                <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden group-hover:block">
+                                    <!-- Add staff/admin actions here if needed, similar to account page -->
+                                    <c:if test="${sessionScope.role eq 'staff' or sessionScope.role eq 'admin'}">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/series?action=edit&seriesId=${series.seriesId}"
+                                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                                <i class="fas fa-edit mr-2"></i>Edit
+                                            </a>
+                                        </li>
+                                    </c:if>
+                                    <c:if test="${sessionScope.role eq 'admin'}">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/series?action=delete&seriesId=${series.seriesId}"
+                                               onclick="return confirm('Xác nhận xóa series?')"
+                                               class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                                                <i class="fas fa-trash mr-2"></i>Delete
+                                            </a>
+                                        </li>
+                                    </c:if>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex justify-between items-center">
+            <div class="mb-4">
+                <p class="text-gray-500 text-sm">Total: ${size}</p>
+            </div>
+            <!-- Pagination -->
+            <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
+                <c:if test="${totalPage > 3}">
+                <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                   class="page-link">
+                    <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
+                            <c:if test="${currentPage == 1}">disabled</c:if>>
+                        &lt;&lt;
+                    </button>
+                </a>
+
+                <c:if test="${currentPage > 3}">
+                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                       class="page-link">
+                        <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
+                    </a>
+                    <span class="px-2 py-1">...</span>
+                </c:if>
+
+                <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
+                           end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
+                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                       class="page-link">
+                        <button class="border rounded-md px-2 py-1
+                       ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
+                                ${i}
                         </button>
                     </a>
-                </div>
+                </c:forEach>
+
+                <c:if test="${currentPage < totalPage - 2}">
+                    <span class="px-2 py-1">...</span>
+                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                       class="page-link">
+                        <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
+                    </a>
+                </c:if>
+
+                <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                   class="page-link">
+                    <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
+                            <c:if test="${currentPage == totalPage}">disabled</c:if>>
+                        &gt;&gt;
+                    </button>
+                </a>
+                </c:if>
             </div>
         </div>
-    </c:forEach>
+
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Submit form khi nhấn Enter trong ô search
+    document.getElementById('searchInput').addEventListener('keypress', function (event) {
+        if (event.keyCode === 13) {
+            document.getElementById('filterForm').submit();
+        }
+    });
 
-<!-- Pagination -->
-<div class="flex justify-end items-center gap-1 py-4 text-sm px-9 bg-gray-100">
-    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
-       class="page-link">
-        <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
-                <c:if test="${currentPage == 1}">disabled</c:if>>
-            &lt;&lt;
-        </button>
-    </a>
+    // Tự động submit khi thay đổi status
+    document.getElementById('filterByStatus').addEventListener('change', function () {
+        document.getElementById('filterForm').submit();
+    });
 
 
-    <c:if test="${currentPage > 3}">
-        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
-           class="page-link">
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
-        </a>
-        <span class="px-2 py-1">...</span>
-    </c:if>
+        //Lay all btn in menu (ellipsis)
+        const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
 
-    <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
-               end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
-           class="page-link">
-            <button class="border rounded-md px-2 py-1
-                       ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
-                    ${i}
-            </button>
-        </a>
-    </c:forEach>
+        dropdownButtons.forEach(button => {
+            const menu = button.parentElement.querySelector("ul");
 
-    <c:if test="${currentPage < totalPage - 2}">
-        <span class="px-2 py-1">...</span>
-        <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
-           class="page-link">
-            <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
-        </a>
-    </c:if>
+            //When click on ellipsis -> toggle show menu
+            button.addEventListener("click", (e) => {
+                e.stopPropagation(); // Prevent the event from spreading
+                closeAllDropdowns();
+                menu.classList.toggle("hidden");
+            })
+        })
 
-    <a href="${pageContext.request.contextPath}/staff?type=${type}&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
-       class="page-link">
-        <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
-                <c:if test="${currentPage == totalPage}">disabled</c:if>>
-            &gt;&gt;
-        </button>
-    </a>
-</div>
+        //When click on out then hidden all menu
+        document.addEventListener("click", () => {
+            closeAllDropdowns();
+        })
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.relative ul').forEach(menu => {
+            menu.classList.add("hidden");
+        })
+    }
+</script>

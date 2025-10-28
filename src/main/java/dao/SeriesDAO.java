@@ -9,6 +9,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import dao.helper.PaginationDAOHelper;
+import dto.PaginationRequest;
 import model.Series;
 import model.SeriesAuthor;
 
@@ -16,7 +18,7 @@ import model.SeriesAuthor;
  * Data Access Object (DAO) for the Series entity.
  * Provides methods to perform CRUD operations on the series table in the database.
  *
- * @author KToan, HaiDD-dev
+ * @author KToan, HaiDD-dev, Trunguyen
  */
 public class SeriesDAO {
     private final Connection conn;
@@ -26,22 +28,128 @@ public class SeriesDAO {
     }
 
     /**
-     * Retrieves all non-deleted series from the database.
+     * Builds the base SQL query for selecting or counting series based on the given filters.
      *
-     * @return a list of Series objects
-     * @throws SQLException if a database access error occurs
+     * @param isCount   true if building a count query, false for select query
+     * @param genreIds  List of genre IDs to filter by
+     * @param userId    The author (user) ID
+     * @param status    Series status ("Ongoing", "Completed", etc.)
+     * @param search    Keyword for title search
+     * @return          A StringBuilder containing the full SQL query
      */
-    public List<Series> getAll() throws SQLException {
-        List<Series> list = new ArrayList<>();
-        String sql = "SELECT * FROM series WHERE is_deleted = 0";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(extractSeriesFromResultSet(rs));
+    // ========================== QUERY BUILDER ===============================
+
+    private StringBuilder buildSeriesBaseQuery(boolean isCount, List<Integer> genreIds, int userId, String status, String search) {
+        StringBuilder sql = new StringBuilder();
+
+        if (isCount) {
+            sql.append("SELECT COUNT(DISTINCT s.series_id) AS total ");
+        } else {
+            sql.append("""
+                SELECT DISTINCT 
+                    s.series_id, s.title, s.description, s.cover_image_url,
+                    s.status, s.is_deleted, s.rating_points, 
+                    s.created_at, s.updated_at
+                """);
+        }
+
+        sql.append("FROM series s ");
+
+        if (genreIds != null && !genreIds.isEmpty()) {
+            sql.append("""
+                INNER JOIN series_categories sc ON s.series_id = sc.series_id
+                INNER JOIN categories c ON sc.category_id = c.category_id
+                """);
+        }
+
+        if (userId > 0) {
+            sql.append("INNER JOIN series_author sa ON s.series_id = sa.series_id ");
+        }
+
+        sql.append("WHERE s.is_deleted = 0 ");
+
+        if (genreIds != null && !genreIds.isEmpty()) {
+            sql.append("AND c.category_id IN (");
+            for (int i = 0; i < genreIds.size(); i++) {
+                sql.append("?");
+                if (i < genreIds.size() - 1) sql.append(",");
+            }
+            sql.append(") ");
+        }
+
+        if (userId > 0) {
+            sql.append("AND sa.user_id = ? ");
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND s.status = ? ");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND s.title LIKE ? ");
+        }
+
+        return sql;
+    }
+
+    private int setSeriesQueryParameters(PreparedStatement stmt, List<Integer> genreIds, int userId, String status, String search) throws SQLException {
+        int index = 1;
+
+        if (genreIds != null && !genreIds.isEmpty()) {
+            for (Integer id : genreIds) {
+                stmt.setInt(index++, id);
             }
         }
+
+        if (userId > 0) {
+            stmt.setInt(index++, userId);
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            stmt.setString(index++, status);
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            stmt.setString(index++, "%" + search + "%");
+        }
+
+        return index;
+    }
+
+    // ========================== SELECT LIST + COUNT ===============================
+
+    public List<Series> getAll(String search, List<Integer> genreIds, int userId, String status, PaginationRequest paginationRequest) throws SQLException {
+        List<Series> list = new ArrayList<>();
+        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
+
+        StringBuilder sql = buildSeriesBaseQuery(false, genreIds, userId, status, search);
+        sql.append(paginationDAOHelper.buildPaginationClause());
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(extractSeriesFromResultSet(rs));
+                }
+            }
+        }
+
         return list;
     }
+
+    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String status) throws SQLException {
+        StringBuilder sql = buildSeriesBaseQuery(true, genreIds, userId, status, search);
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
+
 
     /**
      * Finds a series by its ID.
@@ -362,7 +470,19 @@ public class SeriesDAO {
             return seriesList;
         }
     }
+    public int countAllNonDeleted() {
+        String sql = "SELECT COUNT(*) AS total FROM series WHERE is_deleted = 0";
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
     /**
      * Utility method to extract a Series object from a ResultSet.
      *
@@ -375,7 +495,6 @@ public class SeriesDAO {
         s.setSeriesId(rs.getInt("series_id"));
         s.setTitle(rs.getString("title"));
         s.setDescription(rs.getString("description"));
-
         s.setCoverImgUrl(rs.getString("cover_image_url"));
         s.setStatus(rs.getString("status"));
         s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
@@ -384,4 +503,6 @@ public class SeriesDAO {
         s.setRating_points(rs.getInt("rating_points"));
         return s;
     }
+
+
 }

@@ -337,4 +337,46 @@ public class UserDAO {
             conn.setAutoCommit(true);
         }
     }
+
+    public int countActiveUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveAuthors() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active' AND role='author'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countBannedUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'banned'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

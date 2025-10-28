@@ -1,5 +1,7 @@
 package controller.seriesController;
 
+import dto.PaginationRequest;
+import dto.series.SeriesInfoDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,26 +10,32 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import services.chapter.ChapterServices;
 import services.series.SeriesServices;
+import utils.PaginationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @WebServlet("/series")
 public class SeriesServlet extends HttpServlet {
+
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action.equals("add")) {
             addSeries(request, response);
-        } else if (action.equals("edit")){
+        } else if (action.equals("edit")) {
 
-        } else if (action.equals("delete")){
+        } else if (action.equals("delete")) {
             deleteSeries(request, response);
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+
         if (action.equals("detail")) {
             viewSeriesDetail(request, response);
         } else {
@@ -39,7 +47,7 @@ public class SeriesServlet extends HttpServlet {
         User loginedUser = (User) request.getSession().getAttribute("loginedUser");
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
-
+        role = "staff";
         if (role.equals("admin") || role.equals("staff")) {
             try {
                 SeriesServices seriesServices = new SeriesServices();
@@ -47,6 +55,7 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("series", seriesServices.buildSeriesInfoDTO(seriesId));
                 request.setAttribute("chapterDetailDTOList", chapterServices.chaptersFromSeries(seriesId));
                 request.getRequestDispatcher("/WEB-INF/views/series/SeriesDetailForStaff.jsp").forward(request, response);
+
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -72,29 +81,62 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
-    private void viewSeriesList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
-        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
-        if (role.equals("admin") || role.equals("staff")) {
+    private void viewSeriesList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String role = "staff";
+        int userId = 0;
 
-        } else if (role.equals("author")) {
-            try {
-                int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
-                SeriesServices seriesServices = new SeriesServices();
-                request.setAttribute("mySeriesList", seriesServices.mySeriesList(userId));
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+        try {
+            String search = req.getParameter("search");
+            String status = req.getParameter("filterByStatus");
+
+            // Lấy danh sách thể loại (genre)
+            List<Integer> genreIds = Optional.ofNullable(req.getParameterValues("genre"))
+                    .map(Arrays::asList)
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+
+            // Gọi service
+            SeriesServices seriesServices = new SeriesServices();
+            PaginationRequest paginationRequest = PaginationUtils.fromRequest(req);
+            paginationRequest.setOrderBy("series_id");
+            List<SeriesInfoDTO> seriesList = seriesServices.buildSeriesList(search, genreIds, userId, status, paginationRequest);
+            int totalRecords = seriesServices.getTotalSeriesCount(search, genreIds, userId, status);
+
+            // Gửi dữ liệu sang JSP
+            req.setAttribute("size", totalRecords);
+            req.setAttribute("seriesInfoDTOList", seriesList);
+            req.setAttribute("search", search);
+            req.setAttribute("filterByStatus", status);
+            PaginationUtils.sendParameter(req, paginationRequest);
+
+
+            if (role.equals("admin") || role.equals("staff")) {
+                req.setAttribute("contentPage", "/WEB-INF/views/general/staffview/SeriesListView.jsp");
+                req.setAttribute("activePage", "series");
+                req.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(req, resp);
+                return;
+            } else if (role.equals("author")) {
+                req.getRequestDispatcher("/WEB-INF/views/components/SeriesListForAuthor.jsp").forward(req, resp);
+                return;
+            } else {
+                req.setAttribute("contentPage", "/WEB-INF/views/series/SeriesList.jsp");
+                req.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(req, resp);
+                return;
             }
-        } else {
 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     private void addSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
         try {
             String coverImgUrl = request.getParameter("coverImgUrl");
-            String title =  request.getParameter("title");
+            String title = request.getParameter("title");
             String[] genre = request.getParameterValues("genres");
             String status = request.getParameter("status");
             String description = request.getParameter("description");
@@ -106,7 +148,9 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
-    private void editSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
+    private void editSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    }
+
     private void deleteSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String seriesId = request.getParameter("seriesId");

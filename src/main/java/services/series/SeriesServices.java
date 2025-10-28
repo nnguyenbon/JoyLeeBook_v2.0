@@ -2,6 +2,7 @@ package services.series;
 
 import dao.*;
 import db.DBConnection;
+import dto.PaginationRequest;
 import dto.series.SeriesInfoDTO;
 import model.Category;
 import model.Chapter;
@@ -37,7 +38,13 @@ public class SeriesServices {
         this.savedSeriesDAO = new SavedSeriesDAO(connection);
         this.seriesCategoriesDAO = new SeriesCategoriesDAO(connection);
     }
+    public List<SeriesInfoDTO> buildSeriesList(String search,List<Integer> genreIds,int userId, String status, PaginationRequest paginationRequest) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getAll(search, genreIds, userId, status,  paginationRequest));
+    }
 
+    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String status) throws SQLException {
+        return seriesDAO.getTotalSeriesCount(search, genreIds, userId, status);
+    }
     public List<SeriesInfoDTO> buildSeriesInfoDTOList(List<Series> seriesList) throws SQLException, ClassNotFoundException {
         List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
         for (Series series : seriesList) {
@@ -45,7 +52,6 @@ public class SeriesServices {
         }
         return seriesInfoDTOList;
     }
-
 
     public SeriesInfoDTO buildSeriesInfoDTO(Series series) throws SQLException {
         SeriesInfoDTO dto = new SeriesInfoDTO();

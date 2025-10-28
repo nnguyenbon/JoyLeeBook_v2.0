@@ -53,20 +53,23 @@ public class ReportServlet extends HttpServlet {
                 request.setAttribute("size", reportServices.countReports("chapter"));
                 request.setAttribute("reportChapterDTOList", reportList);
                 PaginationUtils.sendParameter(request, paginationRequest);
-                request.getRequestDispatcher("/WEB-INF/views/report/reportview/ReportChapterView.jsp").forward(request, response);
-                return;
+                request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ReportChapterView.jsp");
             } else if (type.equals("comment")) {
                 request.setAttribute("size", reportServices.countReports("comment"));
                 request.setAttribute("reportCommentDTOList", reportList);
                 PaginationUtils.sendParameter(request, paginationRequest);
-                request.getRequestDispatcher("/WEB-INF/views/report/reportview/ReportCommentView.jsp").forward(request, response);
-                return;
+                request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ReportCommentView.jsp");
+
+
             }
             request.setAttribute("type", type);
+            request.setAttribute("activePage", "reports");
+            request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
+            return;
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        request.getRequestDispatcher("/WEB-INF/views/report/ReportList.jsp").forward(request, response);
+//        request.getRequestDispatcher("/WEB-INF/views/report/ReportList.jsp").forward(request, response);
     }
 
     private void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

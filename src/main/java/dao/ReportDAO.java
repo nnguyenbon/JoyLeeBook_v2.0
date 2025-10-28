@@ -112,6 +112,74 @@ public class ReportDAO {
             return 0;
         }
     }
+
+    public int countAll() {
+        String sql = "SELECT COUNT(*) AS total FROM reports";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM series WHERE status='pending'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countHandledByStaff(int staffId, String resolved) {
+        String sql = "SELECT COUNT(*) AS total FROM reports WHERE staff_id=? AND status=?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setString(2, resolved);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countResolvedByStaffAndDate(int staffId, Timestamp startOfDay) {
+        String sql = """
+            SELECT COUNT(*) AS total
+            FROM review_chapter
+            WHERE staff_id = ?
+              AND status IN ('approved', 'rejected', 'resolved')
+              AND created_at >= ?
+            """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setTimestamp(2, startOfDay);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 //    public boolean update(Report report) throws SQLException {
 //        String sql = "UPDATE reports SET staff_id, target_id=?, target_type=?, reason=?, status=?, updated_at=? WHERE report_id=?";
 //        try (PreparedStatement ps = conn.prepareStatement(sql)) {
