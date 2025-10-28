@@ -471,6 +471,39 @@ public class ChapterDAO {
         }
     }
 
+    public int findSeriesIdByChapter(int chapterId) {
+        String findSeriesSql = "SELECT series_id FROM chapters WHERE chapter_id = ?";
+        try (PreparedStatement psFind = conn.prepareStatement(findSeriesSql)) {
+            psFind.setInt(1, chapterId);
+            try (ResultSet rs = psFind.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("series_id");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error finding series ID for chapter ID " + chapterId);
+        }
+        return -1;
+    }
+
+    public boolean deleteOldReadingHistory(int userId, int seriesId) throws SQLException {
+        String deleteSql = "DELETE FROM reading_history WHERE user_id = ? AND chapter_id IN (SELECT chapter_id FROM chapters WHERE series_id = ?)";
+        try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
+            psDelete.setInt(1, userId);
+            psDelete.setInt(2, seriesId);
+            return psDelete.executeUpdate() > 0;
+        }
+    }
+
+    public boolean insertReadingHistory(int userId, int chapterId) throws SQLException {
+        String insertSql = "INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES (?, ?, GETDATE())";
+        try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+            psInsert.setInt(1, userId);
+            psInsert.setInt(2, chapterId);
+            return  psInsert.executeUpdate() > 0;
+        }
+    }
+
     /**
      * Map the current row of the ResultSet to a Chapter object.
      *

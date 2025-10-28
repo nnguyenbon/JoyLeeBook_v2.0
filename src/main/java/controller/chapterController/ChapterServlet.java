@@ -17,6 +17,7 @@ import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
 import services.chapter.LikeServices;
+import services.general.PointServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -347,6 +348,7 @@ public class ChapterServlet extends HttpServlet {
                 LikeServices likeService = new LikeServices();
                 String chapterIdParam = request.getParameter("chapterId");
                 int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
+                chapterServices.updateReadingHistory(userId, chapterId);
                 List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.chaptersFromSeries(seriesId);
                 request.setAttribute("firstChapterId", chapterDetailDTOList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size()-1).getChapterId());
@@ -372,20 +374,13 @@ public class ChapterServlet extends HttpServlet {
         if (role.equals("admin") ||  role.equals("staff")) {
 
         } else if (role.equals("author")) {
-
-            // get userId from session
             Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-            // testing
-            // userId = 3;
-
             if (userId == null) {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
 
-            String mode = request.getParameter("mode");            // "author" | "history" (default author)
-            if (mode == null || mode.isBlank()) mode = "author";
+            String mode = "author";
 
             int page = parseInt(request.getParameter("page"), 1);
             int size = parseInt(request.getParameter("size"), 10);
@@ -393,14 +388,10 @@ public class ChapterServlet extends HttpServlet {
             String status = trimToNull(request.getParameter("status")); // only for author mode
 
             try (Connection conn = DBConnection.getConnection()) {
-                MyChapterService service = new MyChapterService(conn);
+               MyChapterService service = new MyChapterService(conn);
 
                 MyChapterService.PagedResult<ChapterItemDTO> result;
-                if ("history".equalsIgnoreCase(mode)) {
-                    result = service.getReadingHistoryChapters(userId, page, size, keyword);
-                } else {
-                    result = service.getAuthoredChapters(userId, page, size, status, keyword);
-                }
+                result = service.getAuthoredChapters(userId, page, size, status, keyword);
 
                 request.setAttribute("mode", mode);
                 request.setAttribute("result", result);

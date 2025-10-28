@@ -3,6 +3,7 @@ package services.chapter;
 import dao.LikeDAO;
 import db.DBConnection;
 import model.Like;
+import services.general.PointServices;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -35,6 +36,7 @@ public class LikeServices {
             return likesDAO.countByChapter(like.getChapterId());
         }
         likesDAO.insert(like);
+        PointServices.trackAction(userId, 2, "Like new chapter", "like", likesDAO.findById(userId, chapterId).getChapterId());
         return likesDAO.countByChapter(like.getChapterId());
     }
 

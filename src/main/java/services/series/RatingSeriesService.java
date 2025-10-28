@@ -3,6 +3,7 @@ package services.series;
 import dao.RatingDAO;
 import db.DBConnection;
 import model.Rating;
+import services.general.PointServices;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,6 +21,7 @@ public class RatingSeriesService {
             ratingDAO.update(rating);
         } else {
             ratingDAO.insert(rating);
+            PointServices.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) );
         }
         return true;
     }

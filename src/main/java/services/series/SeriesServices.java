@@ -65,6 +65,7 @@ public class SeriesServices {
         dto.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         dto.setCountRatings(ratingDAO.getRatingCount(series.getSeriesId()));
 
+
         dto.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
 
         dto.setAuthorsName(seriesAuthorDAO.authorsOfSeries(series.getSeriesId()));
@@ -81,11 +82,13 @@ public class SeriesServices {
     }
 
     public List<SeriesInfoDTO> weeklySeriesList (int limit) throws SQLException, ClassNotFoundException {
-        List<SeriesInfoDTO> seriesList = buildSeriesInfoDTOList(seriesDAO.getWeeklySeries(limit));
-        for (SeriesInfoDTO series : seriesList){
-            series.setAvgRating(Math.round(series.getAvgRating()*series.getCountRatings()));
+        List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
+        for (Series series : seriesDAO.getWeeklySeries(limit)) {
+            SeriesInfoDTO dto = buildSeriesInfoDTO(series);
+            dto.setAvgRating(series.getRating_points());
+            seriesInfoDTOList.add(dto);
         }
-        return seriesList;
+        return seriesInfoDTOList;
     }
 
     public List<SeriesInfoDTO> newReleaseSeries (int limit) throws SQLException, ClassNotFoundException {

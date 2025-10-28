@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import services.general.CommentServices;
+import services.general.PointServices;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -25,7 +26,7 @@ public class CommentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
     private void createComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
+        User user = (User) request.getSession().getAttribute("loginedUser");
         int userId = user != null ? user.getUserId() : 0;
         try {
             String content = request.getParameter("content");
@@ -34,7 +35,6 @@ public class CommentServlet extends HttpServlet {
 
             CommentServices commentServices = new CommentServices();
             commentServices.createComment(userId, chapterId, content);
-
             response.sendRedirect(request.getContextPath()
                     + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (Exception e) {
@@ -43,7 +43,7 @@ public class CommentServlet extends HttpServlet {
     }
 
     private void deleteComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
+        User user = (User) request.getSession().getAttribute("loginedUser");
         int userId = user != null ? user.getUserId() : 0;
         try {
             String commentId = request.getParameter("commentId");
@@ -61,7 +61,7 @@ public class CommentServlet extends HttpServlet {
     }
 
     private void updateComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
+        User user = (User) request.getSession().getAttribute("loginedUser");
         int userId = user != null ? user.getUserId() : 0;
         try {
             String content = request.getParameter("content");

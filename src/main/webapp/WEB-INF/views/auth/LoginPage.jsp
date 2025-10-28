@@ -11,6 +11,12 @@
         <p class="text-gray-500">
             Sign in to your account to continue reading
         </p>
+        <c:if test="${not empty error}">
+            <p class="text-red-600 font-medium mt-2">${error}</p>
+        </c:if>
+<%--        <c:if test="${not empty message}">--%>
+<%--            <p class="text-green-600 font-medium mt-2">${message}</p>--%>
+<%--        </c:if>--%>
     </div>
 
     <form action="${pageContext.request.contextPath}/login" method="post">

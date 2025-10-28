@@ -95,3 +95,20 @@ dialog {
 dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.5);
 }
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+input[type="password"]::-webkit-clear-button{
+    display: none;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+}
+
+.custom-scrollbar {
+    -ms-overflow-style: none;  /* cho IE, Edge cũ */
+    scrollbar-width: none;     /* cho Firefox */
+}
