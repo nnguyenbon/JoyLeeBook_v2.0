@@ -11,6 +11,8 @@ import model.Series;
 import services.general.FormatServices;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +25,8 @@ import java.util.List;
 public class ChapterServices {
     private final Connection connection;
     private final ChapterDAO chapterDAO;
-    public ChapterServices () throws SQLException, ClassNotFoundException {
+
+    public ChapterServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
         this.chapterDAO = new ChapterDAO(connection);
     }
@@ -41,8 +44,8 @@ public class ChapterServices {
     public ChapterViewDTO loadView(Integer chapterId, Integer seriesId, Integer number, Integer viewerUserId) throws Exception {
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
-            SeriesDAO  seriesDAO  = new SeriesDAO(conn);
-            LikeDAO likesDAO   = new LikeDAO(conn);
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            LikeDAO likesDAO = new LikeDAO(conn);
             CommentDAO commentDAO = new CommentDAO(conn);
             SeriesAuthorDAO saDAO = new SeriesAuthorDAO(conn);
 
@@ -98,7 +101,7 @@ public class ChapterServices {
     }
 
     public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter) throws SQLException {
-        LikeDAO likesDAO   = new LikeDAO(connection);
+        LikeDAO likesDAO = new LikeDAO(connection);
         ChapterInfoDTO chapterInfoDTO = new ChapterInfoDTO();
         chapterInfoDTO.setChapterId(chapter.getChapterId());
         chapterInfoDTO.setTitle(chapter.getTitle());
@@ -117,7 +120,7 @@ public class ChapterServices {
     }
 
     public ChapterDetailDTO buildChapterDetailDTO(Chapter chapter) throws SQLException {
-        SeriesAuthorDAO  seriesAuthorDAO = new SeriesAuthorDAO(connection);
+        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(connection);
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         LikeDAO likesDAO = new LikeDAO(connection);
         UserDAO userDAO = new UserDAO(connection);
@@ -134,7 +137,69 @@ public class ChapterServices {
         chapterDetailDTO.setCreatedAt(FormatServices.formatDate(chapter.getCreatedAt()));
         chapterDetailDTO.setUpdatedAt(FormatServices.formatDate(chapter.getUpdatedAt()));
         chapterDetailDTO.setAction(FormatServices.getAction(chapterDetailDTO.getCreatedAt(), chapterDetailDTO.getUpdatedAt()));
-        return  chapterDetailDTO;
+        return chapterDetailDTO;
+    }
+
+    /**
+     * Update reading history for a user and chapter
+     *
+     * @param userId    The ID of the user
+     * @param chapterId The ID of the chapter
+     */
+    public void updateReadingHistory(int userId, int chapterId) throws SQLException {
+        int seriesId = -1;
+        String findSeriesSql = "SELECT series_id FROM chapters WHERE chapter_id = ?";
+        try (PreparedStatement psFind = connection.prepareStatement(findSeriesSql)) {
+            psFind.setInt(1, chapterId);
+            try (ResultSet rs = psFind.executeQuery()) {
+                if (rs.next()) {
+                    seriesId = rs.getInt("series_id");
+                } else {
+                    System.out.println("Chapter ID " + chapterId + " not found.");
+                    return;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error finding series ID for chapter ID " + chapterId);
+        }
+
+        String deleteSql = "DELETE FROM reading_history WHERE user_id = ? AND chapter_id IN (SELECT chapter_id FROM chapters WHERE series_id = ?)";
+        String insertSql = "INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES (?, ?, GETDATE())";
+
+        boolean originalAutoCommit = connection.getAutoCommit();
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement psDelete = connection.prepareStatement(deleteSql)) {
+                psDelete.setInt(1, userId);
+                psDelete.setInt(2, seriesId);
+                psDelete.executeUpdate();
+            }
+
+            try (PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
+                psInsert.setInt(1, userId);
+                psInsert.setInt(2, chapterId);
+                psInsert.executeUpdate();
+            }
+
+            connection.commit();
+
+        } catch (SQLException e) {
+            System.out.println("Error updating reading history for user ID " + userId + " and chapter ID " + chapterId);
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error rolling back transaction");
+            }
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                connection.setAutoCommit(originalAutoCommit);
+            } catch (SQLException setAutoCommitEx) {
+                System.out.println("Error restoring auto-commit setting");
+            }
+        }
     }
 
     public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList) throws SQLException {
@@ -149,7 +214,7 @@ public class ChapterServices {
         return chapterDAO.getReadingHistoryChapters(userId, offset, pagesize, keyword);
     }
 
-    public List<ChapterDetailDTO> chaptersFromSeries (int seriesId) throws SQLException, ClassNotFoundException {
+    public List<ChapterDetailDTO> chaptersFromSeries(int seriesId) throws SQLException, ClassNotFoundException {
         return buildChapterDetailDTOList(chapterDAO.findChapterBySeriesId(seriesId));
     }
 
@@ -166,7 +231,7 @@ public class ChapterServices {
         ChapterDAO chapterDAO = new ChapterDAO(DBConnection.getConnection());
         if (type.equals("next")) {
             chapter = chapterDAO.getNextChapter(seriesId, chapterNumber);
-        } else if (type.equals("previous")){
+        } else if (type.equals("previous")) {
             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
         }
         return String.format("chapter?action=detail&seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());

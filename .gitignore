@@ -1,3 +1,5 @@
 /.idea/
 /target/
 node_modules/
+/src/main/resources/auth.properties
+/src/main/java/db/DBConnection.java
