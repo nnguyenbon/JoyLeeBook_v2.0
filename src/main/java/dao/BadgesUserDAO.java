@@ -94,7 +94,7 @@ public class BadgesUserDAO {
                     badge.setBadgeId(rs.getInt("badge_id"));
                     badge.setDescription(rs.getString("description"));
                     badge.setName(rs.getString("name"));
-                    badge.setIconUrl(rs.getString("icon_url"));
+                    badge.setIconUrl("img/" + rs.getString("icon_url"));
                     badgeList.add(badge);
                 }
                 return  badgeList;

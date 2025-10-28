@@ -23,6 +23,7 @@ public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         viewProfile(request, response);
     }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action.equals("edit")) {
@@ -31,6 +32,7 @@ public class ProfileServlet extends HttpServlet {
             changePassword(request, response);
         }
     }
+
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
         User user = (User) request.getSession().getAttribute("loginedUser");
@@ -41,8 +43,8 @@ public class ProfileServlet extends HttpServlet {
             BadgesServices badgesServices = new BadgesServices();
 
             request.setAttribute("user", userServices.getUser(userId));
-            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
-
+//            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
+            request.setAttribute("badgeList", badgesServices.getAllBadges());
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
@@ -52,7 +54,7 @@ public class ProfileServlet extends HttpServlet {
                 AuthorServices authorServices = new AuthorServices();
 
                 List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.seriesFromAuthor(userId);
-                authorServices.extractDataFromAuthorId(seriesInfoDTOList,request);
+                authorServices.extractDataFromAuthorId(seriesInfoDTOList, request);
 
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
                 request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
@@ -79,13 +81,13 @@ public class ProfileServlet extends HttpServlet {
 
             UserServices userServices = new UserServices();
             boolean isSuccess = userServices.editProfile(user);
-            if(isSuccess) {
+            if (isSuccess) {
                 request.getSession().setAttribute("message", "Update user successfully!");
             } else {
                 request.getSession().setAttribute("message", "Something went wrong. Please try again.");
             }
             response.sendRedirect(request.getContextPath() + "/profile?userId=" + userId);
-        } catch(SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -100,7 +102,7 @@ public class ProfileServlet extends HttpServlet {
             UserServices userServices = new UserServices();
             String message = userServices.editPassword(userId, oldPassword, newPassword, confirmPassword);
             request.getSession().setAttribute("message", message);
-            response.sendRedirect(request.getContextPath() + "/profile?userId=" + userId );
+            response.sendRedirect(request.getContextPath() + "/profile?userId=" + userId);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

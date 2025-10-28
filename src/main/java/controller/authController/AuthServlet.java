@@ -11,6 +11,7 @@ import services.account.UserServices;
 import services.auth.HandleOTPServices;
 import services.auth.LoginServices;
 import services.auth.RegisterServices;
+import services.general.PointServices;
 import utils.LoginUtils;
 import utils.ValidationInput;
 
@@ -84,6 +85,7 @@ public class AuthServlet extends HttpServlet {
                         break;
                     case "author":
                     case "reader":
+                        PointServices.trackLogin(user.getUserId());
                         response.sendRedirect(request.getContextPath() + "/homepage");
                         break;
                 }

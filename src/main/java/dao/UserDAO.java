@@ -242,6 +242,15 @@ public class UserDAO {
         return false;
     }
 
+    public boolean updatePoint (int userId, int point) throws SQLException {
+        String sql = "UPDATE users SET points = points + ? WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, point);
+            ps.setInt(2, userId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
     // Hàm map dữ liệu từ ResultSet sang đối tượng User
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();

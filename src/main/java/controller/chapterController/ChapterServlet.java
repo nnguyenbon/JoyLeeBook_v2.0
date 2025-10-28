@@ -17,6 +17,7 @@ import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
 import services.chapter.LikeServices;
+import services.general.PointServices;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -348,6 +349,7 @@ public class ChapterServlet extends HttpServlet {
                 String chapterIdParam = request.getParameter("chapterId");
                 int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : chapterServices.getFirstChapterNumber(seriesId);
                 chapterServices.updateReadingHistory(userId, chapterId);
+
                 List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.chaptersFromSeries(seriesId);
                 request.setAttribute("firstChapterId", chapterDetailDTOList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size()-1).getChapterId());

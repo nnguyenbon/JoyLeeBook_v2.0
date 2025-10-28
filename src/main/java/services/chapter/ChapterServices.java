@@ -9,6 +9,7 @@ import dto.chapter.ChapterViewDTO;
 import model.Chapter;
 import model.Series;
 import services.general.FormatServices;
+import services.general.PointServices;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -147,59 +148,50 @@ public class ChapterServices {
      * @param chapterId The ID of the chapter
      */
     public void updateReadingHistory(int userId, int chapterId) throws SQLException {
-        int seriesId = -1;
-        String findSeriesSql = "SELECT series_id FROM chapters WHERE chapter_id = ?";
-        try (PreparedStatement psFind = connection.prepareStatement(findSeriesSql)) {
-            psFind.setInt(1, chapterId);
-            try (ResultSet rs = psFind.executeQuery()) {
-                if (rs.next()) {
-                    seriesId = rs.getInt("series_id");
-                } else {
-                    System.out.println("Chapter ID " + chapterId + " not found.");
-                    return;
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error finding series ID for chapter ID " + chapterId);
+        int seriesId = chapterDAO.findSeriesIdByChapter(chapterId);
+        if (seriesId == -1) {
+            System.out.println("Chapter ID " + chapterId + " not found.");
+            return;
         }
-
-        String deleteSql = "DELETE FROM reading_history WHERE user_id = ? AND chapter_id IN (SELECT chapter_id FROM chapters WHERE series_id = ?)";
-        String insertSql = "INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES (?, ?, GETDATE())";
 
         boolean originalAutoCommit = connection.getAutoCommit();
 
         try {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement psDelete = connection.prepareStatement(deleteSql)) {
-                psDelete.setInt(1, userId);
-                psDelete.setInt(2, seriesId);
-                psDelete.executeUpdate();
+
+            if (!chapterDAO.deleteOldReadingHistory(userId, seriesId)){
+                return;
             }
 
-            try (PreparedStatement psInsert = connection.prepareStatement(insertSql)) {
-                psInsert.setInt(1, userId);
-                psInsert.setInt(2, chapterId);
-                psInsert.executeUpdate();
+
+            if (chapterDAO.insertReadingHistory(userId, chapterId)) {
+                PointServices.trackAction(userId, 3, "Reading chapter", "chapter", chapterId);
             }
 
             connection.commit();
-
         } catch (SQLException e) {
-            System.out.println("Error updating reading history for user ID " + userId + " and chapter ID " + chapterId);
+            System.out.println("❌ Error updating reading history for user ID " + userId + " and chapter ID " + chapterId);
             try {
                 connection.rollback();
             } catch (SQLException rollbackEx) {
-                System.out.println("Error rolling back transaction");
+                System.out.println("⚠️ Error rolling back transaction");
             }
             System.out.println(e.getMessage());
         } finally {
             try {
                 connection.setAutoCommit(originalAutoCommit);
             } catch (SQLException setAutoCommitEx) {
-                System.out.println("Error restoring auto-commit setting");
+                System.out.println("⚠️ Error restoring auto-commit setting");
             }
         }
+    }
+
+
+
+
+    public void trackingHistory(int userId, int chapterId) throws SQLException {
+
     }
 
     public List<ChapterDetailDTO> buildChapterDetailDTOList(List<Chapter> chapterList) throws SQLException {

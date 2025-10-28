@@ -168,6 +168,19 @@ public class CommentDAO {
         }
     }
 
+    public Comment findByUserIdAndChapterId(int user_id, int chapter_id) throws SQLException {
+        String sql = "SELECT * FROM comments WHERE chapter_id = ? AND user_id = ? AND is_deleted = 0";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, chapter_id);
+            stmt.setInt(2, user_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToComment(rs);
+                }
+            }
+            return null;
+        }
+    }
     /**
      * Maps a ResultSet row to a Comment object
      *

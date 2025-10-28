@@ -68,6 +68,7 @@ public class CommentServices {
             if (!success) {
                 throw new SQLException("Failed to insert comment into database.");
             }
+            PointServices.trackAction(userId, 2, "Comment  a chapter", "comment", commentDAO.findByUserIdAndChapterId(userId,chapterId).getCommentId());
             return success;
 
         } catch (SQLException e) {

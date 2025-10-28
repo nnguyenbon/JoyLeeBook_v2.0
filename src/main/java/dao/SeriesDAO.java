@@ -61,6 +61,7 @@ public class SeriesDAO {
                     s.setTitle(rs.getNString("title"));
                     s.setDescription(rs.getNString("description"));
                     s.setCoverImgUrl(rs.getNString("cover_image_url"));
+                    s.setRating_points(rs.getInt("rating_points"));
                     s.setStatus(rs.getString("status"));
                     s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
                     return s;
@@ -331,7 +332,7 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ")s.series_id, title, rating_points, description, cover_image_url, status, updated_at,  SUM(r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at ORDER BY total_rating DESC";
+        String sql = "SELECT TOP (" + limit + ")s.series_id, title, rating_points, description, cover_image_url, status, updated_at,  AVG(r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at ORDER BY AVG(r.score) DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

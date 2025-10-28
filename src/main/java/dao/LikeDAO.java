@@ -146,6 +146,19 @@ public class LikeDAO {
         }
     }
 
+    public Like findById(int userId, int chapterId) throws SQLException {
+        String sql = "SELECT * FROM likes WHERE user_id = ? AND chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, chapterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToLike(rs);
+                }
+            }
+            return null;
+        }
+    }
     /**
      * Utility method to map ResultSet to Like object
      */

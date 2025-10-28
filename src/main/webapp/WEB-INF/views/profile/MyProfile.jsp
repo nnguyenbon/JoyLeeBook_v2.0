@@ -96,14 +96,22 @@
             <ul class="w-full flex flex-wrap gap-y-8">
                 <c:forEach var="badge" items="${badgeList}">
                     <li class="w-1/3 text-center">
-                        <div class="size-32 mx-auto mb-1 rounded-full overflow-hidden bg-transparent">
+                        <div class="size-32 mx-auto mb-1 rounded-full overflow-hidden bg-gray-200 relative">
                             <img
                                     src="${badge.iconUrl}"
-                                    class="w-full h-full object-center"
-                                    alt="${user.username}"
+                                    class="w-full h-full object-cover object-center ${badge.isUnlocked ? '' : 'grayscale opacity-50'}"
+                                    alt="${badge.name}"
                             />
+                            <c:if test="${!badge.isUnlocked}">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fas fa-lock text-gray-600 text-2xl"></i>
+                                </div>
+                            </c:if>
                         </div>
-                        <p>${badge.name}</p>
+                        <p class="${badge.isUnlocked ? 'text-gray-900 font-medium' : 'text-gray-400'}">${badge.name}</p>
+                        <c:if test="${!badge.isUnlocked}">
+                            <p class="text-xs text-gray-400 mt-1">Locked</p>
+                        </c:if>
                     </li>
                 </c:forEach>
             </ul>

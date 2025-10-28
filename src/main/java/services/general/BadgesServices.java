@@ -21,4 +21,9 @@ public class BadgesServices {
     public List<Badge> badgeListFromUser(int userId) throws SQLException, ClassNotFoundException {
         return badgesUserDAO.getBadgesByUserId(userId);
     }
+
+    public List<Badge> getAllBadges() throws SQLException, ClassNotFoundException {
+        BadgeDAO badgeDAO = new BadgeDAO(connection);
+        return badgeDAO.getAll();
+    }
 }
