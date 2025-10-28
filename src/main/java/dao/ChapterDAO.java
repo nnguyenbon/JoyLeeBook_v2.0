@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import dao.helper.PaginationDAOHelper;
+import dto.PaginationRequest;
 import model.Chapter;
 import dto.chapter.ChapterItemDTO;
 import services.general.FormatServices;
@@ -49,6 +51,70 @@ public class ChapterDAO {
         return chapters;
     }
 
+    public List<Chapter> getAll(String search, String status, PaginationRequest paginationRequest) throws SQLException {
+        List<Chapter> chapters = new ArrayList<>();
+        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
+
+        StringBuilder sql = buildChapterBaseQuery(false, search, status);
+        sql.append(paginationDAOHelper.buildPaginationClause());
+//        String sql = "SELECT * FROM chapters WHERE is_deleted = 0";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setChapterQueryParameters(stmt, search, status);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    chapters.add(extractChapterFromResultSet(rs));
+                }
+            }
+        }
+        return chapters;
+    }
+    public int getTotalChaptersCount(String search, String status) throws SQLException {
+        StringBuilder sql = buildChapterBaseQuery(true, search, status);
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setChapterQueryParameters(stmt, search, status);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
+
+    private StringBuilder buildChapterBaseQuery(boolean isCount, String search, String status) {
+        StringBuilder sql = new StringBuilder();
+
+        if (isCount) {
+            sql.append("SELECT COUNT(DISTINCT chapter_id) AS total ");
+        } else {
+            sql.append("SELECT DISTINCT * ");
+        }
+
+        sql.append("FROM chapters WHERE is_deleted = 0");
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND status = ?");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND title LIKE ?");
+        }
+
+        return sql;
+    }
+
+    private int setChapterQueryParameters(PreparedStatement stmt, String search, String status) throws SQLException {
+        int index = 1;
+
+        if (status != null && !status.trim().isEmpty()) {
+            stmt.setString(index++, status);
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            stmt.setString(index, "%" + search + "%");
+        }
+
+        return index;
+    }
     /**
      * Find a chapter by its ID.
      *
@@ -678,4 +744,36 @@ public class ChapterDAO {
         chapter.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
         return chapter;
     }
+
+    public int countAllNonDeleted() {
+        String sql = "SELECT COUNT(*) AS total FROM chapters WHERE is_deleted = 0";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM review_chapter WHERE status = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, pending);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+
+    }
+
+
 }

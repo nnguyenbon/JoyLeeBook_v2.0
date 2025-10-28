@@ -2,6 +2,7 @@ package services.chapter;
 
 import dao.*;
 import db.DBConnection;
+import dto.PaginationRequest;
 import dto.chapter.ChapterDetailDTO;
 import dto.chapter.ChapterInfoDTO;
 import dto.chapter.ChapterItemDTO;
@@ -99,6 +100,10 @@ public class ChapterServices {
             vm.setUserLiked(userLiked);
             return vm;
         }
+    }
+
+    public List<ChapterDetailDTO> buildChapterList(String search, String status, PaginationRequest paginationRequest) throws SQLException {
+        return buildChapterDetailDTOList(chapterDAO.getAll(search, status, paginationRequest));
     }
 
     public ChapterInfoDTO buildChapterInfoDTO(Chapter chapter) throws SQLException {
@@ -215,5 +220,9 @@ public class ChapterServices {
             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
         }
         return String.format("chapter?action=detail&seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
+    }
+
+    public int getTotalChaptersCount(String search, String status) throws SQLException {
+        return chapterDAO.getTotalChaptersCount(search, status);
     }
 }

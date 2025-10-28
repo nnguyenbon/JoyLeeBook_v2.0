@@ -2,6 +2,7 @@ package controller.chapterController;
 
 import db.DBConnection;
 import dto.chapter.ChapterDetailDTO;
+import dto.PaginationRequest;
 import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -18,8 +19,8 @@ import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
 import services.chapter.LikeServices;
-import services.general.PointServices;
 import utils.AuthenticationUtils;
+import utils.PaginationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -268,9 +269,6 @@ public class ChapterServlet extends HttpServlet {
         Integer userId = getUserId(request.getSession());
         String role = getUserRole(request.getSession());
 
-        // testing
-        // role = "author";
-
         if (userId == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
@@ -351,7 +349,29 @@ public class ChapterServlet extends HttpServlet {
         Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         if (role.equals("admin") || role.equals("staff")) {
-
+            String search = request.getParameter("search");
+            String status = request.getParameter("status");
+            try {
+                ChapterServices chapterServices = new ChapterServices();
+                PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
+                paginationRequest.setOrderBy("chapter_id");
+                List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.buildChapterList(search, status, paginationRequest);
+                int totalRecords = chapterServices.getTotalChaptersCount(search, status);
+                request.setAttribute("size", totalRecords);
+                request.setAttribute("chapterDetailDTOList", chapterDetailDTOList);
+                request.setAttribute("status", status);
+                PaginationUtils.sendParameter(request, paginationRequest);
+                request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ChaptersListView.jsp");
+                request.setAttribute("activePage", "series");
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
+            } catch (SQLException e) {
+                log.log(Level.SEVERE, "Error loading Chapter List", e);
+                request.setAttribute("error", "Unable to load your chapters.");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         } else if (role.equals("author")) {
             User user = (User) loginedUser;
             int userId = user.getUserId();
@@ -363,6 +383,7 @@ public class ChapterServlet extends HttpServlet {
             try (Connection conn = DBConnection.getConnection()) {
                 MyChapterService service = new MyChapterService(conn);
 
+
                 MyChapterService.PagedResult<ChapterItemDTO> result;
                 result = service.getAuthoredChapters(userId, page, size, status, keyword);
 
@@ -373,23 +394,18 @@ public class ChapterServlet extends HttpServlet {
                 request.setAttribute("totalPages", result.getTotalPages());
                 request.setAttribute("total", result.getTotal());
                 request.setAttribute("q", keyword);
-                request.setAttribute("status", status);
-
-                // forward to JSP
                 request.getRequestDispatcher("/WEB-INF/views/chapter/my-chapters.jsp").forward(request, response);
-
             } catch (SQLException e) {
-                log.log(Level.SEVERE, "Error loading My Chapter List", e);
+                log.log(Level.SEVERE, "Error loading Chapter List", e);
                 request.setAttribute("error", "Unable to load your chapters.");
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-
         }
     }
+
 
     private void navigateChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;

@@ -11,7 +11,7 @@
 <p class="text-gray-500 text-sm mb-1 px-9">Total: ${size}</p>
 
 <!-- Content Container with Scroll -->
-<div class="h-[calc(100vh-15rem)] overflow-y-auto px-9 bg-gray-100 custom-scrollbar">
+<div class="overflow-y-auto px-9 bg-gray-100 max-h-[90vh] custom-scrollbar">
 <!-- Series List -->
     <!-- Item -->
     <c:forEach var="category" items="${categoryInfoDTOList}" varStatus="loop">
