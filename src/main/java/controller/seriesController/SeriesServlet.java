@@ -60,15 +60,25 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("pageTitle", "Series Detail");
                 request.setAttribute("activePage", "series");
                 request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
-
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         } else if (role.equals("author")) {
             try {
+                User user = (User) loginedUser;
+                ChapterServices chapterServices = new ChapterServices();
+                int userId = 0;
+                if  (loginedUser != null) {
+                    userId = user.getUserId();
+                }
                 SeriesServices seriesServices = new SeriesServices();
+                request.setAttribute("userId", userId);
+                request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
+                request.setAttribute("chapterInfoDTOList", chapterServices.chaptersFromSeries(seriesId));
                 request.setAttribute("mySeriesDetails", seriesServices.mySeriesDetails(seriesId));
-
+                request.setAttribute("pageTitle", "Series Detail");
+                request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesDetail.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

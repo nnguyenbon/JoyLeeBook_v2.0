@@ -51,6 +51,16 @@ public class ChapterDAO {
         return chapters;
     }
 
+    public int countChapterByUserId(int userId, String status) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0 ";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
     public List<Chapter> getAll(String search, String status, PaginationRequest paginationRequest) throws SQLException {
         List<Chapter> chapters = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);

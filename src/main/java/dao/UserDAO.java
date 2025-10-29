@@ -42,6 +42,21 @@ public class UserDAO {
         return null;
     }
 
+    public boolean isAuthor(String email) throws SQLException {
+        String sql = "SELECT role FROM users WHERE email = ? AND is_deleted = 0";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String role =  rs.getString("role");
+                    if (role.equals("author")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
     // Thêm user mới
     public boolean insert(User user) throws SQLException {
         String sql = """

@@ -225,4 +225,8 @@ public class ChapterServices {
     public int getTotalChaptersCount(String search, String status) throws SQLException {
         return chapterDAO.getTotalChaptersCount(search, status);
     }
+
+    public int getCountMyChapterByUserId(int userId, String status) throws SQLException {
+        return chapterDAO.countChapterByUserId(userId, status);
+    }
 }

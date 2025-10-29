@@ -22,12 +22,16 @@ public class HomepageServlet extends HttpServlet {
             CategoryServices categoryServices = new CategoryServices();
 
             request.setAttribute("hotSeriesList", seriesServices.hotSeriesList(3));
+
             request.setAttribute("weeklySeriesList", seriesServices.weeklySeriesList(8));
+
             request.setAttribute("newReleaseSeriesList", seriesServices.newReleaseSeries(4));
             request.setAttribute("recentlyUpdatedSeriesList", seriesServices.recentlyUpdatedSeries(6));
             request.setAttribute("completedSeriesList", seriesServices.completedSeries(6, "completed"));
             request.setAttribute("categoryList", categoryServices.topCategories(6));
+
             request.setAttribute("userList", userServices.topUsersPoints(8));
+
             request.setAttribute("pageTitle", "JoyLeeBook");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);

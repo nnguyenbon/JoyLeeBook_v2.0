@@ -73,4 +73,9 @@ public class AuthorServices {
         UserDAO userDAO = new UserDAO(connection);
         return userDAO.updateUserRoleToAuthor(user.getUserId());
     }
+
+    public boolean isAuthor(String email) throws SQLException {
+        UserDAO userDAO = new UserDAO(connection);
+        return userDAO.isAuthor(email);
+    }
 }

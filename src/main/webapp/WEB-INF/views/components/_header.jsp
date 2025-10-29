@@ -68,11 +68,11 @@ change this template use File | Settings | File Templates. --%>
                 <button
                         class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
                 >
-          <span
+          <a href="${pageContext.request.contextPath}/register-author"
                   class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
           >
             Write Now
-          </span>
+          </a>
                 </button>
             </div>
             <div class="col-span-1 relative">
@@ -111,7 +111,7 @@ change this template use File | Settings | File Templates. --%>
                             >
                         </a>
                         <a
-                                href="${pageContext.request.contextPath}/author"
+                                href="${pageContext.request.contextPath}/register-author"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-pen"></i>
