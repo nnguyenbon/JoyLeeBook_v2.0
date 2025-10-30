@@ -5,10 +5,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.User;
 import services.chapter.ChapterServices;
 import services.chapter.LikeServices;
 import services.series.RatingSeriesService;
 import services.series.SeriesServices;
+import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -16,15 +18,24 @@ import java.sql.SQLException;
 
 @WebServlet("/author")
 public class AuthorDashboardServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId;
+        if (user == null || !"author".equals(user.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        } else {
+            userId = user.getUserId();
+        }
 
         try {
             SeriesServices seriesServices = new SeriesServices();
             ChapterServices chapterServices = new ChapterServices();
             LikeServices likeService = new LikeServices();
-            RatingSeriesService  ratingService = new RatingSeriesService();
+            RatingSeriesService ratingService = new RatingSeriesService();
             request.setAttribute("totalChapters", chapterServices.getCountMyChapterByUserId(userId, "approved"));
             request.setAttribute("pendingChapters", chapterServices.getCountMyChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeService.countLikesOfAuthor(userId));

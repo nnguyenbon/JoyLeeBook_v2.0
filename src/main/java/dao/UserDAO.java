@@ -185,7 +185,7 @@ public class UserDAO {
      * @throws ClassNotFoundException If the JDBC driver class is not found.
      */
     public boolean updateUserRoleToAuthor(int userId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE Users SET role = 'author' WHERE id = ?";
+        String sql = "UPDATE users SET role = 'author' WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             int rowsAffected = ps.executeUpdate();
