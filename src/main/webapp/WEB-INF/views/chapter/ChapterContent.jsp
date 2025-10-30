@@ -233,7 +233,9 @@
 
                 <input type="text" id="commentContent" name="content"
                        class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                       placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""} />
+                       placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""}
+                       required
+                />
 
                 <button id="commentSubmitBtn" type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg
@@ -281,7 +283,7 @@
                                         Delete
                                     </button>
                                 </c:if>
-                                <c:if test="${userId != 0}">
+                                <c:if test="${userId != 0 && comment.userId != userId}">
                                     <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             data-comment-id="${comment.commentId}">
                                         Report
