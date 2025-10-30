@@ -2,16 +2,14 @@ package services.series;
 
 import dao.*;
 import db.DBConnection;
+import dto.PaginationRequest;
 import dto.series.SeriesInfoDTO;
-import model.Category;
-import model.Chapter;
-import model.Series;
-import model.SeriesAuthor;
+import model.*;
 import services.general.FormatServices;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +35,13 @@ public class SeriesServices {
         this.savedSeriesDAO = new SavedSeriesDAO(connection);
         this.seriesCategoriesDAO = new SeriesCategoriesDAO(connection);
     }
+    public List<SeriesInfoDTO> buildSeriesList(String search,List<Integer> genreIds,int userId, String status, PaginationRequest paginationRequest) throws SQLException, ClassNotFoundException {
+        return buildSeriesInfoDTOList(seriesDAO.getAll(search, genreIds, userId, status,  paginationRequest));
+    }
 
+    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String status) throws SQLException {
+        return seriesDAO.getTotalSeriesCount(search, genreIds, userId, status);
+    }
     public List<SeriesInfoDTO> buildSeriesInfoDTOList(List<Series> seriesList) throws SQLException, ClassNotFoundException {
         List<SeriesInfoDTO> seriesInfoDTOList = new ArrayList<>();
         for (Series series : seriesList) {
@@ -45,6 +49,32 @@ public class SeriesServices {
         }
         return seriesInfoDTOList;
     }
+
+    public void createSeries(SeriesInfoDTO seriesInfoDTO, int userId) throws SQLException, ClassNotFoundException {
+        Series series = new Series();
+        series.setAuthorId(userId);  // Chỉ 1 lần
+        series.setCoverImgUrl(seriesInfoDTO.getCoverImgUrl());
+        series.setTitle(seriesInfoDTO.getTitle().trim());
+        series.setDescription(seriesInfoDTO.getDescription().trim());
+        series.setStatus(seriesInfoDTO.getStatus());
+
+        boolean success = seriesDAO.insert(series);        if (!success) {
+            throw new SQLException("Failed to insert series into database.");
+        }
+
+        // Sau khi có seriesId, mới insert categories
+        for (String categoryStr : seriesInfoDTO.getCategories()) {
+            if (categoryStr == null || categoryStr.trim().isEmpty()) continue;
+            int categoryId = Integer.parseInt(categoryStr.trim());
+            SeriesCategories seriesCategories = new SeriesCategories();
+            seriesCategories.setCategoryId(categoryId);
+            seriesCategories.setSeriesId(series.getSeriesId());
+            if (!seriesCategoriesDAO.insert(seriesCategories)) {
+                throw new SQLException("Failed to link category " + categoryId + " to series.");
+            }
+        }
+    }
+
 
 
     public SeriesInfoDTO buildSeriesInfoDTO(Series series) throws SQLException {
@@ -55,7 +85,7 @@ public class SeriesServices {
         dto.setCoverImgUrl("img/" + series.getCoverImgUrl());
         dto.setStatus(FormatServices.formatString(series.getStatus()));
         dto.setUpdatedAt(FormatServices.formatDate(series.getUpdatedAt()));
-
+        dto.setCreatedAt(FormatServices.formatDate(series.getCreatedAt()));
         List<String> categories = new ArrayList<>();
         for (Category category : categoryDAO.getCategoryBySeriesId(series.getSeriesId())) {
             categories.add(category.getName());

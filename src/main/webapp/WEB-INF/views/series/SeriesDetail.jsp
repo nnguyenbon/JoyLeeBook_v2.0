@@ -97,14 +97,14 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.size() != 0 ? chapterInfoDTOList.get(0).chapterId : ""}">
-                <button
-                        class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                    <i class="fa-solid fa-play"></i>
-                    Start Reading
-                </button>
-            </a>
-
+            <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
+                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
+                    <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
+                        <i class="fa-solid fa-play"></i>
+                        Start Reading
+                    </button>
+                </a>
+            </c:if>
 
             <button id="saveBtn"
                     class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"

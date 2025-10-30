@@ -11,12 +11,13 @@ import java.sql.SQLException;
 public class LikeServices {
     private final Connection connection;
     private final LikeDAO likesDAO;
+
     public LikeServices() throws SQLException, ClassNotFoundException {
         this.connection = DBConnection.getConnection();
         this.likesDAO = new LikeDAO(connection);
     }
 
-//    public int likeChapter(Like like) throws SQLException {
+    //    public int likeChapter(Like like) throws SQLException {
 //
 //        if (likesDAO.isLikedByUser(like.getUserId(), like.getChapterId())) {
 //            return likesDAO.countByChapter(like.getChapterId());
@@ -26,6 +27,9 @@ public class LikeServices {
 //
 //        return  likesDAO.countByChapter(like.getChapterId());
 //    }
+    public int countLikesOfAuthor(int userId) throws SQLException {
+        return likesDAO.countLikesOfAuthor(userId);
+    }
 
     public int likeChapter(int userId, int chapterId) throws SQLException {
 
@@ -41,6 +45,6 @@ public class LikeServices {
     }
 
     public boolean hasUserLiked(int userId, int chapterId) throws SQLException {
-        return  likesDAO.isLikedByUser(userId, chapterId);
+        return likesDAO.isLikedByUser(userId, chapterId);
     }
 }

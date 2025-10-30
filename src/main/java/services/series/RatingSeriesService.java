@@ -15,6 +15,9 @@ public class RatingSeriesService {
         Connection connection = DBConnection.getConnection();
         this.ratingDAO = new RatingDAO(connection);
     }
+    public double getAverageRatingOfAuthor(int userId) throws SQLException {
+        return ratingDAO.getAverageRating(userId);
+    }
 
     public boolean saveOrUpdateRating(Rating rating) throws SQLException {
         if (ratingDAO.getRatingValueByUserId(rating)) {

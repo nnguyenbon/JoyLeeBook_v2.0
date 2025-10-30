@@ -12,6 +12,7 @@ import model.User;
 import services.chapter.ChapterServices;
 import services.series.SavedSeriesService;
 import services.series.SeriesServices;
+import utils.AuthenticationUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -29,7 +30,6 @@ public class LibraryServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
             return;
         }
-
         switch (action) {
             case "save":
                 saveSeries(request, response);
@@ -47,19 +47,17 @@ public class LibraryServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        String action = request.getParameter("action");
-
         viewLibrary(request, response);
     }
 
     private void viewLibrary(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId;
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null || user.getRole() == null || !user.getRole().equals("reader")) {
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("Please login to view yours library");
             return;
         }
-        userId = user.getUserId();
+        int userId = loginedUser.getUserId();
 
         String mode = request.getParameter("mode");
         if (mode == null || (!mode.equals("saved") && !mode.equals("history"))) {
@@ -84,8 +82,8 @@ public class LibraryServlet extends HttpServlet {
     }
 
     private void saveSeries(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        String role = user.getRole();
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        String role = loginedUser.getRole();
         if (!role.equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("Please login to save series");
@@ -95,7 +93,7 @@ public class LibraryServlet extends HttpServlet {
         try {
             SavedSeriesService saveSeriesService = new SavedSeriesService();
 
-            int userId = user.getUserId();
+            int userId = loginedUser.getUserId();
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String action = request.getParameter("type");
 
@@ -123,12 +121,12 @@ public class LibraryServlet extends HttpServlet {
     }
 
     private void deleteHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null) {
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (loginedUser == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        int userId = user.getUserId();
+        int userId = loginedUser.getUserId();
 
         Integer chapterId = parseIntOrNull(request.getParameter("chapterId"));
         if (chapterId == null) {
@@ -149,12 +147,12 @@ public class LibraryServlet extends HttpServlet {
     }
 
     private void clearAllHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null) {
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (loginedUser == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-        int userId = user.getUserId();
+        int userId = loginedUser.getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
             ReadingHistoryDAO dao = new ReadingHistoryDAO(conn);

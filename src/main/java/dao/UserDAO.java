@@ -1,7 +1,7 @@
 package dao;
 
 import model.User;
-import utils.HashPwd;
+import utils.AuthenticationUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -42,6 +42,21 @@ public class UserDAO {
         return null;
     }
 
+    public boolean isAuthor(String email) throws SQLException {
+        String sql = "SELECT role FROM users WHERE email = ? AND is_deleted = 0";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String role =  rs.getString("role");
+                    if (role.equals("author")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
     // Thêm user mới
     public boolean insert(User user) throws SQLException {
         String sql = """
@@ -97,7 +112,7 @@ public class UserDAO {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, HashPwd.hashPwd(password));
+            stmt.setString(1, AuthenticationUtils.hashPwd(password));
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
             stmt.setInt(3, userId);
             return stmt.executeUpdate() > 0;
@@ -205,7 +220,7 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
-                    if (HashPwd.checkPwd(password, hashedPasswordFromDB)) {
+                    if (AuthenticationUtils.checkPwd(password, hashedPasswordFromDB)) {
                         return mapResultSetToUser(rs);
                     } else {
                         return null;
@@ -355,5 +370,47 @@ public class UserDAO {
         } finally {
             conn.setAutoCommit(true);
         }
+    }
+
+    public int countActiveUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveAuthors() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active' AND role='author'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countBannedUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'banned'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
