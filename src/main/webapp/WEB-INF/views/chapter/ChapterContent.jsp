@@ -599,6 +599,11 @@
 
 <%--Modal Report--%>
 <script>
+    <c:if test="${not empty successReportMessage}">
+        alert("Report submitted successfully. Thank you for helping us keep the community safe.");
+        <c:remove var="successReportMessage" scope="session"/>
+    </c:if>
+
     document.querySelectorAll('.openReportCmtBtn').forEach(btn => {
         btn.addEventListener('click', () => {
             const commentId = btn.dataset.commentId;
