@@ -85,7 +85,7 @@
                                 </div>
                                 <p class="flex-1 mt-2 whitespace-pre-line text-lg line-clamp-5">${hotSeries.description}</p>
                                 <a
-                                        href="${pageContext.request.contextPath}/series?action=detail&seriesId=${hotSeries.seriesId}"
+                                        href="${pageContext.request.contextPath}/series/detail?seriesId=${hotSeries.seriesId}"
                                         class="inline-block w-32 text-center py-2 px-4 mt-2 bg-primary rounded-md"
                                 >
                                     Read now
@@ -138,7 +138,7 @@
             <ul class="flex  gap-8">
                 <c:forEach var="newReleaseSeries" items="${newReleaseSeriesList}" varStatus="loop">
                     <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
-                        <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${newReleaseSeries.seriesId}">
+                        <a href="${pageContext.request.contextPath}/series/detail?seriesId=${newReleaseSeries.seriesId}">
                             <!-- Hình ảnh -->
                             <div class="aspect-[3/4] overflow-hidden relative">
                                 <img
@@ -149,11 +149,11 @@
 
                                 <!-- Overlay chứa nút -->
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                    <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${newReleaseSeries.seriesId}&chapterId="
+                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${newReleaseSeries.seriesId}&chapterId="
                                        class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                         Read now
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${newReleaseSeries.seriesId}"
+                                    <a href="${pageContext.request.contextPath}/series/detail?seriesId=${newReleaseSeries.seriesId}"
                                        class="bg-white text-[#195DA9] px-7 py-2 rounded-md border border-[#195DA9] hover:bg-gray-100 transition">
                                         Detail
                                     </a>
@@ -237,11 +237,11 @@
 
                         <!-- Overlay chứa nút -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${recentlyUpdatedSeries.seriesId}&chapterId="
+                            <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${recentlyUpdatedSeries.seriesId}&chapterId="
                                class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                 Read now
                             </a>
-                            <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${recentlyUpdatedSeries.seriesId}"
+                            <a href="${pageContext.request.contextPath}/series/detail?seriesId=${recentlyUpdatedSeries.seriesId}"
                                class="bg-white text-[#195DA9] px-7 py-2 rounded-md border border-[#195DA9] hover:bg-gray-100 transition">
                                 Detail
                             </a>
@@ -317,7 +317,7 @@
         <ul class="col-span-12 flex justify-between gap-5 pt-6">
             <c:forEach var="completedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
                 <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
-                    <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${completedSeries.seriesId}">
+                    <a href="${pageContext.request.contextPath}/series/detail?seriesId=${completedSeries.seriesId}">
                         <!-- Hình ảnh -->
                         <div class="aspect-[3/4] overflow-hidden relative">
                             <img
@@ -328,11 +328,11 @@
 
                             <!-- Overlay chứa nút -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${completedSeries.seriesId}&chapterId="
+                                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${completedSeries.seriesId}&chapterId="
                                    class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                     Read now
                                 </a>
-                                <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${completedSeries.seriesId}"
+                                <a href="${pageContext.request.contextPath}/series/detail?seriesId=${completedSeries.seriesId}"
                                    class="bg-white text-[#195DA9] px-7 py-2 rounded-md border border-[#195DA9] hover:bg-gray-100 transition">
                                     Detail
                                 </a>
@@ -379,7 +379,7 @@
         <!-- Call to Action Section -->
         <div class="col-span-12 bg-gradient-to-r from-[#4B2BAE] to-[#1A56B6] rounded-2xl p-24 text-center text-white relative overflow-hidden mb-10">
             <!-- Lớp overlay để làm mờ ảnh nền -->
-            <div class="absolute inset-0 bg-[url('./img/background-books.jpg')] bg-cover bg-center opacity-20"></div>
+            <div class="absolute inset-0 bg-cover bg-center opacity-20"></div>
 
             <!-- Nội dung chính -->
             <div class="relative z-10">

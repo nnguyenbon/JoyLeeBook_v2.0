@@ -30,26 +30,26 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebServlet("/chapter")
+@WebServlet("/chapter/*")
 public class ChapterServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ChapterServlet.class.getName());
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "add" -> addChapter(request, response);
-            case "edit" -> updateChapter(request, response);
-            case "delete" -> deleteChapter(request, response);
+            case "/add" -> addChapter(request, response);
+            case "/edit" -> updateChapter(request, response);
+            case "/delete" -> deleteChapter(request, response);
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "add" -> showAddChapter(request, response);
-            case "edit" -> showUpdateChapter(request, response);
-            case "detail" -> viewChapterContent(request, response);
-            case "navigate" -> navigateChapter(request, response);
+            case "/add" -> showAddChapter(request, response);
+            case "/edit" -> showUpdateChapter(request, response);
+            case "/detail" -> viewChapterContent(request, response);
+            case "/navigate" -> navigateChapter(request, response);
             default -> viewChapterList(request, response);
         }
     }

@@ -13,15 +13,15 @@ import utils.AuthenticationUtils;
 
 import java.io.IOException;
 
-@WebServlet("/reaction")
+@WebServlet("/reaction/*")
 public class ReactionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "like":
+            case "/like":
                 likeChapter(request,response);
                 break;
-            case "rate":
+            case "/rate":
                 ratingSeries(request,response);
                 break;
         }

@@ -20,24 +20,24 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebServlet("/library")
+@WebServlet("/library/*")
 public class LibraryServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(LibraryServlet.class.getName());
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         if (action == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
             return;
         }
         switch (action) {
-            case "save":
+            case "/save":
                 saveSeries(request, response);
                 break;
-            case "deleteHistory":
+            case "/deleteHistory":
                 deleteHistory(request, response);
                 break;
-            case "clearHistory":
+            case "/clearHistory":
                 clearAllHistory(request, response);
                 break;
             default:
@@ -82,14 +82,17 @@ public class LibraryServlet extends HttpServlet {
     }
 
     private void saveSeries(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        String role = loginedUser.getRole();
-        if (!role.equals("reader")) {
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("Please login to save series");
+        if (loginedUser == null || !loginedUser.getRole().equals("reader")) {
+            response.getWriter().print("""
+                        {
+                        "success": false,
+                        "message": "You need to login to save series."
+                        }
+                    """);
             return;
         }
-        response.setContentType("application/json;charset=UTF-8");
         try {
             SavedSeriesService saveSeriesService = new SavedSeriesService();
 
@@ -98,22 +101,21 @@ public class LibraryServlet extends HttpServlet {
             String action = request.getParameter("type");
 
             boolean saved;
+            String message;
             SavedSeries savedSeries = new SavedSeries();
             savedSeries.setUserId(userId);
             savedSeries.setSeriesId(seriesId);
-
             if ("save".equalsIgnoreCase(action)) {
                 saveSeriesService.saveSeries(savedSeries);
                 saved = true;
+                message = "Your series has been saved successfully";
             } else {
                 saveSeriesService.unSaveSeries(savedSeries);
                 saved = false;
+                message = "Your series has been unsaved successfully";
+
             }
-            response.getWriter().write("{\"success\": true, \"saved\": " + saved + "}");
-            String returnUrl = request.getParameter("isLibrary") == null ? "" : request.getParameter("isLibrary");
-            if (returnUrl.equals("true")) {
-                response.sendRedirect("library?action=view&mode=saved");
-            }
+            response.getWriter().print("{\"success\": true, \"saved\": " + saved + ", \"message\": \"" + message + "\"}");
         } catch (Exception ex) {
             ex.printStackTrace();
             response.getWriter().write("{\"success\": false}");

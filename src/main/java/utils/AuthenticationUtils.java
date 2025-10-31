@@ -7,13 +7,11 @@ import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthenticationUtils {
-    // Lưu trữ thông tin người dùng đã login vào Session.
     public static void storeLoginedUser(HttpSession session, Account loginedUser) {
         // Trên JSP có thể truy cập thông qua ${loginedUser}
         session.setAttribute("loginedUser", loginedUser);
     }
 
-    // Lấy thông tin người dùng lưu trữ trong Session.
     public static Account getLoginedUser(HttpSession session) {
         Account loginedUser = (Account) session.getAttribute("loginedUser");
         if (loginedUser != null) {

@@ -23,26 +23,28 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@WebServlet("/series")
+@WebServlet("/series/*")
 public class SeriesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action.equals("add")) {
+        String action = request.getPathInfo();
+        if (action.equals("/add")) {
             addSeries(request, response);
-        } else if (action.equals("edit")) {
+        } else if (action.equals("/edit")) {
 
-        } else if (action.equals("delete")) {
+        } else if (action.equals("/delete")) {
             deleteSeries(request, response);
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-
-        if (action.equals("detail")) {
+        String action = request.getPathInfo();
+        System.out.println(action);
+        if (action.equals("/detail")) {
             viewSeriesDetail(request, response);
-        } else {
+        } else if(action.equals("/list")) {
             viewSeriesList(request, response);
+        } else {
+            request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
         }
     }
 
@@ -67,10 +69,7 @@ public class SeriesServlet extends HttpServlet {
             try {
                 User user = (User) loginedUser;
                 ChapterServices chapterServices = new ChapterServices();
-                int userId = 0;
-                if  (loginedUser != null) {
-                    userId = user.getUserId();
-                }
+                int userId = user.getUserId();
                 SeriesServices seriesServices = new SeriesServices();
                 request.setAttribute("userId", userId);
                 request.setAttribute("seriesInfoDTO", seriesServices.buildSeriesInfoDTO(seriesId));
@@ -90,7 +89,7 @@ public class SeriesServlet extends HttpServlet {
                 ChapterServices chapterServices = new ChapterServices();
                 SavedSeriesService savedSeriesService = new SavedSeriesService();
                 int userId = 0;
-                if  (loginedUser != null) {
+                if (loginedUser != null) {
                     userId = user.getUserId();
                 }
                 request.setAttribute("userId", userId);
