@@ -168,6 +168,8 @@
 </div>
 
 <script>
+    
+
     const userId = ${userId};
     const seriesId = "${seriesInfoDTO.seriesId}";
 
