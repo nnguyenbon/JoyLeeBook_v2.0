@@ -11,7 +11,8 @@
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="${seriesInfoDTO.coverImgUrl}" alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/>
+        <img src="${pageContext.request.contextPath}/${seriesInfoDTO.coverImgUrl}" alt="Series cover"
+             class="rounded-lg shadow aspect-[3/4]"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
@@ -98,7 +99,7 @@
 
         <div class="flex items-center gap-4 mt-4">
             <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
-                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
+                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
                     <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
                         <i class="fa-solid fa-play"></i>
                         Start Reading
@@ -133,7 +134,7 @@
                         <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
                             <c:forEach var="chapter" items="${chapterInfoDTOList}">
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
                                         <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                                             <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                             <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
@@ -205,14 +206,13 @@
             colorStars(currentRating);
 
             // Gửi request
-            fetch("reaction", {
+            fetch("${pageContext.request.contextPath}/reaction/rate", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: new URLSearchParams({
                     userId: userId,
                     seriesId: seriesId,
                     rating: currentRating,
-                    action: "rate"
                 })
             })
                 .then(response => response.json())
@@ -237,6 +237,23 @@
     starContainer.addEventListener('mouseout', () => colorStars(currentRating));
 
     document.getElementById("saveBtn").addEventListener("click", function () {
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-bottom-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
         const saveBtn = this;
         const saveIcon = saveBtn.querySelector("i");
 
@@ -245,17 +262,23 @@
 
         const type = saveIcon.classList.contains("fa-solid") ? "unsave" : "save";
         colorStars(currentRating);
-        fetch("library", {
+        fetch("${pageContext.request.contextPath}/library/save", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: "userId=" + encodeURIComponent(userId) +
-                "&seriesId=" + encodeURIComponent(seriesId) +
-                "&type=" + encodeURIComponent(type) +
-                "&action=save"
-
+            body: new URLSearchParams({
+                userId: userId,
+                seriesId: seriesId,
+                type: type
+            })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok.");
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log(data);
                 if (data.success) {
                     if (data.saved) {
                         saveBtn.classList.add("saved");
@@ -264,8 +287,14 @@
                         saveBtn.classList.remove("saved");
                         saveIcon.classList.replace("fa-solid", "fa-regular");
                     }
+                    toastr["success"](data.message)
+
+                } else {
+
+                    toastr["warning"](data.message)
+                    console.log(data.message)
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => console.log("Error:", error));
     });
 </script>

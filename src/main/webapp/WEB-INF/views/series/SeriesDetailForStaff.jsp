@@ -9,10 +9,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <main class="flex-1 bg-gray-100 max-h-[90vh] custom-scrollbar overflow-y-auto">
-    <!-- Header -->
-
-
-    <!-- Content -->
     <div class="p-9">
         <div class="flex h-60 gap-5 mb-5">
             <img src="${series.coverImgUrl}" alt="Series cover" class=" rounded-lg shadow"/>
