@@ -376,7 +376,7 @@ public class ChapterServlet extends HttpServlet {
 //        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
 //        String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
         String role = "staff";
-        if (role.equals("admin") ||  role.equals("staff")) {
+        if (role.equals("admin") || role.equals("staff")) {
             String search = request.getParameter("search");
             String status = request.getParameter("status");
             try {
@@ -404,6 +404,7 @@ public class ChapterServlet extends HttpServlet {
                 throw new RuntimeException(e);
             }
         }
+    }
 //        } else if (role.equals("author")) {
 //
 //            // get userId from session
@@ -458,7 +459,7 @@ public class ChapterServlet extends HttpServlet {
 //        } else {
 //
 //        }
-    }
+//    }
 
     private void navigateChapter (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;

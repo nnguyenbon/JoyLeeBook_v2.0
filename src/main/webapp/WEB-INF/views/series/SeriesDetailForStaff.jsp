@@ -7,84 +7,8 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - JoyLeeBook</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
 
-<body class="bg-white text-gray-800">
-
-<div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-56 border-r flex flex-col justify-between">
-        <div>
-            <div class="h-28 flex items-center justify-center border-b">
-                <img src="${pageContext.request.contextPath}/img/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
-            </div>
-            <nav class="">
-                <a href="#" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium ">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="lucide lucide-book-open-text-icon lucide-book-open-text">
-                        <path d="M12 7v14"></path>
-                        <path d="M16 12h2"></path>
-                        <path d="M16 8h2"></path>
-                        <path
-                                d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>
-                        <path d="M6 12h2"/>
-                        <path d="M6 8h2"/>
-                    </svg>
-                    <span class="ml-2">Series List</span>
-                </a>
-                <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="lucide lucide-octagon-alert-icon lucide-octagon-alert">
-                        <path d="M12 16h.01"/>
-                        <path d="M12 8v4"/>
-                        <path
-                                d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/>
-                    </svg>
-                    <span class="ml-2">Reports</span>
-                </a>
-                <a href="#" class="flex items-center px-4 py-2 hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="lucide lucide-users-icon lucide-users">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <path d="M16 3.128a4 4 0 0 1 0 7.744"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                        <circle cx="9" cy="7" r="4"/>
-                    </svg>
-                    <span class="ml-2">Users</span>
-                </a>
-            </nav>
-        </div>
-
-        <div class="p-4 border-t">
-            <a href="#" class="flex items-center text-red-500 hover:text-red-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="lucide lucide-log-out-icon lucide-log-out">
-                    <path d="m16 17 5-5-5-5"/>
-                    <path d="M21 12H9"/>
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                </svg>
-                <span class="ml-2">Logout</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main content -->
     <main class="flex-1 bg-gray-100">
-        <!-- Header -->
-        <div class="h-28 flex items-center border-b bg-white p-9 mb-1">
-            <p class="font-semibold text-lg">Staff: <span class="text-[#195DA9]">JOHNDON</span></p>
-        </div>
 
         <!-- Content -->
         <div class="p-9">
@@ -99,19 +23,19 @@
                         </span></p>
 
                             <div class="flex flex-wrap gap-2 mb-10">
-                        <c:forEach var="category" items="${seriesInfoDTO.categories}">
+                        <c:forEach var="category" items="${series.categories}">
                             <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">${category}</span>
                         </c:forEach>
                         <c:choose>
-                            <c:when test="${seriesInfoDTO.status == 'Completed'}">
-                            <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">${seriesInfoDTO.status}</span>
+                            <c:when test="${series.status == 'Completed'}">
+                            <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">${series.status}</span>
                         </c:when>
-                        <c:when test="${seriesInfoDTO.status == 'Ongoing'}">
-                            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">${seriesInfoDTO.status}</span>
+                        <c:when test="${series.status == 'Ongoing'}">
+                            <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">${series.status}</span>
                         </c:when>
                         <c:otherwise>
                             <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                                    ${seriesInfoDTO.status}
+                                    ${series.status}
                             </span>
                         </c:otherwise>
                         </c:choose>
@@ -159,57 +83,36 @@
                             </c:choose>
                             <div class="flex items-center gap-2 text-sm">
                                 <p class="text-gray-500 mr-3">${chapter.updatedAt}</p>
-                                <a href="${pageContext.request.contextPath}/chapter?action=detail&chapterId=${chapter.chapterId}">
-                                    <button class="flex gap-2 border rounded-md px-2 py-1 text-sm hover:bg-gray-100">
-                                    <span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                               stroke-linecap="round" stroke-linejoin="round"
-                                               class="lucide lucide-eye-icon lucide-eye">
-                                            <path
-                                                    d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
-                                            <circle cx="12" cy="12" r="3"/>
-                                        </svg></span> Detail
-                                    </button>
-                                </a>
-                                <div class="relative">
-                                    <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round"
-                                             class="lucide lucide-ellipsis">
-                                            <circle cx="12" cy="12" r="1"/>
-                                            <circle cx="19" cy="12" r="1"/>
-                                            <circle cx="5" cy="12" r="1"/>
-                                        </svg>
-                                    </button>
-                                    <div
-                                            class="dropdown-menu hidden absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                                        <button
-                                                class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm  hover:bg-gray-100">
-                                            <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="lucide lucide-circle-check-big-icon lucide-circle-check-big">
-                                                <path d="M21.801 10A10 10 0 1 1 17 3.335"/>
-                                                <path d="m9 11 3 3L22 4"/>
-                                            </svg>
-                                            Approve
+                                    <div class="relative flex justify-end gap-2 text-left">
+                                        <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
+                                           class="block px-2 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100 flex items-center gap-2">
+                                            <i class="fa-regular fa-eye mr-2"></i>Detail
+                                        </a>
+
+                                        <button type="button"
+                                                class="text-gray-500 hover:text-gray-700"
+                                                data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        <button
-                                                class="block w-full  text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="lucide lucide-circle-x-icon lucide-circle-x">
-                                                <circle cx="12" cy="12" r="10"/>
-                                                <path d="m15 9-6 6"/>
-                                                <path d="m9 9 6 6"/>
-                                            </svg>
-                                            Reject
-                                        </button>
+
+                                        <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden group-hover:block">
+                                            <li>
+                                                <button class="block w-full text-[#42CC75] flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100">
+                                                    <i class="fa-regular fa-circle-check mr-2"></i>
+                                                    Approve
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="block w-full text-[#E23636] flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50">
+                                                    <i class="fa-regular fa-circle-xmark mr-2"></i>
+                                                    Reject
+                                                </button>
+                                            </li>
+                                        </ul>
                                     </div>
-                                </div>
+                                </a>
+
+
                             </div>
                         </div>
                     </div>
@@ -217,7 +120,7 @@
             </div>
         </div>
     </main>
-</div>
+
 <script>
     document.querySelectorAll('.dropdown-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -233,7 +136,29 @@
     window.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
-</script>
-</body>
+    //Lay all btn in menu (ellipsis)
+    const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
 
-</html>
+    dropdownButtons.forEach(button => {
+        const menu = button.parentElement.querySelector("ul");
+
+        //When click on ellipsis -> toggle show menu
+        button.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent the event from spreading
+            closeAllDropdowns();
+            menu.classList.toggle("hidden");
+        })
+    })
+
+    //When click on out then hidden all menu
+    document.addEventListener("click", () => {
+        closeAllDropdowns();
+    })
+
+    //Function close all menu
+    function closeAllDropdowns() {
+        document.querySelectorAll('.relative ul').forEach(menu => {
+            menu.classList.add("hidden");
+        })
+    }
+</script>

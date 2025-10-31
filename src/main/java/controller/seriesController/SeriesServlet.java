@@ -54,8 +54,9 @@ public class SeriesServlet extends HttpServlet {
                 ChapterServices chapterServices = new ChapterServices();
                 request.setAttribute("series", seriesServices.buildSeriesInfoDTO(seriesId));
                 request.setAttribute("chapterDetailDTOList", chapterServices.chaptersFromSeries(seriesId));
-                request.getRequestDispatcher("/WEB-INF/views/series/SeriesDetailForStaff.jsp").forward(request, response);
-
+                request.setAttribute("pageTitle", "Staff - SeriesDetail");
+                request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesDetailForStaff.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
