@@ -173,8 +173,14 @@
                                         ${newReleaseSeries.title}
                                 </p>
                                 <div class="flex justify-between text-sm text-gray-500">
-                                    <p>by <span
-                                            class="text-gray-700 font-medium">${newReleaseSeries.authorsName.get(0)}</span>
+                                    <p>by <span class="text-gray-700 font-medium">
+                                        <c:choose>
+                                            <c:when test="${not empty newReleaseSeries.authorsName}">
+                                                ${newReleaseSeries.authorsName[0]}
+                                            </c:when>
+                                            <c:otherwise>Unknown</c:otherwise>
+                                        </c:choose>
+                                    </span>
                                     </p>
                                     <p>${newReleaseSeries.totalChapters} chapters</p>
                                 </div>
@@ -258,7 +264,15 @@
                         </div>
                         <div class="text-sm opacity-70">
                             <div class="flex justify-between">
-                                <p>by <span class="font-medium">${recentlyUpdatedSeries.authorsName.get(0)}</span></p>
+                                <p>by <span class="font-medium">
+                                    <c:choose>
+                                        <c:when test="${not empty recentlyUpdatedSeries.authorsName}">
+                                            ${recentlyUpdatedSeries.authorsName[0]}
+                                        </c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                    </span>
+                                </p>
                                 <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
                             </div>
                             <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
@@ -342,7 +356,15 @@
                         </div>
                         <div class="text-sm opacity-70">
                             <div class="flex justify-between">
-                                <p>by <span class="font-medium">${completedSeries.authorsName.get(0)}</span></p>
+                                <p>by <span class="font-medium">
+                                    <c:choose>
+                                        <c:when test="${not empty completedSeries.authorsName}">
+                                            ${completedSeries.authorsName[0]}
+                                        </c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                    </span>
+                                </p>
                                 <p>${completedSeries.totalChapters} chapters</p>
                             </div>
                             <p>★ ${completedSeries.avgRating} (${completedSeries.countRatings})</p>
