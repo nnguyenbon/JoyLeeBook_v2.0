@@ -7,7 +7,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.User;
 import services.report.ReportServices;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.ValidationInput;
 
@@ -19,17 +21,18 @@ import java.util.List;
 public class ReportServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action.equals("report")){
+        if (action.equals("report")) {
             String type = request.getParameter("type");
             if (type.equals("comment")) {
                 reportComment(request, response);
-            } else if (type.equals("chapter")){
+            } else if (type.equals("chapter")) {
                 reportChapter(request, response);
             }
-        } else if (action.equals("handle")){
+        } else if (action.equals("handle")) {
 
         }
     }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action") != null ? request.getParameter("action") : "";
         if (action.equals("detail")) {
@@ -39,7 +42,7 @@ public class ReportServlet extends HttpServlet {
         }
     }
 
-    private void viewReportList (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void viewReportList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String type = request.getParameter("type") == null ? "" : request.getParameter("type");
 
@@ -75,7 +78,7 @@ public class ReportServlet extends HttpServlet {
     private void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             ReportServices reportServices = new ReportServices();
-            int reportId = ValidationInput.isPositiveInteger(request.getParameter("reportId")) ? Integer.parseInt(request.getParameter("reportId")):-1;
+            int reportId = ValidationInput.isPositiveInteger(request.getParameter("reportId")) ? Integer.parseInt(request.getParameter("reportId")) : -1;
             String type = request.getParameter("type") == null ? "" : request.getParameter("type");
             ReportBaseDTO reportBaseDTO = reportServices.getReportById(reportId, type);
             request.setAttribute("reportBaseDTO", reportBaseDTO);
@@ -88,8 +91,10 @@ public class ReportServlet extends HttpServlet {
         }
     }
 
-    private void reportComment (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+    private void reportComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user.getUserId();
+
         try {
             ReportServices reportServices = new ReportServices();
             String commentId = request.getParameter("commentId");
@@ -101,15 +106,19 @@ public class ReportServlet extends HttpServlet {
             reportServices.createReport(userId, type, commentId, reason, description);
             request.setAttribute("seriesId", seriesId);
             request.setAttribute("chapterId", chapterId);
+
+            request.getSession().setAttribute("successReportMessage", "Report submitted successfully.");
             response.sendRedirect(request.getContextPath()
-                    + "/chapter-content?seriesId=" + seriesId + "&chapterId=" + chapterId);
+                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void reportChapter (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+    private void reportChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user.getUserId();
+
         try {
             String reason = request.getParameter("reason");
             String description = request.getParameter("description");
@@ -123,8 +132,9 @@ public class ReportServlet extends HttpServlet {
             ReportServices reportServices = new ReportServices();
             reportServices.createReport(userId, type, chapterId, reason, description);
 
+            request.getSession().setAttribute("successReportMessage", "Report submitted successfully.");
             response.sendRedirect(request.getContextPath()
-                    + "/chapter-content?seriesId=" + seriesId + "&chapterId=" + chapterId);
+                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
