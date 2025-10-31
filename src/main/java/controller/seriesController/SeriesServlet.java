@@ -38,7 +38,6 @@ public class SeriesServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
-        System.out.println(action);
         if (action.equals("/detail")) {
             viewSeriesDetail(request, response);
         } else if(action.equals("/list")) {
