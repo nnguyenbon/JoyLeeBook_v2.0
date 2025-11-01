@@ -28,15 +28,15 @@ public class SeriesAuthorDAO {
     /**
      * Adds a new SeriesAuthor record to the database.
      *
-     * @param sa the SeriesAuthor object to be added
+     * @param seriesAuthor the SeriesAuthor object to be added
      * @return true if the record was added successfully, false otherwise
      */
-    public boolean add(SeriesAuthor sa) throws SQLException {
-        String sql = "INSERT INTO series_author (series_id, user_id, added_at) VALUES (?, ?, ?)";
+    public boolean insertSeriesAuthor(SeriesAuthor seriesAuthor) throws SQLException {
+        String sql = "INSERT INTO series_author (series_id, user_id, is_owner) VALUES (?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, sa.getSeriesId());
-            ps.setInt(2, sa.getAuthorId());
-            ps.setTimestamp(3, Timestamp.valueOf(sa.getAddedAt() != null ? sa.getAddedAt() : LocalDateTime.now()));
+            ps.setInt(1, seriesAuthor.getSeriesId());
+            ps.setInt(2, seriesAuthor.getAuthorId());
+            ps.setBoolean(3, seriesAuthor.isOwner());
             return ps.executeUpdate() > 0;
         }
     }
@@ -48,19 +48,19 @@ public class SeriesAuthorDAO {
      * @param userId   the ID of the user
      * @return the SeriesAuthor object if found, null otherwise
      */
-    public List<SeriesAuthor> findById(int seriesId, int userId) throws SQLException {
+    public SeriesAuthor findById(int seriesId, int userId) throws SQLException {
         String sql = "SELECT * FROM series_author WHERE series_id = ? AND user_id = ?";
-        List<SeriesAuthor> list = new ArrayList<>();
+        SeriesAuthor seriesAuthor = new SeriesAuthor();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             ps.setInt(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    list.add(mapResultSetToSeriesAuthor(rs));
+                    seriesAuthor = mapResultSetToSeriesAuthor(rs);
                 }
             }
         }
-        return list;
+        return seriesAuthor;
     }
 
     public List<SeriesAuthor> findByUserId(int userId) throws SQLException {
@@ -76,7 +76,15 @@ public class SeriesAuthorDAO {
         }
         return list;
     }
-
+    public int findOwnerIdBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT user_id FROM series_author WHERE series_id = ? AND is_owner = 1";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("user_id") : 0;
+            }
+        }
+    }
     public List<SeriesAuthor> findBySeriesId(int seriesId) throws SQLException {
         String sql = "SELECT * FROM series_author WHERE series_id = ?";
         List<SeriesAuthor> list = new ArrayList<>();
@@ -116,7 +124,6 @@ public class SeriesAuthorDAO {
     public boolean update(SeriesAuthor sa) throws SQLException {
         String sql = "UPDATE series_author SET added_at = ? WHERE series_id = ? AND user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setTimestamp(1, Timestamp.valueOf(sa.getAddedAt()));
             ps.setInt(2, sa.getSeriesId());
             ps.setInt(3, sa.getAuthorId());
             return ps.executeUpdate() > 0;
@@ -240,8 +247,7 @@ public class SeriesAuthorDAO {
         SeriesAuthor seriesAuthor = new SeriesAuthor();
         seriesAuthor.setAuthorId(rs.getInt("user_id"));
         seriesAuthor.setSeriesId(rs.getInt("series_id"));
-        Timestamp created = rs.getTimestamp("created_at");
-        seriesAuthor.setAddedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+        seriesAuthor.setOwner(rs.getBoolean("is_owner"));
         return seriesAuthor;
     }
 }

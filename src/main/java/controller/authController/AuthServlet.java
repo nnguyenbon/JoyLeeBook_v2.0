@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Staff;
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import services.auth.HandleOTPServices;
 import services.auth.LoginServices;
 import services.auth.RegisterServices;
@@ -294,4 +295,8 @@ public class AuthServlet extends HttpServlet {
         }
         return false;
     }
+
+
 }
+
+

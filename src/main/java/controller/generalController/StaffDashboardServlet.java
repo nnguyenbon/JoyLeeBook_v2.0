@@ -44,7 +44,7 @@ public class StaffDashboardServlet extends HttpServlet {
             request.setAttribute("pageTitle", "Staff Dashboard");
             request.setAttribute("activePage", "overview");
             request.setAttribute("contentPage", "/WEB-INF/views/general/StaffDashboard.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         }catch (Exception e) {
             throw new ServletException(e);
         }

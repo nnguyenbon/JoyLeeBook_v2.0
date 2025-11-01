@@ -39,37 +39,37 @@ public class AddSeriesServlet extends HttpServlet {
         }
 
     }
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
-        try {
-            String title = request.getParameter("title");
-            String[] genresIdParam = request.getParameterValues("selectedGenres");
-            String status = request.getParameter("status");
-            String description = request.getParameter("description");
-
-            List<String> genreIds = new ArrayList<>();
-            if (genresIdParam != null && genresIdParam.length > 0) {
-                genreIds = Arrays.asList(genresIdParam);
-            }
-            Part filePart = request.getPart("coverImgUrl");
-            if (filePart == null || filePart.getSubmittedFileName().trim().isEmpty()) {
-                throw new IOException("Please select a cover image.");
-            }
-
-            SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
-            seriesInfoDTO.setTitle(title);
-            seriesInfoDTO.setCoverImgUrl( WebpConverter.convertToWebp(filePart, getServletContext()));
-            seriesInfoDTO.setStatus(status);
-            seriesInfoDTO.setDescription(description);
-            seriesInfoDTO.setCategories(genreIds);
-
-            SeriesServices seriesServices = new SeriesServices();
-            seriesServices.createSeries(seriesInfoDTO, userId);
-
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + userId);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }}
+//    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//
+//        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 1;
+//        try {
+//            String title = request.getParameter("title");
+//            String[] genresIdParam = request.getParameterValues("selectedGenres");
+//            String status = request.getParameter("status");
+//            String description = request.getParameter("description");
+//
+//            List<String> genreIds = new ArrayList<>();
+//            if (genresIdParam != null && genresIdParam.length > 0) {
+//                genreIds = Arrays.asList(genresIdParam);
+//            }
+//            Part filePart = request.getPart("coverImgUrl");
+//            if (filePart == null || filePart.getSubmittedFileName().trim().isEmpty()) {
+//                throw new IOException("Please select a cover image.");
+//            }
+//
+//            SeriesInfoDTO seriesInfoDTO = new SeriesInfoDTO();
+//            seriesInfoDTO.setTitle(title);
+//            seriesInfoDTO.setCoverImgUrl( WebpConverter.convertToWebp(filePart, getServletContext()));
+//            seriesInfoDTO.setStatus(status);
+//            seriesInfoDTO.setDescription(description);
+//            seriesInfoDTO.setCategories(genreIds);
+//
+//            SeriesServices seriesServices = new SeriesServices();
+//            seriesServices.createSeries(seriesInfoDTO, userId);
+//
+//            response.sendRedirect(request.getContextPath() + "/author?userId=" + userId);
+//        } catch (SQLException | ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }}
 
 }

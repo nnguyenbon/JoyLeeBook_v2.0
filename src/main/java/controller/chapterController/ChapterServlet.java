@@ -364,7 +364,7 @@ public class ChapterServlet extends HttpServlet {
                 PaginationUtils.sendParameter(request, paginationRequest);
                 request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ChaptersListView.jsp");
                 request.setAttribute("activePage", "series");
-                request.getRequestDispatcher("/WEB-INF/views/components/_layoutStaff.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/components/layoutStaff.jsp").forward(request, response);
             } catch (SQLException e) {
                 log.log(Level.SEVERE, "Error loading Chapter List", e);
                 request.setAttribute("error", "Unable to load your chapters.");
