@@ -4,6 +4,7 @@ import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
 /**
  * Servlet controller for managing series-related operations.
  * <p>
@@ -146,9 +147,9 @@ public class SeriesServlet extends HttpServlet {
             List<Category> categories = categoryDAO.getAll();
 
             request.setAttribute("categories", categories);
-            request.setAttribute("contentPage", "WEB-INF/views/series/_showAddSeries.jsp");
+            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("activePage", "Add Series");
-            request.getRequestDispatcher("/WEB-INF/views/series/_layoutUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error loading add series form", e);
@@ -185,7 +186,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -235,7 +236,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesAuthorDAO.insertSeriesAuthor(seriesAuthor);
             }
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error inserting new series", e);
@@ -279,7 +280,7 @@ public class SeriesServlet extends HttpServlet {
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Determine user role and context
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         String role = "reader";
         int authorId = 0;
 
@@ -338,7 +339,7 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("activePage", "series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else if ("author".equals(role)) {
-                request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
+//                request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
             } else {
                 request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesList.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
@@ -379,7 +380,7 @@ public class SeriesServlet extends HttpServlet {
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Determine user role
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         String role = "reader";
 
         if (loggedInAccount instanceof User user) {
@@ -454,9 +455,9 @@ public class SeriesServlet extends HttpServlet {
 
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
-            request.setAttribute("contentPage", "WEB-INF/views/series/_showAddSeries.jsp");
+            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
             request.setAttribute("activePage", "Edit Series");
-            request.getRequestDispatcher("/WEB-INF/views/series/_layoutUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error loading edit series form", e);
@@ -498,7 +499,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void updateSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -605,7 +606,7 @@ public class SeriesServlet extends HttpServlet {
      * @throws RuntimeException if a database error occurs during the approval process
      */
     private void approveSeries(HttpServletRequest request, HttpServletResponse response) {
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int staffId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -682,7 +683,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void deleteSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loggedInUser");
+        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -734,11 +735,13 @@ public class SeriesServlet extends HttpServlet {
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        UserDAO userDAO = new UserDAO(conn);
 
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        series.setSeriesAuthorList(seriesAuthorDAO.findBySeriesId(series.getSeriesId()));
+        List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
+        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
 
         return series;
     }

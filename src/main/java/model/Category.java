@@ -4,12 +4,7 @@ public class Category {
     private int categoryId;
     private String name;
     private String description;
-
-    public Category(int categoryId, String name, String description) {
-        this.categoryId = categoryId;
-        this.name = name;
-        this.description = description;
-    }
+    private int totalSeries;
 
     public Category() {}
     public int getCategoryId() {
@@ -34,5 +29,13 @@ public class Category {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getTotalSeries() {
+        return totalSeries;
+    }
+
+    public void setTotalSeries(int totalSeries) {
+        this.totalSeries = totalSeries;
     }
 }

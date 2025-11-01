@@ -77,7 +77,7 @@
                                     <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
                                     <p class="text-gray-400">
                                         by <span class="text-primary">
-                                        <c:forEach var="author" items="${hotSeries.authorsName}" varStatus="loop">
+                                        <c:forEach var="author" items="${hotSeries.authorNameList}" varStatus="loop">
                                             ${author}<c:if test="${!loop.last}">, </c:if>
                                         </c:forEach>
                                     </span>
@@ -163,9 +163,9 @@
                             <!-- Nội dung -->
                             <div class="p-3">
                                 <ul class="flex flex-wrap gap-2 text-xs">
-                                    <c:forEach var="category" items="${newReleaseSeries.categories}" varStatus="status">
+                                    <c:forEach var="category" items="${newReleaseSeries.categoryList}" varStatus="status">
                                         <c:if test="${status.index < 2}">
-                                            <li class="rounded-md bg-blue-100 px-1">${category}</li>
+                                            <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
                                         </c:if>
                                     </c:forEach>
                                 </ul>
@@ -175,8 +175,8 @@
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <p>by <span class="text-gray-700 font-medium">
                                         <c:choose>
-                                            <c:when test="${not empty newReleaseSeries.authorsName}">
-                                                ${newReleaseSeries.authorsName[0]}
+                                            <c:when test="${not empty newReleaseSeries.authorNameList}">
+                                                ${newReleaseSeries.authorNameList[0]}
                                             </c:when>
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
@@ -186,7 +186,7 @@
                                 </div>
                                 <p class="text-sm text-gray-600">
                                     ★ ${newReleaseSeries.avgRating}
-                                    <span class="text-gray-400">(${newReleaseSeries.countRatings})</span>
+                                    <span class="text-gray-400">(${newReleaseSeries.totalRating})</span>
                                 </p>
                             </div>
                         </a>
@@ -251,10 +251,10 @@
                     <div class="p-3 flex flex-col justify-between flex-grow">
                         <div>
                             <ul class="flex flex-wrap gap-2 text-xs mb-1">
-                                <c:forEach var="category" items="${recentlyUpdatedSeries.categories}"
+                                <c:forEach var="category" items="${recentlyUpdatedSeries.categoryList}"
                                            varStatus="status">
                                     <c:if test="${status.index < 2}">
-                                        <li class="rounded-md bg-blue-100 px-1">${category}</li>
+                                        <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
                                     </c:if>
                                 </c:forEach>
                             </ul>
@@ -266,8 +266,8 @@
                             <div class="flex justify-between">
                                 <p>by <span class="font-medium">
                                     <c:choose>
-                                        <c:when test="${not empty recentlyUpdatedSeries.authorsName}">
-                                            ${recentlyUpdatedSeries.authorsName[0]}
+                                        <c:when test="${not empty recentlyUpdatedSeries.authorNameList}">
+                                            ${recentlyUpdatedSeries.authorNameList[0]}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
@@ -275,7 +275,7 @@
                                 </p>
                                 <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
                             </div>
-                            <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.countRatings})</p>
+                            <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.totalRating})</p>
                         </div>
                     </div>
                     </a>
@@ -344,9 +344,9 @@
                     <div class="p-3 flex flex-col justify-between flex-grow">
                         <div>
                             <ul class="flex flex-wrap gap-2 text-xs mb-1">
-                                <c:forEach var="category" items="${completedSeries.categories}" varStatus="status">
+                                <c:forEach var="category" items="${completedSeries.categoryList}" varStatus="status">
                                     <c:if test="${status.index < 2}">
-                                        <li class="rounded-md bg-blue-100 px-1">${category}</li>
+                                        <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
                                     </c:if>
                                 </c:forEach>
                             </ul>
@@ -358,8 +358,8 @@
                             <div class="flex justify-between">
                                 <p>by <span class="font-medium">
                                     <c:choose>
-                                        <c:when test="${not empty completedSeries.authorsName}">
-                                            ${completedSeries.authorsName[0]}
+                                        <c:when test="${not empty completedSeries.authorNameList}">
+                                            ${completedSeries.authorNameList[0]}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
@@ -367,7 +367,7 @@
                                 </p>
                                 <p>${completedSeries.totalChapters} chapters</p>
                             </div>
-                            <p>★ ${completedSeries.avgRating} (${completedSeries.countRatings})</p>
+                            <p>★ ${completedSeries.avgRating} (${completedSeries.totalRating})</p>
                         </div>
                     </div>
                     </a>

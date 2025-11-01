@@ -11,19 +11,19 @@
 
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
-        <img src="${pageContext.request.contextPath}/${seriesInfoDTO.coverImgUrl}" alt="Series cover"
+        <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="Series cover"
              class="rounded-lg shadow aspect-[3/4]"/>
     </div>
 
     <!-- Right (Title, Info, Tags) -->
     <div class="col-span-7 h-full flex flex-col justify-between">
-        <h1 class="text-4xl font-bold">${seriesInfoDTO.title}</h1>
+        <h1 class="text-4xl font-bold">${series.title}</h1>
 
         <!-- Tác giả -->
         <p class="text-gray-600">
             by
             <span class="font-semibold">
-            <c:forEach var="author" items="${seriesInfoDTO.authorsName}" varStatus="loop">
+            <c:forEach var="author" items="${series.authorNameList}" varStatus="loop">
                 ${author}<c:if test="${!loop.last}">, </c:if>
             </c:forEach>
         </span>
@@ -33,27 +33,27 @@
         <div class="flex flex-wrap items-center gap-2">
 
             <!-- Danh mục -->
-            <c:forEach var="category" items="${seriesInfoDTO.categories}">
+            <c:forEach var="category" items="${series.categoryList}">
             <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
-                    ${category}
+                    ${category.name}
             </span>
             </c:forEach>
 
             <!-- Trạng thái -->
             <c:choose>
-                <c:when test="${seriesInfoDTO.status == 'Completed'}">
+                <c:when test="${series.status == 'Completed'}">
                 <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
-                        ${seriesInfoDTO.status}
+                        ${series.status}
                 </span>
                 </c:when>
-                <c:when test="${seriesInfoDTO.status == 'Ongoing'}">
+                <c:when test="${series.status == 'Ongoing'}">
                 <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">
-                        ${seriesInfoDTO.status}
+                        ${series.status}
                 </span>
                 </c:when>
                 <c:otherwise>
                 <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                        ${seriesInfoDTO.status}
+                        ${series.status}
                 </span>
                 </c:otherwise>
             </c:choose>
@@ -62,14 +62,14 @@
 
         <div class="flex items-center gap-30">
             <div class="flex flex-col items-center justify-center">
-                <span class="font-semibold text-lg">${seriesInfoDTO.totalChapters}</span>
+                <span class="font-semibold text-lg">${series.totalChapters}</span>
                 Chapters
             </div>
             <div class="flex flex-col items-center justify-center">
 
                 <div class="text-gray-500 font-semibold text-lg mb-1">
-                    <span id="avgRatingDisplay" class="text-yellow-400">★ ${seriesInfoDTO.avgRating}</span>
-                    <span id="totalRatingsDisplay">(${seriesInfoDTO.countRatings})</span>
+                    <span id="avgRatingDisplay" class="text-yellow-400">★ ${series.avgRating}</span>
+                    <span id="totalRatingsDisplay">(${series.totalRating})</span>
                 </div>
 
                 <div id="starRatingContainer" class="flex">
@@ -99,7 +99,7 @@
 
         <div class="flex items-center gap-4 mt-4">
             <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
-                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
+                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
                     <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
                         <i class="fa-solid fa-play"></i>
                         Start Reading
@@ -109,7 +109,7 @@
 
             <button id="saveBtn"
                     class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
-                    data-user-id="10" data-series-id="${seriesInfoDTO.seriesId}">
+                    data-user-id="10" data-series-id="${series.seriesId}">
                 <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
             </button>
         </div>
@@ -120,7 +120,7 @@
         <div class="col-span-10 col-start-2">
             <h2 class="font-semibold text-xl mb-3">Summary</h2>
             <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700">
-                ${seriesInfoDTO.description}
+                ${series.description}
             </div>
         </div>
     </section>
@@ -134,7 +134,7 @@
                         <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
                             <c:forEach var="chapter" items="${chapterInfoDTOList}">
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${seriesInfoDTO.seriesId}&chapterId=${chapter.chapterId}">
+                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
                                         <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                                             <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                             <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
@@ -169,7 +169,7 @@
 
 <script>
     const userId = ${userId};
-    const seriesId = "${seriesInfoDTO.seriesId}";
+    const seriesId = "${series.seriesId}";
 
     const starContainer = document.getElementById('starRatingContainer');
     var radioButtons, labels;

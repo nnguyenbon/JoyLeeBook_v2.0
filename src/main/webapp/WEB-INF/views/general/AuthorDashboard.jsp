@@ -72,7 +72,7 @@
                 <option>Completed</option>
             </select>
 
-            <a href="${pageContext.request.contextPath}/add-series"
+            <a href="${pageContext.request.contextPath}/series/add"
                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow-sm transition">
                 <i class="fa-solid fa-plus"></i>
                 Create
@@ -91,7 +91,7 @@
                 </div>
             </div>
             <div class="col-span-1 flex items-center justify-between gap-4 text-sm">
-                <span class="text-yellow-500"><i class="fa-solid fa-star"></i> ${mySeries.avgRating} (${mySeries.countRatings})</span>
+                <span class="text-yellow-500"><i class="fa-solid fa-star"></i> ${mySeries.avgRating} (${mySeries.totalRating})</span>
                 <span>• ${mySeries.totalChapters} Chapters</span>
                 <c:choose>
                     <c:when test="${mySeries.status == 'Completed'}">
@@ -112,7 +112,7 @@
                 </c:choose>
                 <span class="text-gray-500">${mySeries.createdAt}</span>
                 <div class="flex gap-2 items-center">
-                    <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${mySeries.seriesId}"
+                    <a href="${pageContext.request.contextPath}/series/detail?seriesId=${mySeries.seriesId}"
                        class="border border-blue-500 text-blue-500 hover:bg-blue-50 px-3 py-1 rounded-md flex items-center gap-1">
                         <i class="fa-solid fa-circle-info"></i> Detail
                     </a>

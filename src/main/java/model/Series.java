@@ -13,7 +13,7 @@ public class Series {
     private List<Category> categoryList;
     private String createdAt;
     private String updatedAt;
-    private List<SeriesAuthor> seriesAuthorList;
+    private List<String> authorNameList;
     private boolean isDeleted;
     private int avgRating;
     private int totalRating;
@@ -117,12 +117,12 @@ public class Series {
         this.categoryList = categoryList;
     }
 
-    public List<SeriesAuthor> getSeriesAuthorList() {
-        return seriesAuthorList;
+    public List<String> getAuthorNameList() {
+        return authorNameList;
     }
 
-    public void setSeriesAuthorList(List<SeriesAuthor> seriesAuthorList) {
-        this.seriesAuthorList = seriesAuthorList;
+    public void setAuthorNameList(List<String> authorNameList) {
+        this.authorNameList = authorNameList;
     }
 
     public String getApprovalStatus() {

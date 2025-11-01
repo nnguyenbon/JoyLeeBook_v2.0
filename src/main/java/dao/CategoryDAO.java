@@ -147,7 +147,12 @@ public class CategoryDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(mapResultSetToCategory(rs));
+                Category category = new Category();
+                category.setCategoryId(rs.getInt("category_id"));
+                category.setName(rs.getString("name"));
+                category.setDescription(rs.getString("description"));
+                category.setTotalSeries(rs.getInt("total_series"));
+                list.add(category);
             }
         }
         return list;

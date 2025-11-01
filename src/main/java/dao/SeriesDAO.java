@@ -191,7 +191,27 @@ public class SeriesDAO {
         }
         return null;
     }
+    /**
+     * Finds a series by its ID.
+     *
+     * @param seriesId the ID of the series to find
+     * @return the Series object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Series findById(int seriesId) throws SQLException {
 
+        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractSeriesFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
     public boolean approveSeries(int seriesId, String approveStatus) throws SQLException {
         String sql = "UPDATE series SET approval_status = ? WHERE series_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

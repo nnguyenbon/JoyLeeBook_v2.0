@@ -14,7 +14,7 @@
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-1">Create Series</h1>
         <p class="text-center text-gray-500 mb-8">Add a new series to your collection</p>
     </div>
-    <form action="add-series" method="post" class="col-span-12 grid grid-cols-12 gap-x-5 gap-y-3 mt-10 relative"
+    <form action="${pageContext.request.contextPath}/series/insert" method="post" class="col-span-12 grid grid-cols-12 gap-x-5 gap-y-3 mt-10 relative"
           enctype="multipart/form-data">
         <div class="col-span-3 h-96">
             <div id="upload-box" class="h-110 flex flex-col justify-between items-center">
@@ -66,7 +66,7 @@
                     <div id="genre-dropdown"
                          class="hidden mt-1 bg-white border border-gray-300 rounded-md shadow-md absolute z-10 w-full max-h-72 overflow-y-auto">
                         <ul id="genre-list" class="grid grid-cols-3 divide-y divide-gray-100 text-gray-700">
-                            <c:forEach var="category" items="${categoryList}">
+                            <c:forEach var="category" items="${categories}">
                                 <li class="px-3 py-2 flex items-center gap-3 hover:bg-blue-50 cursor-pointer">
                                     <input type="checkbox" class="genre-checkbox" name="selectedGenres" value="${category.categoryId}" id="genre-${category.categoryId}" />
                                     <label for="genre-${category.categoryId}" class="cursor-pointer select-none">${category.name}</label>

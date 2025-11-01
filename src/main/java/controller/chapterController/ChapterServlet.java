@@ -339,7 +339,7 @@ public class ChapterServlet extends HttpServlet {
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/ChapterContent.jsp");
                 request.setAttribute("seriesId", seriesId);
                 request.setAttribute("chapterId", chapterId);
-                request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -364,7 +364,7 @@ public class ChapterServlet extends HttpServlet {
                 PaginationUtils.sendParameter(request, paginationRequest);
                 request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ChaptersListView.jsp");
                 request.setAttribute("activePage", "series");
-                request.getRequestDispatcher("/WEB-INF/views/components/layoutStaff.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } catch (SQLException e) {
                 log.log(Level.SEVERE, "Error loading Chapter List", e);
                 request.setAttribute("error", "Unable to load your chapters.");

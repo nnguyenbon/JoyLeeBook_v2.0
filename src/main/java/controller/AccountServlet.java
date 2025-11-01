@@ -79,7 +79,7 @@ public class AccountServlet extends HttpServlet {
             req.setAttribute("contentPage", "/WEB-INF/views/general/staffview/UsersListView.jsp");
             req.setAttribute("activePage", "users");
             req.setAttribute("filterByRole", filterByRole);
-            req.getRequestDispatcher("/WEB-INF/views/components/layoutStaff.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
             req.setAttribute("errorMessage", "Lỗi khi tải danh sách tài khoản: " + e.getMessage());
