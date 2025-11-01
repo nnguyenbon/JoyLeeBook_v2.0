@@ -154,7 +154,7 @@
             <div class="flex py-6">
                 <div class="w-1/3 mx-auto text-center">
                     <div
-                            class="size-28 mx-auto aspect-square rounded-full overflow-hidden"
+                            class="w-2/3 mx-auto aspect-square rounded-full overflow-hidden"
                     >
                         <img
                                 src="${pageContext.request.contextPath}/img/shared/imgUser.png"
@@ -171,7 +171,7 @@
                         >
                         <input
                                 type="text"
-                                class="border border-neutral-400 w-full py-1 px-2 mt-1 mb-4 rounded-lg"
+                                class="border border-neutral-400 w-full py-1 px-2 mt-1 rounded-lg"
                                 name="username"
                                 id="username"
                                 value="${user.username}"
@@ -181,12 +181,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-primary text-sm" for="fullName"
+                        <label class="block text-primary text-sm mt-4" for="fullName"
                         >Full name</label
                         >
                         <input
                                 type="text"
-                                class="border border-neutral-400 w-full py-1 px-2 mt-1 mb-4 rounded-lg"
+                                class="border border-neutral-400 w-full py-1 px-2 mt-1 rounded-lg"
                                 name="fullName"
                                 id="fullName"
                                 value="${user.fullName}"
@@ -198,14 +198,14 @@
             </div>
 
             <div>
-                <label for="bio" class="block text-primary font-semibold">Bio</label>
+                <label for="bio" class="block text-primary font-semibold mt-4">Bio</label>
                 <textarea
                         class="w-full min-h-64 border border-neutral-400 rounded-lg p-2"
                         name="bio"
                         id="bio"
                 >${user.bio}</textarea
                 >
-                <p class="text-xs text-red-700/70">Maximum 160 characters length</p>
+                <p class="text-xs text-red-700/70">Maximum 160 character length</p>
             </div>
 
             <div class="flex justify-center gap-4">
@@ -263,8 +263,7 @@
                             class="fa-solid fa-eye absolute right-2 bottom-1/2 translate-y-1/2 cursor-pointer"
                             onclick="togglePassword(this, 'newPassword')"
                     ></i>
-                    <p id="password-error" class="text-xs text-red-700">
-
+                    <p id="password-error" class="text-xs text-red-700"></p>
                 </div>
             </div>
 
@@ -305,7 +304,7 @@
 
 <c:if test="${not empty message}">
     <script>
-        alert("${message}")
+        toastr["success"]("${message}")
         <c:remove var="message" scope="session"/>
     </script>
 </c:if>
@@ -359,22 +358,22 @@
     document.getElementById("username").addEventListener("input", function () {
         const username = this.value.trim();
         const errorElement = document.getElementById("username-error");
-
         debounce(() => {
 
             fetch("/register?type=username&value=" + encodeURIComponent(username))
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data)
                     if (data.valid) {
                         errorElement.textContent = "";
                     } else {
                         errorElement.textContent = data.message;
                     }
-                    validateForm();
+                    validateEdit();
                 })
                 .catch(() => {
                     errorElement.textContent = "";
-                    validateForm();
+                    validateEdit();
                 });
         }, 400);
     });
@@ -394,11 +393,11 @@
                     } else {
                         errorElement.textContent = data.message;
                     }
-                    validateForm();
+                    validateEdit();
                 })
                 .catch(() => {
                     errorElement.textContent = "";
-                    validateForm();
+                    validateEdit();
                 });
         }, 400);
     });
@@ -415,37 +414,48 @@
                     } else {
                         errorElement.textContent = data.message;
                     }
-                    validateForm();
+                    validateChange();
                 })
                 .catch(() => {
                     errorElement.textContent = "";
-                    validateForm();
+                    validateChange();
                 });
         }, 400);
     });
 
-    function validateForm() {
+    function validateEdit() {
         const username = document.getElementById("username").value.trim();
         const fullName = document.getElementById("fullName").value.trim();
-        const password = document.getElementById("newPassword").value.trim();
-        const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
         const usernameError = document.getElementById("username-error").textContent.trim();
         const fullnameError = document.getElementById("fullname-error").textContent.trim();
-        const passwordError = document.getElementById("password-error").textContent.trim();
-
-        const submitBtn = document.getElementById("submit-btn");
+        const editBtn = document.querySelector("#editProfileDialog button[type=submit]");
 
         const isValid =
             username &&
             fullName &&
-            password &&
+            !usernameError &&
+            !fullnameError;
+
+        editBtn.disabled = !isValid;
+
+    }
+
+    function validateChange() {
+
+        const password = document.getElementById("newPassword").value.trim();
+        const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+        const passwordError = document.getElementById("password-error").textContent.trim();
+
+        const changeBtn = document.querySelector("#changePasswordDialog button[type=submit]");
+        const isValid = password &&
             confirmPassword &&
             password === confirmPassword &&
-            !usernameError &&
-            !fullnameError &&
             !passwordError;
-        submitBtn.disabled = !isValid;
+
+        changeBtn.disabled = !isValid;
+
     }
 
     document.getElementById("confirmPassword").addEventListener("input", validateForm);
