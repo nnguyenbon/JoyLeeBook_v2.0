@@ -155,6 +155,3 @@
         document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
 </script>
-</body>
-
-</html>

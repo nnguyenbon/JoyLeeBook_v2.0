@@ -170,17 +170,16 @@
 <script>
     
 
-    const userId = ${userId};
     const seriesId = "${seriesInfoDTO.seriesId}";
+    let currentRating = ${userRating};
 
     const starContainer = document.getElementById('starRatingContainer');
-    var radioButtons, labels;
+    let radioButtons, labels;
 
     if (starContainer) {
         radioButtons = starContainer.querySelectorAll('input[name="rating"]');
         labels = starContainer.querySelectorAll('label');
     }
-    let currentRating = ${userRating};
 
     function colorStars(ratingValue) {
         labels.forEach((label, index) => {
@@ -203,32 +202,32 @@
         label.addEventListener('mouseover', () => colorStars(ratingValue));
 
         label.addEventListener('click', () => {
-            currentRating = ratingValue;
-            radioButtons[index].checked = true;
-            colorStars(currentRating);
 
             // Gửi request
             fetch("${pageContext.request.contextPath}/reaction/rate", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: new URLSearchParams({
-                    userId: userId,
                     seriesId: seriesId,
-                    rating: currentRating,
+                    rating: ratingValue,
                 })
             })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data)
                     if (data.success) {
+                        currentRating = ratingValue;
+
                         console.log("⭐ Rating saved:", data.rating);
-
-
+                        radioButtons[index].checked = true;
+                        colorStars(currentRating);
                         const avgDisplay = document.getElementById("avgRatingDisplay");
                         const totalDisplay = document.getElementById("totalRatingsDisplay");
                         if (avgDisplay) avgDisplay.textContent = "★ " + data.avgRating.toFixed(1);
                         if (totalDisplay) totalDisplay.textContent = "(" + data.totalRatings + ")";
                     } else {
-                        console.error("❌ Error saving rating!");
+
+                        toastr["warning"](data.message)
                     }
                 })
                 .catch(error => console.error("⚠️ Fetch error:", error));
@@ -247,7 +246,6 @@
         const seriesId = saveBtn.dataset.seriesId;
 
         const type = saveIcon.classList.contains("fa-solid") ? "unsave" : "save";
-        colorStars(currentRating);
         fetch("${pageContext.request.contextPath}/library/save", {
             method: "POST",
             headers: {"Content-Type": "application/x-www-form-urlencoded"},
@@ -264,7 +262,6 @@
                 return response.json();
             })
             .then(data => {
-                console.log(data);
                 if (data.success) {
                     if (data.saved) {
                         saveBtn.classList.add("saved");
@@ -278,7 +275,6 @@
                 } else {
 
                     toastr["warning"](data.message)
-                    console.log(data.message)
                 }
             })
             .catch(error => console.log("Error:", error));

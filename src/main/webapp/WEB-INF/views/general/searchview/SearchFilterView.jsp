@@ -12,7 +12,7 @@
 </div>
 <div class="space-y-6">
     <c:forEach var="series" items="${seriesInfoDTOList}">
-        <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}" class="block mb-4">
+        <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}" class="block mb-4">
             <div class="flex gap-4 bg-white p-4 rounded-xl shadow hover:shadow-md transition">
                 <img src="./${series.coverImgUrl}" alt="cover"
                      class="w-[120px] h-[160px] object-cover rounded-lg">

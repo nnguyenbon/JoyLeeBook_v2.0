@@ -26,11 +26,13 @@ public class ProfileServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action.equals("edit")) {
+        String action = request.getPathInfo();
+        if (action.equals("/edit")) {
             editProfile(request, response);
-        } else {
+        } else if (action.equals("/changePassword")) {
             changePassword(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
         }
     }
 
