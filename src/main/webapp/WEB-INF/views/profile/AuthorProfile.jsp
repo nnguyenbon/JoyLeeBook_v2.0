@@ -69,7 +69,7 @@
                 <div class="flex flex-col gap-4">
                     <!-- Card Series -->
                     <c:forEach var="series" items="${seriesInfoDTOList}" varStatus="loop">
-                        <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}">
+                        <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}">
                             <div
                                     class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
                                 <div class="flex items-center gap-4">
