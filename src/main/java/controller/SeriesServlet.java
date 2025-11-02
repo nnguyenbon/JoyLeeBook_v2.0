@@ -607,7 +607,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void approveSeries(HttpServletRequest request, HttpServletResponse response) {
         Object loggedInAccount = request.getSession().getAttribute("loginedUser");
-        int staffId = ((User) loggedInAccount).getUserId();
+        int staffId = ((Staff) loggedInAccount).getStaffId();
 
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));

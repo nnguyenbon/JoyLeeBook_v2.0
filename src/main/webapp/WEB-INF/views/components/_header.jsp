@@ -53,13 +53,13 @@ change this template use File | Settings | File Templates. --%>
         </div>
 
         <div class="col-span-6">
-            <form action="search?" class="w-full">
+            <form action="${pageContext.request.contextPath}/series/list" class="w-full">
                 <input
                         type="text"
                         placeholder="Search series, author"
                         class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full"
-                        name="keyword"
-                        id="keyword"
+                        name="search"
+                        id="search"
                 />
             </form>
         </div>

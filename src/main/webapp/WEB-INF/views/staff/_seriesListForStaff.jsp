@@ -14,7 +14,7 @@
         <div class="flex justify-between items-center">
             <!-- Tabs Header -->
             <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
-                <a href="${pageContext.request.contextPath}/series?action=list" id="tab-series" data-type="series" class="tab-btn text-xl text-[#195DA9] border-b-4 py-1 border-[#195DA9]">Series List</a>
+                <a href="${pageContext.request.contextPath}/series/list" id="tab-series" data-type="series" class="tab-btn text-xl text-[#195DA9] border-b-4 py-1 border-[#195DA9]">Series List</a>
                 <a href="${pageContext.request.contextPath}/chapter?action=list&status=Pending" id="tab-chapter" data-type="chapter" class="tab-btn text-xl text-gray-500 border-b-4 border-white py-1 hover:text-[#195DA9]">Chapter Review</a>
             </div>
 
@@ -80,11 +80,12 @@
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 rounded-full text-xs font-semibold
                                 <c:choose>
-                                    <c:when test="${series.status == 'Completed'}">bg-green-100 text-green-700</c:when>
-                                    <c:when test="${series.status == 'Ongoing'}">bg-yellow-100 text-yellow-700</c:when>
+                                    <c:when test="${series.approvalStatus == 'approved'}">bg-green-100 text-green-700</c:when>
+                                    <c:when test="${series.approvalStatus == 'rejected'}">bg-red-100 text-red-700</c:when>
+                                    <c:when test="${series.approvalStatus == 'pending'}">bg-yellow-100 text-yellow-700</c:when>
                                     <c:otherwise>bg-gray-100 text-gray-700</c:otherwise>
                                 </c:choose>">
-                                    ${series.status}
+                                    ${series.approvalStatus}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-700">
@@ -92,31 +93,65 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
+                                <!-- Detail Button -->
                                 <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}"
-                                   class="block px-2 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100">
+                                   class="block px-3 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100">
                                     <i class="fa-regular fa-eye mr-2"></i>Detail
                                 </a>
 
+                                <!-- Dropdown Toggle -->
                                 <button type="button"
                                         class="text-gray-500 hover:text-gray-700"
                                         data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
 
-                                <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden group-hover:block">
-                                    <!-- Add staff/admin actions here if needed, similar to account page -->
-                                    <c:if test="${sessionScope.role eq 'staff' or sessionScope.role eq 'admin'}">
-                                        <li>
-                                            <a href="${pageContext.request.contextPath}/series?action=edit&seriesId=${series.seriesId}"
-                                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                                <i class="fas fa-edit mr-2"></i>Edit
-                                            </a>
-                                        </li>
-                                    </c:if>
+                                <!-- Dropdown Menu -->
+                                <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                                    <!-- Approve / Reject logic -->
+                                    <c:choose>
+                                        <c:when test="${series.approvalStatus == 'pending'}">
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/series/approve" method="post">
+                                                    <input type="hidden" name="seriesId" value="${series.seriesId}">
+                                                    <input type="hidden" name="approveStatus" value="approved">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50">
+                                                        <i class="fa-solid fa-check"></i> Approve
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/series/approve" method="post">
+                                                    <input type="hidden" name="seriesId" value="${series.seriesId}">
+                                                    <input type="hidden" name="approveStatus" value="rejected">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </c:when>
+
+                                        <c:when test="${series.approvalStatus == 'approved'}">
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/series/approve" method="post">
+                                                    <input type="hidden" name="seriesId" value="${series.seriesId}">
+                                                    <input type="hidden" name="approveStatus" value="rejected">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </c:when>
+                                    </c:choose>
+
+                                    <!-- Admin-only: Delete -->
                                     <c:if test="${sessionScope.role eq 'admin'}">
                                         <li>
                                             <a href="${pageContext.request.contextPath}/series?action=delete&seriesId=${series.seriesId}"
-                                               onclick="return confirm('Xác nhận xóa series?')"
+                                               onclick="return confirm('Confirm delete this series?')"
                                                class="block px-4 py-2 text-red-600 hover:bg-red-50">
                                                 <i class="fas fa-trash mr-2"></i>Delete
                                             </a>
@@ -125,6 +160,7 @@
                                 </ul>
                             </div>
                         </td>
+
                     </tr>
                 </c:forEach>
                 </tbody>

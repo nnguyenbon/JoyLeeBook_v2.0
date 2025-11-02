@@ -370,7 +370,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByStatus(int limit, String status) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE status = ?";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' AND status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
@@ -410,7 +410,7 @@ public class SeriesDAO {
      */
     public List<Series> getRecentlyUpdated(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY updated_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY updated_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -429,7 +429,7 @@ public class SeriesDAO {
      */
     public List<Series> getNewReleasedSeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY created_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

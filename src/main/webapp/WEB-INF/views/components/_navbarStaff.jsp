@@ -19,7 +19,11 @@
             </a>
             <a href="${pageContext.request.contextPath}/series/list" class="flex items-center px-4 py-2   ${activePage == 'series' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
                 <i class="fa-solid fa-book"></i>
-                <span class="ml-2">Series List</span>
+                <span class="ml-2">Series Review</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/chapter/list" class="flex items-center px-4 py-2   ${activePage == 'chapter' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
+                <i class="fa-solid fa-book"></i>
+                <span class="ml-2">Chapter Review</span>
             </a>
             <a href="${pageContext.request.contextPath}/report?action=list&type=chapter" class="flex items-center px-4 py-2 hover:bg-gray-100  ${activePage == 'reports' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'}">
                 <i class="fa-solid fa-triangle-exclamation"></i>
