@@ -1,4 +1,4 @@
-package controller.generalController;
+package controller;
 
 import dao.*;
 import db.DBConnection;

@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
 <div class="main-content px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-[90vh] px-2 custom-scrollbar ">
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">

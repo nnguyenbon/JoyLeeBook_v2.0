@@ -339,7 +339,7 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("activePage", "series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else if ("author".equals(role)) {
-//                request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
             } else {
                 request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesList.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
