@@ -8,7 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <main class=" mt-10 grid grid-cols-12 gap-8 items-center">
-
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
         <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="Series cover"
@@ -98,22 +97,43 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
-                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
-                    <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                        <i class="fa-solid fa-play"></i>
-                        Start Reading
+            <c:set var="user" value="${loginedUser}" />
+            <c:set var="role" value="${user.role}" />
+            <c:choose>
+                <c:when test="${role == 'author'}">
+                    <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
+                        <button class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </a>
+                    <form action="${pageContext.request.contextPath}/series/delete" method="post"
+                          onsubmit="return confirm('Are you sure you want to delete this series?')">
+                        <input type="hidden" name="seriesId" value="${series.seriesId}">
+                        <button type="submit"
+                                class="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </c:when>
+
+                <c:when test="${role == 'reader'}">
+                    <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
+                        <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
+                            <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
+                                <i class="fa-solid fa-play"></i> Start Reading
+                            </button>
+                        </a>
+                    </c:if>
+
+                    <button id="saveBtn"
+                            class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                            data-user-id="10" data-series-id="${series.seriesId}">
+                        <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
                     </button>
-                </a>
-            </c:if>
-
-            <button id="saveBtn"
-                    class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
-                    data-user-id="10" data-series-id="${series.seriesId}">
-                <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
-            </button>
+                </c:when>
+                <c:otherwise></c:otherwise>
+            </c:choose>
         </div>
-
     </div>
     <!-- Summary -->
     <section class="col-span-12 grid grid-cols-12 gap-8">
@@ -152,133 +172,126 @@
         </div>
     </section>
 </main>
-
-
-<!-- ✅ Modal đưa ra ngoài container -->
-<div id="confirmModal"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md relative">
-        <h2 class="text-xl font-semibold mb-4">Confirm Rating</h2>
-        <p id="confirmText" class="mb-6 text-gray-700"></p>
-        <button id="confirmBtn"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            OK
-        </button>
-    </div>
-</div>
-
 <script>
-    const userId = ${userId};
-    const seriesId = "${series.seriesId}";
+    document.addEventListener("DOMContentLoaded", async () => {
+        const userId = ${loginedUser.userId};
+        const seriesId = "${series.seriesId}";
 
-    const starContainer = document.getElementById('starRatingContainer');
-    var radioButtons, labels;
+        const starContainer = document.getElementById('starRatingContainer');
+        const saveBtn = document.getElementById("saveBtn");
+        const saveIcon = saveBtn.querySelector("i");
+        const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
+        const labels = starContainer.querySelectorAll('label');
 
-    if (starContainer) {
-        radioButtons = starContainer.querySelectorAll('input[name="rating"]');
-        labels = starContainer.querySelectorAll('label');
-    }
-    let currentRating = ${userRating};
+        let currentRating = 0;
+        let isSaved = false;
 
-    function colorStars(ratingValue) {
-        labels.forEach((label, index) => {
-            if (index < ratingValue) {
-                label.classList.add('text-yellow-400');
-                label.classList.remove('text-gray-400');
-            } else {
-                label.classList.add('text-gray-400');
-                label.classList.remove('text-yellow-400');
+        // ✅ Hàm tô màu sao
+        function colorStars(ratingValue) {
+            labels.forEach((label, index) => {
+                label.classList.toggle('text-yellow-400', index < ratingValue);
+                label.classList.toggle('text-gray-400', index >= ratingValue);
+            });
+        }
+
+        // ✅ Hàm load trạng thái ban đầu (đã lưu? đã rate?)
+        async function loadUserSeriesStatus() {
+            try {
+                const [saveRes, rateRes] = await Promise.all([
+                    fetch(`${pageContext.request.contextPath}/reading/save?userId=${userId}&seriesId=${seriesId}`),
+                    fetch(`${pageContext.request.contextPath}/reaction/rate-series?userId=${userId}&seriesId=${seriesId}`)
+                ]);
+
+                const saveData = await saveRes.json();
+                const rateData = await rateRes.json();
+
+                // ✅ Gán trạng thái Save
+                if (saveData.saved) {
+                    isSaved = true;
+                    saveIcon.classList.replace("fa-regular", "fa-solid");
+                    saveBtn.classList.add("saved");
+                }
+
+                // ✅ Gán trạng thái Rating
+                if (rateData.userRating > 0) {
+                    currentRating = rateData.userRating;
+                    colorStars(currentRating);
+                    radioButtons[currentRating - 1].checked = true;
+                }
+
+                // ✅ Hiển thị điểm trung bình mới nhất
+                const avgDisplay = document.getElementById("avgRatingDisplay");
+                const totalDisplay = document.getElementById("totalRatingsDisplay");
+                if (rateData.avgRating) {
+                    avgDisplay.textContent = `★ ${rateData.avgRating.toFixed(1)}`;
+                    totalDisplay.textContent = `(${rateData.totalRatings})`;
+                }
+
+            } catch (error) {
+                console.error("⚠️ Lỗi khi tải trạng thái người dùng:", error);
+            }
+        }
+
+        // ✅ Sự kiện nhấn lưu / huỷ lưu
+        saveBtn.addEventListener("click", async () => {
+            const type = isSaved ? "unsave" : "save";
+            try {
+                const res = await fetch(`${pageContext.request.contextPath}/reading/save`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ userId, seriesId, type })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    isSaved = data.saved;
+                    saveIcon.classList.toggle("fa-solid", isSaved);
+                    saveIcon.classList.toggle("fa-regular", !isSaved);
+                    toastr["success"](data.message);
+                } else {
+                    toastr["warning"](data.message);
+                }
+            } catch (error) {
+                console.error("❌ Lỗi khi lưu series:", error);
             }
         });
-    }
 
-    //
-    colorStars(currentRating);
-    // Khi hover qua sao
-    labels.forEach((label, index) => {
-        const ratingValue = index + 1;
+        // ✅ Sự kiện click rating
+        labels.forEach((label, index) => {
+            const ratingValue = index + 1;
 
-        label.addEventListener('mouseover', () => colorStars(ratingValue));
+            label.addEventListener("mouseover", () => colorStars(ratingValue));
 
-        label.addEventListener('click', () => {
-            currentRating = ratingValue;
-            radioButtons[index].checked = true;
-            colorStars(currentRating);
+            label.addEventListener("click", async () => {
+                currentRating = ratingValue;
+                colorStars(currentRating);
+                radioButtons[index].checked = true;
 
-            // Gửi request
-            fetch("${pageContext.request.contextPath}/reaction/rate", {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: new URLSearchParams({
-                    userId: userId,
-                    seriesId: seriesId,
-                    rating: currentRating,
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
+                try {
+                    const res = await fetch(`${pageContext.request.contextPath}/reaction/rate-series`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({ userId, seriesId, rating: currentRating })
+                    });
+
+                    const data = await res.json();
                     if (data.success) {
-                        console.log("⭐ Rating saved:", data.rating);
-
-
-                        const avgDisplay = document.getElementById("avgRatingDisplay");
-                        const totalDisplay = document.getElementById("totalRatingsDisplay");
-                        if (avgDisplay) avgDisplay.textContent = "★ " + data.avgRating.toFixed(1);
-                        if (totalDisplay) totalDisplay.textContent = "(" + data.totalRatings + ")";
+                        document.getElementById("avgRatingDisplay").textContent = `★ ${data.avgRating.toFixed(1)}`;
+                        document.getElementById("totalRatingsDisplay").textContent = `(${data.totalRatings})`;
+                        toastr["success"]("Your rating has been saved!");
                     } else {
-                        console.error("❌ Error saving rating!");
+                        toastr["warning"](data.message);
                     }
-                })
-                .catch(error => console.error("⚠️ Fetch error:", error));
+                } catch (error) {
+                    console.error("⚠️ Lỗi khi gửi rating:", error);
+                }
+            });
         });
-    });
 
-    // Khi rời chuột ra ngoài
-    starContainer.addEventListener('mouseout', () => colorStars(currentRating));
+        // ✅ Khi rời chuột khỏi vùng sao
+        starContainer.addEventListener('mouseout', () => colorStars(currentRating));
 
-    document.getElementById("saveBtn").addEventListener("click", function () {
-
-        const saveBtn = this;
-        const saveIcon = saveBtn.querySelector("i");
-
-        const userId = saveBtn.dataset.userId;
-        const seriesId = saveBtn.dataset.seriesId;
-
-        const type = saveIcon.classList.contains("fa-solid") ? "unsave" : "save";
-        colorStars(currentRating);
-        fetch("${pageContext.request.contextPath}/library/save", {
-            method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: new URLSearchParams({
-                userId: userId,
-                seriesId: seriesId,
-                type: type
-            })
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok.");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                if (data.success) {
-                    if (data.saved) {
-                        saveBtn.classList.add("saved");
-                        saveIcon.classList.replace("fa-regular", "fa-solid");
-                    } else {
-                        saveBtn.classList.remove("saved");
-                        saveIcon.classList.replace("fa-solid", "fa-regular");
-                    }
-                    toastr["success"](data.message)
-
-                } else {
-
-                    toastr["warning"](data.message)
-                    console.log(data.message)
-                }
-            })
-            .catch(error => console.log("Error:", error));
+        // 🚀 Load trạng thái ban đầu khi mở trang
+        await loadUserSeriesStatus();
     });
 </script>

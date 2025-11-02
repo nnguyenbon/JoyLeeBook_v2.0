@@ -1,4 +1,4 @@
-package controller.chapterController;
+package controller;
 
 import db.DBConnection;
 import dto.chapter.ChapterDetailDTO;
