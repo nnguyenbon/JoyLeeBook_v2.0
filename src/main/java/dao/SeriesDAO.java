@@ -34,7 +34,6 @@ public class SeriesDAO {
      * @param isCount  true if building a count query, false for select query
      * @param genreIds List of genre IDs to filter by
      * @param userId   The author (user) ID
-     * @param status   Series status ("Ongoing", "Completed", etc.)
      * @param search   Keyword for title search
      * @return A StringBuilder containing the full SQL query
      */

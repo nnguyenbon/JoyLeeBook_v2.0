@@ -20,42 +20,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
-/**
- * Servlet controller for managing series-related operations.
- * <p>
- * This servlet handles all CRUD operations for series, including:
- * <ul>
- *   <li>Creating new series with categories and author ownership</li>
- *   <li>Viewing series lists with filtering, searching, and pagination</li>
- *   <li>Viewing detailed information for individual series</li>
- *   <li>Updating existing series (by owner only)</li>
- *   <li>Deleting series (by owner only)</li>
- *   <li>Approving/rejecting series submissions (by staff/admin)</li>
- * </ul>
- *
- * <p><b>URL Mappings:</b></p>
- * <ul>
- *   <li>GET /series/add - Display form to add new series</li>
- *   <li>GET /series/edit - Display form to edit existing series</li>
- *   <li>GET /series/detail - View series details</li>
- *   <li>GET /series/* - List all series (with filters)</li>
- *   <li>POST /series/insert - Create new series</li>
- *   <li>POST /series/update - Update existing series</li>
- *   <li>POST /series/approve - Approve/reject series submission</li>
- *   <li>POST /series/delete - Delete series</li>
- * </ul>
- *
- * <p><b>Role-based Access:</b></p>
- * <ul>
- *   <li><b>Reader:</b> View approved series only</li>
- *   <li><b>Author:</b> Create, edit, delete own series; view all own series</li>
- *   <li><b>Staff/Admin:</b> Approve/reject series; view all series regardless of status</li>
- * </ul>
- *
- * @author Your Name
- * @version 1.0
- * @since 2024
- */
 @WebServlet("/series/*")
 public class SeriesServlet extends HttpServlet {
 
@@ -65,14 +29,6 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Handles HTTP GET requests for viewing series data.
-     * <p>
-     * Routes requests based on the path info:
-     * <ul>
-     *   <li>/add - Show add series form</li>
-     *   <li>/edit - Show edit series form</li>
-     *   <li>/detail - Show series detail page</li>
-     *   <li>default - Show series list</li>
-     * </ul>
      *
      * @param request the HTTP servlet request
      * @param response the HTTP servlet response
@@ -95,15 +51,6 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Handles HTTP POST requests for modifying series data.
-     * <p>
-     * Routes requests based on the path info:
-     * <ul>
-     *   <li>/insert - Create new series</li>
-     *   <li>/update - Update existing series</li>
-     *   <li>/approve - Approve/reject series submission</li>
-     *   <li>/delete - Delete series</li>
-     *   <li>default - Delegate to GET handler</li>
-     * </ul>
      *
      * @param request the HTTP servlet request
      * @param response the HTTP servlet response
@@ -131,9 +78,6 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Displays the form for adding a new series.
-     * <p>
-     * Loads all available categories from the database and forwards to the add series JSP.
-     * This form is accessible to authors who want to create new series.
      *
      * @param request the HTTP servlet request
      * @param response the HTTP servlet response
@@ -158,28 +102,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Inserts a new series into the database.
-     * <p>
-     * This method performs the following operations in sequence:
-     * <ol>
-     *   <li>Extracts series data from request parameters (title, status, description, genres)</li>
-     *   <li>Processes and converts the uploaded cover image to WebP format</li>
-     *   <li>Creates the series record with "pending" approval status</li>
-     *   <li>Associates selected genres/categories with the series</li>
-     *   <li>Sets the current user as the series owner</li>
-     *   <li>Redirects to the author's profile page</li>
-     * </ol>
      *
-     * <p><b>Note:</b> The series is created with approval_status = "pending" and requires
-     * staff/admin approval before being visible to readers.</p>
-     *
-     * @param request the HTTP servlet request containing:
-     *                <ul>
-     *                  <li>title - Series title (required)</li>
-     *                  <li>selectedGenres - Array of genre IDs</li>
-     *                  <li>status - Series status (ongoing/completed)</li>
-     *                  <li>description - Series description</li>
-     *                  <li>coverImgUrl - Uploaded cover image file</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs during file upload or redirection
@@ -249,30 +173,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Displays a paginated list of series with filtering and search capabilities.
-     * <p>
-     * The displayed series and available filters depend on the user's role:
-     * <ul>
-     *   <li><b>Reader:</b> Shows only approved series</li>
-     *   <li><b>Author:</b> Shows only their own series (all statuses)</li>
-     *   <li><b>Staff/Admin:</b> Shows all series with status filter options</li>
-     * </ul>
      *
-     * <p><b>Supported Filters:</b></p>
-     * <ul>
-     *   <li>Search by title (keyword matching)</li>
-     *   <li>Filter by genre/category</li>
-     *   <li>Filter by approval status (staff/admin only)</li>
-     *   <li>Pagination (page number and size)</li>
-     * </ul>
-     *
-     * @param request the HTTP servlet request with optional parameters:
-     *                <ul>
-     *                  <li>search - Keyword to search in titles</li>
-     *                  <li>genre - Array of genre IDs to filter by</li>
-     *                  <li>filterByStatus - Approval status filter</li>
-     *                  <li>page - Current page number</li>
-     *                  <li>size - Items per page</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
@@ -352,27 +254,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Displays detailed information for a specific series.
-     * <p>
-     * The displayed information includes:
-     * <ul>
-     *   <li>Basic series info (title, description, status, cover image)</li>
-     *   <li>Associated categories/genres</li>
-     *   <li>Author information and collaborators</li>
-     *   <li>Chapter count and ratings</li>
-     *   <li>Approval status (for staff/admin/author)</li>
-     * </ul>
      *
-     * <p><b>Access Control:</b></p>
-     * <ul>
-     *   <li>Readers can only view approved series</li>
-     *   <li>Authors can view their own series regardless of approval status</li>
-     *   <li>Staff/Admin can view all series</li>
-     * </ul>
-     *
-     * @param request the HTTP servlet request with parameter:
-     *                <ul>
-     *                  <li>seriesId - ID of the series to display</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
@@ -427,17 +310,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Displays the form for editing an existing series.
-     * <p>
-     * Loads the current series data and all available categories, then forwards to the
-     * edit series JSP. The form is pre-populated with existing series information.
      *
-     * <p><b>Note:</b> Authorization check (owner verification) should be performed by
-     * the view layer or a filter. This method only loads the data.</p>
-     *
-     * @param request the HTTP servlet request with parameter:
-     *                <ul>
-     *                  <li>seriesId - ID of the series to edit</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
@@ -466,33 +340,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Updates an existing series with new data from the form submission.
-     * <p>
-     * This method performs the following operations:
-     * <ol>
-     *   <li>Verifies that the series exists</li>
-     *   <li>Verifies that the current user is the series owner</li>
-     *   <li>Updates series information (title, status, description)</li>
-     *   <li>Updates cover image if a new one is uploaded</li>
-     *   <li>Updates associated categories/genres</li>
-     *   <li>Resets approval status to "pending" (requires re-approval)</li>
-     *   <li>Redirects to author's profile page</li>
-     * </ol>
      *
-     * <p><b>Authorization:</b> Only the series owner can update their series.
-     * Returns HTTP 403 Forbidden if the user is not the owner.</p>
-     *
-     * <p><b>Re-approval Required:</b> After editing, the series approval_status is reset to
-     * "pending" and must be re-approved by staff before being visible to readers again.</p>
-     *
-     * @param request the HTTP servlet request containing:
-     *                <ul>
-     *                  <li>seriesId - ID of the series to update (required)</li>
-     *                  <li>title - Updated series title</li>
-     *                  <li>selectedGenres - Array of updated genre IDs</li>
-     *                  <li>status - Updated series status</li>
-     *                  <li>description - Updated description</li>
-     *                  <li>coverImgUrl - New cover image file (optional)</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response for redirection or error messages
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs during file upload or redirection
@@ -572,36 +421,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Approves or rejects a series submission.
-     * <p>
-     * This method is intended for staff/admin use only to review and approve/reject
-     * series submissions. It performs the following operations:
-     * <ol>
-     *   <li>Verifies that the series exists</li>
-     *   <li>Creates a review record with staff ID, status, and optional comment</li>
-     *   <li>Updates series approval status via database trigger</li>
-     *   <li>Sends notification to the series owner with the decision and feedback</li>
-     *   <li>Redirects to the series list page</li>
-     * </ol>
      *
-     * <p><b>Database Trigger:</b> The series.approval_status is automatically updated
-     * by a database trigger when a review record is inserted into the review_series table.</p>
-     *
-     * <p><b>Notification:</b> The series owner receives a notification containing:
-     * <ul>
-     *   <li>Approval decision (approved/rejected)</li>
-     *   <li>Staff comment/feedback (if provided)</li>
-     *   <li>Link to view the series details</li>
-     * </ul>
-     *
-     * <p><b>Authorization:</b> This method should only be accessible to users with
-     * staff or admin roles. Authorization should be enforced by a servlet filter.</p>
-     *
-     * @param request the HTTP servlet request containing:
-     *                <ul>
-     *                  <li>seriesId - ID of the series to approve/reject</li>
-     *                  <li>approveStatus - The approval decision ("approved" or "rejected")</li>
-     *                  <li>comment - Optional feedback comment from staff</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws RuntimeException if a database error occurs during the approval process
      */
@@ -658,26 +479,8 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Deletes a series from the database.
-     * <p>
-     * This method permanently removes a series and all its associated data, including:
-     * <ul>
-     *   <li>Series record</li>
-     *   <li>Category associations</li>
-     *   <li>Author associations</li>
-     *   <li>Related chapters (cascade delete)</li>
-     *   <li>Related reviews and ratings (cascade delete)</li>
-     * </ul>
      *
-     * <p><b>Authorization:</b> Only the series owner should be able to delete their series.
-     * Authorization check should be performed by a servlet filter or added to this method.</p>
-     *
-     * <p><b>Warning:</b> This operation is irreversible. Consider implementing soft delete
-     * (marking as deleted) instead of hard delete for production systems.</p>
-     *
-     * @param request the HTTP servlet request with parameter:
-     *                <ul>
-     *                  <li>seriesId - ID of the series to delete</li>
-     *                </ul>
+     * @param request the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs during redirection
@@ -706,21 +509,6 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Enriches a Series object with additional related data from the database.
-     * <p>
-     * This method populates the following fields in the Series object:
-     * <ul>
-     *   <li><b>totalChapters</b> - Count of chapters in this series</li>
-     *   <li><b>totalRating</b> - Count of ratings/reviews for this series</li>
-     *   <li><b>categoryList</b> - List of categories/genres associated with this series</li>
-     *   <li><b>seriesAuthorList</b> - List of authors/collaborators for this series</li>
-     * </ul>
-     *
-     * <p>This method is typically called before displaying series information to ensure
-     * all necessary data is loaded. It uses separate DAO calls to fetch related data,
-     * which may result in N+1 query issues for large datasets.</p>
-     *
-     * <p><b>Performance Note:</b> Consider optimizing with JOIN queries or batch loading
-     * when processing multiple series at once.</p>
      *
      * @param conn the database connection to use for queries
      * @param series the Series object to enrich with additional data, or null
@@ -749,15 +537,6 @@ public class SeriesServlet extends HttpServlet {
 
     /**
      * Creates a notification object for series approval/rejection.
-     * <p>
-     * This notification is sent to the series owner to inform them of the approval decision.
-     * The notification includes:
-     * <ul>
-     *   <li>Title indicating the approval status</li>
-     *   <li>Staff comment/feedback as the message body</li>
-     *   <li>Link to view the series details</li>
-     *   <li>Notification type marked as "submission_status"</li>
-     * </ul>
      *
      * @param conn the database connection to use for queries
      * @param seriesId the ID of the series that was reviewed

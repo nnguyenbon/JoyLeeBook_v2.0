@@ -26,16 +26,6 @@
             </label>
         </div>
 
-<%--        <div id="tab-content">--%>
-<%--            <c:choose>--%>
-<%--                <c:when test="${type == 'chapter'}">--%>
-<%--                    <c:import url="/WEB-INF/views/report/reportview/ReportChapterView.jsp"/>--%>
-<%--                </c:when>--%>
-<%--                <c:otherwise>--%>
-<%--                    <c:import url="/WEB-INF/views/report/reportview/ReportCommentView.jsp"/>--%>
-<%--                </c:otherwise>--%>
-<%--            </c:choose>--%>
-<%--        </div>--%>
     </div>
 
 <script>
