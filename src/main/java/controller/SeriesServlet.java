@@ -645,6 +645,7 @@ public class SeriesServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/series/list");
 
         } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error approving series", e);
         } catch (IOException e) {
             throw new RuntimeException("Error redirecting after approval", e);
