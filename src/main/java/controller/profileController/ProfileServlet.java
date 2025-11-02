@@ -60,7 +60,9 @@ public class ProfileServlet extends HttpServlet {
 
                 request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
                 request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
-                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
+                request.setAttribute("pageTitle", "My Profile");
+                request.setAttribute("contentPage", "/WEB-INF/views/profile/AuthorProfile.jsp");
+                request.getRequestDispatcher("WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
