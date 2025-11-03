@@ -10,12 +10,14 @@ public class Series {
     private String status;
     private String approvalStatus;
     private int totalChapters;
-    private List<Category> categoryList;
     private String createdAt;
     private String updatedAt;
-    private List<String> authorNameList;
     private boolean isDeleted;
-    private int avgRating;
+
+    //extra field
+    private List<Category> categoryList;
+    private List<String> authorNameList;
+    private double avgRating;
     private int totalRating;
 
     public Series() {
@@ -85,11 +87,11 @@ public class Series {
         isDeleted = deleted;
     }
 
-    public int getAvgRating() {
+    public double getAvgRating() {
         return avgRating;
     }
 
-    public void setAvgRating(int avgRating) {
+    public void setAvgRating(double avgRating) {
         this.avgRating = avgRating;
     }
 

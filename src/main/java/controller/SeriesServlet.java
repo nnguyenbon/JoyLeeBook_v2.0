@@ -38,14 +38,18 @@ public class SeriesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getPathInfo();
-        if (action == null) action = "";
+        try {
+            String action = request.getPathInfo();
+            if (action == null) action = "";
 
-        switch (action) {
-            case "/add" -> showAddSeriesForm(request, response);
-            case "/edit" -> showEditSeriesForm(request, response);
-            case "/detail" -> viewSeriesDetail(request, response);
-            default -> viewSeriesList(request, response);
+            switch (action) {
+                case "/add" -> showAddSeriesForm(request, response);
+                case "/edit" -> showEditSeriesForm(request, response);
+                case "/detail" -> viewSeriesDetail(request, response);
+                default -> throw new ServletException("Invalid action");
+            }
+        }catch (ServletException e){
+            e.printStackTrace();
         }
     }
 
@@ -60,15 +64,19 @@ public class SeriesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getPathInfo();
-        if (action == null) action = "";
+        try {
+            String action = request.getPathInfo();
+            if (action == null) action = "";
 
-        switch (action) {
-            case "/insert" -> insertSeries(request, response);
-            case "/update" -> updateSeries(request, response);
-            case "/approve" -> approveSeries(request, response);
-            case "/delete" -> deleteSeries(request, response);
-            default -> doGet(request, response);
+            switch (action) {
+                case "/insert" -> insertSeries(request, response);
+                case "/update" -> updateSeries(request, response);
+                case "/approve" -> approveSeries(request, response);
+                case "/delete" -> deleteSeries(request, response);
+                default -> throw new ServletException("Invalid action");
+            }
+        } catch (ServletException e) {
+            e.printStackTrace();
         }
     }
 
@@ -266,9 +274,10 @@ public class SeriesServlet extends HttpServlet {
         // Determine user role
         Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         String role = "reader";
-
+        int userId = -1;
         if (loggedInAccount instanceof User user) {
             role = user.getRole();
+            userId = user.getUserId();
         } else if (loggedInAccount instanceof Staff staff) {
             role = staff.getRole();
         }
@@ -282,6 +291,8 @@ public class SeriesServlet extends HttpServlet {
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
+            RatingDAO ratingDAO = new RatingDAO(conn);
+            SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
 
             if (series == null) {
@@ -289,7 +300,11 @@ public class SeriesServlet extends HttpServlet {
                 return;
             }
             List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+            int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
+            boolean saved = savedSeriesDAO.isSaved(seriesId, userId);
 
+            request.setAttribute("ratingByUser", ratingByUser);
+            request.setAttribute("saved", saved);
             request.setAttribute("series", series);
             request.setAttribute("chapterList", chapterList);
             request.setAttribute("pageTitle", "Series Detail");
@@ -525,13 +540,13 @@ public class SeriesServlet extends HttpServlet {
         CategoryDAO categoryDAO = new CategoryDAO(conn);
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
         UserDAO userDAO = new UserDAO(conn);
-
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
         List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
         series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
-
+        series.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
+        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         return series;
     }
 

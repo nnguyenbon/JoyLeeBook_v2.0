@@ -27,9 +27,7 @@ public class LikeServices {
 //
 //        return  likesDAO.countByChapter(like.getChapterId());
 //    }
-    public int countLikesOfAuthor(int userId) throws SQLException {
-        return likesDAO.countLikesOfAuthor(userId);
-    }
+
 
     public int likeChapter(int userId, int chapterId) throws SQLException {
 
