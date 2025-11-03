@@ -12,6 +12,8 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Lỗi xảy ra</title>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <style>
         body {

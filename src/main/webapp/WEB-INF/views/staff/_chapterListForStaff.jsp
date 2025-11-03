@@ -31,11 +31,12 @@
 
                 <!-- Lọc status -->
                 <div class="col-span-1">
-                    <select name="status" id="status"
+                    <select name="filterByStatus" id="filterByStatus"
                             class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All status</option>
-                        <option value="Approved" ${status eq 'Approved' ? 'selected' : ''}>Approved</option>
-                        <option value="Pending" ${status eq 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${filterByStatus eq 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="pending" ${filterByStatus eq 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="rejected" ${filterByStatus eq 'rejected' ? 'selected' : ''}>Rejected</option>
                     </select>
                 </div>
             </form>
@@ -55,7 +56,7 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="chapter" items="${chapterDetailDTOList}">
+                <c:forEach var="chapter" items="${chapterList}">
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3">${chapter.chapterId}</td>
                         <td class="px-4 py-3">
@@ -64,15 +65,15 @@
                                 <p class="text-gray-500 text-sm">Series: ${chapter.seriesTitle}</p>
                             </div>
                         </td>
-                        <td class="px-4 py-3 font-extrabold text-[#195DA9]">${chapter.action}</td>
+                        <td class="px-4 py-3 font-extrabold text-[#195DA9]">${chapter.updatedAt}</td>
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 rounded-full text-xs font-semibold
                                 <c:choose>
-                                    <c:when test="${chapter.status == 'Approved'}">bg-green-100 text-green-700</c:when>
-                                    <c:when test="${chapter.status == 'Pending'}">bg-yellow-100 text-yellow-700</c:when>
-                                    <c:otherwise>bg-gray-100 text-gray-700</c:otherwise>
+                                    <c:when test="${chapter.approvalStatus == 'approved'}">bg-green-100 text-green-700</c:when>
+                                    <c:when test="${chapter.approvalStatus == 'pending'}">bg-yellow-100 text-yellow-700</c:when>
+                                    <c:otherwise>bg-red-100 text-red-700</c:otherwise>
                                 </c:choose>">
-                                    ${chapter.status}
+                                    ${chapter.approvalStatus}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-700">${chapter.updatedAt}</td>
@@ -89,19 +90,57 @@
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
 
-                                <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden group-hover:block">
-                                    <li>
-                                        <button class="block w-full text-[#42CC75] flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100">
-                                            <i class="fa-regular fa-circle-check mr-2"></i>
-                                            Approve
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="block w-full text-[#E23636] flex items-center gap-2 px-4 py-2 text-sm hover:bg-red-50">
-                                            <i class="fa-regular fa-circle-xmark mr-2"></i>
-                                            Reject
-                                        </button>
-                                    </li>
+                                <!-- Dropdown Menu -->
+                                <ul class="absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                                    <!-- Approve / Reject logic -->
+                                    <c:choose>
+                                        <c:when test="${chapter.approvalStatus == 'pending'}">
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/chapter/approve" method="post">
+                                                    <input type="hidden" name="chapterId" value="${chapter.chapterId}">
+                                                    <input type="hidden" name="approveStatus" value="approved">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50">
+                                                        <i class="fa-solid fa-check"></i> Approve
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/chapter/approve" method="post">
+                                                    <input type="hidden" name="chapterId" value="${chapter.chapterId}">
+                                                    <input type="hidden" name="approveStatus" value="rejected">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </c:when>
+
+                                        <c:when test="${chapter.approvalStatus == 'approved'}">
+                                            <li>
+                                                <form action="${pageContext.request.contextPath}/chapter/approve" method="post">
+                                                    <input type="hidden" name="chapterId" value="${chapter.chapterId}">
+                                                    <input type="hidden" name="approveStatus" value="rejected">
+                                                    <button type="submit"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </c:when>
+                                    </c:choose>
+
+                                    <!-- Admin-only: Delete -->
+                                    <c:if test="${sessionScope.role eq 'admin'}">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/series?action=delete&seriesId=${series.seriesId}"
+                                               onclick="return confirm('Confirm delete this series?')"
+                                               class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                                                <i class="fas fa-trash mr-2"></i>Delete
+                                            </a>
+                                        </li>
+                                    </c:if>
                                 </ul>
                             </div>
                         </td>
@@ -117,7 +156,7 @@
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
-                    <a href="${pageContext.request.contextPath}/chapter?action=list&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -126,7 +165,7 @@
                     </a>
 
                     <c:if test="${currentPage > 3}">
-                        <a href="${pageContext.request.contextPath}/chapter?action=list&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                         </a>
@@ -135,7 +174,7 @@
 
                     <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                                end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                        <a href="${pageContext.request.contextPath}/chapter?action=list&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -146,13 +185,13 @@
 
                     <c:if test="${currentPage < totalPage - 2}">
                         <span class="px-2 py-1">...</span>
-                        <a href="${pageContext.request.contextPath}/chapter?action=list&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                         </a>
                     </c:if>
 
-                    <a href="${pageContext.request.contextPath}/chapter?action=list&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == totalPage}">disabled</c:if>>
@@ -176,7 +215,7 @@
     });
 
     // Tự động submit khi thay đổi status
-    document.getElementById('status').addEventListener('change', function () {
+    document.getElementById('filterByStatus').addEventListener('change', function () {
         document.getElementById('filterForm').submit();
     });
 

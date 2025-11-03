@@ -171,16 +171,16 @@ public class SeriesDAO {
      * @return the Series object if found, otherwise null
      * @throws SQLException if a database access error occurs
      */
-    public Series findById(int seriesId, String approveStatus) throws SQLException {
+    public Series findById(int seriesId, String approvalStatus) throws SQLException {
         StringBuilder sql =  new StringBuilder();
              sql.append("SELECT * FROM series WHERE series_id = ? AND is_deleted = 0");
-        if (approveStatus != null && !approveStatus.trim().isEmpty()) {
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
             sql.append(" AND approval_status = ? ");
         }
         try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
-            if (approveStatus != null && !approveStatus.trim().isEmpty()) {
-                ps.setString(2, approveStatus);
+            if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+                ps.setString(2, approvalStatus);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -266,19 +266,11 @@ public class SeriesDAO {
      */
     public List<Series> getTopRatedSeries(int limit) throws SQLException {
         List<Series> topSerieslist = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at" + " FROM series s ORDER BY rating_points DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY rating_points DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Series s = new Series();
-                s.setSeriesId(rs.getInt("series_id"));
-                s.setTitle(rs.getNString("title"));
-                s.setDescription(rs.getNString("description"));
-                s.setCoverImgUrl(rs.getNString("cover_image_url"));
-                s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
-                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-                topSerieslist.add(s);
+                topSerieslist.add(extractSeriesFromResultSet(rs));
             }
             return topSerieslist;
         }
@@ -447,19 +439,12 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ")s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at,  AVG(r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at ORDER BY AVG(r.score) DESC";
+        String sql = "SELECT TOP (" + limit + ") s.*, AVG (r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) AND approval_status = 'approved' AND is_deleted = 0 " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, approval_status, updated_at, created_at, is_deleted ORDER BY AVG(r.score) DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Series s = new Series();
-                s.setSeriesId(rs.getInt("series_id"));
-                s.setTitle(rs.getNString("title"));
-                s.setDescription(rs.getNString("description"));
-                s.setCoverImgUrl(rs.getNString("cover_image_url"));
-                s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+                Series s = extractSeriesFromResultSet(rs);
                 s.setAvgRating(rs.getInt("total_rating"));
-                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
                 seriesList.add(s);
             }
             return seriesList;

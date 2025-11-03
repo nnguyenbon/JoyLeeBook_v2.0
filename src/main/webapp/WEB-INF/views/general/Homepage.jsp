@@ -66,7 +66,7 @@
                         >
                             <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
-                                        src="${pageContext.request.contextPath}/img/${hotSeries.coverImgUrl}"
+                                        src="${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
                                         alt="img"
                                 />
@@ -149,7 +149,7 @@
 
                                 <!-- Overlay chứa nút -->
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
-                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${newReleaseSeries.seriesId}&chapterId="
+                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${newReleaseSeries.seriesId}"
                                        class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                                         Read now
                                     </a>

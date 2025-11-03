@@ -53,8 +53,7 @@ public class CommentServlet extends HttpServlet {
             comment.setChapterId(chapterId);
             comment.setContent(content);
             comment.setDeleted(false);
-            comment.setCreatedAt(LocalDateTime.now());
-            comment.setUpdatedAt(LocalDateTime.now());
+
             boolean success = commentDAO.insert(comment);
             if (!success) {
                 throw new SQLException("Failed to insert comment into database.");
@@ -120,9 +119,6 @@ public class CommentServlet extends HttpServlet {
             comment.setCommentId(commentIdParam);
             comment.setUserId(userId);
             comment.setContent(content);
-            comment.setUpdatedAt(LocalDateTime.now());
-            comment.setCreatedAt(LocalDateTime.now());
-            comment.setUpdatedAt(LocalDateTime.now());
 
             boolean success = commentDAO.update(comment);
             if (!success) {
