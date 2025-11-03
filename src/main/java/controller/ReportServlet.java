@@ -3,7 +3,6 @@ package controller;
 import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
-import dto.report.ReportBaseDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
