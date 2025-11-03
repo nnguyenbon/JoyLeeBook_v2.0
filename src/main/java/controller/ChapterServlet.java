@@ -2,9 +2,7 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
-import dto.chapter.ChapterDetailDTO;
 import dto.PaginationRequest;
-import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
