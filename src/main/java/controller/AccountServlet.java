@@ -1,4 +1,4 @@
-package servlet;
+package controller;
 
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
