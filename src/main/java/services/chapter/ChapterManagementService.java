@@ -43,7 +43,7 @@ public class ChapterManagementService {
      * @throws SQLException If a database access error occurs.
      */
     public Series getSeriesById(int seriesId) throws SQLException {
-        return new SeriesDAO(conn).findById(seriesId);
+        return new SeriesDAO(conn).findById(seriesId, "ongoing");
     }
 
     /**
@@ -84,7 +84,7 @@ public class ChapterManagementService {
         }
 
         // check series exists
-        Series series = new SeriesDAO(conn).findById(seriesId);
+        Series series = new SeriesDAO(conn).findById(seriesId,  "ongoing");
         if (series == null) {
             throw new IllegalArgumentException("Series not found.");
         }

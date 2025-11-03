@@ -75,7 +75,7 @@ public class ChapterServices {
 
             if (chapter == null) return null; // không có quyền hoặc không tồn tại
 
-            Series series = seriesDAO.findById(chapter.getSeriesId());
+            Series series = seriesDAO.findById(chapter.getSeriesId(), "ongoing");
 
             // Prev/Next vẫn theo approved để không lộ chương người khác
             Chapter prev = chapterDAO.findPrevApproved(chapter.getSeriesId(), chapter.getChapterNumber());
@@ -137,7 +137,7 @@ public class ChapterServices {
         chapterDetailDTO.setContent(chapter.getContent());
         chapterDetailDTO.setChapterNumber(chapter.getChapterNumber());
         chapterDetailDTO.setAuthorsName(userDAO.findById(chapter.getUserId()).getUsername());
-        chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
+        chapterDetailDTO.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId(), "approved").getTitle());
         chapterDetailDTO.setTotalLike(likesDAO.countByChapter(chapter.getChapterId()));
         chapterDetailDTO.setStatus(FormatServices.formatString(chapter.getStatus()));
         chapterDetailDTO.setCreatedAt(FormatServices.formatDate(chapter.getCreatedAt()));

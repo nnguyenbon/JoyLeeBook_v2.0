@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import services.account.UserServices;
 import services.general.SearchServices;
-import services.series.SeriesServices;
+
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,7 +30,7 @@ public class SearchServlet extends HttpServlet {
         String keyword = request.getParameter("keyword") == null ? "" : request.getParameter("keyword");
         String searchType = request.getParameter("searchType");
         try {
-            SeriesServices seriesServices = new SeriesServices();
+//            SeriesServices seriesServices = new SeriesServices();
             UserServices userServices = new UserServices();
             SearchServices searchServices = new SearchServices();
 
@@ -38,7 +38,7 @@ public class SearchServlet extends HttpServlet {
                 return;
             }
 
-            request.setAttribute("weeklySeriesList", seriesServices.weeklySeriesList(8));
+//            request.setAttribute("weeklySeriesList", seriesServices.weeklySeriesList(8));
             request.setAttribute("userList", userServices.topUsersPoints(8));
             request.setAttribute("statusParam", searchServices.extractParameters(statusParam));
             request.setAttribute("genresParam", searchServices.extractParameters(genresParam));

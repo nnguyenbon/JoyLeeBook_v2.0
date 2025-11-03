@@ -42,7 +42,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
             Connection conn = DBConnection.getConnection();
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            Series series = seriesDAO.findById(seriesId);
+            Series series = seriesDAO.findById(seriesId, "ongoing");
 
             SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
             List<User> authors = seriesAuthorDAO.findUsersBySeriesId(seriesId);

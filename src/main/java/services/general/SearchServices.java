@@ -16,7 +16,7 @@ import model.Series;
 import services.account.AuthorServices;
 import services.category.CategoryServices;
 import services.chapter.ChapterServices;
-import services.series.SeriesServices;
+
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -31,15 +31,15 @@ public class SearchServices {
         List<Series> allSeries = seriesDAO.getAll();
         List<SeriesInfoDTO> result = new ArrayList<>();
 
-        SeriesServices seriesServices = new SeriesServices();
-        for (Series s : allSeries) {
-            boolean matchStatus = statuses.isEmpty() || statuses.contains(s.getStatus());
-            boolean matchGenre = genres.isEmpty() || categoryDAO.matchGenres(s.getSeriesId(), genres);
-
-            if (matchStatus && matchGenre) {
-                result.add(seriesServices.buildSeriesInfoDTO(s));
-            }
-        }
+//        SeriesServices seriesServices = new SeriesServices();
+//        for (Series s : allSeries) {
+//            boolean matchStatus = statuses.isEmpty() || statuses.contains(s.getStatus());
+//            boolean matchGenre = genres.isEmpty() || categoryDAO.matchGenres(s.getSeriesId(), genres);
+//
+//            if (matchStatus && matchGenre) {
+//                result.add(seriesServices.buildSeriesInfoDTO(s));
+//            }
+//        }
         return result;
     }
 
@@ -47,13 +47,13 @@ public class SearchServices {
                                      HttpServletRequest request, HttpServletResponse response) throws SQLException, ClassNotFoundException, ServletException, IOException {
         CategoryDAO categoryDAO = new CategoryDAO(connection);
         UserDAO userDAO = new UserDAO(connection);
-        SeriesServices seriesServices = new SeriesServices();
+//        SeriesServices seriesServices = new SeriesServices();
         SeriesDAO seriesDAO = new SeriesDAO(connection);
         if ("title".equals(type) || type == null) {
             List<Category> categories = categoryDAO.getAll();
-            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.findByName(keyword));
+//            List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.buildSeriesInfoDTOList(seriesDAO.findByName(keyword));
             request.setAttribute("categories", categories);
-            request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
+//            request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
             if (isAjaxRequest) {
                 request.getRequestDispatcher("/WEB-INF/views/general/searchview/SearchTitleView.jsp").forward(request, response);
                 return true;

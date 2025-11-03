@@ -11,7 +11,6 @@ import model.User;
 import services.account.AuthorServices;
 import services.account.UserServices;
 import services.general.BadgesServices;
-import services.series.SeriesServices;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
@@ -35,34 +34,34 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
-        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
-        String role = loginedUser != null ? loginedUser.getRole() : null;
-        try {
-            UserServices userServices = new UserServices();
-            BadgesServices badgesServices = new BadgesServices();
-
-            request.setAttribute("user", userServices.getUser(userId));
-            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
-            if (accountId == userId && role.equals("reader")) {
-                request.setAttribute("pageTitle", "My Profile");
-                request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
-                request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
-            } else {
-                SeriesServices seriesServices = new SeriesServices();
-                AuthorServices authorServices = new AuthorServices();
-
-                List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.seriesFromAuthor(userId);
-                authorServices.extractDataFromAuthorId(seriesInfoDTOList, request);
-
-                request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
-                request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
-                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+//        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
+//        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+//        int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
+//        String role = loginedUser != null ? loginedUser.getRole() : null;
+//        try {
+//            UserServices userServices = new UserServices();
+//            BadgesServices badgesServices = new BadgesServices();
+//
+//            request.setAttribute("user", userServices.getUser(userId));
+//            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
+//            if (accountId == userId && role.equals("reader")) {
+//                request.setAttribute("pageTitle", "My Profile");
+//                request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
+//                request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+//            } else {
+//                SeriesServices seriesServices = new SeriesServices();
+//                AuthorServices authorServices = new AuthorServices();
+//
+//                List<SeriesInfoDTO> seriesInfoDTOList = seriesServices.seriesFromAuthor(userId);
+//                authorServices.extractDataFromAuthorId(seriesInfoDTOList, request);
+//
+//                request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
+//                request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
+//                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
+//            }
+//        } catch (SQLException | ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

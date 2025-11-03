@@ -11,7 +11,7 @@ import model.SavedSeries;
 import model.User;
 import services.chapter.ChapterServices;
 import services.series.SavedSeriesService;
-import services.series.SeriesServices;
+
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -66,9 +66,9 @@ public class LibraryServlet extends HttpServlet {
 
         try {
             ChapterServices chapterServices = new ChapterServices();
-            SeriesServices seriesServices = new SeriesServices();
+//            SeriesServices seriesServices = new SeriesServices();
 
-            request.setAttribute("savedSeries", seriesServices.savedSeriesFromUser(userId));
+//            request.setAttribute("savedSeries", seriesServices.savedSeriesFromUser(userId));
             request.setAttribute("historyChapters", chapterServices.historyChaptersFromUser(userId, 0, Integer.MAX_VALUE, null));
 
             request.setAttribute("pageTitle", "Library");
