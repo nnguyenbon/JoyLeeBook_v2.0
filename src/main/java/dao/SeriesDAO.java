@@ -11,9 +11,9 @@ import java.util.*;
 
 import dao.helper.PaginationDAOHelper;
 import dto.PaginationRequest;
-import dto.series.SeriesInfoDTO;
 import model.Series;
 import model.SeriesAuthor;
+import services.general.FormatServices;
 
 /**
  * Data Access Object (DAO) for the Series entity.
@@ -34,13 +34,12 @@ public class SeriesDAO {
      * @param isCount  true if building a count query, false for select query
      * @param genreIds List of genre IDs to filter by
      * @param userId   The author (user) ID
-     * @param status   Series status ("Ongoing", "Completed", etc.)
      * @param search   Keyword for title search
      * @return A StringBuilder containing the full SQL query
      */
 
     // ========================== QUERY BUILDER ===============================
-    private StringBuilder buildSeriesBaseQuery(boolean isCount, List<Integer> genreIds, int userId, String status, String search) {
+    private StringBuilder buildSeriesBaseQuery(boolean isCount, List<Integer> genreIds, int userId, String approvalStatus, String search) {
         StringBuilder sql = new StringBuilder();
 
         if (isCount) {
@@ -49,7 +48,7 @@ public class SeriesDAO {
             sql.append("""
                     SELECT DISTINCT 
                         s.series_id, s.title, s.description, s.cover_image_url,
-                        s.status, s.is_deleted, s.rating_points, 
+                        s.status, s.approval_status, s.is_deleted, s.rating_points, 
                         s.created_at, s.updated_at
                     """);
         }
@@ -82,8 +81,8 @@ public class SeriesDAO {
             sql.append("AND sa.user_id = ? ");
         }
 
-        if (status != null && !status.trim().isEmpty()) {
-            sql.append("AND s.status = ? ");
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+            sql.append("AND s.approval_status = ? ");
         }
 
         if (search != null && !search.trim().isEmpty()) {
@@ -93,7 +92,7 @@ public class SeriesDAO {
         return sql;
     }
 
-    private int setSeriesQueryParameters(PreparedStatement stmt, List<Integer> genreIds, int userId, String status, String search) throws SQLException {
+    private int setSeriesQueryParameters(PreparedStatement stmt, List<Integer> genreIds, int userId, String approvalStatus, String search) throws SQLException {
         int index = 1;
 
         if (genreIds != null && !genreIds.isEmpty()) {
@@ -106,8 +105,8 @@ public class SeriesDAO {
             stmt.setInt(index++, userId);
         }
 
-        if (status != null && !status.trim().isEmpty()) {
-            stmt.setString(index++, status);
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+            stmt.setString(index++, approvalStatus);
         }
 
         if (search != null && !search.trim().isEmpty()) {
@@ -172,28 +171,54 @@ public class SeriesDAO {
      * @return the Series object if found, otherwise null
      * @throws SQLException if a database access error occurs
      */
-    public Series findById(int seriesId) throws SQLException {
-        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = 0";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    public Series findById(int seriesId, String approveStatus) throws SQLException {
+        StringBuilder sql =  new StringBuilder();
+             sql.append("SELECT * FROM series WHERE series_id = ? AND is_deleted = 0");
+        if (approveStatus != null && !approveStatus.trim().isEmpty()) {
+            sql.append(" AND approval_status = ? ");
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
+            if (approveStatus != null && !approveStatus.trim().isEmpty()) {
+                ps.setString(2, approveStatus);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Series s = new Series();
-                    s.setSeriesId(rs.getInt("series_id"));
-                    s.setTitle(rs.getNString("title"));
-                    s.setDescription(rs.getNString("description"));
-                    s.setCoverImgUrl(rs.getNString("cover_image_url"));
-                    s.setRating_points(rs.getInt("rating_points"));
-                    s.setStatus(rs.getString("status"));
-                    s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-                    s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                    return s;
+                    return extractSeriesFromResultSet(rs);
                 }
             }
         }
         return null;
     }
+    /**
+     * Finds a series by its ID.
+     *
+     * @param seriesId the ID of the series to find
+     * @return the Series object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Series findById(int seriesId) throws SQLException {
 
+        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractSeriesFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+    public boolean approveSeries(int seriesId, String approveStatus) throws SQLException {
+        String sql = "UPDATE series SET approval_status = ? WHERE series_id = ? AND is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, approveStatus);
+            ps.setInt(2, seriesId);
+            return ps.executeUpdate() > 0;
+        }
+    }
 
     /**
      * Updates an existing series in the database.
@@ -202,7 +227,7 @@ public class SeriesDAO {
      * @return true if the update was successful, otherwise false
      * @throws SQLException if a database access error occurs
      */
-    public boolean update(Series series) throws SQLException {
+    public boolean updateSeries(Series series) throws SQLException {
         String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ? AND is_deleted = false";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, series.getTitle());
@@ -211,7 +236,7 @@ public class SeriesDAO {
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(6, series.getSeriesId());
-            ps.setInt(7, series.getRating_points());
+            ps.setInt(7, series.getAvgRating());
             return ps.executeUpdate() > 0;
         }
     }
@@ -223,7 +248,7 @@ public class SeriesDAO {
      * @return true if the deletion was successful, otherwise false
      * @throws SQLException if a database access error occurs
      */
-    public boolean delete(int seriesId) throws SQLException {
+    public boolean deleteSeries(int seriesId) throws SQLException {
         String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
@@ -251,8 +276,8 @@ public class SeriesDAO {
                 s.setDescription(rs.getNString("description"));
                 s.setCoverImgUrl(rs.getNString("cover_image_url"));
                 s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-                s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
                 topSerieslist.add(s);
             }
             return topSerieslist;
@@ -344,7 +369,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByStatus(int limit, String status) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE status = ?";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' AND status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
@@ -384,7 +409,7 @@ public class SeriesDAO {
      */
     public List<Series> getRecentlyUpdated(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY updated_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY updated_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -403,7 +428,7 @@ public class SeriesDAO {
      */
     public List<Series> getNewReleasedSeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY created_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -432,9 +457,9 @@ public class SeriesDAO {
                 s.setDescription(rs.getNString("description"));
                 s.setCoverImgUrl(rs.getNString("cover_image_url"));
                 s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-                s.setRating_points(rs.getInt("total_rating"));
-                s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+                s.setAvgRating(rs.getInt("total_rating"));
+                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
                 seriesList.add(s);
             }
             return seriesList;
@@ -468,17 +493,18 @@ public class SeriesDAO {
         }
         return 0;
     }
-    public boolean insert(Series series) throws SQLException {
-        String sql = "INSERT INTO series (title, description, cover_image_url, status, created_at, updated_at, is_deleted, rating_points) " +
-                "VALUES (?, ?, ?, ?, ?, ?, 0, 0)";
+    public boolean insertSeries(Series series) throws SQLException {
+        String sql = "INSERT INTO series (title, description, cover_image_url, status, approval_status, created_at, updated_at, is_deleted, rating_points) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, series.getTitle());
             ps.setString(2, series.getDescription());
             ps.setString(3, series.getCoverImgUrl());
             ps.setString(4, series.getStatus());
-            ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setString(5, series.getApprovalStatus());
             ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 
             int affected = ps.executeUpdate();
             if (affected > 0) {
@@ -489,8 +515,8 @@ public class SeriesDAO {
                 }
 
                 SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-                SeriesAuthor seriesAuthor = new SeriesAuthor(series.getSeriesId(), series.getAuthorId(), LocalDateTime.now());
-                seriesAuthorDAO.add(seriesAuthor);
+//                SeriesAuthor seriesAuthor = new SeriesAuthor(series.getSeriesId(), seriesAuthorDAO.authorsOfSeries(), LocalDateTime.now());
+//                seriesAuthorDAO.add(seriesAuthor);
                 return true;
             }
             return false;
@@ -504,16 +530,18 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     private Series extractSeriesFromResultSet(ResultSet rs) throws SQLException {
+
         Series s = new Series();
         s.setSeriesId(rs.getInt("series_id"));
         s.setTitle(rs.getString("title"));
         s.setDescription(rs.getString("description"));
-        s.setCoverImgUrl(rs.getString("cover_image_url"));
+        s.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
         s.setStatus(rs.getString("status"));
-        s.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        s.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+        s.setApprovalStatus(rs.getString("approval_status"));
+        s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         s.setDeleted(rs.getBoolean("is_deleted"));
-        s.setRating_points(rs.getInt("rating_points"));
+        s.setAvgRating(rs.getInt("rating_points"));
         return s;
     }
 

@@ -4,23 +4,11 @@ import java.time.LocalDateTime;
 
 public class ReviewSeries {
     private int staffId;
-    private int chapterId;
+    private int seriesId;
     private String status;
     private String comment;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public ReviewSeries(int staffId, int chapterId, String status, String comment, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.staffId = staffId;
-        this.chapterId = chapterId;
-        this.status = status;
-        this.comment = comment;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    public ReviewSeries() {
-    }
 
     public int getStaffId() {
         return staffId;
@@ -30,12 +18,12 @@ public class ReviewSeries {
         this.staffId = staffId;
     }
 
-    public int getChapterId() {
-        return chapterId;
+    public int getSeriesId() {
+        return seriesId;
     }
 
-    public void setChapterId(int chapterId) {
-        this.chapterId = chapterId;
+    public void setSeriesId(int seriesId) {
+        this.seriesId = seriesId;
     }
 
     public String getStatus() {
@@ -62,11 +50,4 @@ public class ReviewSeries {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

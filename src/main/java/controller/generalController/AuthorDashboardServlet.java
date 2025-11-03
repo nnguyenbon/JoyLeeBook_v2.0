@@ -1,5 +1,7 @@
 package controller.generalController;
 
+import dao.SeriesDAO;
+import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,11 +11,10 @@ import model.User;
 import services.chapter.ChapterServices;
 import services.chapter.LikeServices;
 import services.series.RatingSeriesService;
-import services.series.SeriesServices;
 import utils.AuthenticationUtils;
-import utils.ValidationInput;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet("/author")
@@ -31,8 +32,8 @@ public class AuthorDashboardServlet extends HttpServlet {
             userId = user.getUserId();
         }
 
-        try {
-            SeriesServices seriesServices = new SeriesServices();
+        try (Connection conn = DBConnection.getConnection()) {
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
             ChapterServices chapterServices = new ChapterServices();
             LikeServices likeService = new LikeServices();
             RatingSeriesService ratingService = new RatingSeriesService();
@@ -40,10 +41,10 @@ public class AuthorDashboardServlet extends HttpServlet {
             request.setAttribute("pendingChapters", chapterServices.getCountMyChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeService.countLikesOfAuthor(userId));
             request.setAttribute("avgRating", ratingService.getAverageRatingOfAuthor(userId));
-            request.setAttribute("mySeriesList", seriesServices.seriesFromAuthor(userId));
+            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
             request.setAttribute("pageTitle", "AuthorDashboard");
             request.setAttribute("contentPage", "/WEB-INF/views/general/AuthorDashboard.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -39,7 +39,7 @@ public class StaffServices {
     }
 
     // Lấy stats chính cho dashboard
-    public DashboardStatsDTO getDashboardStats(int staffId) {
+    public DashboardStatsDTO getDashboardStats(int staffId) throws SQLException {
         DashboardStatsDTO stats = new DashboardStatsDTO();
 
         // Total Series: COUNT(series) WHERE is_deleted = 0
@@ -90,7 +90,7 @@ public class StaffServices {
     }
 
     // Lấy quick stats hôm nay
-    public QuickStatsDTO getQuickStatsToday(int staffId) {
+    public QuickStatsDTO getQuickStatsToday(int staffId) throws SQLException {
         QuickStatsDTO stats = new QuickStatsDTO();
         LocalDate today = LocalDate.now();
         Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());

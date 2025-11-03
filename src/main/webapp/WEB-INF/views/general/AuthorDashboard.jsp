@@ -75,75 +75,15 @@
                 <option>Completed</option>
             </select>
 
-            <a href="${pageContext.request.contextPath}/add-series"
+            <a href="${pageContext.request.contextPath}/series/add"
                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow-sm transition">
                 <i class="fa-solid fa-plus"></i>
                 Create
             </a>
         </div>
     </div>
-    <c:forEach var="mySeries" items="${mySeriesList}">
-        <div
-                class="col-span-12 grid grid-cols-2 justify-between p-2 bg-white rounded-lg shadow-lg border border-gray-300 hover:shadow-md transition">
-            <div class="col-span-1 flex items-center gap-4">
-                <img src="${pageContext.request.contextPath}/${mySeries.coverImgUrl}" alt="Cover"
-                     class="w-22 h-30 rounded-md object-cover">
-                <div>
-                    <h2 class="text-xl font-semibold text-gray-800">${mySeries.title}</h2>
-                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">collab</span>
+    <div id="seriesListContainer" class="col-span-12"></div>
 
-                </div>
-            </div>
-            <div class="col-span-1 flex items-center justify-between gap-4 text-sm">
-                <span class="text-yellow-500"><i
-                        class="fa-solid fa-star"></i> ${mySeries.avgRating} (${mySeries.countRatings})</span>
-                <span>• ${mySeries.totalChapters} Chapters</span>
-                <c:choose>
-                    <c:when test="${mySeries.status == 'Completed'}">
-                                    <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">
-                                            ${mySeries.status}
-                                    </span>
-                    </c:when>
-                    <c:when test="${mySeries.status == 'Ongoing'}">
-                                    <span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full font-mediums">
-                                            ${mySeries.status}
-                                    </span>
-                    </c:when>
-                    <c:otherwise>
-                                    <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-medium">
-                                            ${mySeries.status}
-                                    </span>
-                    </c:otherwise>
-                </c:choose>
-                <span class="text-gray-500">${mySeries.createdAt}</span>
-                <div class="flex gap-2 items-center">
-                    <a href="${pageContext.request.contextPath}/series/detail?seriesId=${mySeries.seriesId}"
-                       class="border border-blue-500 text-blue-500 hover:bg-blue-50 px-3 py-1 rounded-md flex items-center gap-1">
-                        <i class="fa-solid fa-circle-info"></i> Detail
-                    </a>
-                    <div class="relative">
-                        <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                            <i class="fa-solid fa-ellipsis"></i>
-                        </button>
-
-                        <div
-                                class="dropdown-menu hidden absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <button
-                                    class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm  hover:bg-gray-100">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                                Edit
-                            </button>
-                            <button
-                                    class="block w-full  text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
-                                <i class="fa-regular fa-trash-can"></i>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </c:forEach>
 </main>
 
 <script>
@@ -159,8 +99,10 @@
         });
     });
 
-    window.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
-    });
+            window.addEventListener('click', () => {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+            });
+        }
+    })
 </script>
 

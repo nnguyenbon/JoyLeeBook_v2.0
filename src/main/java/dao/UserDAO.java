@@ -1,5 +1,6 @@
 package dao;
 
+import model.SeriesAuthor;
 import model.User;
 import utils.AuthenticationUtils;
 
@@ -40,6 +41,23 @@ public class UserDAO {
             }
         }
         return null;
+    }
+    public List<String> getAuthorNameList(List<SeriesAuthor> seriesAuthorList) throws SQLException {
+        List<String> authorNames = new ArrayList<>();
+        String sql = "SELECT username FROM users WHERE is_deleted = 0 AND user_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (SeriesAuthor sa : seriesAuthorList) {
+                stmt.setInt(1, sa.getAuthorId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        authorNames.add(rs.getString("username"));
+                    }
+                }
+            }
+        }
+
+        return authorNames;
     }
 
     public boolean isAuthor(String email) throws SQLException {

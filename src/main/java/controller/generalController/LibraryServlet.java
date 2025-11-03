@@ -1,6 +1,7 @@
 package controller.generalController;
 
 import dao.ReadingHistoryDAO;
+import dao.SeriesDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +12,6 @@ import model.SavedSeries;
 import model.User;
 import services.chapter.ChapterServices;
 import services.series.SavedSeriesService;
-import services.series.SeriesServices;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -64,18 +64,17 @@ public class LibraryServlet extends HttpServlet {
             mode = "saved";
         }
 
-        try {
+        try(Connection conn = DBConnection.getConnection()) {
             ChapterServices chapterServices = new ChapterServices();
-            SeriesServices seriesServices = new SeriesServices();
-
-            request.setAttribute("savedSeries", seriesServices.savedSeriesFromUser(userId));
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            request.setAttribute("savedSeries", seriesDAO.getSeriesByUserId(userId));
             request.setAttribute("historyChapters", chapterServices.historyChaptersFromUser(userId, 0, Integer.MAX_VALUE, null));
 
             request.setAttribute("pageTitle", "Library");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Library.jsp");
             request.setAttribute("mode", mode);
 
-            request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
