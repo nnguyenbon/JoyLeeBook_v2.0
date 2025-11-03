@@ -13,11 +13,18 @@
     <title>
         ${pageTitle}
     </title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
+
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
             rel="stylesheet"
             href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
     />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -30,7 +37,7 @@
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
 <div class="max-w-7xl mx-auto">
     <c:if test="${not empty contentPage}">
-        <c:import url="${contentPage}" />
+        <c:import url="${contentPage}"/>
     </c:if>
 </div>
 <c:import url="/WEB-INF/views/components/_footer.jsp"/>

@@ -9,48 +9,47 @@ import model.Rating;
 import model.User;
 import services.chapter.LikeServices;
 import services.series.RatingSeriesService;
+import utils.AuthenticationUtils;
 
 import java.io.IOException;
 
-@WebServlet("/reaction")
+@WebServlet("/reaction/*")
 public class ReactionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "like":
+            case "/like":
                 likeChapter(request,response);
                 break;
-            case "rate":
+            case "/rate":
                 ratingSeries(request,response);
                 break;
         }
     }
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("loginedUser");
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         try {
             try {
-                int userId = user != null ? user.getUserId() : 0;
+                int userId = loginedUser != null ? loginedUser.getUserId() : 0;
                 int chapterId = Integer.parseInt(request.getParameter("chapterId"));
                 LikeServices likeService = new LikeServices();
                 int newLikeCount = likeService.likeChapter(userId, chapterId);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
             }catch (Exception e) {
-//                System.out.println("series " + e.getMessage());
                 request.setAttribute("error", "Could not insert like data. " + e.getMessage());
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
-//            System.out.println("number " + e.getMessage());
             request.setAttribute("error", "Invalid userId/chapterId.");
             request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
         }
     }
 
     private void ratingSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("loginedUser");
-        if (user == null || user.getRole() == null || !user.getRole().equals("reader")) {
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("Please login to rating series");
             return;
@@ -79,7 +78,6 @@ public class ReactionServlet extends HttpServlet {
             response.getWriter().write(json);
 
         } catch (Exception e) {
-            e.printStackTrace();
             response.getWriter().write("{\"success\": false}");
         }
     }

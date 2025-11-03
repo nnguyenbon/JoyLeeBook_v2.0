@@ -62,7 +62,7 @@ public class NotificationsDAO {
     }
 
     // Thêm thông báo mới
-    public boolean insert(Notification noti) throws SQLException {
+    public boolean insertNotification(Notification noti) throws SQLException {
         String sql = "INSERT INTO notifications (user_id, type, title, message, is_read, url_redirect, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -70,7 +70,7 @@ public class NotificationsDAO {
             stmt.setString(2, noti.getType());
             stmt.setString(3, noti.getTitle());
             stmt.setString(4, noti.getMessage());
-            stmt.setBoolean(5, noti.isRead());
+            stmt.setBoolean(5, false);
             stmt.setString(6, noti.getUrlRedirect());
             stmt.setTimestamp(7, Timestamp.valueOf(
                     noti.getCreatedAt() != null ? noti.getCreatedAt() : LocalDateTime.now()

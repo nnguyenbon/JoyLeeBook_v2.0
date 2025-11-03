@@ -31,6 +31,13 @@ public class CategoryServices {
         return categoryInfoDTO;
     }
 
+    public List<CategoryInfoDTO> buildCategoryInfoDTOList() throws SQLException, ClassNotFoundException {
+        List<CategoryInfoDTO> categoryInfoDTOList = new ArrayList<>();
+        for (Category category : categoryDAO.getAll()) {
+            categoryInfoDTOList.add(buildCategoryInfoDTO(category));
+        }
+        return categoryInfoDTOList;
+    }
     public List<CategoryInfoDTO> buildCategoryInfoDTOList(List<Category> categoryList) throws SQLException, ClassNotFoundException {
         List<CategoryInfoDTO> categoryInfoDTOList = new ArrayList<>();
         for (Category category : categoryList) {

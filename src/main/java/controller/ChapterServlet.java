@@ -1,7 +1,8 @@
-package controller.chapterController;
+package controller;
 
 import db.DBConnection;
 import dto.chapter.ChapterDetailDTO;
+import dto.PaginationRequest;
 import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Account;
 import model.Chapter;
 import model.Series;
 import model.User;
@@ -17,7 +19,8 @@ import services.chapter.ChapterServices;
 import services.chapter.MyChapterService;
 import services.general.CommentServices;
 import services.chapter.LikeServices;
-import services.general.PointServices;
+import utils.AuthenticationUtils;
+import utils.PaginationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -27,34 +30,35 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebServlet("/chapter")
+@WebServlet("/chapter/*")
 public class ChapterServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ChapterServlet.class.getName());
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "add" -> addChapter(request, response);
-            case "edit" -> updateChapter(request, response);
-            case "delete" -> deleteChapter(request, response);
+            case "/add" -> addChapter(request, response);
+            case "/edit" -> updateChapter(request, response);
+            case "/delete" -> deleteChapter(request, response);
         }
     }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
+        System.out.println(action + "123");
         switch (action) {
-            case "add" -> showAddChapter(request, response);
-            case "edit" -> showUpdateChapter(request, response);
-            case "detail" -> viewChapterContent(request, response);
-            case "navigate" -> navigateChapter(request, response);
+            case "/add" -> showAddChapter(request, response);
+            case "/edit" -> showUpdateChapter(request, response);
+            case "/detail" -> viewChapterContent(request, response);
+            case "/navigate" -> navigateChapter(request, response);
             default -> viewChapterList(request, response);
         }
     }
 
+    // Cần xem xét lại hàm này
     private void addChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int userId = ValidationInput.isPositiveInteger(request.getSession().getAttribute("userId").toString()) ? Integer.parseInt(request.getSession().getAttribute("userId").toString()) : -1;
-        // testing
-        // userId = 3;
-
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
         if (userId == -1) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
@@ -68,9 +72,7 @@ public class ChapterServlet extends HttpServlet {
             try (Connection conn = DBConnection.getConnection()) {
                 ChapterManagementService service = new ChapterManagementService(conn);
                 Chapter newChapter = service.createChapter(userId, seriesId, title, content);
-
                 if (newChapter != null) {
-                    // forward to manage series page with success message
                     response.sendRedirect(request.getContextPath() + "/manage-series?id=" + seriesId + "&success=true");
                 } else {
                     request.setAttribute("error", "Failed to create new chapter.");
@@ -92,13 +94,12 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
+
+    // Cần xem xét lại hàm này
     private void showAddChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-        // testing
-        // userId = 3;
-
-        if (userId == null) {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        if (userId == -1) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -109,14 +110,12 @@ public class ChapterServlet extends HttpServlet {
             try (Connection conn = DBConnection.getConnection()) {
                 ChapterManagementService service = new ChapterManagementService(conn);
 
-                // check if user is author of the series
                 if (new dao.SeriesAuthorDAO(conn).isUserAuthorOfSeries(userId, seriesId)) {
                     request.setAttribute("error", "You do not have permission to access this page.");
                     request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
                     return;
                 }
 
-                // get series details
                 Series series = service.getSeriesById(seriesId);
                 request.setAttribute("series", series);
                 request.getRequestDispatcher("/WEB-INF/views/chapter/add-chapter.jsp").forward(request, response);
@@ -133,13 +132,11 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
+    // Cần sửa lại đặt tên, đường dẫn url
     private void updateChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-        // testing
-        // userId = 3;
-
-        if (userId == null) {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        if (userId == -1) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -158,8 +155,6 @@ public class ChapterServlet extends HttpServlet {
 
             Chapter updated = svc.updateChapter(userId, chapterId, title, content, chapterNumber, status);
 
-            // not done yet
-            // redirect to view page
             response.sendRedirect(request.getContextPath() + "/chapter?id=" + updated.getChapterId() + "&updated=true");
 
         } catch (IllegalAccessException e) {
@@ -177,12 +172,9 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void showUpdateChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-        // testing
-        // userId = 3;
-
-        if (userId == null) {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        if (userId == -1) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -236,24 +228,17 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void deleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer chapterId = parseIntOrNull(request.getParameter("id"));
-        if (chapterId == null) {
+        int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
+        if (chapterId == -1) {
             request.setAttribute("error", "Missing chapter id.");
             request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             return;
         }
 
-        Integer userId = getUserId(request.getSession());
-
-        // testing
-        // userId = 3;
-
-        String role = getUserRole(request.getSession());
-
-        // testing
-        // role = "author";
-
-        if (userId == null) {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        String role = user != null ? user.getRole() : null;
+        if (userId == -1) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -262,7 +247,6 @@ public class ChapterServlet extends HttpServlet {
             ChapterManagementService svc = new ChapterManagementService(conn);
             svc.deleteChapter(userId, role, chapterId);
 
-            // redirect to author's chapter list with success message
             response.sendRedirect(request.getContextPath() + "/my-chapters?deleted=1");
         } catch (IllegalAccessException ex) {
             request.setAttribute("error", ex.getMessage());
@@ -274,6 +258,7 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
+    // Sửa lại như hàm trên
     private void showDeleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer chapterId = parseIntOrNull(request.getParameter("id"));
         if (chapterId == null) {
@@ -283,14 +268,7 @@ public class ChapterServlet extends HttpServlet {
         }
 
         Integer userId = getUserId(request.getSession());
-
-        // testing
-        // userId = 3;
-
         String role = getUserRole(request.getSession());
-
-        // testing
-        // role = "author";
 
         if (userId == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -325,9 +303,9 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void viewChapterContent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
-        if (role.equals("admin") ||  role.equals("staff")) {
+        if (role.equals("admin") || role.equals("staff")) {
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : 1;
             try {
                 ChapterServices chapterServices = new ChapterServices();
@@ -341,7 +319,7 @@ public class ChapterServlet extends HttpServlet {
         } else {
             try {
                 int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 0;
-                User user = (User) request.getSession().getAttribute("loginedUser");
+                User user = (User) loginedUser;
                 int userId = user != null ? user.getUserId() : 0;
                 ChapterServices chapterServices = new ChapterServices();
                 CommentServices commentServices = new CommentServices();
@@ -351,76 +329,87 @@ public class ChapterServlet extends HttpServlet {
                 chapterServices.updateReadingHistory(userId, chapterId);
                 List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.chaptersFromSeries(seriesId);
                 request.setAttribute("firstChapterId", chapterDetailDTOList.get(0).getChapterId());
-                request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size()-1).getChapterId());
+                request.setAttribute("lastChapterId", chapterDetailDTOList.get(chapterDetailDTOList.size() - 1).getChapterId());
                 request.setAttribute("userId", userId);
                 request.setAttribute("chapterDetailDTO", chapterServices.buildChapterDetailDTO(chapterId));
-                request.setAttribute("chapterInfoDTOList",chapterDetailDTOList );
+                request.setAttribute("chapterInfoDTOList", chapterDetailDTOList);
                 request.setAttribute("commentDetailDTOList", commentServices.commentsFromChapter(chapterId));
                 request.setAttribute("liked", likeService.hasUserLiked(userId, chapterId));
-                request.setAttribute("pageTitle","Chapter Content");
+                request.setAttribute("pageTitle", "Chapter Content");
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/ChapterContent.jsp");
                 request.setAttribute("seriesId", seriesId);
                 request.setAttribute("chapterId", chapterId);
-                request.getRequestDispatcher("WEB-INF/views/chapter/ChapterContent.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private void viewChapterList (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) request.getSession().getAttribute("loginedUser");
+    private void viewChapterList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = (loginedUser != null) ? loginedUser.getRole() : "reader";
-        if (role.equals("admin") ||  role.equals("staff")) {
-
-        } else if (role.equals("author")) {
-            Integer userId = (Integer) request.getSession().getAttribute("userId");
-            if (userId == null) {
-                response.sendRedirect(request.getContextPath() + "/login");
-                return;
-            }
-
-            String mode = "author";
-
-            int page = parseInt(request.getParameter("page"), 1);
-            int size = parseInt(request.getParameter("size"), 10);
-            String keyword = trimToNull(request.getParameter("q"));
-            String status = trimToNull(request.getParameter("status")); // only for author mode
-
-            try (Connection conn = DBConnection.getConnection()) {
-               MyChapterService service = new MyChapterService(conn);
-
-                MyChapterService.PagedResult<ChapterItemDTO> result;
-                result = service.getAuthoredChapters(userId, page, size, status, keyword);
-
-                request.setAttribute("mode", mode);
-                request.setAttribute("result", result);
-                request.setAttribute("items", result.getItems());
-                request.setAttribute("page", result.getPage());
-                request.setAttribute("totalPages", result.getTotalPages());
-                request.setAttribute("total", result.getTotal());
-                request.setAttribute("q", keyword);
+        if (role.equals("admin") || role.equals("staff")) {
+            String search = request.getParameter("search");
+            String status = request.getParameter("status");
+            try {
+                ChapterServices chapterServices = new ChapterServices();
+                PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
+                paginationRequest.setOrderBy("chapter_id");
+                List<ChapterDetailDTO> chapterDetailDTOList = chapterServices.buildChapterList(search, status, paginationRequest);
+                int totalRecords = chapterServices.getTotalChaptersCount(search, status);
+                request.setAttribute("size", totalRecords);
+                request.setAttribute("chapterDetailDTOList", chapterDetailDTOList);
                 request.setAttribute("status", status);
-
-                // forward to JSP
-                request.getRequestDispatcher("/WEB-INF/views/chapter/my-chapters.jsp").forward(request, response);
-
+                PaginationUtils.sendParameter(request, paginationRequest);
+                request.setAttribute("contentPage", "/WEB-INF/views/staff/_chapterListFotStaff.jsp");
+                request.setAttribute("activePage", "series");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } catch (SQLException e) {
-                log.log(Level.SEVERE, "Error loading My Chapter List", e);
+                log.log(Level.SEVERE, "Error loading Chapter List", e);
                 request.setAttribute("error", "Unable to load your chapters.");
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
-        } else {
+        } else if (role.equals("author")) {
+            User user = (User) loginedUser;
+            int userId = user.getUserId();
+            int page = parseInt(request.getParameter("page"), 1);
+            int size = parseInt(request.getParameter("size"), 10);
+            String keyword = trimToNull(request.getParameter("q"));
+            String status = trimToNull(request.getParameter("status"));
 
+            try (Connection conn = DBConnection.getConnection()) {
+                MyChapterService service = new MyChapterService(conn);
+
+
+                MyChapterService.PagedResult<ChapterItemDTO> result;
+                result = service.getAuthoredChapters(userId, page, size, status, keyword);
+
+                request.setAttribute("mode", role);
+                request.setAttribute("result", result);
+                request.setAttribute("items", result.getItems());
+                request.setAttribute("page", result.getPage());
+                request.setAttribute("totalPages", result.getTotalPages());
+                request.setAttribute("total", result.getTotal());
+                request.setAttribute("q", keyword);
+                request.getRequestDispatcher("/WEB-INF/views/chapter/my-chapters.jsp").forward(request, response);
+            } catch (SQLException e) {
+                log.log(Level.SEVERE, "Error loading Chapter List", e);
+                request.setAttribute("error", "Unable to load your chapters.");
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private void navigateChapter (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
 
+    private void navigateChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
         int chapterNumber = ValidationInput.isPositiveInteger(request.getParameter("chapterNumber")) ? Integer.parseInt(request.getParameter("chapterNumber")) : 1;
         String action = request.getParameter("type");
 
@@ -431,6 +420,7 @@ public class ChapterServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
+
     private static Integer parseIntOrNull(String s) {
         if (s == null || s.isBlank()) return null;
         try {

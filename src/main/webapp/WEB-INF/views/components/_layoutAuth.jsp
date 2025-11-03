@@ -13,6 +13,7 @@
     <title>
         ${pageTitle}
     </title>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
