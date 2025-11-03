@@ -362,7 +362,7 @@ public class ChapterServlet extends HttpServlet {
                 request.setAttribute("chapterDetailDTOList", chapterDetailDTOList);
                 request.setAttribute("status", status);
                 PaginationUtils.sendParameter(request, paginationRequest);
-                request.setAttribute("contentPage", "/WEB-INF/views/general/staffview/ChaptersListView.jsp");
+                request.setAttribute("contentPage", "/WEB-INF/views/staff/_chapterListFotStaff.jsp");
                 request.setAttribute("activePage", "series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } catch (SQLException e) {

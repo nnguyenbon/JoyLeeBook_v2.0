@@ -8,17 +8,30 @@
         <div class="flex justify-between items-center">
             <!-- Tabs Header -->
             <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
-                <a href="${pageContext.request.contextPath}/report/list?type=chapter"
+                <a href="${pageContext.request.contextPath}/report/list?type=chapter&filterByStatus=pending"
                    id="tab-chapter"
                    class="tab-btn text-xl ${type == 'chapter' ? 'text-[#195DA9] border-b-4 border-[#195DA9]' : 'text-gray-500 border-b-4 border-white hover:text-[#195DA9]'} py-1">
                     Chapter Report
                 </a>
-                <a href="${pageContext.request.contextPath}/report/list?type=comment"
+                <a href="${pageContext.request.contextPath}/report/list?type=comment&filterByStatus=pending"
                    id="tab-comment"
                    class="tab-btn text-xl ${type == 'comment' ? 'text-[#195DA9] border-b-4 border-[#195DA9]' : 'text-gray-500 border-b-4 border-white hover:text-[#195DA9]'} py-1">
                     Comment Report
                 </a>
             </div>
+            <!-- Search & Filter Form -->
+            <form method="GET" action="${pageContext.request.contextPath}/report/list" id="filterForm" class="mb-3">
+                <!-- Lọc status -->
+                <div class="col-span-1">
+                    <select name="filterByStatus" id="filterByStatus"
+                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All status</option>
+                        <option value="resolved" ${statusFilter eq 'resolved' ? 'selected' : ''}>Resolved</option>
+                        <option value="rejected" ${statusFilter eq 'rejected' ? 'selected' : ''}>Rejected</option>
+                        <option value="pending" ${statusFilter eq 'pending' ? 'selected' : ''}>Pending</option>
+                    </select>
+                </div>
+            </form>
         </div>
 
         <!-- Table -->
@@ -96,7 +109,7 @@
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
-                                <a href="${pageContext.request.contextPath}/report?action=detail&reportId=${report.reportId}&type=${type}"
+                                <a href="${pageContext.request.contextPath}/report/detail?reportId=${report.reportId}&type=${type}"
                                    class="block px-2 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100">
                                     <i class="fa-regular fa-eye mr-2"></i>Detail
                                 </a>
@@ -197,18 +210,26 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Tự động submit khi thay đổi status
+    document.getElementById('filterByStatus').addEventListener('change', function () {
+        document.getElementById('filterForm').submit();
+    });
+
+    //Lay all btn in menu (ellipsis)
     const dropdownButtons = document.querySelectorAll('[data-bs-toggle="dropdown"]');
 
     dropdownButtons.forEach(button => {
         const menu = button.parentElement.querySelector("ul");
 
+        //When click on ellipsis -> toggle show menu
         button.addEventListener("click", (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent the event from spreading
             closeAllDropdowns();
             menu.classList.toggle("hidden");
         })
     })
 
+    //When click on out then hidden all menu
     document.addEventListener("click", () => {
         closeAllDropdowns();
     })

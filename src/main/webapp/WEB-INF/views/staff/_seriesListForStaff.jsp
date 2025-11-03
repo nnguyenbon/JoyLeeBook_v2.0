@@ -19,8 +19,7 @@
             </div>
 
             <!-- Search & Filter Form -->
-            <form method="GET" action="${pageContext.request.contextPath}/series" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
-                <input type="hidden" name="action" value="list">
+            <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
                 <!-- Ô tìm kiếm -->
                 <div class="col-span-2 relative">
                     <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
@@ -34,8 +33,9 @@
                     <select name="filterByStatus" id="filterByStatus"
                             class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All status</option>
-                        <option value="Completed" ${status eq 'Completed' ? 'selected' : ''}>Completed</option>
-                        <option value="Ongoing" ${status eq 'Ongoing' ? 'selected' : ''}>Ongoing</option>
+                        <option value="approved" ${approvalStatus eq 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="rejected" ${status eq 'rejected' ? 'selected' : ''}>Rejected</option>
+                        <option value="pending" ${status eq 'pending' ? 'selected' : ''}>Pending</option>
                     </select>
                 </div>
             </form>

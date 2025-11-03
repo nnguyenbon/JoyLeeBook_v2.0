@@ -20,8 +20,7 @@
             </div>
 
             <!-- Search & Filter Form -->
-            <form method="GET" action="${pageContext.request.contextPath}/chapter" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
-                <input type="hidden" name="action" value="input">
+            <form method="GET" action="${pageContext.request.contextPath}/chapter/list" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
                 <!-- Ô tìm kiếm -->
                 <div class="col-span-2 relative">
                     <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>

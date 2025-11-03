@@ -108,7 +108,7 @@ public class ReportDAO {
         }
     }
 
-    public Report getById(int reportId) throws SQLException {
+    public Report findById(int reportId) throws SQLException {
         String sql = "SELECT * FROM reports WHERE report_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, reportId);
@@ -258,7 +258,65 @@ public class ReportDAO {
         }
         return reports;
     }
+    /**
+     * Get chapter report detail by ID
+     */
+    public ReportChapter getReportChapterById(int reportId) throws SQLException {
+        String sql = "SELECT r.report_id, r.reporter_id, r.staff_id, r.chapter_id, " +
+                "r.reason, r.status, r.created_at, r.updated_at, " +
+                "c.title AS chapter_title, c.chapter_number, c.content AS chapter_content, " +
+                "s.title AS series_name, s.series_id, " +
+                "u.username AS reporter_username, u.email AS reporter_email, " +
+                "st.username AS staff_username " +
+                "FROM reports r " +
+                "INNER JOIN chapters c ON r.chapter_id = c.chapter_id " +
+                "INNER JOIN series s ON c.series_id = s.series_id " +
+                "INNER JOIN users u ON r.reporter_id = u.user_id " +
+                "LEFT JOIN staffs st ON r.staff_id = st.staff_id " +
+                "WHERE r.report_id = ? AND r.target_type = 'chapter'";
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, reportId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractReportChapterFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get comment report detail by ID
+     */
+    public ReportComment getReportCommentById(int reportId) throws SQLException {
+        String sql = "SELECT r.report_id, r.reporter_id, r.staff_id, r.comment_id, " +
+                "r.reason, r.status, r.created_at, r.updated_at, " +
+                "cm.content AS comment_content, cm.created_at AS comment_created_at, " +
+                "cu.username AS commenter_username, " +
+                "c.title AS chapter_title, c.chapter_id, " +
+                "s.title AS series_name, s.series_id, " +
+                "u.username AS reporter_username, u.email AS reporter_email, " +
+                "st.username AS staff_username " +
+                "FROM reports r " +
+                "INNER JOIN comments cm ON r.comment_id = cm.comment_id " +
+                "INNER JOIN users cu ON cm.user_id = cu.user_id " +
+                "INNER JOIN chapters c ON cm.chapter_id = c.chapter_id " +
+                "INNER JOIN series s ON c.series_id = s.series_id " +
+                "INNER JOIN users u ON r.reporter_id = u.user_id " +
+                "LEFT JOIN staffs st ON r.staff_id = st.staff_id " +
+                "WHERE r.report_id = ? AND r.target_type = 'comment'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, reportId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractReportCommentFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
     // ============= COUNT METHODS =============
 
     public int countReports(String type) throws SQLException {

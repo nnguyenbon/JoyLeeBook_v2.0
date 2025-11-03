@@ -239,6 +239,7 @@ public class SeriesServlet extends HttpServlet {
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesListForStaff.jsp");
                 request.setAttribute("activePage", "series");
+                request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else if ("author".equals(role)) {
                 request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
