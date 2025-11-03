@@ -49,7 +49,7 @@ public class ReactionServlet extends HttpServlet {
 
     private void ratingSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        if (loginedUser == null || loginedUser.getRole() == null || !tchlogitchnedUser.getRole().equals("reader")) {
+        if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("Please login to rating series");
             return;
