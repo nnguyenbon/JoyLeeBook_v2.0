@@ -274,7 +274,7 @@ public class SeriesDAO {
                 s.setSeriesId(rs.getInt("series_id"));
                 s.setTitle(rs.getNString("title"));
                 s.setDescription(rs.getNString("description"));
-                s.setCoverImgUrl(rs.getNString("cover_image_url"));
+                s.setCoverImgUrl("img/" + rs.getNString("cover_image_url"));
                 s.setStatus(rs.getString("status"));
                 s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
                 s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
