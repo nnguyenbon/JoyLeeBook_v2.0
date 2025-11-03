@@ -1,6 +1,7 @@
 package controller.profileController;
 
 
+import dao.BadgesUserDAO;
 import dao.SeriesDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
@@ -12,7 +13,6 @@ import model.Series;
 import model.User;
 import services.account.AuthorServices;
 import services.account.UserServices;
-import services.general.BadgesServices;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
@@ -45,10 +45,10 @@ public class ProfileServlet extends HttpServlet {
         String role = loginedUser != null ? loginedUser.getRole() : null;
         try (Connection conn = DBConnection.getConnection()) {
             UserServices userServices = new UserServices();
-            BadgesServices badgesServices = new BadgesServices();
+            BadgesUserDAO  badgesUserDAO = new BadgesUserDAO(conn);
 
             request.setAttribute("user", userServices.getUser(userId));
-            request.setAttribute("badgeList", badgesServices.badgeListFromUser(userId));
+            request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");

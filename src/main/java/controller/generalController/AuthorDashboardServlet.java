@@ -1,5 +1,6 @@
 package controller.generalController;
 
+import dao.LikeDAO;
 import dao.SeriesDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
@@ -9,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
 import services.chapter.ChapterServices;
-import services.chapter.LikeServices;
 import services.series.RatingSeriesService;
 import utils.AuthenticationUtils;
 
@@ -35,11 +35,11 @@ public class AuthorDashboardServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             ChapterServices chapterServices = new ChapterServices();
-            LikeServices likeService = new LikeServices();
+            LikeDAO likeDAO = new LikeDAO(conn);
             RatingSeriesService ratingService = new RatingSeriesService();
             request.setAttribute("totalChapters", chapterServices.getCountMyChapterByUserId(userId, "approved"));
             request.setAttribute("pendingChapters", chapterServices.getCountMyChapterByUserId(userId, "pending"));
-            request.setAttribute("totalLikes", likeService.countLikesOfAuthor(userId));
+            request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
             request.setAttribute("avgRating", ratingService.getAverageRatingOfAuthor(userId));
             request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
             request.setAttribute("pageTitle", "AuthorDashboard");
