@@ -8,7 +8,6 @@ public class ChapterDetailDTO extends BaseChapterDTO{
     private String authorsName;
     private String content;
     private int totalLike;
-    private int userId;
     private String createdAt;
     private String action;
 
@@ -34,14 +33,6 @@ public class ChapterDetailDTO extends BaseChapterDTO{
 
     public void setTotalLike(int totalLike) {
         this.totalLike = totalLike;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getContent() {

@@ -1,5 +1,6 @@
 package controller.generalController;
 
+import dao.ChapterDAO;
 import dao.ReadingHistoryDAO;
 import dao.SeriesDAO;
 import db.DBConnection;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.SavedSeries;
 import model.User;
-import services.chapter.ChapterServices;
 import services.series.SavedSeriesService;
 import utils.AuthenticationUtils;
 
@@ -65,10 +65,10 @@ public class LibraryServlet extends HttpServlet {
         }
 
         try(Connection conn = DBConnection.getConnection()) {
-            ChapterServices chapterServices = new ChapterServices();
             SeriesDAO seriesDAO = new SeriesDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             request.setAttribute("savedSeries", seriesDAO.getSeriesByUserId(userId));
-            request.setAttribute("historyChapters", chapterServices.historyChaptersFromUser(userId, 0, Integer.MAX_VALUE, null));
+            request.setAttribute("historyChapters",  chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null));
 
             request.setAttribute("pageTitle", "Library");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Library.jsp");

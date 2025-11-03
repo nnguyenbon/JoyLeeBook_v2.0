@@ -281,15 +281,18 @@ public class SeriesServlet extends HttpServlet {
 
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
 
             if (series == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
             }
+            List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
 
             request.setAttribute("series", series);
-
+            request.setAttribute("chapterList", chapterList);
+            request.setAttribute("pageTitle", "Series Detail");
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
@@ -464,7 +467,7 @@ public class SeriesServlet extends HttpServlet {
                 notificationsDAO.insertNotification(notification);
             }
 
-            response.sendRedirect(request.getContextPath() + "/series/list");
+            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=pending");
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -517,10 +520,6 @@ public class SeriesServlet extends HttpServlet {
      * @throws SQLException if a database access error occurs
      */
     private static Series buildSeries(Connection conn, Series series) throws SQLException {
-        if (series == null) {
-            return null;
-        }
-
         ChapterDAO chapterDAO = new ChapterDAO(conn);
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);

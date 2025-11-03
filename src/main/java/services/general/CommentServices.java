@@ -21,27 +21,8 @@ public class CommentServices {
         this.userDAO = new UserDAO(connection);
     }
 
-    public CommentDetailDTO buildCommentDetailDTO(Comment comment) throws SQLException {
-        CommentDetailDTO commentDetailDTO = new CommentDetailDTO();
-        commentDetailDTO.setCommentId(comment.getCommentId());
-        commentDetailDTO.setContent(comment.getContent());
-        commentDetailDTO.setUserId(comment.getUserId());
-        commentDetailDTO.setUpdateAt(FormatServices.calculateTimeAgo(comment.getUpdatedAt()));
-        commentDetailDTO.setUsername(userDAO.findById(comment.getUserId()).getUsername());
-        return commentDetailDTO;
-    }
 
-    public List<CommentDetailDTO> buildCommentDetailDTOList(List<Comment> comments) throws SQLException {
-        List<CommentDetailDTO> commentDetailDTOList = new ArrayList<>();
-        for (Comment comment : comments) {
-            commentDetailDTOList.add(buildCommentDetailDTO(comment));
-        }
-        return commentDetailDTOList;
-    }
 
-    public List<CommentDetailDTO> commentsFromChapter (int chapterId) throws SQLException {
-        return buildCommentDetailDTOList(commentDAO.findByChapter(chapterId));
-    }
 
     public boolean createComment(int userId, String chapterIdParam, String content) {
         if (content == null || content.trim().isEmpty() || chapterIdParam == null) {
@@ -60,8 +41,7 @@ public class CommentServices {
         comment.setChapterId(chapterId);
         comment.setContent(content);
         comment.setDeleted(false);
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(LocalDateTime.now());
+
 
         try {
             boolean success = commentDAO.insert(comment);
@@ -94,9 +74,6 @@ public class CommentServices {
         comment.setCommentId(commentIdParam);
         comment.setUserId(userId);
         comment.setContent(content);
-        comment.setUpdatedAt(LocalDateTime.now());
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(LocalDateTime.now());
 
         try {
             boolean success = commentDAO.update(comment);
