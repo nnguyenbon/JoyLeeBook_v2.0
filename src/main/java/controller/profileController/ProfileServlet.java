@@ -58,7 +58,7 @@ public class ProfileServlet extends HttpServlet {
                 AuthorServices authorServices = new AuthorServices();
 
                 List<Series> series = seriesDAO.getSeriesByAuthorId(userId);
-                authorServices.extractDataFromAuthorId(series, request);
+//                authorServices.extractDataFromAuthorId(series, request);
 
                 request.setAttribute("seriesInfoDTOList", series);
                 request.setAttribute("totalSeriesCount", series.size());

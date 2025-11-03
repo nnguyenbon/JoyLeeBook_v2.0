@@ -7,13 +7,13 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<main class="mt-10 grid grid-cols-12 gap-8 items-center">
+<main class="mt-10 grid grid-cols-12 gap-8 items-center ">
     <!-- Nội dung chính -->
-    <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow">
-        <h1 class="text-4xl font-bold text-center mb-3">${chapterDetailDTO.seriesTitle}</h1>
+    <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow ">
+        <h1 class="text-4xl font-bold text-center mb-3">${chapter.seriesTitle}</h1>
 
         <h2 class="text-center font-semibold text-gray-700 mb-3">by
-            ${chapterDetailDTO.authorsName}
+            ${chapter.authorName}
         </h2>
         <div class="flex items-center justify-center gap-3 mb-6">
 
@@ -21,7 +21,7 @@
                 <!-- Nút mở danh sách chương -->
                 <button id="chapterListBtn"
                         class="flex items-center justify-between gap-2 w-100 border border-[#195DA9] text-[#195DA9] px-4 py-2 rounded-md text-md font-medium hover:bg-blue-50 transition-all duration-200">
-                    <span>Chapter ${chapterDetailDTO.chapterNumber}: ${chapterDetailDTO.title}</span>
+                    <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                     <i class="fa-solid fa-list-ul"></i>
                 </button>
 
@@ -35,10 +35,11 @@
                         </h4>
                         <hr class="mb-3 border-gray-300"/>
 
-                        <c:forEach var="chapterItem" items="${chapterInfoDTOList}" varStatus="">
-                            <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
+                        <c:forEach var="chapterItem" items="${chapterList}" varStatus="">
+                            <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapter.seriesId}&chapterId=${chapterItem.chapterId}">
                                 <button
-                                        class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
+                                        class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150
+                                                    ${chapterItem.chapterId == chapter.chapterId ? 'bg-blue-50' : ''} ">
                                     Chapter ${chapterItem.chapterNumber}: ${chapterItem.title}
                                 </button>
                             </a>
@@ -79,14 +80,14 @@
 
         <div id="contentArea" class="mt-6 text-gray-800 text-base transition-all duration-200">
             <p class="text-gray-700 leading-relaxed mb-4">
-                ${chapterDetailDTO.content}
+                ${chapter.content}
             </p>
         </div>
         <!-- Navigation buttons -->
         <div class="flex items-center justify-between mt-8">
-            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous"
+            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapter.seriesId}&chapterNumber=${chapter.chapterNumber}&type=previous"
                class="border border-gray-300 px-4 py-2 rounded-lg
-                      <c:if test='${chapterDetailDTO.chapterId == firstChapterId}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
+                      <c:if test='${chapter.chapterId == firstChapterId}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                 &lt; Previous Chapter
             </a>
 
@@ -96,21 +97,21 @@
                         class="openReportChapterBtn text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
                     <i class="fa-regular fa-flag"></i></button>
 
-                <p class="text-sm text-gray-500">Chapter ${chapterDetailDTO.chapterNumber}
-                    of ${chapterInfoDTOList.size()}</p>
+                <p class="text-sm text-gray-500">Chapter ${chapter.chapterNumber}
+                    of ${chapterList.size()}</p>
                 <button id="likeBtn"
                         class="like-btn flex items-center justify-center gap-5 w-19 px-2 py-1 border rounded-full transition-all duration-200
                              text-gray-600 hover:bg-[#195DA9] hover:text-white"
                         data-user-id="${10}"
-                        data-chapter-id="${chapterDetailDTO.chapterId}">
+                        data-chapter-id="${chapter.chapterId}">
                     <i id="like" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart'}"></i>
-                    <span id="likeCount">${chapterDetailDTO.totalLike}</span>
+                    <span id="likeCount">${totalLike}</span>
                 </button>
 
             </div>
-            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next"
+            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapter.seriesId}&chapterNumber=${chapter.chapterNumber}&type=next"
                class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700
-                      <c:if test='${chapterDetailDTO.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>">
+                      <c:if test='${chapter.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>">
                 Next Chapter &gt;
             </a>
         </div>
@@ -127,9 +128,8 @@
                 </button>
 
                 <!-- Header -->
-                <div class="flex items-center mb-2">
-
-                    <i class="fa-solid fa-flag w-7 h-7 text-red-500 mr-2"></i>
+                <div class="flex items-center mb-2 gap-5">
+                    <i class="fa-regular fa-flag text-red-500"></i>
                     <div>
                         <h2 class="text-lg font-bold text-red-600">Report Chapter</h2>
                         <p class="text-sm text-gray-500">Help us maintain a safe community</p>
@@ -137,7 +137,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/reported?type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/report-chapter?chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="chapterId" id="reportChapterId">
 
@@ -181,7 +181,8 @@
 
                     <div class="flex justify-end space-x-2 mt-5">
                         <button type="submit"
-                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition
+                                     <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                             Submit
                         </button>
                         <button type="button" id="cancelReportChapterBtn"
@@ -195,7 +196,7 @@
 
         <!-- Comment box -->
         <form id="commentForm"
-              action="${pageContext.request.contextPath}/comment/create?seriesId=${seriesId}&chapterId=${chapterId}"
+              action="${pageContext.request.contextPath}/comment/insert?chapterId=${chapterId}"
               method="post"
               class="mt-8 flex items-center gap-2">
 
@@ -209,8 +210,9 @@
             />
 
             <button id="commentSubmitBtn" type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
-                <i class="fa-solid fa-comment"></i>
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg
+                        <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
+                <i class="fa-regular fa-paper-plane text-2xl"></i>
             </button>
         </form>
 
@@ -218,14 +220,14 @@
         <!-- Comments -->
         <div class="mt-6 space-y-4">
             <!-- Comment 1 -->
-            <c:forEach var="comment" items="${commentDetailDTOList}" varStatus="loop">
+            <c:forEach var="comment" items="${commentList}" varStatus="loop">
                 <div class="flex justify-between gap-3">
                     <div class="flex gap-5">
                         <div class="w-10 h-10 rounded-full bg-gray-200"></div>
                         <div>
                             <p class="font-semibold text-gray-800">${comment.username}</p>
                             <p class="text-gray-600 text-sm">${comment.content}</p>
-                            <p class="text-xs text-gray-400 mt-1">${comment.updateAt}</p>
+                            <p class="text-xs text-gray-400 mt-1">${comment.updatedAt}</p>
                         </div>
                     </div>
                     <div class="relative">
@@ -244,7 +246,7 @@
                                     Edit
                                 </button>
 
-                                <button onclick="deleteComment(${comment.commentId}, ${seriesId}, ${chapterId})"
+                                <button onclick="deleteComment(${comment.commentId}, ${chapter.seriesId}, ${chapterId})"
                                         class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                     Delete
                                 </button>
@@ -272,7 +274,9 @@
 
                 <!-- Header -->
                 <div class="flex items-center mb-2">
-                    <i class="fa-regular fa-flag w-7 h-7 text-red-500 mr-2"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <i class="fa-regular fa-flag text-red-500"></i>
                     <div>
                         <h2 class="text-lg font-bold text-red-600">Report Comment</h2>
                         <p class="text-sm text-gray-500">Help us maintain a safe community</p>
@@ -280,7 +284,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/reported?type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/report-comment?chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="commentId" id="reportCommentId">
                     <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
@@ -345,65 +349,80 @@
 </main>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
         const likeBtn = document.getElementById("likeBtn");
+        const icon = likeBtn.querySelector("i");
+        const likeCount = likeBtn.querySelector("span");
+        const userId = likeBtn.dataset.userId;
+        const chapterId = likeBtn.dataset.chapterId;
 
-        likeBtn.addEventListener("click", function () {
-            // Nếu người dùng đã like rồi thì không cho click nữa
-            if (likeBtn.classList.contains("liked")) return;
-            if ("${loginedUser.userId}" == "") {
-                toastr["warning"]("Your must login to like chapter")
-                return;
-            }
-            const chapterId = likeBtn.dataset.chapterId;
-            const icon = likeBtn.querySelector("i");
-            const likeCount = likeBtn.querySelector("span");
-            // Gửi yêu cầu đến server
-            fetch("${pageContext.request.contextPath}/reaction/like", {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: "chapterId=" + encodeURIComponent(chapterId)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.liked) {
-                        // Cập nhật giao diện
-                        likeBtn.classList.add("liked");
-                        likeCount.textContent = data.newLikeCount;
+        // 🟩 Lấy thông tin like ban đầu
+        try {
+        const res = await fetch(`${pageContext.request.contextPath}/reaction/get-like?chapterId=${chapterId}&userId=${userId}`);
+        const data = await res.json();
 
-                        icon.classList.remove("fa-regular");
-                        icon.classList.add("fa-solid", "text-red-500");
+        likeCount.textContent = data.totalLike || 0;
+        if (data.liked) {
+        likeBtn.classList.add("liked");
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid", "text-red-500");
+    }
+    } catch (err) {
+        console.error("Không thể lấy thông tin like:", err);
+    }
 
-                        // Chặn click tiếp
-                        likeBtn.disabled = true;
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-        });
+        // 🟥 Khi nhấn Like/Unlike
+        likeBtn.addEventListener("click", async () => {
+        if (userId == 0) {
+        toastr["warning"]("Vui lòng đăng nhập để like chapter!");
+        return;
+    }
+
+        const action = likeBtn.classList.contains("liked") ? "unlike-chapter" : "like-chapter";
+
+        try {
+        const res = await fetch(`${pageContext.request.contextPath}/reaction/${action}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: new URLSearchParams({ userId, chapterId })
     });
 
+        const data = await res.json();
+        likeCount.textContent = data.totalLike;
+
+        if (action === "like-chapter") {
+        likeBtn.classList.add("liked");
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid", "text-red-500");
+    } else {
+        likeBtn.classList.remove("liked");
+        icon.classList.remove("fa-solid", "text-red-500");
+        icon.classList.add("fa-regular");
+    }
+    } catch (err) {
+        console.error("Lỗi khi gửi like:", err);
+    }
+    });
+    });
 </script>
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chapterListBtn = document.getElementById("chapterListBtn");
+        const chapterList = document.getElementById("chapterList");
 
-    document.querySelector("#chapterListBtn").addEventListener("click", () => {
-        document.querySelector("#chapterList").classList.toggle("hidden");
-    })
-
-
-    document.querySelectorAll('.dropdown-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Ngăn việc click lan ra ngoài
-            const menu = btn.nextElementSibling; // Tìm menu liền sau button
-            document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
-            });
-            menu.classList.toggle('hidden');
-        });
+        chapterListBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        chapterList.classList.toggle("hidden");
     });
 
-    window.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+        // Click ra ngoài ẩn dropdown
+        window.addEventListener("click", (e) => {
+        if (!chapterList.contains(e.target) && !chapterListBtn.contains(e.target)) {
+        chapterList.classList.add("hidden");
+    }
     });
+    });
+
 </script>
 
 <script>
@@ -435,8 +454,8 @@
 
 <c:if test="${not empty successReportMessage}">
     <script>
-        if ("${successReportMessage}" != "") {
-            toastr["success"]("${successReportMessage}")
+        if(${successReportMessage}) {
+            toastr["success"](${successReportMessage})
         }
     </script>
     <c:remove var="successReportMessage" scope="session"/>
@@ -480,23 +499,18 @@
     });
 
     function deleteComment(commentId, seriesId, chapterId) {
-        fetch("${pageContext.request.contextPath}/comment/delete", {
+        fetch(`comment`, {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
+                action: 'delete',
                 commentId,
                 seriesId,
                 chapterId
             })
         }).then(response => {
-            if (response.ok) {
-                return response.json()
-            }
+            if (response.ok) location.reload();
             else alert("Xóa thất bại!");
-        }).then(data => {
-            if(data.success) {
-                location.reload()
-            }
         });
     }
 </script>

@@ -33,9 +33,9 @@
                     <select name="filterByStatus" id="filterByStatus"
                             class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All status</option>
-                        <option value="approved" ${approvalStatus eq 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="rejected" ${status eq 'rejected' ? 'selected' : ''}>Rejected</option>
-                        <option value="pending" ${status eq 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${filterByStatus eq 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="pending" ${filterByStatus eq 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="rejected" ${filterByStatus eq 'rejected' ? 'selected' : ''}>Rejected</option>
                     </select>
                 </div>
             </form>
@@ -107,7 +107,7 @@
                                 </button>
 
                                 <!-- Dropdown Menu -->
-                                <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                                <ul class="absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
                                     <!-- Approve / Reject logic -->
                                     <c:choose>
                                         <c:when test="${series.approvalStatus == 'pending'}">
@@ -173,7 +173,7 @@
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
-                <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                             <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -182,7 +182,7 @@
                 </a>
 
                 <c:if test="${currentPage > 3}">
-                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                     </a>
@@ -191,7 +191,7 @@
 
                 <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                            end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -202,13 +202,13 @@
 
                 <c:if test="${currentPage < totalPage - 2}">
                     <span class="px-2 py-1">...</span>
-                    <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                     </a>
                 </c:if>
 
-                <a href="${pageContext.request.contextPath}/series?action=list&totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                             <c:if test="${currentPage == totalPage}">disabled</c:if>>

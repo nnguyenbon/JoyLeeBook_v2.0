@@ -240,7 +240,7 @@ public class ReportServlet extends HttpServlet {
                                                            String message, String status) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(conn);
         Notification notification = new Notification();
-        notification.setUserId(chapterDAO.findById(chapterId).getUserId());
+        notification.setUserId(chapterDAO.findById(chapterId).getAuthorId());
         notification.setTitle("Chapter" + status);
         notification.setType("moderation");
         notification.setMessage(message);

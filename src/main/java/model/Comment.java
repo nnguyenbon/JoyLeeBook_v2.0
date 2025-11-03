@@ -8,18 +8,11 @@ public class Comment {
     private int chapterId;
     private String content;
     private boolean isDeleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
-    public Comment(int commentId, int userId, int chapterId, String content, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.commentId = commentId;
-        this.userId = userId;
-        this.chapterId = chapterId;
-        this.content = content;
-        this.isDeleted = isDeleted;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    //extra field
+    private String username;
 
     public Comment() {}
 
@@ -63,19 +56,27 @@ public class Comment {
         isDeleted = deleted;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

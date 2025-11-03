@@ -99,6 +99,13 @@
         <div class="flex items-center gap-4 mt-4">
             <c:set var="user" value="${loginedUser}" />
             <c:set var="role" value="${user.role}" />
+            <c:if test="${not empty chapterList and chapterList.get(0) != null}">
+                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
+                    <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
+                        <i class="fa-solid fa-play"></i> Start Reading
+                    </button>
+                </a>
+            </c:if>
             <c:choose>
                 <c:when test="${role == 'author'}">
                     <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
@@ -115,16 +122,7 @@
                         </button>
                     </form>
                 </c:when>
-
                 <c:when test="${role == 'reader'}">
-                    <c:if test="${not empty chapterInfoDTOList and chapterInfoDTOList.get(0).chapterId != null}">
-                        <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapterInfoDTOList.get(0).chapterId}">
-                            <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
-                                <i class="fa-solid fa-play"></i> Start Reading
-                            </button>
-                        </a>
-                    </c:if>
-
                     <button id="saveBtn"
                             class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
                             data-user-id="10" data-series-id="${series.seriesId}">
@@ -150,14 +148,14 @@
             <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
             <div class="space-y-3 border-2 border-neutral-400 p-3 rounded-lg  ">
                 <c:choose>
-                    <c:when test="${chapterInfoDTOList.size() != 0}">
+                    <c:when test="${chapterList.size() != 0}">
                         <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
-                            <c:forEach var="chapter" items="${chapterInfoDTOList}">
+                            <c:forEach var="chapter" items="${chapterList}">
                                 <li>
                                     <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
                                         <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                                             <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                                            <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
+                                            <span class="text-sm text-gray-500">${chapter.updatedAt}</span>
                                         </div>
                                     </a>
                                 </li>
