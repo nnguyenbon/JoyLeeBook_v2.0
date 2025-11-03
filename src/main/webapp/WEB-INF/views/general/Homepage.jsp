@@ -66,9 +66,9 @@
                         >
                             <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
-                                        src="${hotSeries.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/img/${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
-                                        alt="hehe"
+                                        alt="img"
                                 />
                             </div>
 

@@ -8,6 +8,11 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="db.DBConnection" %>
 <%@ page import="java.sql.SQLException" %>
 
+<%@ page import="model.Account" %>
+<%@ page import="model.User" %>
+<%@ page import="model.Notification" %>
+<%@ page import="dao.NotificationsDAO" %>
+
 <%
     CategoryDAO categoryDAO;
     try {
@@ -16,6 +21,26 @@ change this template use File | Settings | File Templates. --%>
         request.setAttribute("categories", categories);
     } catch (SQLException | ClassNotFoundException e) {
         throw new RuntimeException(e);
+    }
+
+    Account loginedAccount = (Account) session.getAttribute("loginedUser");
+
+    if (loginedAccount != null) {
+        if (loginedAccount instanceof User) {
+            User loginedUser = (User) loginedAccount;
+            try {
+                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());
+
+                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);
+                request.setAttribute("userNotifications", notifications);
+
+                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());
+                request.setAttribute("unreadCount", unreadCount);
+
+            } catch (SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 %>
 <header class="relative top-0 left-0 right-0 shadow-md bg-white ">
@@ -52,7 +77,7 @@ change this template use File | Settings | File Templates. --%>
             </div>
         </div>
 
-        <div class="col-span-6">
+        <div class="col-span-5">
             <form action="${pageContext.request.contextPath}/series/list" class="w-full">
                 <input
                         type="text"
@@ -64,7 +89,69 @@ change this template use File | Settings | File Templates. --%>
             </form>
         </div>
         <c:if test="${loginedUser != null}">
-            <div class="col-span-2  text-right">
+
+            <c:if test="${loginedUser.role == 'reader' || loginedUser.role == 'author'}">
+                <div class="col-span-1 relative flex justify-center items-center">
+                    <button id="BtnNotify"
+                            class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600">
+                        <i class="fa-solid fa-bell"></i>
+                        <c:if test="${unreadCount > 0}">
+                            <span class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                    ${unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
+                        </c:if>
+                    </button>
+
+                    <div id="MenuNotify"
+                         class="hidden absolute right-0 top-full mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 text-left">
+                        <h4 class="font-bold text-lg mb-2 px-2">Notifications</h4>
+                        <div class="max-h-96 overflow-y-auto">
+                            <c:choose>
+                                <c:when test="${not empty userNotifications}">
+                                    <c:forEach var="noti" items="${userNotifications}">
+                                        <a href="${pageContext.request.contextPath}${noti.urlRedirect}"
+                                           class="block p-2 rounded-lg notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'}"
+                                           data-id="${noti.notificationId}"
+                                        >
+                                            <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
+                                                    ${noti.title}
+                                            </p>
+                                            <p class="text-xs text-gray-600">${noti.message}</p>
+                                        </a>
+                                        <hr class="my-1"/>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="max-h-96 overflow-y-auto">
+                            <c:choose>
+                                <c:when test="${not empty userNotifications}">
+                                </c:when>
+                                <c:otherwise>
+                                    <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <hr class="my-2"/>
+                        <div class="text-center">
+                            <a href="${pageContext.request.contextPath}/notifications/all"
+                               class="text-sm font-medium text-blue-600 hover:underline">
+                                See All Notifications
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </c:if>
+
+            <c:if test="${loginedUser.role == 'staff' || loginedUser.role == 'admin'}">
+                <div class="col-span-1"></div>
+            </c:if>
+
+            <div class="col-span-2 text-right">
                 <button
                         class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
                 >
@@ -197,19 +284,68 @@ change this template use File | Settings | File Templates. --%>
         if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
             genreMenu.classList.add('hidden');
         }
+
+        if (BtnAvatar && MenuAvatar && !BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
+            MenuAvatar.classList.add('hidden');
+        }
+
+        if (BtnNotify && MenuNotify && !BtnNotify.contains(e.target) && !MenuNotify.contains(e.target)) {
+            MenuNotify.classList.add('hidden');
+        }
     });
 
     const BtnAvatar = document.getElementById('BtnAvatar');
     const MenuAvatar = document.getElementById('MenuAvatar');
 
-    BtnAvatar.addEventListener('click', () => {
-        MenuAvatar.classList.toggle('hidden');
-    });
+    if (BtnAvatar) {
+        BtnAvatar.addEventListener('click', () => {
+            MenuAvatar.classList.toggle('hidden');
+        });
+    }
 
-    // Ẩn menu khi click ra ngoài
-    document.addEventListener('click', (e) => {
-        if (!BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
-            MenuAvatar.classList.add('hidden');
-        }
+    const BtnNotify = document.getElementById('BtnNotify');
+    const MenuNotify = document.getElementById('MenuNotify');
+
+    if (BtnNotify) {
+        BtnNotify.addEventListener('click', () => {
+            MenuNotify.classList.toggle('hidden');
+        });
+    }
+
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+            const notiId = this.getAttribute('data-id');
+            const isRead = this.classList.contains('bg-white');
+            const originalUrl = this.href;
+
+            if (notiId && !isRead) {
+                e.preventDefault();
+
+                fetch('${pageContext.request.contextPath}/notification/mark-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'id=' + notiId
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = originalUrl;
+                        } else {
+                            window.location.href = originalUrl;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to mark notification as read:', err);
+                        window.location.href = originalUrl;
+                    });
+            }
+        });
     });
 </script>
