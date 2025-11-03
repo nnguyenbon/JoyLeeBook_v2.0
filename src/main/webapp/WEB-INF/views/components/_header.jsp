@@ -42,8 +42,8 @@ change this template use File | Settings | File Templates. --%>
             >
                 <div class="grid grid-cols-5 gap-3 text-sm">
                     <c:forEach var="category" items="${categories}">
-                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}">
-                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left">
+                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">
+                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">
                                     ${category.name}
                             </button>
                         </a>
@@ -166,6 +166,25 @@ change this template use File | Settings | File Templates. --%>
 </header>
 
 <script>
+
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+
     const genreButton = document.getElementById('genreButton');
     const genreMenu = document.getElementById('genreMenu');
 

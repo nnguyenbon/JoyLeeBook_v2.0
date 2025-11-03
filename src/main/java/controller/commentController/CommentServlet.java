@@ -14,14 +14,14 @@ import utils.AuthenticationUtils;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("/comment")
+@WebServlet("/comment/*")
 public class CommentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
         switch (action) {
-            case "create" -> createComment(request, response);
-            case "edit" -> updateComment(request, response);
-            case "delete" -> deleteComment(request, response);
+            case "/create" -> createComment(request, response);
+            case "/edit" -> updateComment(request, response);
+            case "/delete" -> deleteComment(request, response);
         }
 
     }
@@ -38,7 +38,7 @@ public class CommentServlet extends HttpServlet {
             CommentServices commentServices = new CommentServices();
             commentServices.createComment(userId, chapterId, content);
             response.sendRedirect(request.getContextPath()
-                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
+                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -54,10 +54,12 @@ public class CommentServlet extends HttpServlet {
 
             CommentServices commentService = new CommentServices();
             commentService.deleteComment(userId, commentId);
-
-            response.sendRedirect(request.getContextPath()
-                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\": true, \"message\": \"Your comment has been successfully deleted\" }");
+//            response.sendRedirect(request.getContextPath()
+//                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (SQLException | ClassNotFoundException e) {
+            response.getWriter().write("{\"success\": false, \"message\": \"Your comment has been unsuccessfully deleted\" }");
             throw new RuntimeException(e);
         }
     }
@@ -76,7 +78,7 @@ public class CommentServlet extends HttpServlet {
             commentService.editComment(userId, commentId, content);
 
             response.sendRedirect(request.getContextPath()
-                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
+                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

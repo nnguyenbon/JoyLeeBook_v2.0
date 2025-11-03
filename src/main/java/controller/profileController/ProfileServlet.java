@@ -21,18 +21,20 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/profile")
+@WebServlet("/profile/*")
 public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         viewProfile(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action.equals("edit")) {
+        String action = request.getPathInfo();
+        if (action.equals("/edit")) {
             editProfile(request, response);
-        } else {
+        } else if (action.equals("/changePassword")) {
             changePassword(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
         }
     }
 

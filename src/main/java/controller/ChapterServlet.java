@@ -45,7 +45,6 @@ public class ChapterServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
-        System.out.println(action + "123");
         switch (action) {
             case "/add" -> showAddChapter(request, response);
             case "/edit" -> showUpdateChapter(request, response);
@@ -339,7 +338,7 @@ public class ChapterServlet extends HttpServlet {
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/ChapterContent.jsp");
                 request.setAttribute("seriesId", seriesId);
                 request.setAttribute("chapterId", chapterId);
-                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
             } catch (SQLException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

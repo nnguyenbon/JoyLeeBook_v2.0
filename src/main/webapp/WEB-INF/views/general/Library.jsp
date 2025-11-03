@@ -25,11 +25,11 @@
     <div id="content-saved" class="grid grid-cols-2 gap-6">
         <!-- Item -->
         <c:forEach var="series" items="${savedSeries}">
-            <a href="${pageContext.request.contextPath}/series?action=detail&seriesId=${series.seriesId}"
+            <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}"
                class="block">
                 <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3 h-full">
                     <!-- Bookmark Remove Icon -->
-                    <form action="${pageContext.request.contextPath}/library?action=save&type=unsave&seriesId=${series.seriesId}&isLibrary=true" method="post">
+                    <form action="${pageContext.request.contextPath}/library/save?type=unsave&seriesId=${series.seriesId}&isLibrary=true" method="post">
                         <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition"
                                 type="submit" title="Remove from saved">
                             <i class="fa-solid fa-trash-can"></i>
@@ -99,7 +99,7 @@
     <!-- HISTORY TAB -->
     <div id="content-history" class="hidden flex flex-col space-y-3">
         <c:forEach var="chapter" items="${historyChapters}">
-            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}&returnUrl=${pageContext.request.requestURI}">
+            <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}&returnUrl=${pageContext.request.requestURI}">
                 <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
                     <img src="${chapter.coverImgUrl}" alt="cover" class="w-16 h-20 object-cover rounded-md">
                     <div class="ml-4 flex-1">
@@ -107,7 +107,7 @@
                         <p class="text-sm text-blue-500">Chapter ${chapter.chapterNumber} ${chapter.title}</p>
                     </div>
                     <div class="text-sm text-gray-500">${chapter.lastReadAt }</div>
-                    <form action="${pageContext.request.contextPath}/library?action=deleteHistory&chapterId=${chapter.chapterId}" method="post">
+                    <form action="${pageContext.request.contextPath}/library/deleteHistory?chapterId=${chapter.chapterId}" method="post">
                         <button class="ml-4 text-gray-400 hover:text-red-500" type="submit" title="Delete">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
