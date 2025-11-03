@@ -16,32 +16,35 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/report")
+@WebServlet("/report/*")
 public class ReportServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action.equals("report")) {
+        String action = request.getPathInfo();
+        if (action.equals("/reported")) {
             String type = request.getParameter("type");
             if (type.equals("comment")) {
                 reportComment(request, response);
             } else if (type.equals("chapter")) {
                 reportChapter(request, response);
             }
-        } else if (action.equals("handle")) {
+        } else if (action.equals("/handle")) {
 
         }
     }
 
-//    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        String action = request.getParameter("action") != null ? request.getParameter("action") : "";
-//        if (action.equals("detail")) {
-//            viewDetail(request, response);
-//        } else {
-//            viewReportList(request, response);
-//        }
-//    }
+        String action = request.getPathInfo();
+        if (action.equals("/detail")) {
+            viewDetail(request, response);
+        } else if(action.equals("/list")) {
+            viewReportList(request, response);
+        } else {
+            request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
+        }
+    }
 
-//    private void viewReportList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void viewReportList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        try {
 //            String type = request.getParameter("type") == null ? "" : request.getParameter("type");
 //
@@ -71,10 +74,10 @@ public class ReportServlet extends HttpServlet {
 //        } catch (SQLException | ClassNotFoundException e) {
 //            throw new RuntimeException(e);
 //        }
-////        request.getRequestDispatcher("/WEB-INF/views/report/ReportList.jsp").forward(request, response);
-//    }
+//        request.getRequestDispatcher("/WEB-INF/views/report/ReportList.jsp").forward(request, response);
+    }
 
-//    private void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void viewDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        try {
 //            ReportServices reportServices = new ReportServices();
 //            int reportId = ValidationInput.isPositiveInteger(request.getParameter("reportId")) ? Integer.parseInt(request.getParameter("reportId")) : -1;
@@ -88,7 +91,7 @@ public class ReportServlet extends HttpServlet {
 //        } catch (SQLException | ClassNotFoundException e) {
 //            throw new RuntimeException(e);
 //        }
-//    }
+    }
 
     private void reportComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
@@ -108,7 +111,7 @@ public class ReportServlet extends HttpServlet {
 //
 //            request.getSession().setAttribute("successReportMessage", "Report submitted successfully.");
 //            response.sendRedirect(request.getContextPath()
-//                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
+//                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
 //        } catch (SQLException | ClassNotFoundException e) {
 //            throw new RuntimeException(e);
 //        }
@@ -132,8 +135,8 @@ public class ReportServlet extends HttpServlet {
 //            reportServices.createReport(userId, type, chapterId, reason, description);
 //
 //            request.getSession().setAttribute("successReportMessage", "Report submitted successfully.");
-//            response.sendRedirect(request.getContextPath()
-//                    + "/chapter?action=detail&seriesId=" + seriesId + "&chapterId=" + chapterId);
+//            response.sendRe   direct(request.getContextPath()
+//                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
 //        } catch (Exception e) {
 //            throw new RuntimeException(e);
 //        }

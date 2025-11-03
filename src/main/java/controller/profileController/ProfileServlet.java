@@ -18,26 +18,28 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/profile")
+@WebServlet("/profile/*")
 public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         viewProfile(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action.equals("edit")) {
+        String action = request.getPathInfo();
+        if (action.equals("/edit")) {
             editProfile(request, response);
-        } else {
+        } else if (action.equals("/changePassword")) {
             changePassword(request, response);
+        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
         }
     }
 
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
-//        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-//        int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
-//        String role = loginedUser != null ? loginedUser.getRole() : null;
+        int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
+        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
+        String role = loginedUser != null ? loginedUser.getRole() : null;
 //        try {
 //            UserServices userServices = new UserServices();
 //            BadgesServices badgesServices = new BadgesServices();
@@ -57,7 +59,9 @@ public class ProfileServlet extends HttpServlet {
 //
 //                request.setAttribute("seriesInfoDTOList", seriesInfoDTOList);
 //                request.setAttribute("totalSeriesCount", seriesInfoDTOList.size());
-//                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
+//                request.setAttribute("pageTitle", "My Profile");
+//                request.setAttribute("contentPage", "/WEB-INF/views/profile/AuthorProfile.jsp");
+//                request.getRequestDispatcher("WEB-INF/views/components/_layoutUser.jsp").forward(request, response);
 //            }
 //        } catch (SQLException | ClassNotFoundException e) {
 //            throw new RuntimeException(e);

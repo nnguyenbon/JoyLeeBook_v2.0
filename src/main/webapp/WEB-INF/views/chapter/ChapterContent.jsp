@@ -5,6 +5,8 @@
   Time: 9:56 PM
   To change this template use File | Settings | File Templates.
 --%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <main class="mt-10 grid grid-cols-12 gap-8 items-center">
     <!-- Nội dung chính -->
     <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow">
@@ -34,7 +36,7 @@
                         <hr class="mb-3 border-gray-300"/>
 
                         <c:forEach var="chapterItem" items="${chapterInfoDTOList}" varStatus="">
-                            <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
+                            <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapterDetailDTO.seriesId}&chapterId=${chapterItem.chapterId}">
                                 <button
                                         class="block w-full text-left hover:bg-blue-50 rounded px-2 py-1 mb-1 text-gray-700 transition-all duration-150">
                                     Chapter ${chapterItem.chapterNumber}: ${chapterItem.title}
@@ -82,7 +84,7 @@
         </div>
         <!-- Navigation buttons -->
         <div class="flex items-center justify-between mt-8">
-            <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous"
+            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=previous"
                class="border border-gray-300 px-4 py-2 rounded-lg
                       <c:if test='${chapterDetailDTO.chapterId == firstChapterId}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
                 &lt; Previous Chapter
@@ -106,7 +108,7 @@
                 </button>
 
             </div>
-            <a href="${pageContext.request.contextPath}/chapter?action=navigate&seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next"
+            <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapterDetailDTO.seriesId}&chapterNumber=${chapterDetailDTO.chapterNumber}&type=next"
                class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700
                       <c:if test='${chapterDetailDTO.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>">
                 Next Chapter &gt;
@@ -126,11 +128,8 @@
 
                 <!-- Header -->
                 <div class="flex items-center mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M4 4v16m0-12h16l-4 4 4 4H4"/>
-                    </svg>
+
+                    <i class="fa-solid fa-flag w-7 h-7 text-red-500 mr-2"></i>
                     <div>
                         <h2 class="text-lg font-bold text-red-600">Report Chapter</h2>
                         <p class="text-sm text-gray-500">Help us maintain a safe community</p>
@@ -138,7 +137,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report?action=report&type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/reported?type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="chapterId" id="reportChapterId">
 
@@ -197,7 +196,7 @@
 
         <!-- Comment box -->
         <form id="commentForm"
-              action="${pageContext.request.contextPath}/comment?action=create&seriesId=${seriesId}&chapterId=${chapterId}"
+              action="${pageContext.request.contextPath}/comment/create?seriesId=${seriesId}&chapterId=${chapterId}"
               method="post"
               class="mt-8 flex items-center gap-2">
 
@@ -211,13 +210,8 @@
             />
 
             <button id="commentSubmitBtn" type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg
-                        <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                     stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M3 10l9-6 9 6m-9 4v10m0-10L3 10m9 4l9-4"/>
-                </svg>
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-comment"></i>
             </button>
         </form>
 
@@ -279,11 +273,7 @@
 
                 <!-- Header -->
                 <div class="flex items-center mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M4 4v16m0-12h16l-4 4 4 4H4"/>
-                    </svg>
+                    <i class="fa-regular fa-flag w-7 h-7 text-red-500 mr-2"></i>
                     <div>
                         <h2 class="text-lg font-bold text-red-600">Report Comment</h2>
                         <p class="text-sm text-gray-500">Help us maintain a safe community</p>
@@ -291,7 +281,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report?action=report&type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/reported?type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="commentId" id="reportCommentId">
                     <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
@@ -356,26 +346,24 @@
 </main>
 
 <script>
-
     document.addEventListener("DOMContentLoaded", () => {
         const likeBtn = document.getElementById("likeBtn");
 
         likeBtn.addEventListener("click", function () {
             // Nếu người dùng đã like rồi thì không cho click nữa
             if (likeBtn.classList.contains("liked")) return;
-
-            const userId = likeBtn.dataset.userId;
+            if ("${loginedUser.userId}" == "") {
+                toastr["warning"]("Your must login to like chapter")
+                return;
+            }
             const chapterId = likeBtn.dataset.chapterId;
             const icon = likeBtn.querySelector("i");
             const likeCount = likeBtn.querySelector("span");
-
             // Gửi yêu cầu đến server
-            fetch("reaction", {
+            fetch("${pageContext.request.contextPath}/reaction/like", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: "userId=" + encodeURIComponent(userId) +
-                    "&chapterId=" + encodeURIComponent(chapterId) +
-                    "&action=like"
+                body: "chapterId=" + encodeURIComponent(chapterId)
             })
                 .then(response => response.json())
                 .then(data => {
@@ -397,6 +385,12 @@
 
 </script>
 <script>
+
+    document.querySelector("#chapterListBtn").addEventListener("click", () => {
+        document.querySelector("#chapterList").classList.toggle("hidden");
+    })
+
+
     document.querySelectorAll('.dropdown-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation(); // Ngăn việc click lan ra ngoài
@@ -442,8 +436,8 @@
 
 <c:if test="${not empty successReportMessage}">
     <script>
-        if(${successReportMessage}) {
-            toastr["success"](${successReportMessage})
+        if ("${successReportMessage}" != "") {
+            toastr["success"]("${successReportMessage}")
         }
     </script>
     <c:remove var="successReportMessage" scope="session"/>
@@ -487,18 +481,23 @@
     });
 
     function deleteComment(commentId, seriesId, chapterId) {
-        fetch(`comment`, {
+        fetch("${pageContext.request.contextPath}/comment/delete", {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
-                action: 'delete',
                 commentId,
                 seriesId,
                 chapterId
             })
         }).then(response => {
-            if (response.ok) location.reload();
+            if (response.ok) {
+                return response.json()
+            }
             else alert("Xóa thất bại!");
+        }).then(data => {
+            if(data.success) {
+                location.reload()
+            }
         });
     }
 </script>

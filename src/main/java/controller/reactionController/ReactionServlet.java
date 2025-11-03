@@ -51,12 +51,17 @@ public class ReactionServlet extends HttpServlet {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("Please login to rating series");
+            response.getWriter().write("""
+                    {
+                        "success": false,
+                        "message": "You must be logged in as a reader to rate a series."
+                    }
+                    """);
             return;
         }
         response.setContentType("application/json;charset=UTF-8");
         try {
-            int userId = Integer.parseInt(request.getParameter("userId"));
+            int userId = loginedUser.getUserId();
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             int ratingValue = Integer.parseInt(request.getParameter("rating"));
 
@@ -78,6 +83,7 @@ public class ReactionServlet extends HttpServlet {
             response.getWriter().write(json);
 
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             response.getWriter().write("{\"success\": false}");
         }
     }

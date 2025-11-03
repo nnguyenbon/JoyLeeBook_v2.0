@@ -219,7 +219,7 @@ public class ChapterServices {
         } else if (type.equals("previous")) {
             chapter = chapterDAO.getPreviousChapter(seriesId, chapterNumber);
         }
-        return String.format("chapter?action=detail&seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
+        return String.format("/chapter/detail?seriesId=%d&chapterId=%d", seriesId, chapter.getChapterId());
     }
 
     public int getTotalChaptersCount(String search, String status) throws SQLException {

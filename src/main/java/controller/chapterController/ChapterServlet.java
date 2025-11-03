@@ -45,7 +45,6 @@ public class ChapterServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
-        System.out.println(action + "123");
         switch (action) {
             case "/add" -> showAddChapter(request, response);
             case "/edit" -> showUpdateChapter(request, response);
