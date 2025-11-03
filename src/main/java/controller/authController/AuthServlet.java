@@ -81,6 +81,9 @@ public class AuthServlet extends HttpServlet {
                 String role = user.getRole();
                 switch (role) {
                     case "author":
+                        PointServices.trackLogin(user.getUserId());
+                        response.sendRedirect(request.getContextPath() + "/author");
+                        break;
                     case "reader":
                         PointServices.trackLogin(user.getUserId());
                         response.sendRedirect(request.getContextPath() + "/homepage");
