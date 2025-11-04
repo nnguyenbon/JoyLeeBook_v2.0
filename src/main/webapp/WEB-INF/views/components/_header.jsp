@@ -126,15 +126,6 @@ change this template use File | Settings | File Templates. --%>
                                 </c:otherwise>
                             </c:choose>
                         </div>
-                        <div class="max-h-96 overflow-y-auto">
-                            <c:choose>
-                                <c:when test="${not empty userNotifications}">
-                                </c:when>
-                                <c:otherwise>
-                                    <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
 
                         <hr class="my-2"/>
                         <div class="text-center">
