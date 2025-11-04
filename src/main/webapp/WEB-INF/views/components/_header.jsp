@@ -67,7 +67,8 @@ change this template use File | Settings | File Templates. --%>
             >
                 <div class="grid grid-cols-5 gap-3 text-sm">
                     <c:forEach var="category" items="${categories}">
-                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">
+                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}"
+                           class="inline-block">
                             <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">
                                     ${category.name}
                             </button>
@@ -146,11 +147,11 @@ change this template use File | Settings | File Templates. --%>
                 <button
                         class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
                 >
-          <a href="${pageContext.request.contextPath}/register-author"
-                  class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
-          >
-            Write Now
-          </a>
+                    <a href="${pageContext.request.contextPath}/register-author"
+                       class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
+                    >
+                        Write Now
+                    </a>
                 </button>
             </div>
             <div class="col-span-1 relative">
@@ -173,7 +174,7 @@ change this template use File | Settings | File Templates. --%>
                             <h4
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold"
                             >
-                                ${loginedUser.username}
+                                    ${loginedUser.username}
                             </h4>
                             <p class="text-[#195DA9] text-xs">${loginedUser.role}</p>
                         </div>
