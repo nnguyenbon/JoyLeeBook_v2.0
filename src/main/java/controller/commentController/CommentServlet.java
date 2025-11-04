@@ -18,10 +18,15 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+/**
+ * Servlet implementation class CommentServlet
+ * Handles creation, updating, and deletion of comments.
+ */
 @WebServlet("/comment/*")
 public class CommentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
+        //Determine action based on the path
         switch (action) {
             case "/create" -> createComment(request, response);
             case "/edit" -> updateComment(request, response);
@@ -30,9 +35,23 @@ public class CommentServlet extends HttpServlet {
 
     }
 
+    /**
+     * Handles GET requests (not used in this servlet).
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }
 
+    /**
+     * Handles the creation of a new comment.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void createComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : 0;
@@ -42,10 +61,12 @@ public class CommentServlet extends HttpServlet {
             String chapterIdParam = request.getParameter("chapterId");
             String seriesId = request.getParameter("seriesId");
 
+            //Validate input
             if (content == null || content.trim().isEmpty() || chapterIdParam == null) {
                 throw new IllegalArgumentException("No content for this comment");
             }
 
+            //Parse chapterId
             int chapterId = ValidationInput.isPositiveInteger(chapterIdParam) ? Integer.parseInt(chapterIdParam) : 0;
 
             Comment comment = new Comment();
@@ -67,6 +88,13 @@ public class CommentServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the deletion of a comment.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void deleteComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : 0;
@@ -85,6 +113,7 @@ public class CommentServlet extends HttpServlet {
             if (!success) {
                 throw new SQLException("Failed to delete comment in database.");
             }
+            //Send JSON response
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"success\": true, \"message\": \"Your comment has been successfully deleted\" }");
 //            response.sendRedirect(request.getContextPath()
@@ -95,6 +124,13 @@ public class CommentServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the updating of a comment.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void updateComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : 0;
