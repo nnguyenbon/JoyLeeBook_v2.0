@@ -83,7 +83,7 @@ public class BadgeDAO {
     private Badge mapResultSetToBadges(ResultSet rs) throws SQLException {
         Badge badge = new Badge();
         badge.setBadgeId(rs.getInt("badge_id"));
-        badge.setIconUrl("img/Badges/" + rs.getString("icon_url"));
+        badge.setIconUrl(rs.getString("icon_url"));
         badge.setName(rs.getString("name"));
         badge.setDescription(rs.getString("description"));
 

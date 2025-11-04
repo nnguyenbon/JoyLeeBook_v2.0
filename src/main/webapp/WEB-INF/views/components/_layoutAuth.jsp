@@ -13,7 +13,6 @@
     <title>
         ${pageTitle}
     </title>
-    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
@@ -62,6 +61,18 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/js/auth.js"></script>
+<script>
+    function togglePassword(iconElement, id) {
+        const inputElement = document.getElementById(id);
+        iconElement.classList.toggle('fa-eye-slash');
+        iconElement.classList.toggle('fa-eye');
+
+        if (inputElement.type === 'password') {
+            inputElement.type = 'text';
+        } else {
+            inputElement.type = 'password';
+        }
+    }
+</script>
 </body>
 </html>

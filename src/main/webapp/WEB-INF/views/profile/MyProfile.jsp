@@ -89,56 +89,21 @@
         <div class="border border-sky-600/50 rounded-xl p-2">
             <p class="text-primary font-semibold text-sky-600/50 text-3xl">Bio</p>
 
-            <c:choose>
-                <c:when test="${user.bio == null}">
-                    <p class="text-neutral-400">
-                        What is your bio?
-                    </p>
-                </c:when>
-                <c:otherwise>
-                    <p class="whitespace-pre-wrap text-neutral-400">${user.bio}</p>
-                </c:otherwise>
-            </c:choose>
+            <p class="whitespace-pre-wrap text-neutral-400">${user.bio}</p>
         </div>
 
         <div class="border border-sky-600/50 rounded-xl px-4 py-8 mt-8">
-            <ul class="grid grid-cols-3 gap-6">
+            <ul class="w-full flex flex-wrap gap-y-8">
                 <c:forEach var="badge" items="${badgeList}">
-                    <li class="flex flex-col items-center">
-                        <div class="w-32 h-32 mb-2 rounded-full overflow-hidden bg-gray-200 relative flex items-center justify-center flex-shrink-0">
-                            <c:choose>
-                                <c:when test="${badge.unlocked}">
-                                    <img
-                                            src="${badge.iconUrl}"
-                                            class="w-full h-full object-cover"
-                                            alt="${badge.name}"
-                                    />
-                                </c:when>
-                                <c:otherwise>
-                                    <img
-                                            src="${badge.iconUrl}"
-                                            class="w-full h-full object-cover grayscale opacity-50"
-                                            alt="${badge.name}"
-                                    />
-                                </c:otherwise>
-                            </c:choose>
-
-                            <!-- Lock icon -->
-                            <c:if test="${!badge.unlocked}">
-                                <div class="absolute inset-0 flex items-center justify-center bg-opacity-20">
-                                </div>
-                            </c:if>
+                    <li class="w-1/3 text-center">
+                        <div class="size-32 mx-auto mb-1 rounded-full overflow-hidden bg-transparent">
+                            <img
+                                    src="${badge.iconUrl}"
+                                    class="w-full h-full object-center"
+                                    alt="${user.username}"
+                            />
                         </div>
-
-                        <c:choose>
-                            <c:when test="${badge.unlocked}">
-                                <p class="text-sm text-gray-900 font-medium text-center">${badge.name}</p>
-                            </c:when>
-                            <c:otherwise>
-                                <p class="text-sm text-gray-400 text-center">${badge.name}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">Locked</p>
-                            </c:otherwise>
-                        </c:choose>
+                        <p>${badge.name}</p>
                     </li>
                 </c:forEach>
             </ul>
@@ -148,13 +113,13 @@
 
 <!-- dialog for edit profile -->
 <dialog closedby="any" id="editProfileDialog">
-    <form action="${pageContext.request.contextPath}/profile/edit" method="post">
+    <form action="${pageContext.request.contextPath}/profile?action=edit" method="post">
         <div class="min-w-3xl px-4">
             <p class="font-semibold text-xl">Edit Profile</p>
             <div class="flex py-6">
                 <div class="w-1/3 mx-auto text-center">
                     <div
-                            class="w-2/3 mx-auto aspect-square rounded-full overflow-hidden"
+                            class="size-28 mx-auto aspect-square rounded-full overflow-hidden"
                     >
                         <img
                                 src="${pageContext.request.contextPath}/img/shared/imgUser.png"
@@ -171,41 +136,37 @@
                         >
                         <input
                                 type="text"
-                                class="border border-neutral-400 w-full py-1 px-2 mt-1 rounded-lg"
+                                class="border border-neutral-400 w-full py-1 px-2 mt-1 mb-4 rounded-lg"
                                 name="username"
                                 id="username"
                                 value="${user.username}"
                         />
-                        <p id="username-error" class="text-xs text-red-700">
-                        </p>
                     </div>
 
                     <div>
-                        <label class="block text-primary text-sm mt-4" for="fullName"
+                        <label class="block text-primary text-sm" for="fullName"
                         >Full name</label
                         >
                         <input
                                 type="text"
-                                class="border border-neutral-400 w-full py-1 px-2 mt-1 rounded-lg"
+                                class="border border-neutral-400 w-full py-1 px-2 mt-1 mb-4 rounded-lg"
                                 name="fullName"
                                 id="fullName"
                                 value="${user.fullName}"
                         />
-                        <p id="fullname-error" class="text-xs text-red-700">
-                        </p>
                     </div>
                 </div>
             </div>
 
             <div>
-                <label for="bio" class="block text-primary font-semibold mt-4">Bio</label>
+                <label for="bio" class="block text-primary font-semibold">Bio</label>
                 <textarea
                         class="w-full min-h-64 border border-neutral-400 rounded-lg p-2"
                         name="bio"
                         id="bio"
                 >${user.bio}</textarea
                 >
-                <p class="text-xs text-red-700/70">Maximum 160 character length</p>
+                <p class="text-xs text-red-700/70">Maximum 160 characters length</p>
             </div>
 
             <div class="flex justify-center gap-4">
@@ -227,7 +188,7 @@
 </dialog>
 
 <dialog closedby="any" id="changePasswordDialog">
-    <form action="${pageContext.request.contextPath}/profile/changePassword" method="post">
+    <form action="${pageContext.request.contextPath}/profile?action=change"  method="post">
         <div class="min-w-md">
             <p class="font-semibold text-xl">Edit Profile</p>
 
@@ -245,7 +206,6 @@
                             class="fa-solid fa-eye absolute right-2 bottom-1/2 translate-y-1/2 cursor-pointer"
                             onclick="togglePassword(this, 'currentPass')"
                     ></i>
-                    </p>
                 </div>
             </div>
 
@@ -263,7 +223,6 @@
                             class="fa-solid fa-eye absolute right-2 bottom-1/2 translate-y-1/2 cursor-pointer"
                             onclick="togglePassword(this, 'newPassword')"
                     ></i>
-                    <p id="password-error" class="text-xs text-red-700"></p>
                 </div>
             </div>
 
@@ -304,11 +263,10 @@
 
 <c:if test="${not empty message}">
     <script>
-        toastr["success"]("${message}")
+        alert("${message}")
         <c:remove var="message" scope="session"/>
     </script>
 </c:if>
-
 
 <script>
     const editProfileButton = document.getElementById('editProfile');
@@ -347,117 +305,4 @@
     }
 
 
-    let debounceTimer;
-
-    function debounce(func, delay) {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(func, delay);
-    }
-
-
-    document.getElementById("username").addEventListener("input", function () {
-        const username = this.value.trim();
-        const errorElement = document.getElementById("username-error");
-        debounce(() => {
-
-            fetch("/register?type=username&value=" + encodeURIComponent(username))
-                .then(res => res.json())
-                .then(data => {
-                    console.log(data)
-                    if (data.valid) {
-                        errorElement.textContent = "";
-                    } else {
-                        errorElement.textContent = data.message;
-                    }
-                    validateEdit();
-                })
-                .catch(() => {
-                    errorElement.textContent = "";
-                    validateEdit();
-                });
-        }, 400);
-    });
-
-
-    document.getElementById("fullName").addEventListener("input", function () {
-        const username = this.value.trim();
-        const errorElement = document.getElementById("fullname-error");
-
-        debounce(() => {
-
-            fetch("/register?type=fullname&value=" + encodeURIComponent(username))
-                .then(res => res.json())
-                .then(data => {
-                    if (data.valid) {
-                        errorElement.textContent = "";
-                    } else {
-                        errorElement.textContent = data.message;
-                    }
-                    validateEdit();
-                })
-                .catch(() => {
-                    errorElement.textContent = "";
-                    validateEdit();
-                });
-        }, 400);
-    });
-    document.getElementById("newPassword").addEventListener("input", function () {
-        const email = this.value.trim();
-        const errorElement = document.getElementById("password-error");
-
-        debounce(() => {
-            fetch("/register?type=password&value=" + encodeURIComponent(email))
-                .then(res => res.json())
-                .then(data => {
-                    if (data.valid) {
-                        errorElement.textContent = "";
-                    } else {
-                        errorElement.textContent = data.message;
-                    }
-                    validateChange();
-                })
-                .catch(() => {
-                    errorElement.textContent = "";
-                    validateChange();
-                });
-        }, 400);
-    });
-
-    function validateEdit() {
-        const username = document.getElementById("username").value.trim();
-        const fullName = document.getElementById("fullName").value.trim();
-
-        const usernameError = document.getElementById("username-error").textContent.trim();
-        const fullnameError = document.getElementById("fullname-error").textContent.trim();
-        const editBtn = document.querySelector("#editProfileDialog button[type=submit]");
-
-        const isValid =
-            username &&
-            fullName &&
-            !usernameError &&
-            !fullnameError;
-
-        editBtn.disabled = !isValid;
-
-    }
-
-    function validateChange() {
-
-        const password = document.getElementById("newPassword").value.trim();
-        const confirmPassword = document.getElementById("confirmPassword").value.trim();
-
-        const passwordError = document.getElementById("password-error").textContent.trim();
-
-        const changeBtn = document.querySelector("#changePasswordDialog button[type=submit]");
-        const isValid = password &&
-            confirmPassword &&
-            password === confirmPassword &&
-            !passwordError;
-
-        changeBtn.disabled = !isValid;
-
-    }
-
-    document.getElementById("confirmPassword").addEventListener("input", validateForm);
-    document.addEventListener("DOMContentLoaded", validateForm);
 </script>

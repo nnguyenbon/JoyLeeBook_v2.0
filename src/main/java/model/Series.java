@@ -1,6 +1,6 @@
 package model;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 public class Series {
     private int seriesId;
@@ -8,18 +8,26 @@ public class Series {
     private String description;
     private String coverImgUrl;
     private String status;
-    private String approvalStatus;
-    private int totalChapters;
-    private List<Category> categoryList;
-    private String createdAt;
-    private String updatedAt;
-    private List<String> authorNameList;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private int authorId;
     private boolean isDeleted;
-    private int avgRating;
-    private int totalRating;
+    private int rating_points;
 
-    public Series() {
+    public Series(int seriesId, String title, String description, String coverImgUrl, String status, LocalDateTime createdAt, LocalDateTime updatedAt, int authorId, boolean isDeleted, int rating_points) {
+        this.seriesId = seriesId;
+        this.title = title;
+        this.description = description;
+        this.coverImgUrl = coverImgUrl;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.authorId = authorId;
+        this.isDeleted = isDeleted;
+        this.rating_points = rating_points;
     }
+
+    public Series() {}
 
     public int getSeriesId() {
         return seriesId;
@@ -61,20 +69,28 @@ public class Series {
         this.status = status;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(int authorId) {
+        this.authorId = authorId;
     }
 
     public boolean isDeleted() {
@@ -85,51 +101,11 @@ public class Series {
         isDeleted = deleted;
     }
 
-    public int getAvgRating() {
-        return avgRating;
+    public int getRating_points() {
+        return rating_points;
     }
 
-    public void setAvgRating(int avgRating) {
-        this.avgRating = avgRating;
-    }
-
-    public int getTotalRating() {
-        return totalRating;
-    }
-
-    public void setTotalRating(int totalRating) {
-        this.totalRating = totalRating;
-    }
-
-    public int getTotalChapters() {
-        return totalChapters;
-    }
-
-    public void setTotalChapters(int totalChapters) {
-        this.totalChapters = totalChapters;
-    }
-
-    public List<Category> getCategoryList() {
-        return categoryList;
-    }
-
-    public void setCategoryList(List<Category> categoryList) {
-        this.categoryList = categoryList;
-    }
-
-    public List<String> getAuthorNameList() {
-        return authorNameList;
-    }
-
-    public void setAuthorNameList(List<String> authorNameList) {
-        this.authorNameList = authorNameList;
-    }
-
-    public String getApprovalStatus() {
-        return approvalStatus;
-    }
-
-    public void setApprovalStatus(String approvalStatus) {
-        this.approvalStatus = approvalStatus;
+    public void setRating_points(int rating_points) {
+        this.rating_points = rating_points;
     }
 }

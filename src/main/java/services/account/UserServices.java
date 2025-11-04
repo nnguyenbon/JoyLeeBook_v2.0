@@ -3,7 +3,6 @@ package services.account;
 import dao.UserDAO;
 import db.DBConnection;
 import model.User;
-import services.general.FormatServices;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -20,9 +19,7 @@ public class UserServices {
     }
 
     public User getUser(int userId) throws SQLException {
-        User user = userDAO.findById(userId);
-        user.setRole(FormatServices.formatString(user.getRole()));
-        return user;
+        return userDAO.findById(userId);
     }
 
     public boolean editProfile(User user) throws SQLException {
