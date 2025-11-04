@@ -6,9 +6,9 @@ import dao.LikeDAO;
 import dao.RatingDAO;
 import dao.SeriesDAO;
 import dto.author.AuthorItemDTO;
-import dto.series.SeriesInfoDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import model.Chapter;
+import model.Series;
 import model.User;
 import dao.UserDAO;
 
@@ -24,33 +24,33 @@ public class AuthorServices {
         this.connection = DBConnection.getConnection();
     }
 
-    public void extractDataFromAuthorId(List<SeriesInfoDTO> seriesList, HttpServletRequest request) throws SQLException {
-        try {
-            LikeDAO likesDAO = new LikeDAO(connection);
-            RatingDAO ratingDAO = new RatingDAO(connection);
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            int totalLike = 0;
-            double avgRating;
-            int totalRating = 0;
-            int ratingCount = 0;
-            for (SeriesInfoDTO series : seriesList) {
-                for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
-                    totalLike += likesDAO.countByChapter(chapter.getChapterId());
-                }
-                totalRating += ratingDAO.getRatingSumBySeriesId(series.getSeriesId());
-                ratingCount += ratingDAO.getRatingCount(series.getSeriesId());
-            }
-            if (ratingCount > 0) {
-                avgRating = (double) Math.round(((double) totalRating / ratingCount) * 10) / 10;
-            } else {
-                avgRating = 0.0;
-            }
-            request.setAttribute("totalLike", totalLike);
-            request.setAttribute("avgRating", avgRating);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public void extractDataFromAuthorId(List<Series> seriesList, HttpServletRequest request) throws SQLException {
+//        try {
+//            LikeDAO likesDAO = new LikeDAO(connection);
+//            RatingDAO ratingDAO = new RatingDAO(connection);
+//            ChapterDAO chapterDAO = new ChapterDAO(connection);
+//            int totalLike = 0;
+//            double avgRating;
+//            int totalRating = 0;
+//            int ratingCount = 0;
+//            for (Series series : seriesList) {
+//                for (Chapter chapter : chapterDAO.findChapterBySeriesId(series.getSeriesId())) {
+//                    totalLike += likesDAO.countByChapter(chapter.getChapterId());
+//                }
+//                totalRating += ratingDAO.getRatingSumBySeriesId(series.getSeriesId());
+//                ratingCount += ratingDAO.getRatingCount(series.getSeriesId());
+//            }
+//            if (ratingCount > 0) {
+//                avgRating = (double) Math.round(((double) totalRating / ratingCount) * 10) / 10;
+//            } else {
+//                avgRating = 0.0;
+//            }
+//            request.setAttribute("totalLike", totalLike);
+//            request.setAttribute("avgRating", avgRating);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public AuthorItemDTO buildAuthorItemDTO(User author) throws SQLException {
         SeriesDAO seriesDAO = new SeriesDAO(connection);
@@ -72,5 +72,10 @@ public class AuthorServices {
     public boolean registerAsAuthor(User user) throws SQLException, ClassNotFoundException {
         UserDAO userDAO = new UserDAO(connection);
         return userDAO.updateUserRoleToAuthor(user.getUserId());
+    }
+
+    public boolean isAuthor(String email) throws SQLException {
+        UserDAO userDAO = new UserDAO(connection);
+        return userDAO.isAuthor(email);
     }
 }

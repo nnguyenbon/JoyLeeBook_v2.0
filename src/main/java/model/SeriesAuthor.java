@@ -6,16 +6,7 @@ import java.time.LocalDateTime;
 public class SeriesAuthor {
     private int seriesId;
     private int authorId;
-    private LocalDateTime addedAt;
-
-    public SeriesAuthor(int seriesId, int authorId, LocalDateTime addedAt) {
-        this.seriesId = seriesId;
-        this.authorId = authorId;
-        this.addedAt = addedAt;
-    }
-
-    public SeriesAuthor() {
-    }
+    private boolean isOwner;
 
     public int getSeriesId() {
         return seriesId;
@@ -33,11 +24,11 @@ public class SeriesAuthor {
         this.authorId = authorId;
     }
 
-    public LocalDateTime getAddedAt() {
-        return addedAt;
+    public boolean isOwner() {
+        return isOwner;
     }
 
-    public void setAddedAt(LocalDateTime addedAt) {
-        this.addedAt = addedAt;
+    public void setOwner(boolean owner) {
+        isOwner = owner;
     }
 }

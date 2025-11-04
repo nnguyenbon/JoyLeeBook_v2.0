@@ -1,9 +1,8 @@
 package dao;
 
-import db.DBConnection;
+import model.SeriesAuthor;
 import model.User;
-import org.mindrot.jbcrypt.BCrypt;
-import utils.HashPwd;
+import utils.AuthenticationUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -43,7 +42,39 @@ public class UserDAO {
         }
         return null;
     }
+    public List<String> getAuthorNameList(List<SeriesAuthor> seriesAuthorList) throws SQLException {
+        List<String> authorNames = new ArrayList<>();
+        String sql = "SELECT username FROM users WHERE is_deleted = 0 AND user_id = ?";
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (SeriesAuthor sa : seriesAuthorList) {
+                stmt.setInt(1, sa.getAuthorId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        authorNames.add(rs.getString("username"));
+                    }
+                }
+            }
+        }
+
+        return authorNames;
+    }
+
+    public boolean isAuthor(String email) throws SQLException {
+        String sql = "SELECT role FROM users WHERE email = ? AND is_deleted = 0";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String role =  rs.getString("role");
+                    if (role.equals("author")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
     // Thêm user mới
     public boolean insert(User user) throws SQLException {
         String sql = """
@@ -99,7 +130,7 @@ public class UserDAO {
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, HashPwd.hashPwd(password));
+            stmt.setString(1, AuthenticationUtils.hashPwd(password));
             stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now())); // cập nhật thời gian sửa đổi
             stmt.setInt(3, userId);
             return stmt.executeUpdate() > 0;
@@ -172,7 +203,7 @@ public class UserDAO {
      * @throws ClassNotFoundException If the JDBC driver class is not found.
      */
     public boolean updateUserRoleToAuthor(int userId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE Users SET role = 'author' WHERE id = ?";
+        String sql = "UPDATE users SET role = 'author' WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             int rowsAffected = ps.executeUpdate();
@@ -200,14 +231,14 @@ public class UserDAO {
     }
 
     public User findByUserLogin(String username, String password) throws SQLException {
-        String test = HashPwd.hashPwd(password);
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ? OR email = ? ";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
+            ps.setString(2, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hashedPasswordFromDB = rs.getString("password_hash");
-                    if (HashPwd.checkPwd(password, hashedPasswordFromDB)) {
+                    if (AuthenticationUtils.checkPwd(password, hashedPasswordFromDB)) {
                         return mapResultSetToUser(rs);
                     } else {
                         return null;
@@ -218,11 +249,10 @@ public class UserDAO {
         return null;
     }
 
-    public boolean findByUsernameOrEmail(String username, String email) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ? OR email = ?";
+    public boolean checkByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return true;
@@ -232,6 +262,28 @@ public class UserDAO {
         return false;
     }
 
+    public boolean checkByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean updatePoint (int userId, int point) throws SQLException {
+        String sql = "UPDATE users SET points = points + ? WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, point);
+            ps.setInt(2, userId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
     // Hàm map dữ liệu từ ResultSet sang đối tượng User
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
@@ -336,5 +388,47 @@ public class UserDAO {
         } finally {
             conn.setAutoCommit(true);
         }
+    }
+
+    public int countActiveUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countActiveAuthors() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'active' AND role='author'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countBannedUsers() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE is_deleted = 0 AND status = 'banned'";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
