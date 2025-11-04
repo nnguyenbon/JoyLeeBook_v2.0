@@ -236,7 +236,6 @@ public class SeriesDAO {
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(6, series.getSeriesId());
-            ps.setInt(7, series.getAvgRating());
             return ps.executeUpdate() > 0;
         }
     }

@@ -2,9 +2,7 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
-import dto.chapter.ChapterDetailDTO;
 import dto.PaginationRequest;
-import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,7 +20,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -474,6 +471,7 @@ public class ChapterServlet extends HttpServlet {
                 return;
             }
 
+            // check permission
             int seriesId = chapter.getSeriesId();
             if (new dao.SeriesAuthorDAO(conn).isUserAuthorOfSeries(userId, seriesId)) {
                 request.setAttribute("error", "You do not have permission to edit this chapter.");
