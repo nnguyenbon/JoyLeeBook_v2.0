@@ -45,6 +45,7 @@ public class SeriesServlet extends HttpServlet {
             case "/add" -> showAddSeriesForm(request, response);
             case "/edit" -> showEditSeriesForm(request, response);
             case "/detail" -> viewSeriesDetail(request, response);
+            case "/delete" -> deleteSeries(request, response);
             default -> viewSeriesList(request, response);
         }
     }
@@ -67,7 +68,6 @@ public class SeriesServlet extends HttpServlet {
             case "/insert" -> insertSeries(request, response);
             case "/update" -> updateSeries(request, response);
             case "/approve" -> approveSeries(request, response);
-            case "/delete" -> deleteSeries(request, response);
             default -> doGet(request, response);
         }
     }
@@ -91,6 +91,7 @@ public class SeriesServlet extends HttpServlet {
             List<Category> categories = categoryDAO.getAll();
 
             request.setAttribute("categories", categories);
+            request.setAttribute("action", "insert");
             request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("activePage", "Add Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
@@ -330,10 +331,14 @@ public class SeriesServlet extends HttpServlet {
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
+            series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
 
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
-            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
+            request.setAttribute("action", "update");
+
+            //            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
+            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("activePage", "Edit Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
@@ -412,7 +417,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error updating series", e);
@@ -500,7 +505,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error deleting series", e);

@@ -228,7 +228,9 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean updateSeries(Series series) throws SQLException {
-        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ? AND is_deleted = false";
+        String sql = "UPDATE series SET title = ?, description = ?, " +
+                "cover_image_url = ?, status = ?, updated_at = ? " +
+                "WHERE series_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, series.getTitle());
             ps.setString(2, series.getDescription());
@@ -236,7 +238,6 @@ public class SeriesDAO {
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(6, series.getSeriesId());
-            ps.setInt(7, series.getAvgRating());
             return ps.executeUpdate() > 0;
         }
     }
@@ -249,7 +250,7 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean deleteSeries(int seriesId) throws SQLException {
-        String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
+        String sql = "UPDATE series SET is_deleted = 1, updated_at = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(2, seriesId);

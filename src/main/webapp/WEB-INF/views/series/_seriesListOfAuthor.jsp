@@ -54,16 +54,16 @@
 
                     <div
                             class="dropdown-menu hidden absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                        <button
+                        <a href="${pageContext.request.contextPath}/series/edit?seriesId=${mySeries.seriesId}"
                                 class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                             <i class="fa-regular fa-pen-to-square"></i>
                             Edit
-                        </button>
-                        <button
+                        </a>
+                        <a href="${pageContext.request.contextPath}/series/delete?seriesId=${mySeries.seriesId}"
                                 class="block w-full text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                             <i class="fa-regular fa-trash-can"></i>
                             Delete
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>

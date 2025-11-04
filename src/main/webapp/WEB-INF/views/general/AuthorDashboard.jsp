@@ -82,27 +82,61 @@
             </a>
         </div>
     </div>
-    <div id="seriesListContainer" class="col-span-12"></div>
+    <div id="seriesListContainer" class="col-span-12">
+
+    </div>
 
 </main>
 
 <script>
-    document.querySelectorAll('.dropdown-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Ngăn việc click lan ra ngoài
-            const menu = btn.nextElementSibling; // Tìm menu liền sau button
-            document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+    // document.querySelectorAll('.dropdown-btn').forEach(btn => {
+    //     btn.addEventListener('click', (e) => {
+    //         e.stopPropagation(); // Ngăn việc click lan ra ngoài
+    //         const menu = btn.nextElementSibling; // Tìm menu liền sau button
+    //         document.querySelectorAll('.dropdown-menu').forEach(m => {
+    //             if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+    //         });
+    //         console.log(menu)
+    //         menu.classList.toggle('hidden');
+    //     });
+    // });
+    //
+    // window.addEventListener('click', () => {
+    //     document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+    // });
+    //
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadSeriesList();
+
+        function loadSeriesList() {
+            fetch("${pageContext.request.contextPath}/series/list")
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById("seriesListContainer").innerHTML = html;
+                    initDropdowns();
+                })
+                .catch(err => console.error("Error loading series list:", err));
+        }
+
+        function initDropdowns() {
+            document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Ngăn việc click lan ra ngoài
+                    const menu = btn.nextElementSibling; // Tìm menu liền sau button
+                    document.querySelectorAll('.dropdown-menu').forEach(m => {
+                        if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+                    });
+                    menu.classList.toggle('hidden');
+                });
             });
-            console.log(menu)
-            menu.classList.toggle('hidden');
-        });
-    });
 
             window.addEventListener('click', () => {
                 document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
             });
         }
     })
+
 </script>
 
