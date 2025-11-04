@@ -1,8 +1,6 @@
 package dao;
 
 import model.Staff;
-import utils.AuthenticationUtils;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -105,23 +103,6 @@ public class StaffDAO {
         }
     }
 
-    public Staff findByUserLogin(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM staffs WHERE username = ? ";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String hashedPasswordFromDB = rs.getString("password_hash");
-                    if (AuthenticationUtils.checkPwd(password, hashedPasswordFromDB)) {
-                        return mapResultSetToStaff(rs);
-                    } else {
-                        return null;
-                    }
-                }
-            }
-        }
-        return null;
-    }
     private Staff mapResultSetToStaff(ResultSet rs) throws SQLException {
         Staff staff = new Staff();
         staff.setStaffId(rs.getInt("staff_id"));

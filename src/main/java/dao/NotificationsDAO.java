@@ -62,7 +62,7 @@ public class NotificationsDAO {
     }
 
     // Thêm thông báo mới
-    public boolean insertNotification(Notification noti) throws SQLException {
+    public boolean insert(Notification noti) throws SQLException {
         String sql = "INSERT INTO notifications (user_id, type, title, message, is_read, url_redirect, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -70,7 +70,7 @@ public class NotificationsDAO {
             stmt.setString(2, noti.getType());
             stmt.setString(3, noti.getTitle());
             stmt.setString(4, noti.getMessage());
-            stmt.setBoolean(5, false);
+            stmt.setBoolean(5, noti.isRead());
             stmt.setString(6, noti.getUrlRedirect());
             stmt.setTimestamp(7, Timestamp.valueOf(
                     noti.getCreatedAt() != null ? noti.getCreatedAt() : LocalDateTime.now()
@@ -111,79 +111,6 @@ public class NotificationsDAO {
         String sql = "DELETE FROM notifications WHERE notification_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, notificationId);
-            return stmt.executeUpdate() > 0;
-        }
-    }
-
-    public List<Notification> findRecentByUserId(int userId, int limit) throws SQLException {
-        List<Notification> list = new ArrayList<>();
-        String sql = "SELECT TOP (?) * FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, limit);
-            stmt.setInt(2, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToNotification(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    public int getUnreadCountByUserId(int userId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        }
-        return 0;
-    }
-
-    public int getTotalCountByUserId(int userId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM notifications WHERE user_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        }
-        return 0;
-    }
-
-    public List<Notification> getPaginatedByUserId(int userId, int page, int size) throws SQLException {
-        List<Notification> list = new ArrayList<>();
-
-        int offset = (page - 1) * size;
-
-        String sql = "SELECT * FROM notifications WHERE user_id = ? " +
-                "ORDER BY created_at DESC " +
-                "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.setInt(2, offset);
-            stmt.setInt(3, size);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToNotification(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    public boolean markAllAsRead(int userId) throws SQLException {
-        String sql = "UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
             return stmt.executeUpdate() > 0;
         }
     }

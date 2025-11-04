@@ -10,7 +10,6 @@ public class Badge {
     private LocalDateTime createdAt;
     private String requirementType;
     private String requirementValue;
-    private boolean isUnlocked;
 
     public Badge(int badgeId, String name, String iconUrl, String description, LocalDateTime createdAt, String requirementType, String requirementValue) {
         this.badgeId = badgeId;
@@ -79,13 +78,5 @@ public class Badge {
 
     public void setRequirementValue(String requirementValue) {
         this.requirementValue = requirementValue;
-    }
-
-    public boolean getUnlocked() {
-        return isUnlocked;
-    }
-
-    public void setUnlocked(boolean unlocked) {
-        isUnlocked = unlocked;
     }
 }

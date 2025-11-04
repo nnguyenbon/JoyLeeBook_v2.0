@@ -9,8 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
-import services.general.PointServices;
-import utils.AuthenticationUtils;
+import utils.LoginUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -96,9 +95,8 @@ public class GoogleCallbackServlet extends HttpServlet {
             // You will need to modify your UserDAO to handle this method
             int userId = dao.upsertGoogleUser(username, fullName, email, googleId);
 
-            User user = dao.findById(userId);
-            AuthenticationUtils.storeLoginedUser(req.getSession(), user);
-            PointServices.trackLogin(user.getUserId());
+            User u = dao.findById(userId);
+            LoginUtils.storeLoginedUser(req.getSession(), u);
             resp.sendRedirect(req.getContextPath() + "/");
         } catch (SQLException | InterruptedException e) {
             throw new ServletException(e);

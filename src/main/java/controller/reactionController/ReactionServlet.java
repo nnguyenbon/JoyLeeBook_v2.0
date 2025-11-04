@@ -1,74 +1,63 @@
 package controller.reactionController;
 
-import dao.LikeDAO;
-import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Like;
 import model.Rating;
 import model.User;
-import services.general.PointServices;
+import services.chapter.LikeServices;
 import services.series.RatingSeriesService;
-import utils.AuthenticationUtils;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 
-@WebServlet("/reaction/*")
+@WebServlet("/reaction")
 public class ReactionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getPathInfo();
+        String action = request.getParameter("action");
         switch (action) {
-            case "/like":
-                likeChapter(request, response);
+            case "like":
+                likeChapter(request,response);
                 break;
-            case "/rate":
-                ratingSeries(request, response);
+            case "rate":
+                ratingSeries(request,response);
                 break;
         }
     }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    }
-
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        User user = (User) request.getSession().getAttribute("loginedUser");
         try {
             try {
-                int userId = loginedUser != null ? loginedUser.getUserId() : 0;
+                int userId = user != null ? user.getUserId() : 0;
                 int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-                int newLikeCount = likeChapter(userId, chapterId);
+                LikeServices likeService = new LikeServices();
+                int newLikeCount = likeService.likeChapter(userId, chapterId);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
-            } catch (Exception e) {
+            }catch (Exception e) {
+//                System.out.println("series " + e.getMessage());
                 request.setAttribute("error", "Could not insert like data. " + e.getMessage());
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
+//            System.out.println("number " + e.getMessage());
             request.setAttribute("error", "Invalid userId/chapterId.");
             request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
         }
     }
 
     private void ratingSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
+        User user = (User) request.getSession().getAttribute("loginedUser");
+        if (user == null || user.getRole() == null || !user.getRole().equals("reader")) {
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("""
-                    {
-                        "success": false,
-                        "message": "You must be logged in as a reader to rate a series."
-                    }
-                    """);
+            response.getWriter().write("Please login to rating series");
             return;
         }
         response.setContentType("application/json;charset=UTF-8");
         try {
-            int userId = loginedUser.getUserId();
+            int userId = Integer.parseInt(request.getParameter("userId"));
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             int ratingValue = Integer.parseInt(request.getParameter("rating"));
 
@@ -90,28 +79,8 @@ public class ReactionServlet extends HttpServlet {
             response.getWriter().write(json);
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             response.getWriter().write("{\"success\": false}");
         }
     }
-
-    public int likeChapter(int userId, int chapterId) throws SQLException {
-        try (Connection connection = DBConnection.getConnection()
-        ) {
-            LikeDAO likeDAO = new LikeDAO(connection);
-            Like like = new Like();
-            like.setUserId(userId);
-            like.setChapterId(chapterId);
-            if (likeDAO.isLikedByUser(like.getUserId(), like.getChapterId())) {
-                return likeDAO.countByChapter(like.getChapterId());
-            }
-            likeDAO.insert(like);
-            PointServices.trackAction(userId, 2, "Like new chapter", "like", likeDAO.findById(userId, chapterId).getChapterId());
-            return likeDAO.countByChapter(like.getChapterId());
-        } catch (Exception exception) {
-
-        }
-        return 0;
-    }
-
 }
