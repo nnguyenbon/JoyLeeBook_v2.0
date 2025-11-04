@@ -15,6 +15,10 @@ public class RatingSeriesService {
         Connection connection = DBConnection.getConnection();
         this.ratingDAO = new RatingDAO(connection);
     }
+    public double getAverageRatingOfAuthor(int userId) throws SQLException {
+        double rate = ratingDAO.getAverageRating(userId);
+        return (double) Math.round(rate * 10) / 10;
+    }
 
     public boolean saveOrUpdateRating(Rating rating) throws SQLException {
         if (ratingDAO.getRatingValueByUserId(rating)) {
@@ -27,7 +31,8 @@ public class RatingSeriesService {
     }
 
     public double getAverageRating(int seriesId) throws SQLException {
-        return ratingDAO.getAverageRating(seriesId);
+        double rate = ratingDAO.getAverageRating(seriesId);
+        return (double) Math.round(rate * 10) / 10;
     }
 
     public int getTotalRatings(int seriesId) throws SQLException {

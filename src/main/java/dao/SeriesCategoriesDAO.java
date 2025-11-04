@@ -74,7 +74,7 @@ public class SeriesCategoriesDAO {
      * @return true if inserted successfully.
      * @throws SQLException if any SQL error occurs.
      */
-    public boolean insert( SeriesCategories sc) throws SQLException {
+    public boolean insertSeriesCategory( SeriesCategories sc) throws SQLException {
         String sql = "INSERT INTO series_categories (series_id, category_id) VALUES (?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

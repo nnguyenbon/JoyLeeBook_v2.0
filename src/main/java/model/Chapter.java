@@ -6,26 +6,19 @@ public class Chapter {
     private int chapterId;
     private int chapterNumber;
     private int seriesId;
-    private int userId;
+    private int authorId;
     private String title;
     private String content;
     private String status;
+    private String approvalStatus;
     private boolean isDeleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
-    public Chapter(int chapterId, int chapterNumber, int seriesId, int userId, String title, String content, String status, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.chapterId = chapterId;
-        this.chapterNumber = chapterNumber;
-        this.seriesId = seriesId;
-        this.userId = userId;
-        this.title = title;
-        this.content = content;
-        this.status = status;
-        this.isDeleted = isDeleted;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    // extra field
+    private String authorName;
+    private String seriesTitle;
+
 
     public Chapter() {}
 
@@ -61,12 +54,12 @@ public class Chapter {
         this.seriesId = seriesId;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getAuthorId() {
+        return authorId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setAuthorId(int authorId) {
+        this.authorId = authorId;
     }
 
     public String getTitle() {
@@ -93,19 +86,43 @@ public class Chapter {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getApprovalStatus() {
+        return approvalStatus;
+    }
+
+    public void setApprovalStatus(String approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getSeriesTitle() {
+        return seriesTitle;
+    }
+
+    public void setSeriesTitle(String seriesTitle) {
+        this.seriesTitle = seriesTitle;
     }
 }

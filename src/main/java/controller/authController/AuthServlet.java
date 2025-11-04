@@ -6,13 +6,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Staff;
 import model.User;
-import services.account.UserServices;
+import org.mindrot.jbcrypt.BCrypt;
 import services.auth.HandleOTPServices;
 import services.auth.LoginServices;
 import services.auth.RegisterServices;
 import services.general.PointServices;
-import utils.LoginUtils;
+import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -74,23 +75,28 @@ public class AuthServlet extends HttpServlet {
 
         try {
             LoginServices loginServices = new LoginServices();
-            User user = loginServices.checkLogin(userName, password);
+            User user = loginServices.checkLoginUser(userName, password);
+            Staff staff = loginServices.checkLoginStaff(userName, password);
             if (user != null) {
-                LoginUtils.storeLoginedUser(request.getSession(), user);
+                AuthenticationUtils.storeLoginedUser(request.getSession(), user);
                 String role = user.getRole();
                 switch (role) {
-                    case "admin":
-                    case "staff":
-                        response.sendRedirect(request.getContextPath() + "/staff");
-                        break;
                     case "author":
                     case "reader":
                         PointServices.trackLogin(user.getUserId());
                         response.sendRedirect(request.getContextPath() + "/homepage");
                         break;
                 }
-
-            } else {
+            } else if (staff != null){
+                AuthenticationUtils.storeLoginedUser(request.getSession(), staff);
+                String role = staff.getRole();
+                switch (role) {
+                    case "admin":
+                    case "staff":
+                        response.sendRedirect(request.getContextPath() + "/staff");
+                        break;
+                }
+            }else {
                 request.setAttribute("error", "Invalid username or password.");
                 request.setAttribute("pageTitle", "Login");
                 request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
@@ -130,7 +136,7 @@ public class AuthServlet extends HttpServlet {
             System.out.println("Register successful.");
             session.removeAttribute("register");
             session.removeAttribute("otp");
-            LoginUtils.storeLoginedUser(session, user);
+            AuthenticationUtils.storeLoginedUser(session, user);
             response.sendRedirect(request.getContextPath() + "/login");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -289,4 +295,8 @@ public class AuthServlet extends HttpServlet {
         }
         return false;
     }
+
+
 }
+
+

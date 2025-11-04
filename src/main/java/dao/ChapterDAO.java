@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import dao.helper.PaginationDAOHelper;
+import dto.PaginationRequest;
 import model.Chapter;
 import dto.chapter.ChapterItemDTO;
 import services.general.FormatServices;
@@ -49,6 +51,78 @@ public class ChapterDAO {
         return chapters;
     }
 
+    public int countChapterByUserId(int userId, String status) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0 ";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+    public List<Chapter> getAll(String search, String status, PaginationRequest paginationRequest) throws SQLException {
+        List<Chapter> chapters = new ArrayList<>();
+        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
+
+        StringBuilder sql = buildChapterBaseQuery(false, search, status);
+        sql.append(paginationDAOHelper.buildPaginationClause());
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setChapterQueryParameters(stmt, search, status);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    chapters.add(extractChapterFromResultSet(rs));
+                }
+            }
+        }
+        return chapters;
+    }
+    public int getTotalChaptersCount(String search, String approvalStatus) throws SQLException {
+        StringBuilder sql = buildChapterBaseQuery(true, search, approvalStatus);
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            setChapterQueryParameters(stmt, search, approvalStatus);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
+
+    private StringBuilder buildChapterBaseQuery(boolean isCount, String search, String approvalStatus) throws SQLException {
+        StringBuilder sql = new StringBuilder();
+
+        if (isCount) {
+            sql.append("SELECT COUNT(DISTINCT chapter_id) AS total FROM chapters WHERE is_deleted = 0");
+        } else {
+            sql.append("SELECT DISTINCT * FROM chapters WHERE is_deleted = 0");
+        }
+
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+            sql.append(" AND approval_status = ?");
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND title LIKE ?");
+        }
+
+        return sql;
+    }
+
+
+    private int setChapterQueryParameters(PreparedStatement stmt, String search, String approvalStatus) throws SQLException {
+        int index = 1;
+
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+            stmt.setString(index++, approvalStatus);
+        }
+
+        if (search != null && !search.trim().isEmpty()) {
+            stmt.setString(index, "%" + search + "%");
+        }
+
+        return index;
+    }
     /**
      * Find a chapter by its ID.
      *
@@ -68,7 +142,33 @@ public class ChapterDAO {
             }
         }
         return null;
+    } /**
+     * Find a chapter by its ID.
+     *
+     * @param chapterId the ID of the chapter
+     * @return the Chapter object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Chapter findById(int chapterId, String approval_status) throws SQLException {
+        String sql = "SELECT * FROM chapters WHERE chapter_id = ? AND is_deleted = 0";
+
+        if (approval_status != null && !approval_status.trim().isEmpty()) {
+            sql += " AND approval_status = ?";
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            if (approval_status != null && !approval_status.trim().isEmpty()) {
+                ps.setString(2, approval_status);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return  extractChapterFromResultSet(rs);
+                }
+            }
+        }
+        return null;
     }
+
 
     /**
      * Insert a new chapter into the database.
@@ -80,7 +180,7 @@ public class ChapterDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean insert(Chapter chapter, int seriesId, int authorId) throws SQLException {
-        String sql = "INSERT INTO chapters " + "(series_id, author_id, chapter_number, title, content, status, is_deleted, created_at, updated_at, user_id) "
+        String sql = "INSERT INTO chapters " + "(series_id, user_id, chapter_number, title, content, status, approval_status, is_deleted, created_at, updated_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -92,10 +192,10 @@ public class ChapterDAO {
             ps.setString(4, chapter.getTitle());
             ps.setString(5, chapter.getContent());
             ps.setString(6, chapter.getStatus());
-            ps.setBoolean(7, false);   // SQL Server BIT <- 0
-            ps.setTimestamp(8, now);
+            ps.setString(7, chapter.getApprovalStatus());
+            ps.setBoolean(8, false);   // SQL Server BIT <- 0
             ps.setTimestamp(9, now);
-            ps.setInt(10, chapter.getUserId());
+            ps.setTimestamp(10, now);
 
             int affected = ps.executeUpdate();
             if (affected > 0) {
@@ -521,10 +621,8 @@ public class ChapterDAO {
         c.setContent(rs.getString("content"));
         c.setStatus(rs.getString("status"));
         c.setDeleted(rs.getBoolean("is_deleted"));
-        Timestamp cr = rs.getTimestamp("created_at");
-        Timestamp up = rs.getTimestamp("updated_at");
-        c.setCreatedAt(cr != null ? cr.toLocalDateTime() : LocalDateTime.now());
-        c.setUpdatedAt(up != null ? up.toLocalDateTime() : LocalDateTime.now());
+        c.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        c.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return c;
     }
 
@@ -568,7 +666,7 @@ public class ChapterDAO {
     }
 
     public int countChapterBySeriesId(int seriesId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0";
+        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0 AND status = 'published' AND approval_status = 'approved'";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -577,12 +675,18 @@ public class ChapterDAO {
         }
     }
 
-
-    public List<Chapter> findChapterBySeriesId(int seriesId) throws SQLException {
-        String sql = "SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0";
+    public List<Chapter> findChapterBySeriesId(int seriesId, String approvalStatus) throws SQLException {
         List<Chapter> chapterList = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0 AND status = 'published'");
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+            sql.append(" AND approval_status = ? ");
+        }
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
+            if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+                ps.setString(2, approvalStatus);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                 chapterList.add(extractChapterFromResultSet(rs));
@@ -602,7 +706,7 @@ public class ChapterDAO {
      * @throws SQLException If a database access error occurs.
      */
     public Chapter getNextChapter(int seriesId, int chapterNumber) throws SQLException {
-        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number > ? ORDER BY chapter_number ";
+        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number > ? AND status = 'published' AND approval_status = 'approved' AND is_deleted = 0 ORDER BY chapter_number ";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             ps.setInt(2, chapterNumber);
@@ -625,7 +729,7 @@ public class ChapterDAO {
      * @throws SQLException If a database access error occurs.
      */
     public Chapter getPreviousChapter(int seriesId, int chapterNumber) throws SQLException {
-        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number < ? ORDER BY chapter_number DESC";
+        String sql = "SELECT TOP 1 * FROM Chapters WHERE series_id = ? AND chapter_number < ? AND status = 'published' AND approval_status = 'approved' AND is_deleted = 0 ORDER BY chapter_number DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             ps.setInt(2, chapterNumber);
@@ -646,7 +750,7 @@ public class ChapterDAO {
      * @return number of the latest chapter. If no chapters exist, returns 0.
      */
     public int getFirstChapterNumber(int seriesId) throws SQLException {
-        String sql = "SELECT MIN(chapter_id) FROM chapters WHERE series_id = ?";
+        String sql = "SELECT TOP 1 chapter_id  FROM chapters WHERE series_id = ?  AND status = 'published' AND approval_status = 'approved' AND is_deleted = 0 ORDER BY chapter_number ASC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -666,16 +770,49 @@ public class ChapterDAO {
      */
     private Chapter extractChapterFromResultSet(ResultSet rs) throws SQLException {
         Chapter chapter = new Chapter();
-        chapter.setSeriesId(rs.getInt("series_id"));
         chapter.setChapterId(rs.getInt("chapter_id"));
+        chapter.setSeriesId(rs.getInt("series_id"));
+        chapter.setAuthorId(rs.getInt("user_id"));
         chapter.setChapterNumber(rs.getInt("chapter_number"));
-        chapter.setUserId(rs.getInt("user_id"));
         chapter.setTitle(rs.getString("title"));
         chapter.setContent(rs.getString("content"));
         chapter.setStatus(rs.getString("status"));
+        chapter.setApprovalStatus(rs.getString("approval_status"));
         chapter.setDeleted(rs.getBoolean("is_deleted"));
-        chapter.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        chapter.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+        chapter.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        chapter.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return chapter;
     }
+
+    public int countAllNonDeleted() {
+        String sql = "SELECT COUNT(*) AS total FROM chapters WHERE is_deleted = 0";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM review_chapter WHERE status = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, pending);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+
+    }
+
+
 }
