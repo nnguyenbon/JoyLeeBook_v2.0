@@ -20,16 +20,30 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Servlet implementation class LibraryServlet
+ * Handles viewing and managing the user's library, including saved series and reading history.
+ * Supports actions to save/unsave series, delete individual history items, and clear all history.
+ * Requires user authentication for library access and modifications.
+ */
 @WebServlet("/library/*")
 public class LibraryServlet extends HttpServlet {
-    private static final Logger log = Logger.getLogger(LibraryServlet.class.getName());
+    private static final Logger log = Logger.getLogger(LibraryServlet.class.getName()); //Logger for logging errors and information
 
+    /**
+     * Handles POST requests for saving/unsaving series and managing reading history.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
         if (action == null) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
             return;
         }
+        //Determine action based on path info
         switch (action) {
             case "/save":
                 saveSeries(request, response);
@@ -45,11 +59,25 @@ public class LibraryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles GET requests to view the user's library.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //        String action = request.getParameter("action");
         viewLibrary(request, response);
     }
 
+    /**
+     * Displays the user's library, including saved series and reading history.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void viewLibrary(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
@@ -80,10 +108,17 @@ public class LibraryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Saves or unsaves a series for the logged-in user.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws IOException if an I/O error occurs
+     */
     private void saveSeries(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null || !loginedUser.getRole().equals("reader")) {
+            //User is not logged in or not a reader
             response.getWriter().print("""
                         {
                         "success": false,
@@ -114,6 +149,7 @@ public class LibraryServlet extends HttpServlet {
                 message = "Your series has been unsaved successfully";
 
             }
+            //Return JSON response indicating success
             response.getWriter().print("{\"success\": true, \"saved\": " + saved + ", \"message\": \"" + message + "\"}");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -121,6 +157,13 @@ public class LibraryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Deletes a specific reading history item for the logged-in user.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void deleteHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null) {
@@ -129,6 +172,7 @@ public class LibraryServlet extends HttpServlet {
         }
         int userId = loginedUser.getUserId();
 
+        //Get chapterId parameter and validate
         Integer chapterId = parseIntOrNull(request.getParameter("chapterId"));
         if (chapterId == null) {
             request.setAttribute("error", "Missing chapter id.");
@@ -136,6 +180,7 @@ public class LibraryServlet extends HttpServlet {
             return;
         }
 
+        //Delete the reading history item
         try (Connection conn = DBConnection.getConnection()) {
             ReadingHistoryDAO dao = new ReadingHistoryDAO(conn);
             dao.delete(userId, chapterId);
@@ -147,6 +192,13 @@ public class LibraryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Clears all reading history for the logged-in user.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void clearAllHistory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null) {
@@ -155,6 +207,7 @@ public class LibraryServlet extends HttpServlet {
         }
         int userId = loginedUser.getUserId();
 
+        //Clear all reading history for the user
         try (Connection conn = DBConnection.getConnection()) {
             ReadingHistoryDAO dao = new ReadingHistoryDAO(conn);
             dao.deleteByUserId(userId);
@@ -166,6 +219,11 @@ public class LibraryServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Parses a string into an Integer, returning null if parsing fails.
+     * @param s the string to parse
+     * @return the parsed Integer, or null if parsing fails
+     */
     private static Integer parseIntOrNull(String s) {
         if (s == null || s.isBlank()) return null;
         try {

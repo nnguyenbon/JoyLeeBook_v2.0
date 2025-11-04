@@ -19,6 +19,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+/**
+ * Servlet implementation class SeriesServlet
+ * Handles CRUD operations for series, including viewing, adding, editing,
+ * approving, and deleting series.
+ * Supports file uploads for series cover images.
+ * Routes requests based on user roles (reader, author, staff, admin).
+ * Implements pagination and filtering for series listings.
+ * Utilizes DAOs for database interactions and utility classes for common tasks.
+ */
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
 @WebServlet("/series/*")
 public class SeriesServlet extends HttpServlet {

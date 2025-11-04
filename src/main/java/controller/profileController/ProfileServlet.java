@@ -21,12 +21,26 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Servlet implementation class ProfileServlet
+ * Handles profile-related actions such as viewing profile, editing profile, and changing password.
+ * Controller for both reader and author profiles.
+ * If the logged-in user is viewing their own profile as a reader, they see the "My Profile" page.
+ * If viewing another user's profile or if the logged-in user is an author, they see the "Author Profile" page.
+ */
 @WebServlet("/profile/*")
 public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         viewProfile(request, response);
     }
 
+    /**
+     * Handles POST requests for editing profile and changing password.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
         if (action.equals("/edit")) {
@@ -38,6 +52,13 @@ public class ProfileServlet extends HttpServlet {
         }
     }
 
+    /**
+     * View user profile information.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void viewProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
@@ -69,6 +90,13 @@ public class ProfileServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Edit user profile information.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : -1;
@@ -96,6 +124,14 @@ public class ProfileServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the password change request.
+     *
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void changePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : -1;

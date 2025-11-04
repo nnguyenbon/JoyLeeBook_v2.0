@@ -18,6 +18,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Servlet implementation class ReportServlet
+ * Handles report-related actions such as viewing, reporting, and managing reports.
+ * Supports both chapter and comment reports.
+ * For staff members to manage reports and for users to submit reports.
+ */
 @WebServlet("/report/*")
 public class ReportServlet extends HttpServlet {
 

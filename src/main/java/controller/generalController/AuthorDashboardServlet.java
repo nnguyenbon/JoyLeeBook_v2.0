@@ -17,11 +17,33 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Servlet implementation class AuthorDashboardServlet
+ * This servlet handles the author dashboard page, displaying statistics and series information for the logged-in author.
+ * It checks if the user is logged in and has the "author" role before fetching data from the database.
+ * If the user is not logged in or does not have the correct role, they are redirected to the login page.
+ * The servlet retrieves the total number of approved and pending chapters, total likes, average rating, and the list of series created by the author.
+ * Finally, it forwards the request to the appropriate JSP page for rendering the dashboard.
+ */
 @WebServlet("/author")
 public class AuthorDashboardServlet extends HttpServlet {
+    /**
+     * Handles the HTTP POST method.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }
 
+    /**
+     * Handles the HTTP GET method.
+     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
+     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId;
@@ -37,6 +59,7 @@ public class AuthorDashboardServlet extends HttpServlet {
             ChapterDAO chapterDAO = new  ChapterDAO(conn);
             LikeDAO likeDAO = new LikeDAO(conn);
             RatingSeriesService ratingService = new RatingSeriesService();
+            //Fetching statistics and series list for the author
             request.setAttribute("totalChapters", chapterDAO.countChapterByUserId(userId, "approved"));
             request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));

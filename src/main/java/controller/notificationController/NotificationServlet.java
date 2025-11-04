@@ -18,6 +18,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Servlet implementation class NotificationServlet
+ * Handles notification-related actions such as marking notifications as read
+ * and displaying all notifications for the logged-in user.
+ */
 @WebServlet(urlPatterns = {
         "/notification/mark-read",
         "/notifications/all",
@@ -25,6 +30,13 @@ import java.util.List;
 })
 public class NotificationServlet extends HttpServlet {
 
+    /**
+     * Handles GET requests for displaying all notifications and marking all as read.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
@@ -36,6 +48,13 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles POST requests for marking a single notification as read.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
@@ -47,6 +66,13 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Displays the page with all notifications for the logged-in user.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     private void showAllNotificationsPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Account loginedAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedAccount == null || !(loginedAccount instanceof User)) {
@@ -55,14 +81,17 @@ public class NotificationServlet extends HttpServlet {
         }
         User loginedUser = (User) loginedAccount;
 
+        //Pagination parameters
         int page = ValidationInput.isPositiveInteger(request.getParameter("page")) ? Integer.parseInt(request.getParameter("page")) : 1;
         int size = 20;
 
         try (Connection conn = DBConnection.getConnection()) {
             NotificationsDAO dao = new NotificationsDAO(conn);
 
+            //Fetch paginated notifications
             List<Notification> notifications = dao.getPaginatedByUserId(loginedUser.getUserId(), page, size);
 
+            //Calculate total pages
             int totalNotifications = dao.getTotalCountByUserId(loginedUser.getUserId());
             int totalPages = (int) Math.ceil((double) totalNotifications / size);
 
@@ -82,9 +111,16 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Marks a single notification as read based on the provided notification ID.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws IOException if an I/O error occurs
+     */
     private void markOneAsRead(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Account loginedAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedAccount == null || !(loginedAccount instanceof User)) {
+            //Not logged in as user
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "You must be logged in as a user.");
             return;
         }
@@ -94,6 +130,7 @@ public class NotificationServlet extends HttpServlet {
             try (Connection conn = DBConnection.getConnection()) {
                 NotificationsDAO dao = new NotificationsDAO(conn);
 
+                //Mark notification as read
                 boolean success = dao.markAsRead(notificationId);
                 if (success) {
                     response.setContentType("application/json");
@@ -107,6 +144,13 @@ public class NotificationServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Marks all notifications as read for the logged-in user.
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws IOException      if an I/O error occurs
+     * @throws ServletException if a servlet-specific error occurs
+     */
     private void markAllAsRead(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         Account loginedAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedAccount == null || !(loginedAccount instanceof User)) {
