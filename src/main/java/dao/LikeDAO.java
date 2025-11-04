@@ -39,16 +39,7 @@ public class LikeDAO {
         }
         return list;
     }
-    public int countLikesOfAuthor(int userId) throws SQLException {
-        String sql = "SELECT COUNT(l.user_id) AS total_likes FROM likes l JOIN chapters c ON l.chapter_id = c.chapter_id WHERE c.user_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
 
-    }
     /**
      * Checks if a like exists for a given user and chapter.
      *
@@ -155,19 +146,6 @@ public class LikeDAO {
         }
     }
 
-    public Like findById(int userId, int chapterId) throws SQLException {
-        String sql = "SELECT * FROM likes WHERE user_id = ? AND chapter_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, chapterId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToLike(rs);
-                }
-            }
-            return null;
-        }
-    }
     /**
      * Utility method to map ResultSet to Like object
      */

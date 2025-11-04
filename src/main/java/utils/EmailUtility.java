@@ -11,8 +11,8 @@ public class EmailUtility {
     public static void sendEmail(String toEmail, String subject, String messageContent) throws MessagingException {
         String host = "smtp.gmail.com";
         String port = "587";
-        String username = "joyleebook@gmail.com\""; // thay bằng email thật
-        String password = "ipjf sthk mnsr cigr";    // App password, KHÔNG phải mật khẩu thường
+        String username = "joyleebook@gmail.com"; // thay bằng email thật
+        String password = "ipjf sthk mnsr cigr\n\n";    // App password, KHÔNG phải mật khẩu thường
 
         Properties props = new Properties();
         props.put("mail.smtp.host", host);

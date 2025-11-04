@@ -57,11 +57,11 @@
             <version>0.4</version>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>com.sun.mail</groupId>-->
-        <!--            <artifactId>javax.mail</artifactId>-->
-        <!--            <version>1.6.2</version>-->
-        <!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.sun.mail</groupId>-->
+<!--            <artifactId>javax.mail</artifactId>-->
+<!--            <version>1.6.2</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
@@ -75,26 +75,6 @@
             <artifactId>json</artifactId>
             <version>20250517</version>
         </dependency>
-        <!-- dependencies -->
-        <dependency>
-            <groupId>com.twelvemonkeys.imageio</groupId>
-            <artifactId>imageio-webp</artifactId>
-            <version>3.8.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-            <version>0.4.21</version>
-        </dependency>
-
-
-        <!-- Plugin hỗ trợ WebP cho ImageIO -->
-        <dependency>
-            <groupId>org.sejda.imageio</groupId>
-            <artifactId>webp-imageio</artifactId>
-            <version>0.1.6</version>
-        </dependency>
-
     </dependencies>
 
     <build>

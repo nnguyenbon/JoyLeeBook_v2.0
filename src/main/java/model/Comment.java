@@ -1,6 +1,6 @@
 package model;
 
-
+import java.time.LocalDateTime;
 
 public class Comment {
     private int commentId;
@@ -8,11 +8,18 @@ public class Comment {
     private int chapterId;
     private String content;
     private boolean isDeleted;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    //extra field
-    private String username;
+    public Comment(int commentId, int userId, int chapterId, String content, boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.commentId = commentId;
+        this.userId = userId;
+        this.chapterId = chapterId;
+        this.content = content;
+        this.isDeleted = isDeleted;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public Comment() {}
 
@@ -56,27 +63,19 @@ public class Comment {
         isDeleted = deleted;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

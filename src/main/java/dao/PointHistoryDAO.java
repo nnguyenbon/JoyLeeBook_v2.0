@@ -13,9 +13,12 @@ public class PointHistoryDAO {
         this.conn = conn;
     }
 
+    // ===========================================
+    // 1. Insert new record
+    // ===========================================
     public boolean insert(PointHistory history) throws SQLException {
         String sql = """
-            INSERT INTO point_history (user_id, points_change, reason, reference_type, reference_id, created_at)
+            INSERT INTO point_history (user_id, point_change, reason, reference_type, reference_id, created_at)
             VALUES (?, ?, ?, ?, ?, ?)
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -35,6 +38,9 @@ public class PointHistoryDAO {
         }
     }
 
+    // ===========================================
+    // 2. Get record by ID
+    // ===========================================
     public PointHistory getById(int historyId) throws SQLException {
         String sql = "SELECT * FROM point_history WHERE history_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,7 +54,9 @@ public class PointHistoryDAO {
         return null;
     }
 
-
+    // ===========================================
+    // 3. Get all records
+    // ===========================================
     public List<PointHistory> getAll() throws SQLException {
         List<PointHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM point_history ORDER BY created_at DESC";
@@ -61,7 +69,9 @@ public class PointHistoryDAO {
         return list;
     }
 
-
+    // ===========================================
+    // 4. Get records by User ID
+    // ===========================================
     public List<PointHistory> getByUserId(int userId) throws SQLException {
         List<PointHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM point_history WHERE user_id = ? ORDER BY created_at DESC";
@@ -76,7 +86,9 @@ public class PointHistoryDAO {
         return list;
     }
 
-
+    // ===========================================
+    // 5. Delete by ID
+    // ===========================================
     public boolean delete(int historyId) throws SQLException {
         String sql = "DELETE FROM point_history WHERE history_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,7 +97,9 @@ public class PointHistoryDAO {
         }
     }
 
-
+    // ===========================================
+    // 6. Delete all by user_id (nếu cần thủ công)
+    // ===========================================
     public boolean deleteByUserId(int userId) throws SQLException {
         String sql = "DELETE FROM point_history WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -94,32 +108,9 @@ public class PointHistoryDAO {
         }
     }
 
-
-    public boolean trackLogin(int userId, String action) throws SQLException {
-        String sql = "SELECT 1 FROM point_history WHERE user_id = ? AND reference_type = ? AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setString(2, action);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
-
-
-    public boolean trackAction (int userId, String action) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM point_history WHERE user_id = ? AND reference_type = ? AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setString(2, action);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 5;
-                }
-            }
-            return true;
-        }
-    }
+    // ===========================================
+    // Helper: convert ResultSet -> PointHistory
+    // ===========================================
     private PointHistory extractFromResultSet(ResultSet rs) throws SQLException {
         PointHistory ph = new PointHistory();
         ph.setHistoryId(rs.getInt("history_id"));

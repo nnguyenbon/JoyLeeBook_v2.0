@@ -10,7 +10,7 @@
         <h1 class="font-bold text-4xl">Enter OTP</h1>
     </div>
 
-    <form action="${pageContext.request.contextPath}/register?action=verifyOtp" method="post">
+    <form action="${pageContext.request.contextPath}/register" method="post">
         <div>
             <label class="block mt-2 mb-1" for="otp">OTP*</label>
             <input
@@ -22,12 +22,13 @@
                     required
             />
             <p class="text-xs text-red-700">
+                has been sent to your email
             </p>
         </div>
 
         <div class="flex gap-4 mt-2">
             <a
-                    href="${pageContext.request.contextPath}/register?action=sendOtp"
+                    href="${pageContext.request.contextPath}/handleOTP"
                     class="block text-center text-xl font-bold py-1 mt-2 ring ring-gray-700 w-full rounded-md hover:bg-gray-700 hover:text-white transition duration-300 cursor-pointer"
             >
                 Send Again

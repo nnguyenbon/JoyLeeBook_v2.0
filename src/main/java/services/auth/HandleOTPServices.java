@@ -5,8 +5,8 @@ import db.DBConnection;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import model.User;
-import utils.AuthenticationUtils;
 import utils.EmailUtility;
+import utils.HashPwd;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,14 +20,9 @@ public class HandleOTPServices {
         this.conn = DBConnection.getConnection();
     }
 
-    public boolean checkExistUsername(String username) throws SQLException {
+    public boolean checkUserExist(User user) throws SQLException {
         UserDAO userDAO = new UserDAO(conn);
-        return userDAO.checkByUsername(username);
-    }
-
-    public boolean checkExistEmail(String email) throws SQLException {
-        UserDAO userDAO = new UserDAO(conn);
-        return userDAO.checkByEmail(email);
+        return userDAO.findByUsernameOrEmail(user.getUsername(), user.getEmail());
     }
 
     public boolean sendOTP(HttpSession session, User user) throws SQLException {
@@ -37,7 +32,7 @@ public class HandleOTPServices {
         int otp = 100000 + rand.nextInt(900000);
 
         // Lưu OTP vào session để xác thực sau
-        String hashedOTP = AuthenticationUtils.hashPwd(String.valueOf(otp));
+        String hashedOTP = HashPwd.hashPwd(String.valueOf(otp));
         session.setAttribute("otp", hashedOTP);
         System.out.println(otp);
         // Gửi email

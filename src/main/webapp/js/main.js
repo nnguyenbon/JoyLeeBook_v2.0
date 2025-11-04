@@ -11,25 +11,6 @@ const indicators = document.querySelectorAll("#indicator a");
 //   showGenreElement.classList.toggle("rotate-90");
 // });
 
-toastr.options = {
-    "closeButton": true,
-    "debug": false,
-    "newestOnTop": false,
-    "progressBar": true,
-    "positionClass": "toast-bottom-right",
-    "preventDuplicates": false,
-    "onclick": null,
-    "showDuration": "300",
-    "hideDuration": "1000",
-    "timeOut": "5000",
-    "extendedTimeOut": "1000",
-    "showEasing": "swing",
-    "hideEasing": "linear",
-    "showMethod": "fadeIn",
-    "hideMethod": "fadeOut"
-}
-
-
 function checkedGenre(inputElement) {
     console.log(inputElement.checked);
     if (inputElement.checked) {
