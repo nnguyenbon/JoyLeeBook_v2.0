@@ -11,9 +11,17 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DAO for managing accounts (users and staffs)
+ * Supports dynamic queries based on viewer role
+ * and includes pagination
+ */
 public class AccountDAO {
     private Connection conn;
 
+    /**
+     * Initialize the DAO and establish database connection
+     */
     public AccountDAO() {
         try {
             conn = DBConnection.getConnection();
@@ -23,7 +31,13 @@ public class AccountDAO {
     }
 
     /**
-     * Lấy danh sách account tùy theo role người đăng nhập
+     * Get list of accounts based on viewer role with search, filter, and pagination
+     * @param search
+     * @param filterByRole
+     * @param currentRole
+     * @param paginationRequest
+     * @return
+     * @throws SQLException
      */
     public List<AccountDTO> getAccounts(String search, String filterByRole, String currentRole, PaginationRequest paginationRequest) throws SQLException {
         List<AccountDTO> list = new ArrayList<>();
@@ -49,30 +63,29 @@ public class AccountDAO {
                     .append(") AS combined WHERE 1=1 ");
         }
 
-        // --- Thêm điều kiện search ---
+        //Apply search filter if any
         if (search != null && !search.trim().isEmpty()) {
             sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
             params.add("%" + search.trim() + "%");
             params.add("%" + search.trim() + "%");
         }
 
-        // --- 3Thêm điều kiện lọc role ---
+        //Filter by specific role if any
         if (filterByRole != null && !filterByRole.trim().isEmpty()) {
             sql.append("AND role = ? ");
             params.add(filterByRole.trim());
         }
 
-        // ---  Thêm phân trang ---
+        //Apply ordering order by id
         sql.append(paginationDAOHelper.buildPaginationClause());
 
         PreparedStatement stmt = conn.prepareStatement(sql.toString());
 
-        // --- Gán tham số động ---
+        //Append dynamic parameters
         for (int i = 0; i < params.size(); i++) {
             stmt.setObject(i + 1, params.get(i));
         }
 
-        // --- 6️⃣ Lấy dữ liệu ---
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
             AccountDTO acc = new AccountDTO();
@@ -96,7 +109,12 @@ public class AccountDAO {
 
 
     /**
-     * Đếm tổng số tài khoản theo quyền người xem
+     * Get total count of accounts based on viewer role with search and filter
+     * @param search
+     * @param filterByRole
+     * @param currentRole
+     * @return
+     * @throws SQLException
      */
     public int getTotalAccounts(String search, String filterByRole, String currentRole) throws SQLException {
         StringBuilder sql = new StringBuilder();
@@ -112,14 +130,12 @@ public class AccountDAO {
             sql.append("SELECT COUNT(*) FROM users WHERE is_deleted = 0 ");
         }
 
-        // ----- Lọc theo search -----
         if (search != null && !search.trim().isEmpty()) {
             sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
             params.add("%" + search.trim() + "%");
             params.add("%" + search.trim() + "%");
         }
 
-        // ----- Lọc theo vai trò cụ thể -----
         if (filterByRole != null && !filterByRole.trim().isEmpty()) {
             sql.append("AND role = ? ");
             params.add(filterByRole.trim());
@@ -127,7 +143,6 @@ public class AccountDAO {
 
         PreparedStatement stmt = conn.prepareStatement(sql.toString());
 
-        // ----- Gán tham số động -----
         for (int i = 0; i < params.size(); i++) {
             stmt.setObject(i + 1, params.get(i));
         }
@@ -141,7 +156,12 @@ public class AccountDAO {
         return total;
     }
 
-
+    /**
+     * Get account by ID (user or staff)
+     * @param accountId
+     * @return AccountDTO or null if not found
+     * @throws SQLException
+     */
     public AccountDTO getAccountById(int accountId) throws SQLException {
         AccountDTO acc = null;
 
@@ -180,6 +200,13 @@ public class AccountDAO {
         return acc;
     }
 
+    /**
+     * Search accounts by username or full name based on viewer role
+     * @param query
+     * @param currentRole
+     * @return List of AccountDTO
+     * @throws SQLException
+     */
     public List<AccountDTO> search(String query, String currentRole) throws SQLException {
         List<AccountDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
@@ -230,6 +257,12 @@ public class AccountDAO {
         return list;
     }
 
+    /**
+     * Insert a new account (user or staff)
+     * @param account
+     * @param password
+     * @throws SQLException
+     */
     public void insertAccount(AccountDTO account, String password) throws SQLException {
         // Assume hashing password; insert into users table for 'user' type
         String sql = """
@@ -253,6 +286,11 @@ public class AccountDAO {
         }
     }
 
+    /**
+     * Update an existing account (user or staff)
+     * @param account
+     * @throws SQLException
+     */
     public void updateAccount(AccountDTO account) throws SQLException {
         // Update users or staffs based on type
         if ("user".equals(account.getType())) {
@@ -282,6 +320,11 @@ public class AccountDAO {
         }
     }
 
+    /**
+     * Delete (soft delete) an account by ID
+     * @param accountId
+     * @throws SQLException
+     */
     public void deleteAccount(int accountId) throws SQLException {
         // Soft delete: set is_deleted = 1
         // For both users and staffs
@@ -298,6 +341,12 @@ public class AccountDAO {
         }
     }
 
+    /**
+     * Ban an account by ID with reason
+     * @param accountId
+     * @param reason
+     * @throws SQLException
+     */
     public void banAccount(int accountId, BanReason reason) throws SQLException {
         // Set status to 'banned' and add reason (assume a ban_reason column)
         String sql = """
