@@ -702,5 +702,82 @@ public class ChapterServlet extends HttpServlet {
         s = s.trim();
         return s.isEmpty() ? null : s;
     }
+    /**
+     * Fetches a paginated list of chapters authored by a specific user.
+     *
+     * @param userId       the ID of the user
+     * @param page         the page number (1-based)
+     * @param pageSize     the number of items per page
+     * @param statusFilter optional status filter (e.g., "published", "draft")
+     * @param keyword      optional keyword to search in chapter titles
+     * @return a PagedResult containing the list of ChapterListItem and pagination info
+     * @throws SQLException if a database access error occurs
+     */
+    public PagedResult<ChapterItemDTO> getAuthoredChapters(int userId, int page, int pageSize, String statusFilter, String keyword) throws SQLException, ClassNotFoundException {
+        try (Connection connection = DBConnection.getConnection()){
+            ChapterDAO chapterDAO = new ChapterDAO(connection);
+            int offset = (Math.max(page, 1) - 1) * pageSize;
+            var items = chapterDAO.getAuthoredChapters(userId, offset, pageSize, statusFilter, keyword);
+            int total = chapterDAO.countAuthoredChapters(userId, statusFilter, keyword);
+            return new PagedResult<>(items, page, pageSize, total);
+        }
+    }
 
+    /**
+     * Fetches a paginated list of chapters from the user's reading history.
+     *
+     * @param userId   the ID of the user
+     * @param page     the page number (1-based)
+     * @param pageSize the number of items per page
+     * @param keyword  optional keyword to search in chapter titles
+     * @return a PagedResult containing the list of ChapterListItem and pagination info
+     * @throws SQLException if a database access error occurs
+     */
+    public PagedResult<ChapterItemDTO> getReadingHistoryChapters(int userId, int page, int pageSize, String keyword) throws SQLException {
+       try (Connection connection = DBConnection.getConnection()){
+           ChapterDAO chapterDAO = new ChapterDAO(connection);
+           int offset = (Math.max(page, 1) - 1) * pageSize;
+           var items = chapterDAO.getReadingHistoryChapters(userId, offset, pageSize, keyword);
+           int total = chapterDAO.countReadingHistoryChapters(userId, keyword);
+           return new PagedResult<>(items, page, pageSize, total);
+       } catch (ClassNotFoundException e) {
+           throw new RuntimeException(e);
+       }
+
+    }
+    public static class PagedResult<T> {
+        private final List<T> items;
+        private final int page;
+        private final int pageSize;
+        private final int total;
+        private final int totalPages;
+
+        public PagedResult(List<T> items, int page, int pageSize, int total) {
+            this.items = items;
+            this.page = page;
+            this.pageSize = pageSize;
+            this.total = total;
+            this.totalPages = (int) Math.ceil(total / (double) pageSize);
+        }
+
+        public List<T> getItems() {
+            return items;
+        }
+
+        public int getPage() {
+            return page;
+        }
+
+        public int getPageSize() {
+            return pageSize;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public int getTotalPages() {
+            return totalPages;
+        }
+    }
 }
