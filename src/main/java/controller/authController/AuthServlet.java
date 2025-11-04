@@ -19,6 +19,11 @@ import utils.ValidationInput;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Servlet implementation class AuthServlet
+ * This servlet handles user authentication including login, logout, and registration with OTP verification.
+ * It supports both GET and POST requests for different authentication actions.
+ */
 @WebServlet(urlPatterns = {"/login", "/logout", "/register"})
 public class AuthServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -36,8 +41,18 @@ public class AuthServlet extends HttpServlet {
 
     }
 
+    /**
+     * Handles GET requests for login, logout, and registration pages.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getServletPath();
+        String path = request.getServletPath(); //Get the servlet path to determine the action
+
+        //Route to the appropriate handler based on the servlet path
         switch (path) {
             case "/login" -> {
                 request.setAttribute("pageTitle", "Login");
@@ -52,6 +67,7 @@ public class AuthServlet extends HttpServlet {
                 if (checkValidate(request, response)) {
                     return;
                 }
+                //Default action for register page
                 String action = request.getParameter("action") == null ? "" : request.getParameter("action");
                 if (action.equals("sendOtp")) {
                     sendOtp(request, response);
@@ -61,6 +77,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Renders the registration page.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void viewRegister(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -69,6 +93,14 @@ public class AuthServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
     }
 
+    /**
+     * Processes user login.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String userName = request.getParameter("username");
         String password = request.getParameter("password");
@@ -83,11 +115,12 @@ public class AuthServlet extends HttpServlet {
                 switch (role) {
                     case "author":
                     case "reader":
+                        //Track login for point system
                         PointServices.trackLogin(user.getUserId());
                         response.sendRedirect(request.getContextPath() + "/homepage");
                         break;
                 }
-            } else if (staff != null){
+            } else if (staff != null) {
                 AuthenticationUtils.storeLoginedUser(request.getSession(), staff);
                 String role = staff.getRole();
                 switch (role) {
@@ -96,7 +129,7 @@ public class AuthServlet extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/staff");
                         break;
                 }
-            }else {
+            } else {
                 request.setAttribute("error", "Invalid username or password.");
                 request.setAttribute("pageTitle", "Login");
                 request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
@@ -108,12 +141,20 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Verifies the OTP entered by the user during registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void verifyOtp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String enterOTP = request.getParameter("otp");
             HttpSession session = request.getSession();
 
-
+            //Check OTP
             RegisterServices registerServices = new RegisterServices();
             boolean checkOTP = registerServices.checkOTP(session, enterOTP);
             if (!checkOTP) {
@@ -145,9 +186,17 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Sends an OTP to the user's email during registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void sendOtp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        User register;
+        User register; //Temporary user object to hold registration data
         try {
             HandleOTPServices handleOTPServices = new HandleOTPServices();
 
@@ -165,6 +214,7 @@ public class AuthServlet extends HttpServlet {
                     viewRegister(request, response);
                     return;
                 }
+                //Check if email already exists
                 if (handleOTPServices.checkExistEmail(email)) {
                     request.setAttribute("message", "Email is already exist.");
                     request.setAttribute("fullName", fullName);
@@ -173,6 +223,7 @@ public class AuthServlet extends HttpServlet {
                     viewRegister(request, response);
                     return;
                 }
+                //Check if password and confirm password match
                 if (!password.equals(confirmPassword)) {
                     request.setAttribute("message", "Your confirm password is not correct.");
                     request.setAttribute("fullName", fullName);
@@ -207,14 +258,24 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates name fields (username, fullname) for registration.
+     *
+     * @param request
+     * @param response
+     * @param name
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validateName(HttpServletRequest request, HttpServletResponse response, String name) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        //Validate name
         if (!ValidationInput.isEmptyString(value)) {
-            String message = name + " cannot empty";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
+            String message = name + " cannot empty"; //Add name to message
+            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message); //Return JSON response
+            response.getWriter().write(json); //Write response
         } else if (ValidationInput.isValidLength(value, 3)) {
             String message = name + " cannot contain less than 3 characters";
             String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
@@ -226,6 +287,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates email field for registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validateEmail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
@@ -245,6 +314,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates password field for registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validatePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
@@ -277,6 +354,15 @@ public class AuthServlet extends HttpServlet {
 
     }
 
+    /**
+     * Checks which field to validate based on the "type" parameter in the request.
+     *
+     * @param request
+     * @param response
+     * @return true if a validation was performed, false otherwise
+     * @throws ServletException
+     * @throws IOException
+     */
     private boolean checkValidate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");
         switch (type) {
