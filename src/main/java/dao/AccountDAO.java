@@ -5,7 +5,7 @@ import db.DBConnection;
 import dto.PaginationRequest;
 import dto.AccountDTO;
 import model.BanReason; // Assuming enum is in model
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -98,7 +98,7 @@ public class AccountDAO {
             acc.setType(rs.getString("type"));
             Timestamp createdAt = rs.getTimestamp("created_at");
             if (createdAt != null)
-                acc.setCreatedAt(FormatServices.formatDate(createdAt.toLocalDateTime()));
+                acc.setCreatedAt(FormatUtils.formatDate(createdAt.toLocalDateTime()));
             list.add(acc);
         }
 
@@ -191,8 +191,8 @@ public class AccountDAO {
                 acc.setRole(rs.getString("role"));
                 acc.setStatus(rs.getString("status"));
                 acc.setType(rs.getString("type"));
-                acc.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-                acc.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+                acc.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+                acc.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
             }
             rs.close();
         }

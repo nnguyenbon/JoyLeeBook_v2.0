@@ -2,6 +2,7 @@ package controller.generalController;
 
 import dao.ChapterDAO;
 import dao.ReadingHistoryDAO;
+import dao.SavedSeriesDAO;
 import dao.SeriesDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
@@ -11,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.SavedSeries;
 import model.User;
-import services.series.SavedSeriesService;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -127,8 +127,8 @@ public class LibraryServlet extends HttpServlet {
                     """);
             return;
         }
-        try {
-            SavedSeriesService saveSeriesService = new SavedSeriesService();
+        try (Connection conn = DBConnection.getConnection()) {
+            SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
 
             int userId = loginedUser.getUserId();
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
@@ -140,11 +140,11 @@ public class LibraryServlet extends HttpServlet {
             savedSeries.setUserId(userId);
             savedSeries.setSeriesId(seriesId);
             if ("save".equalsIgnoreCase(action)) {
-                saveSeriesService.saveSeries(savedSeries);
+                savedSeriesDAO.insert(savedSeries);
                 saved = true;
                 message = "Your series has been saved successfully";
             } else {
-                saveSeriesService.unSaveSeries(savedSeries);
+                savedSeriesDAO.delete(savedSeries.getUserId(), savedSeries.getSeriesId());
                 saved = false;
                 message = "Your series has been unsaved successfully";
 

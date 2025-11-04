@@ -1,6 +1,7 @@
 package controller.reactionController;
 
 import dao.LikeDAO;
+import dao.RatingDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +12,6 @@ import model.Like;
 import model.Rating;
 import model.User;
 import services.general.PointServices;
-import services.series.RatingSeriesService;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class ReactionServlet extends HttpServlet {
             return;
         }
         response.setContentType("application/json;charset=UTF-8");
-        try {
+        try (Connection connection = DBConnection.getConnection()) {
             int userId = loginedUser.getUserId();
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             int ratingValue = Integer.parseInt(request.getParameter("rating"));
@@ -110,11 +110,15 @@ public class ReactionServlet extends HttpServlet {
             rating.setSeriesId(seriesId);
             rating.setRatingValue(ratingValue);
 
-            RatingSeriesService ratingService = new RatingSeriesService();
-            ratingService.saveOrUpdateRating(rating);
-
-            double avgRating = ratingService.getAverageRating(seriesId);
-            int totalRatings = ratingService.getTotalRatings(seriesId);
+            RatingDAO ratingDAO = new RatingDAO(connection);
+            if (ratingDAO.getRatingValueByUserId(rating)) {
+                ratingDAO.update(rating);
+            } else {
+                ratingDAO.insert(rating);
+                PointServices.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) );
+            }
+            double avgRating = (double) Math.round(ratingDAO.getAverageRating(seriesId) * 10) / 10;
+            int totalRatings = ratingDAO.getRatingCount(seriesId);
 
             String json = String.format(
                     "{\"success\": true, \"rating\": %d, \"avgRating\": %.2f, \"totalRatings\": %d}",

@@ -1,10 +1,10 @@
-package services.general;
+package utils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class FormatServices {
+public class FormatUtils {
     public static String calculateTimeAgo(LocalDateTime updatedAt) {
         Duration duration = Duration.between(updatedAt, LocalDateTime.now());
         if (duration.toDays() > 0) {
