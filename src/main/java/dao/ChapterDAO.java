@@ -5,7 +5,6 @@
 package dao;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import dao.helper.PaginationDAOHelper;
 import dto.PaginationRequest;
 import model.Chapter;
 import dto.chapter.ChapterItemDTO;
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 /**
  * Data Access Object (DAO) for Chapter entity.
@@ -391,7 +390,7 @@ public class ChapterDAO {
                     it.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
                     String up = rs.getString("updated_at");
                     it.setUpdatedAt(up != null ? up : null);
-                    String lr =  FormatServices.formatDate(rs.getTimestamp("last_read_at").toLocalDateTime());
+                    String lr =  FormatUtils.formatDate(rs.getTimestamp("last_read_at").toLocalDateTime());
                     it.setLastReadAt(lr != null ?lr : null);
                     list.add(it);
                 }
@@ -621,8 +620,8 @@ public class ChapterDAO {
         c.setContent(rs.getString("content"));
         c.setStatus(rs.getString("status"));
         c.setDeleted(rs.getBoolean("is_deleted"));
-        c.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        c.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        c.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        c.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return c;
     }
 
@@ -779,8 +778,8 @@ public class ChapterDAO {
         chapter.setStatus(rs.getString("status"));
         chapter.setApprovalStatus(rs.getString("approval_status"));
         chapter.setDeleted(rs.getBoolean("is_deleted"));
-        chapter.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        chapter.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        chapter.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        chapter.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return chapter;
     }
 
