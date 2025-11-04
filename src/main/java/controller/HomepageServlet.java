@@ -7,8 +7,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import services.account.UserServices;
-import services.category.CategoryServices;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -19,8 +17,7 @@ public class HomepageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
-            UserServices userServices = new UserServices();
-            CategoryServices categoryServices = new CategoryServices();
+
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             CategoryDAO categoryDAO = new CategoryDAO(conn);

@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<main class="mt-10 grid grid-cols-12 gap-8 items-center ">
+<main class="mt-10 grid grid-cols-12 gap-8 items-center">
     <!-- Nội dung chính -->
     <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow ">
         <h1 class="text-4xl font-bold text-center mb-3">${chapter.seriesTitle}</h1>
