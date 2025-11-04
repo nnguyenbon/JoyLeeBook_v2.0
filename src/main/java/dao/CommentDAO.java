@@ -1,7 +1,7 @@
 package dao;
 
 import model.Comment;
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -194,8 +194,8 @@ public class CommentDAO {
         cmt.setChapterId(rs.getInt("chapter_id"));
         cmt.setContent(rs.getString("content"));
         cmt.setDeleted(rs.getBoolean("is_deleted"));
-        cmt.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        cmt.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        cmt.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        cmt.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return cmt;
     }
 }

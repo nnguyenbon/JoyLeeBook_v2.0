@@ -14,14 +14,22 @@ import utils.AuthenticationUtils;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Servlet to handle author registration requests.
+ * Allows a logged-in reader to register as an author.
+ * Redirects to the author dashboard upon successful registration.
+ * If the user is already an author, redirects to the author dashboard directly.
+ */
 @WebServlet(name = "RegisterAuthorServlet", value = "/register-author")
 public class RegisterAuthorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
 
+        //If user is a reader, attempt to register as author
         if (user != null && "reader".equals(user.getRole())) {
             AuthorServices authorServices = null;
             try {
+                //Register the user as an author
                 authorServices = new AuthorServices();
                 if (authorServices.registerAsAuthor(user)) {
                     response.sendRedirect(request.getContextPath() + "/author");
@@ -36,3 +44,4 @@ public class RegisterAuthorServlet extends HttpServlet {
         }
     }
 }
+

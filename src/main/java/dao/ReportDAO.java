@@ -5,7 +5,7 @@ import dto.PaginationRequest;
 import model.Report;
 import model.ReportChapter;
 import model.ReportComment;
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -31,8 +31,8 @@ public class ReportDAO {
         report.setChapterId((Integer) rs.getObject("chapter_id"));
         report.setReason(rs.getString("reason"));
         report.setStatus(rs.getString("status"));
-        report.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        report.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        report.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        report.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return report;
     }
 
@@ -45,8 +45,8 @@ public class ReportDAO {
         report.setReason(rs.getString("reason"));
         report.setStatus(rs.getString("status"));
 
-        report.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        report.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        report.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        report.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         // Extended fields
         report.setChapterTitle(rs.getString("chapter_title"));
         report.setChapterNumber(rs.getInt("chapter_number"));
@@ -66,8 +66,8 @@ public class ReportDAO {
         report.setReason(rs.getString("reason"));
         report.setStatus(rs.getString("status"));
 
-        report.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        report.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        report.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        report.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
 
         // Extended fields
         report.setCommentContent(rs.getString("comment_content"));

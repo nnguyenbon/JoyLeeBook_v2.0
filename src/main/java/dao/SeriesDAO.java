@@ -12,8 +12,7 @@ import java.util.*;
 import dao.helper.PaginationDAOHelper;
 import dto.PaginationRequest;
 import model.Series;
-import model.SeriesAuthor;
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 /**
  * Data Access Object (DAO) for the Series entity.
@@ -522,8 +521,8 @@ public class SeriesDAO {
         s.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
         s.setStatus(rs.getString("status"));
         s.setApprovalStatus(rs.getString("approval_status"));
-        s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        s.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        s.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         s.setDeleted(rs.getBoolean("is_deleted"));
         s.setAvgRating(rs.getInt("rating_points"));
         return s;

@@ -19,6 +19,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Servlet implementation class CoAuthorManagementServlet
+ * Handles the management of co-authors for a series.
+ * Allows authors to add or remove co-authors from their series.
+ */
 @WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors")
 public class CoAuthorManagementServlet extends HttpServlet {
 
@@ -59,6 +64,15 @@ public class CoAuthorManagementServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles the HTTP POST request for managing co-authors.
+     * Supports adding and removing co-authors from a series.
+     *
+     * @param request  the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException      if an I/O error occurs
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         int seriesId = Integer.parseInt(request.getParameter("seriesId"));
@@ -78,6 +92,18 @@ public class CoAuthorManagementServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Adds a co-author to the specified series.
+     *
+     * @param username    the username of the co-author to add
+     * @param seriesId    the ID of the series
+     * @param redirectUrl the URL to redirect to after processing
+     * @param request     the HttpServletRequest object
+     * @param response    the HttpServletResponse object
+     * @throws SQLException           if a database access error occurs
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if the JDBC driver class is not found
+     */
     private void addCoAuthor(String username, int seriesId, String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
         Connection conn = DBConnection.getConnection();
 
@@ -90,7 +116,9 @@ public class CoAuthorManagementServlet extends HttpServlet {
         }
 
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        //Check if the user is already an author of the series
         List<User> currentAuthors = seriesAuthorDAO.findUsersBySeriesId(seriesId);
+        //Check if userToAdd is already in currentAuthors
         boolean isAlreadyAuthor = currentAuthors.stream().anyMatch(u -> u.getUserId() == userToAdd.getUserId());
 
         if (isAlreadyAuthor) {
@@ -102,6 +130,18 @@ public class CoAuthorManagementServlet extends HttpServlet {
         response.sendRedirect(redirectUrl + "&message=authorAddedSuccess");
     }
 
+    /**
+     * Removes a co-author from the specified series.
+     *
+     * @param request        the HttpServletRequest object
+     * @param userIdToRemove the ID of the co-author to remove
+     * @param seriesId       the ID of the series
+     * @param redirectUrl    the URL to redirect to after processing
+     * @param response       the HttpServletResponse object
+     * @throws SQLException           if a database access error occurs
+     * @throws IOException            if an I/O error occurs
+     * @throws ClassNotFoundException if the JDBC driver class is not found
+     */
     private void removeCoAuthor(HttpServletRequest request, int userIdToRemove, int seriesId, String redirectUrl, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
@@ -114,12 +154,13 @@ public class CoAuthorManagementServlet extends HttpServlet {
 
         Connection conn = DBConnection.getConnection();
 
-        // Prevent users from removing themselves, or the main author.
+        //Prevent users from removing themselves, or the main author.
         if (currentUser.getUserId() == userIdToRemove) {
             response.sendRedirect(redirectUrl + "&error=cannotRemoveSelf");
             return;
         }
 
+        //Check if the user to remove is the main author of the series
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
         seriesAuthorDAO.removeAuthorFromSeries(seriesId, userIdToRemove);
         response.sendRedirect(redirectUrl + "&message=authorRemovedSuccess");

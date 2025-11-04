@@ -1,6 +1,7 @@
 package controller.reactionController;
 
 import dao.LikeDAO;
+import dao.RatingDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,17 +12,28 @@ import model.Like;
 import model.Rating;
 import model.User;
 import services.general.PointServices;
-import services.series.RatingSeriesService;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Servlet implementation class ReactionServlet
+ * Handles user reactions such as likes and ratings.
+ */
 @WebServlet("/reaction/*")
 public class ReactionServlet extends HttpServlet {
+    /**
+     * Handles POST requests for user reactions.
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
+        //Determine the action based on the URL path
         switch (action) {
             case "/like":
                 likeChapter(request, response);
@@ -32,9 +44,23 @@ public class ReactionServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles GET requests for user reactions.
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     }
 
+    /**
+     * Handles liking a chapter.
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         try {
@@ -54,6 +80,13 @@ public class ReactionServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Handles rating a series.
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void ratingSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         if (loginedUser == null || loginedUser.getRole() == null || !loginedUser.getRole().equals("reader")) {
@@ -67,7 +100,7 @@ public class ReactionServlet extends HttpServlet {
             return;
         }
         response.setContentType("application/json;charset=UTF-8");
-        try {
+        try (Connection connection = DBConnection.getConnection()) {
             int userId = loginedUser.getUserId();
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             int ratingValue = Integer.parseInt(request.getParameter("rating"));
@@ -77,11 +110,15 @@ public class ReactionServlet extends HttpServlet {
             rating.setSeriesId(seriesId);
             rating.setRatingValue(ratingValue);
 
-            RatingSeriesService ratingService = new RatingSeriesService();
-            ratingService.saveOrUpdateRating(rating);
-
-            double avgRating = ratingService.getAverageRating(seriesId);
-            int totalRatings = ratingService.getTotalRatings(seriesId);
+            RatingDAO ratingDAO = new RatingDAO(connection);
+            if (ratingDAO.getRatingValueByUserId(rating)) {
+                ratingDAO.update(rating);
+            } else {
+                ratingDAO.insert(rating);
+                PointServices.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) );
+            }
+            double avgRating = (double) Math.round(ratingDAO.getAverageRating(seriesId) * 10) / 10;
+            int totalRatings = ratingDAO.getRatingCount(seriesId);
 
             String json = String.format(
                     "{\"success\": true, \"rating\": %d, \"avgRating\": %.2f, \"totalRatings\": %d}",
@@ -95,6 +132,13 @@ public class ReactionServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Inserts a like for a chapter by a user.
+     * @param userId ID of the user liking the chapter.
+     * @param chapterId ID of the chapter being liked.
+     * @return The new total like count for the chapter.
+     * @throws SQLException
+     */
     public int likeChapter(int userId, int chapterId) throws SQLException {
         try (Connection connection = DBConnection.getConnection()
         ) {
