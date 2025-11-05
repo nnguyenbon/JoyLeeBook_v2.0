@@ -115,8 +115,6 @@ public class CommentServlet extends HttpServlet {
             //Send JSON response
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"success\": true, \"message\": \"Your comment has been successfully deleted\" }");
-//            response.sendRedirect(request.getContextPath()
-//                    + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (SQLException | ClassNotFoundException e) {
             response.getWriter().write("{\"success\": false, \"message\": \"Your comment has been unsuccessfully deleted\" }");
             throw new RuntimeException(e);

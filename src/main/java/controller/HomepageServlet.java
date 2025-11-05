@@ -17,8 +17,6 @@ public class HomepageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
-
-
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             CategoryDAO categoryDAO = new CategoryDAO(conn);
             UserDAO userDAO = new UserDAO(conn);
@@ -29,7 +27,6 @@ public class HomepageServlet extends HttpServlet {
             request.setAttribute("completedSeriesList", seriesDAO.getSeriesByStatus(6, "completed"));
             request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
             request.setAttribute("userList",  userDAO.selectTopUserPoints(8));
-
             request.setAttribute("pageTitle", "JoyLeeBook");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);

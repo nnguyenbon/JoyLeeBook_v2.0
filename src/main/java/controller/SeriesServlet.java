@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -40,10 +41,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Handles HTTP GET requests for viewing series data.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,7 +59,7 @@ public class SeriesServlet extends HttpServlet {
                 case "/detail" -> viewSeriesDetail(request, response);
                 default -> throw new ServletException("Invalid action");
             }
-        }catch (ServletException e){
+        } catch (ServletException e) {
             e.printStackTrace();
         }
     }
@@ -66,10 +67,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Handles HTTP POST requests for modifying series data.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -97,10 +98,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays the form for adding a new series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void showAddSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -121,10 +122,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Inserts a new series into the database.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during file upload or redirection
+     * @throws IOException      if an I/O error occurs during file upload or redirection
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -192,10 +193,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays a paginated list of series with filtering and search capabilities.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -274,15 +275,14 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays detailed information for a specific series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Determine user role
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
         int userId = -1;
         if (loggedInAccount instanceof User user) {
@@ -300,7 +300,6 @@ public class SeriesServlet extends HttpServlet {
 
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
@@ -309,11 +308,12 @@ public class SeriesServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
             }
-            List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+            List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(seriesId, userId);
 
             request.setAttribute("ratingByUser", ratingByUser);
+            request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
             request.setAttribute("series", series);
             request.setAttribute("chapterList", chapterList);
@@ -326,6 +326,7 @@ public class SeriesServlet extends HttpServlet {
             } else {
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -340,10 +341,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays the form for editing an existing series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void showEditSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -370,10 +371,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Updates an existing series with new data from the form submission.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection or error messages
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during file upload or redirection
+     * @throws IOException      if an I/O error occurs during file upload or redirection
      */
     private void updateSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -451,7 +452,7 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Approves or rejects a series submission.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws RuntimeException if a database error occurs during the approval process
      */
@@ -509,10 +510,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Deletes a series from the database.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during redirection
+     * @throws IOException      if an I/O error occurs during redirection
      */
     private void deleteSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -539,7 +540,7 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Enriches a Series object with additional related data from the database.
      *
-     * @param conn the database connection to use for queries
+     * @param conn   the database connection to use for queries
      * @param series the Series object to enrich with additional data, or null
      * @return the enriched Series object, or null if the input was null
      * @throws SQLException if a database access error occurs
@@ -560,12 +561,21 @@ public class SeriesServlet extends HttpServlet {
         return series;
     }
 
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus,  Connection connection) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(connection);
+        LikeDAO likeDAO = new LikeDAO(connection);
+        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+        for (Chapter chapter : chapterList) {
+            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+        }
+        return chapterList;
+    }
     /**
      * Creates a notification object for series approval/rejection.
      *
-     * @param conn the database connection to use for queries
-     * @param seriesId the ID of the series that was reviewed
-     * @param comment the staff's feedback comment
+     * @param conn          the database connection to use for queries
+     * @param seriesId      the ID of the series that was reviewed
+     * @param comment       the staff's feedback comment
      * @param approveStatus the approval decision ("approved" or "rejected")
      * @return a Notification object ready to be inserted into the database
      * @throws SQLException if a database access error occurs while fetching owner ID
