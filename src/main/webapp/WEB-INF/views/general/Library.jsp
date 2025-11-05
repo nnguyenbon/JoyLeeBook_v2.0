@@ -98,6 +98,15 @@
 
     <!-- HISTORY TAB -->
     <div id="content-history" class="hidden flex flex-col space-y-3">
+        <c:if test="${not empty historyChapters}">
+            <div class="col-span-2 flex justify-center mt-6">
+                <form action="${pageContext.request.contextPath}/library/clearHistory" method="post">
+                    <button class="px-4 py-2 bg-red-100 rounded-full text-sm text-red-600 hover:bg-red-200 transition">
+                        <i class="fa-solid fa-trash-can"></i> Clear All History
+                    </button>
+                </form>
+            </div>
+        </c:if>
         <c:forEach var="chapter" items="${historyChapters}">
             <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}&returnUrl=${pageContext.request.requestURI}">
                 <div class="flex items-center bg-white rounded-lg shadow-sm hover:shadow-md transition p-3">
