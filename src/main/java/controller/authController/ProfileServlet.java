@@ -70,6 +70,10 @@ public class ProfileServlet extends HttpServlet {
             User user = userDAO.findById(userId);
             user.setRole(FormatUtils.formatString(user.getRole()));
             request.setAttribute("user", user);
+
+            badgesUserDAO.checkAndSaveBadges(userId);
+
+            request.setAttribute("user", user);
             request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
@@ -86,6 +90,8 @@ public class ProfileServlet extends HttpServlet {
                 request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
             }
         } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

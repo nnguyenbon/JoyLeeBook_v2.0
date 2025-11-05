@@ -26,6 +26,7 @@ import java.sql.SQLException;
 public class ReactionServlet extends HttpServlet {
     /**
      * Handles POST requests for user reactions.
+     *
      * @param request
      * @param response
      * @throws ServletException
@@ -46,6 +47,7 @@ public class ReactionServlet extends HttpServlet {
 
     /**
      * Handles GET requests for user reactions.
+     *
      * @param request
      * @param response
      * @throws ServletException
@@ -56,6 +58,7 @@ public class ReactionServlet extends HttpServlet {
 
     /**
      * Handles liking a chapter.
+     *
      * @param request
      * @param response
      * @throws ServletException
@@ -64,24 +67,20 @@ public class ReactionServlet extends HttpServlet {
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         try {
-            try {
-                int userId = loginedUser != null ? loginedUser.getUserId() : 0;
-                int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-                int newLikeCount = likeChapter(userId, chapterId);
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
-            } catch (Exception e) {
-                request.setAttribute("error", "Could not insert like data. " + e.getMessage());
-                request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Invalid userId/chapterId.");
+            int userId = loginedUser != null ? loginedUser.getUserId() : 0;
+            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+            int newLikeCount = likeChapter(userId, chapterId);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
+        } catch (Exception e) {
+            request.setAttribute("error", "Could not insert like data. " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
         }
     }
 
     /**
      * Handles rating a series.
+     *
      * @param request
      * @param response
      * @throws ServletException
@@ -115,7 +114,7 @@ public class ReactionServlet extends HttpServlet {
                 ratingDAO.update(rating);
             } else {
                 ratingDAO.insert(rating);
-                TrackPointUtils.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) , 5);
+                TrackPointUtils.trackAction(rating.getUserId(), 1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()), 5);
             }
             double avgRating = (double) Math.round(ratingDAO.getAverageRating(seriesId) * 10) / 10;
             int totalRatings = ratingDAO.getRatingCount(seriesId);
@@ -134,14 +133,14 @@ public class ReactionServlet extends HttpServlet {
 
     /**
      * Inserts a like for a chapter by a user.
-     * @param userId ID of the user liking the chapter.
+     *
+     * @param userId    ID of the user liking the chapter.
      * @param chapterId ID of the chapter being liked.
      * @return The new total like count for the chapter.
      * @throws SQLException
      */
     public int likeChapter(int userId, int chapterId) throws SQLException {
-        try (Connection connection = DBConnection.getConnection()
-        ) {
+        try (Connection connection = DBConnection.getConnection()) {
             LikeDAO likeDAO = new LikeDAO(connection);
             Like like = new Like();
             like.setUserId(userId);

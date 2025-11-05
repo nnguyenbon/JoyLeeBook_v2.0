@@ -102,8 +102,10 @@ public class ChapterServlet extends HttpServlet {
     private void buildChapter(Chapter chapter, Connection conn) throws SQLException {
         SeriesDAO seriesDAO = new SeriesDAO(conn);
         UserDAO userDAO = new UserDAO(conn);
+        LikeDAO likeDAO = new LikeDAO(conn);
         chapter.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapter.setAuthorName(userDAO.findById(chapter.getAuthorId()).getUsername());
+        chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
     }
 
     /**
@@ -166,6 +168,8 @@ public class ChapterServlet extends HttpServlet {
                 }
                 Chapter chapter = chapterDAO.findById(chapterId, approvalStatus);
                 buildChapter(chapter, conn);
+                boolean liked = likeDAO.isLikedByUser(userId, chapter.getChapterId());
+                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
 
                 CommentDAO commentDAO = new CommentDAO(conn);
                 List<Comment> commentList = commentDAO.findByChapter(chapterId);
@@ -178,7 +182,7 @@ public class ChapterServlet extends HttpServlet {
 
                 request.setAttribute("commentList", commentList);
                 request.setAttribute("chapter", chapter);
-                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+                request.setAttribute("liked", liked);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterList.get(chapterList.size() - 1).getChapterId());
                 request.setAttribute("chapter", chapter);

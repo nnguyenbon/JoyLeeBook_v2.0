@@ -421,6 +421,9 @@ public class SeriesServlet extends HttpServlet {
             // Extract updated data
             String title = request.getParameter("title");
             String status = request.getParameter("status");
+
+            // xử lý nếu status là completed thì mở khóa badge
+
             String description = request.getParameter("description");
             String[] genreParams = request.getParameterValues("selectedGenres");
             int[] genreIds = genreParams != null

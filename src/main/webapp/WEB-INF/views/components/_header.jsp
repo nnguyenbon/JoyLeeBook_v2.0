@@ -272,12 +272,6 @@ change this template use File | Settings | File Templates. --%>
         "hideMethod": "fadeOut"
     }
 
-    const genreButton = document.getElementById('genreButton');
-    const genreMenu = document.getElementById('genreMenu');
-
-    genreButton.addEventListener('click', () => {
-        genreMenu.classList.toggle('hidden');
-    });
 
     // Ẩn menu khi click ra ngoài
     document.addEventListener('click', (e) => {
