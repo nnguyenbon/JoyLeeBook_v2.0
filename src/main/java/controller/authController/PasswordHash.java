@@ -6,7 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
  * Example class to demonstrate password hashing using BCrypt.
  * This class hashes a sample password and prints the hashed value.
  */
-public class PasswordHashExample {
+public class PasswordHash {
     public static void main(String[] args) {
         String password = "hash1"; // mật khẩu gốc
         String hashed = BCrypt.hashpw(password, BCrypt.gensalt(10));
