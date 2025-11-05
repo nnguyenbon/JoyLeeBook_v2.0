@@ -338,11 +338,10 @@
                                 </a>
                             </div>
                         </div>
-                    </a>
 
-                    <!-- Nội dung -->
-                    <div class="p-3 flex flex-col justify-between flex-grow">
-                        <div>
+                        <!-- Nội dung -->
+                        <div class="p-3 flex flex-col justify-between flex-grow">
+                            <div>
                             <ul class="flex flex-wrap gap-2 text-xs mb-1">
                                 <c:forEach var="category" items="${completedSeries.categoryList}" varStatus="status">
                                     <c:if test="${status.index < 2}">
@@ -353,7 +352,7 @@
                             <p class="font-semibold text-lg truncate mb-1">
                                     ${completedSeries.title}
                             </p>
-                        </div>
+                            </div>
                         <div class="text-sm opacity-70">
                             <div class="flex justify-between">
                                 <p>by <span class="font-medium">
@@ -369,7 +368,7 @@
                             </div>
                             <p>★ ${completedSeries.avgRating} (${completedSeries.totalRating})</p>
                         </div>
-                    </div>
+                        </div>
                     </a>
                 </li>
             </c:forEach>
@@ -398,4 +397,84 @@
             </div>
         </div>
     </section>
+    <jsp:include page="/WEB-INF/views/general/_search.jsp"/>
 </main>
+<script>
+    function updateFilter(page = 1) {
+        const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
+        // console.log(selectedGenres);
+        const searchKeyword = document.querySelector("#search")?.value?.trim() || "";
+
+        const params = new URLSearchParams();
+        if (searchKeyword) params.append("search", searchKeyword);
+        if (selectedGenres.length > 0) params.append("genre", selectedGenres.join(" "));
+        params.append("currentPage", page);
+        params.append("sizePage", 12);
+        console.log(params.get("search"));
+        fetch("${pageContext.request.contextPath}/series/list?" + params.toString(), {
+            method: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"}
+        })
+            .then(res => res.text())
+            .then(html => {
+                const container = document.querySelector("#result-container");
+                container.innerHTML = html;
+
+                bindPagination(); // gắn lại sự kiện sau khi load JSP mới
+
+            })
+            .catch(err => console.error("Pagination load error:", err));
+    }
+    document.getElementById("search").addEventListener("keypress", e => {
+        if (e.key === "Enter") {
+            // const container = document.querySelector("#container");
+            // container.scrollIntoView({ behavior: "instant", block: "start" });
+
+            e.preventDefault();
+            updateFilter();
+            const container = document.querySelector("#container");
+            const header = document.querySelector("header");
+            const headerHeight = header ? header.offsetHeight : 0;
+
+            // Cuộn đến vị trí trừ chiều cao header
+            const elementPosition = container.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - headerHeight - 10; // trừ thêm 10px để thoáng
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "instant"
+            });
+        }
+    });
+    // Gắn click event cho nút trang
+    function bindPagination() {
+        document.querySelectorAll(".page-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (!btn.disabled) {
+                    const page = parseInt(btn.dataset.page);
+                    updateFilter(page);
+                }
+            });
+        });
+    }
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+    // Lần đầu load trang
+    document.addEventListener("DOMContentLoaded", () => {
+        updateFilter(); // tự load trang đầu
+    });
+
+    window.addEventListener("scroll", () => {
+        const header = document.querySelector("header");
+        if (window.scrollY > 20) {
+            header.classList.add("shadow-lg", "bg-white/90", "backdrop-blur-md");
+        } else {
+            header.classList.remove("shadow-lg", "bg-white/90", "backdrop-blur-md");
+        }
+    });
+</script>

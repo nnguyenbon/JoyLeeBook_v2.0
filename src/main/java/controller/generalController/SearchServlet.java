@@ -46,7 +46,7 @@ public class SearchServlet extends HttpServlet {
 //            request.setAttribute("keyword", keyword);
 //
 //            request.setAttribute("pageTitle", "Search " + (searchType != null ? searchType : "title"));
-//            request.setAttribute("contentPage", "/WEB-INF/views/general/SearchPage.jsp");
+//            request.setAttribute("contentPage", "/WEB-INF/views/general/_search.jsp");
 //            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 //        } catch (SQLException | ClassNotFoundException e) {
 //            throw new RuntimeException(e);

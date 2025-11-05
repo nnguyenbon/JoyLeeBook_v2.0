@@ -13,37 +13,37 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="model.Notification" %>
 <%@ page import="dao.NotificationsDAO" %>
 
-<%
-    CategoryDAO categoryDAO;
-    try {
-        categoryDAO = new CategoryDAO(DBConnection.getConnection());
-        List<Category> categories = categoryDAO.getAll();
-        request.setAttribute("categories", categories);
-    } catch (SQLException | ClassNotFoundException e) {
-        throw new RuntimeException(e);
-    }
+<%--<%--%>
+<%--    CategoryDAO categoryDAO;--%>
+<%--    try {--%>
+<%--        categoryDAO = new CategoryDAO(DBConnection.getConnection());--%>
+<%--        List<Category> categories = categoryDAO.getAll();--%>
+<%--        request.setAttribute("categories", categories);--%>
+<%--    } catch (SQLException | ClassNotFoundException e) {--%>
+<%--        throw new RuntimeException(e);--%>
+<%--    }--%>
 
-    Account loginedAccount = (Account) session.getAttribute("loginedUser");
+<%--    Account loginedAccount = (Account) session.getAttribute("loginedUser");--%>
 
-    if (loginedAccount != null) {
-        if (loginedAccount instanceof User) {
-            User loginedUser = (User) loginedAccount;
-            try {
-                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());
+<%--    if (loginedAccount != null) {--%>
+<%--        if (loginedAccount instanceof User) {--%>
+<%--            User loginedUser = (User) loginedAccount;--%>
+<%--            try {--%>
+<%--                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());--%>
 
-                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);
-                request.setAttribute("userNotifications", notifications);
+<%--                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);--%>
+<%--                request.setAttribute("userNotifications", notifications);--%>
 
-                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());
-                request.setAttribute("unreadCount", unreadCount);
+<%--                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());--%>
+<%--                request.setAttribute("unreadCount", unreadCount);--%>
 
-            } catch (SQLException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-%>
-<header class="relative top-0 left-0 right-0 shadow-md bg-white ">
+<%--            } catch (SQLException | ClassNotFoundException e) {--%>
+<%--                e.printStackTrace();--%>
+<%--            }--%>
+<%--        }--%>
+<%--    }--%>
+<%--%>--%>
+<header class="fixed top-0 left-0 right-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
             <a href="${pageContext.request.contextPath}/homepage">
@@ -51,34 +51,34 @@ change this template use File | Settings | File Templates. --%>
             </a>
         </div>
         <div class="col-span-1 relative">
-            <!-- Nút Genre -->
-            <button
-                    id="genreButton"
-                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"
-            >
-                Genre
-                <i class="fa-solid fa-caret-down"></i>
-            </button>
+<%--            <!-- Nút Genre -->--%>
+<%--            <button--%>
+<%--                    id="genreButton"--%>
+<%--                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"--%>
+<%--            >--%>
+<%--                Genre--%>
+<%--                <i class="fa-solid fa-caret-down"></i>--%>
+<%--            </button>--%>
 
-            <!-- Dropdown -->
-            <div
-                    id="genreMenu"
-                    class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"
-            >
-                <div class="grid grid-cols-5 gap-3 text-sm">
-                    <c:forEach var="category" items="${categories}">
-                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">
-                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">
-                                    ${category.name}
-                            </button>
-                        </a>
-                    </c:forEach>
-                </div>
-            </div>
+<%--            <!-- Dropdown -->--%>
+<%--            <div--%>
+<%--                    id="genreMenu"--%>
+<%--                    class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"--%>
+<%--            >--%>
+<%--                <div class="grid grid-cols-5 gap-3 text-sm">--%>
+<%--                    <c:forEach var="category" items="${categories}">--%>
+<%--                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">--%>
+<%--                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">--%>
+<%--                                    ${category.name}--%>
+<%--                            </button>--%>
+<%--                        </a>--%>
+<%--                    </c:forEach>--%>
+<%--                </div>--%>
+<%--            </div>--%>
         </div>
 
-        <div class="col-span-5">
-            <form action="${pageContext.request.contextPath}/series/list" class="w-full">
+        <div class="col-span-5 col-start-4">
+            <div class="w-full">
                 <input
                         type="text"
                         placeholder="Search series, author"
@@ -86,11 +86,11 @@ change this template use File | Settings | File Templates. --%>
                         name="search"
                         id="search"
                 />
-            </form>
+            </div>
         </div>
         <c:if test="${loginedUser != null}">
 
-            <c:if test="${loginedUser.role == 'reader' || loginedUser.role == 'author'}">
+            <c:if test="${loginedUser.role == 'author'}">
                 <div class="col-span-1 relative flex justify-center items-center">
                     <button id="BtnNotify"
                             class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600">
@@ -232,7 +232,7 @@ change this template use File | Settings | File Templates. --%>
             </div>
         </c:if>
         <c:if test="${loginedUser == null}">
-            <div class="col-span-3 text-right">
+            <div class="col-span-3 col-start-10 text-right">
                 <button>
                     <a
                             href="${pageContext.request.contextPath}/login"

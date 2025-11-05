@@ -135,7 +135,7 @@ public class ReportServlet extends HttpServlet {
             request.setAttribute("type", type);
             request.setAttribute("statusFilter", statusFilter);
             request.setAttribute("activePage", "reports");
-            request.setAttribute("pageTitle", "Manage Series");
+            request.setAttribute("pageTitle", "Manage Reports");
             request.setAttribute("contentPage", "/WEB-INF/views/staff/_reportList.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
@@ -179,7 +179,7 @@ public class ReportServlet extends HttpServlet {
             request.setAttribute("type", type);
             request.setAttribute("contentPage", "/WEB-INF/views/staff/_reportDetail.jsp");
             request.setAttribute("activePage", "reports");
-            request.setAttribute("pageTitle", "Manage Report");
+            request.setAttribute("pageTitle", "Manage Reports");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);

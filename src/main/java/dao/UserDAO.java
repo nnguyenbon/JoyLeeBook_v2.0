@@ -3,6 +3,7 @@ package dao;
 import model.SeriesAuthor;
 import model.User;
 import utils.AuthenticationUtils;
+import utils.FormatUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -90,8 +91,6 @@ public class UserDAO {
             stmt.setString(4, user.getPasswordHash());
             stmt.setBoolean(5, false);
             stmt.setInt(6, 0);
-            stmt.setTimestamp(7, Timestamp.valueOf(user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now()));
-            stmt.setTimestamp(8, Timestamp.valueOf(user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         }
     }
@@ -299,10 +298,9 @@ public class UserDAO {
         user.setStatus(rs.getString("status"));
         user.setPoints(rs.getInt("points"));
 
-        Timestamp created = rs.getTimestamp("created_at");
-        Timestamp updated = rs.getTimestamp("updated_at");
-        user.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
-        user.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
+
+        user.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        user.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
 
         return user;
     }

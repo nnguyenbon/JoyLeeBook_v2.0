@@ -68,12 +68,7 @@ public class SeriesDAO {
         sql.append("WHERE s.is_deleted = 0 ");
 
         if (genreIds != null && !genreIds.isEmpty()) {
-            sql.append("AND c.category_id IN (");
-            for (int i = 0; i < genreIds.size(); i++) {
-                sql.append("?");
-                if (i < genreIds.size() - 1) sql.append(",");
-            }
-            sql.append(") ");
+            sql.append("AND c.category_id = ? ".repeat(genreIds.size()));
         }
 
         if (userId > 0) {
@@ -131,15 +126,15 @@ public class SeriesDAO {
         return seriesList;
     }
 
-    public List<Series> getAll(String search, List<Integer> genreIds, int userId, String status, PaginationRequest paginationRequest) throws SQLException {
+    public List<Series> getAll(String search, List<Integer> genreIds, int userId, String approval_status, PaginationRequest paginationRequest) throws SQLException {
         List<Series> list = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
 
-        StringBuilder sql = buildSeriesBaseQuery(false, genreIds, userId, status, search);
+        StringBuilder sql = buildSeriesBaseQuery(false, genreIds, userId, approval_status, search);
         sql.append(paginationDAOHelper.buildPaginationClause());
 
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+            setSeriesQueryParameters(stmt, genreIds, userId, approval_status, search);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -151,10 +146,10 @@ public class SeriesDAO {
         return list;
     }
 
-    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String status) throws SQLException {
-        StringBuilder sql = buildSeriesBaseQuery(true, genreIds, userId, status, search);
+    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String approvalStatus) throws SQLException {
+        StringBuilder sql = buildSeriesBaseQuery(true, genreIds, userId, approvalStatus, search);
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+            setSeriesQueryParameters(stmt, genreIds, userId, approvalStatus, search);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
             }

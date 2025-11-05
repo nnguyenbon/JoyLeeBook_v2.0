@@ -42,10 +42,11 @@ public class ChapterServlet extends HttpServlet {
                 case "/detail" -> viewChapterContent(request, response);
                 case "/navigate" -> navigateChapter(request, response);
                 case "/list" -> viewChapterList(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -59,11 +60,12 @@ public class ChapterServlet extends HttpServlet {
                 case "/update" -> updateChapter(request, response);
                 case "/approve" -> approveChapter(request, response);
                 case "/delete" -> deleteChapter(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
 
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
