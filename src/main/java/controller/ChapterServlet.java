@@ -128,31 +128,40 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void viewChapterContent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "guest";
-        int userId = -1;
+        int userId = 0;
         if (loggedInAccount instanceof User user) {
             role = user.getRole();
             userId = user.getUserId();
         } else if (loggedInAccount instanceof Staff staff) {
             role = staff.getRole();
         }
-        int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : -1;
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
+            LikeDAO likeDAO = new LikeDAO(conn);
+            int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : chapterDAO.getFirstChapterNumber(seriesId);
             if (role.equals("admin") || role.equals("staff")) {
                 Chapter chapter = chapterDAO.findById(chapterId);
+                chapter.setTotalLike(likeDAO.countByChapter(chapterId));
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
+                request.setAttribute("userId", userId);
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContentForStaff.jsp");
                 request.setAttribute("activePage", "chapters");
                 request.setAttribute("pageTitle", "Manage Chapters");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
                 String approvalStatus = ("reader".equals(role) || "guest".equals(role)) ? "approved" : null;
-                if (chapterId == -1) {
-                    chapterId = chapterDAO.getFirstChapterNumber(seriesId);
+                if (chapterId == 0) {
+                    String referer = request.getHeader("referer");
+                    if (referer != null && !referer.isEmpty()) {
+                        response.sendRedirect(referer);
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+                    }
+                    return;
                 }
                 Chapter chapter = chapterDAO.findById(chapterId, approvalStatus);
                 buildChapter(chapter, conn);
@@ -172,6 +181,7 @@ public class ChapterServlet extends HttpServlet {
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterList.get(chapterList.size() - 1).getChapterId());
                 request.setAttribute("chapter", chapter);
+                request.setAttribute("userId", userId);
                 request.setAttribute("chapterList", chapterList);
                 request.setAttribute("pageTitle", "Chapter Content");
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContent.jsp");

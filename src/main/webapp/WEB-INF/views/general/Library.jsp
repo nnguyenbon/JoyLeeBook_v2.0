@@ -41,7 +41,7 @@
                     <div class="ml-4 flex-1 flex flex-col min-h-0">
                         <h3 class="font-semibold text-gray-900 line-clamp-2 mb-1">${series.title}</h3>
                         <p class="text-sm text-gray-500 mb-1 line-clamp-1">by
-                            <c:forEach var="author" items="${series.authorsName}" varStatus="loop">
+                            <c:forEach var="author" items="${series.authorNameList}" varStatus="loop">
                                 ${author}<c:if test="${!loop.last}">, </c:if>
                             </c:forEach>
                         </p>
@@ -49,7 +49,7 @@
                                 ${series.description}
                         </p>
                         <div class="flex items-center flex-wrap gap-2 text-xs mb-2">
-                            <c:forEach var="category" items="${series.categories}" varStatus="catStatus">
+                            <c:forEach var="category" items="${series.categoryList}" varStatus="catStatus">
                                 <c:if test="${catStatus.index < 2}">
                                     <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full whitespace-nowrap">${category}</span>
                                 </c:if>
@@ -74,7 +74,7 @@
                             </c:choose>
                         </div>
                         <div class="flex justify-between text-xs text-gray-500 mt-auto pt-2">
-                            <span class="whitespace-nowrap">⭐ ${series.avgRating} (${series.countRatings})</span>
+                            <span class="whitespace-nowrap">⭐ ${series.avgRating} (${series.totalRating})</span>
                             <span class="whitespace-nowrap">${series.totalChapters} Chapters</span>
                             <span class="whitespace-nowrap">Updated: ${series.updatedAt}</span>
                         </div>

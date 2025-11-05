@@ -153,7 +153,6 @@ public class ReactionServlet extends HttpServlet {
             TrackPointUtils.trackAction(userId, 2, "Like new chapter", "like", likeDAO.findById(userId, chapterId).getChapterId(), 5);
             return likeDAO.countByChapter(like.getChapterId());
         } catch (Exception exception) {
-
         }
         return 0;
     }
