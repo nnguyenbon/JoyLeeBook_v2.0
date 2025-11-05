@@ -3,7 +3,6 @@ package controller;
 import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
-import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -42,10 +41,11 @@ public class ChapterServlet extends HttpServlet {
                 case "/detail" -> viewChapterContent(request, response);
                 case "/navigate" -> navigateChapter(request, response);
                 case "/list" -> viewChapterList(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -59,11 +59,12 @@ public class ChapterServlet extends HttpServlet {
                 case "/update" -> updateChapter(request, response);
                 case "/approve" -> approveChapter(request, response);
                 case "/delete" -> deleteChapter(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
 
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -667,49 +668,7 @@ public class ChapterServlet extends HttpServlet {
         return s.isEmpty() ? null : s;
     }
 
-    /**
-     * Fetches a paginated list of chapters authored by a specific user.
-     *
-     * @param userId       the ID of the user
-     * @param page         the page number (1-based)
-     * @param pageSize     the number of items per page
-     * @param statusFilter optional status filter (e.g., "published", "draft")
-     * @param keyword      optional keyword to search in chapter titles
-     * @return a PagedResult containing the list of ChapterListItem and pagination info
-     * @throws SQLException if a database access error occurs
-     */
-    public PagedResult<ChapterItemDTO> getAuthoredChapters(int userId, int page, int pageSize, String statusFilter, String keyword) throws SQLException, ClassNotFoundException {
-        try (Connection connection = DBConnection.getConnection()) {
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            int offset = (Math.max(page, 1) - 1) * pageSize;
-            var items = chapterDAO.getAuthoredChapters(userId, offset, pageSize, statusFilter, keyword);
-            int total = chapterDAO.countAuthoredChapters(userId, statusFilter, keyword);
-            return new PagedResult<>(items, page, pageSize, total);
-        }
-    }
 
-    /**
-     * Fetches a paginated list of chapters from the user's reading history.
-     *
-     * @param userId   the ID of the user
-     * @param page     the page number (1-based)
-     * @param pageSize the number of items per page
-     * @param keyword  optional keyword to search in chapter titles
-     * @return a PagedResult containing the list of ChapterListItem and pagination info
-     * @throws SQLException if a database access error occurs
-     */
-    public PagedResult<ChapterItemDTO> getReadingHistoryChapters(int userId, int page, int pageSize, String keyword) throws SQLException {
-        try (Connection connection = DBConnection.getConnection()) {
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            int offset = (Math.max(page, 1) - 1) * pageSize;
-            var items = chapterDAO.getReadingHistoryChapters(userId, offset, pageSize, keyword);
-            int total = chapterDAO.countReadingHistoryChapters(userId, keyword);
-            return new PagedResult<ChapterItemDTO>(items, page, pageSize, total);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     public static class PagedResult<T> {
         private final List<T> items;

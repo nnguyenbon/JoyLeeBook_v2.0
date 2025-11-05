@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
 import utils.AuthenticationUtils;
+import utils.FormatUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -51,16 +52,18 @@ public class SeriesServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             String action = request.getPathInfo();
-            if (action == null) action = "";
+            if (action == null) action = "/";
 
             switch (action) {
                 case "/add" -> showAddSeriesForm(request, response);
                 case "/edit" -> showEditSeriesForm(request, response);
                 case "/detail" -> viewSeriesDetail(request, response);
-                default -> throw new ServletException("Invalid action");
+                case "/list" -> viewSeriesList(request, response);
+                default -> throw new ServletException("Invalid path or function does not exist.");
             }
-        } catch (ServletException e) {
+        }catch (ServletException e){
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -84,10 +87,11 @@ public class SeriesServlet extends HttpServlet {
                 case "/update" -> updateSeries(request, response);
                 case "/approve" -> approveSeries(request, response);
                 case "/delete" -> deleteSeries(request, response);
-                default -> throw new ServletException("Invalid action");
+                default -> throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -220,14 +224,15 @@ public class SeriesServlet extends HttpServlet {
             // Extract filter parameters
             String search = request.getParameter("search");
             String approvalStatus = request.getParameter("filterByStatus");
-
-            List<Integer> genreIds = Optional.ofNullable(request.getParameterValues("genre"))
-                    .map(Arrays::asList)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .map(Integer::parseInt)
-                    .collect(Collectors.toList());
-
+            String genreParams = request.getParameter("genre");
+            List<Integer> genreIds = new ArrayList<>();
+            if (genreParams != null) {
+                    for (String genreParam : genreParams.split(" ")) {
+                        genreIds.add(Integer.parseInt(genreParam));
+                    }
+            } else {
+                genreIds = null;
+            }
             // Readers can only see approved series
             if ("reader".equals(role)) {
                 approvalStatus = "approved";
@@ -243,13 +248,19 @@ public class SeriesServlet extends HttpServlet {
             for (Series series : seriesList) {
                 buildSeries(conn, series);
             }
+            int totalRecords = 0;
+            if (seriesList.isEmpty()) {
+                seriesList = new ArrayList<>();
+            } else {
+                totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, authorId, approvalStatus);
+            }
 
             // Get total count for pagination
-            int totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, authorId, approvalStatus);
 
             // Set request attributes
-            request.setAttribute("size", totalRecords);
+
             request.setAttribute("seriesList", seriesList);
+            request.setAttribute("size", totalRecords);
             request.setAttribute("search", search);
             request.setAttribute("filterByStatus", approvalStatus);
             PaginationUtils.sendParameter(request, paginationRequest);
@@ -257,14 +268,18 @@ public class SeriesServlet extends HttpServlet {
             // Forward to role-specific view
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesListForStaff.jsp");
-                request.setAttribute("activePage", "series");
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else if ("author".equals(role)) {
                 request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
             } else {
-                request.setAttribute("contentPage", "/WEB-INF/views/series/SeriesList.jsp");
-                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+                request.setAttribute("genresParam", genreIds);
+                String ajaxHeader = request.getHeader("X-Requested-With");
+                if ("XMLHttpRequest".equals(ajaxHeader)) {
+                    request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
+                } else {
+                    request.getRequestDispatcher("/WEB-INF/views/general/Homepage.jsp").forward(request, response);
+                }
             }
 
         } catch (Exception e) {
@@ -300,6 +315,7 @@ public class SeriesServlet extends HttpServlet {
 
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
@@ -321,12 +337,11 @@ public class SeriesServlet extends HttpServlet {
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
-                request.setAttribute("activePage", "series");
+                request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
-
             }
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -360,7 +375,7 @@ public class SeriesServlet extends HttpServlet {
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
             request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
-            request.setAttribute("activePage", "Edit Series");
+            request.setAttribute("pageTitle", "Edit Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
         } catch (SQLException | ClassNotFoundException e) {

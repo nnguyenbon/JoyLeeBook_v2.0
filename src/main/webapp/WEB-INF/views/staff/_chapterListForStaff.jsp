@@ -12,15 +12,10 @@
 <!-- Content -->
 <div class="main-content px-5 py-3 overflow-y-auto max-h-[90vh] custom-scrollbar">
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
-        <div class="flex justify-between items-center">
-            <!-- Tabs Header -->
-            <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
-                <a href="${pageContext.request.contextPath}/series?action=list" id="tab-series" data-type="series" class="tab-btn text-xl text-gray-500 border-b-4 py-1 border-white hover:text-[#195DA9]">Series List</a>
-                <a href="${pageContext.request.contextPath}/chapter?action=list&status=Pending" id="tab-chapter" data-type="chapter" class="tab-btn text-xl text-[#195DA9] border-b-4 py-1 border-[#195DA9]">Chapter Review</a>
-            </div>
 
             <!-- Search & Filter Form -->
-            <form method="GET" action="${pageContext.request.contextPath}/chapter/list" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
+            <form method="GET" action="${pageContext.request.contextPath}/chapter/list" id="filterForm"
+                  class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                 <!-- Ô tìm kiếm -->
                 <div class="col-span-2 relative">
                     <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
@@ -40,7 +35,6 @@
                     </select>
                 </div>
             </form>
-        </div>
 
         <!-- Table -->
         <div class="overflow-x-auto rounded-sm mb-3">

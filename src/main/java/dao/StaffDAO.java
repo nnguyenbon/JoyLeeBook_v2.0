@@ -2,6 +2,7 @@ package dao;
 
 import model.Staff;
 import utils.AuthenticationUtils;
+import utils.FormatUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -130,9 +131,7 @@ public class StaffDAO {
         staff.setFullName(rs.getString("full_name"));
         staff.setRole(rs.getString("role"));
         staff.setDeleted(rs.getBoolean("is_deleted"));
-
-        Timestamp created = rs.getTimestamp("created_at");
-        staff.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+        staff.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
 
         return staff;
     }

@@ -7,39 +7,35 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
 <div class="main-content px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-[90vh] px-2 custom-scrollbar ">
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
-        <div class="flex justify-between items-center">
-            <!-- Tabs Header -->
-            <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
-                <a href="${pageContext.request.contextPath}/series/list" id="tab-series" data-type="series" class="tab-btn text-xl text-[#195DA9] border-b-4 py-1 border-[#195DA9]">Series List</a>
-                <a href="${pageContext.request.contextPath}/chapter?action=list&status=Pending" id="tab-chapter" data-type="chapter" class="tab-btn text-xl text-gray-500 border-b-4 border-white py-1 hover:text-[#195DA9]">Chapter Review</a>
+        <!-- Search & Filter Form -->
+        <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm"
+              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <!-- Ô tìm kiếm -->
+            <div class="col-span-2 relative">
+                <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                <input type="text" name="search" id="searchInput" placeholder="Search series, chapter..."
+                       value="${search}"
+                       class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
             </div>
 
-            <!-- Search & Filter Form -->
-            <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm" class="grid grid-cols-3 gap-4 mb-3">
-                <!-- Ô tìm kiếm -->
-                <div class="col-span-2 relative">
-                    <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
-                    <input type="text" name="search" id="searchInput" placeholder="Search series, chapter..."
-                           value="${search}"
-                           class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                </div>
+            <!-- Lọc status -->
+            <div class="col-span-1">
+                <select name="filterByStatus" id="filterByStatus"
+                        class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All status</option>
+                    <option value="approved" ${filterByStatus eq 'approved' ? 'selected' : ''}>Approved</option>
+                    <option value="pending" ${filterByStatus eq 'pending' ? 'selected' : ''}>Pending</option>
+                    <option value="rejected" ${filterByStatus eq 'rejected' ? 'selected' : ''}>Rejected</option>
+                </select>
+            </div>
+        </form>
 
-                <!-- Lọc status -->
-                <div class="col-span-1">
-                    <select name="filterByStatus" id="filterByStatus"
-                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">All status</option>
-                        <option value="approved" ${filterByStatus eq 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="pending" ${filterByStatus eq 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="rejected" ${filterByStatus eq 'rejected' ? 'selected' : ''}>Rejected</option>
-                    </select>
-                </div>
-            </form>
-        </div>
+
 
 
         <!-- Table -->
@@ -73,7 +69,7 @@
                         <td class="px-4 py-3 text-gray-700">
                             <div class="flex items-center">
                                 <i class="fa-regular fa-star text-yellow-500 mr-1"></i>
-                                    ${series.avgRating} (${series.totalRating})
+                                <fmt:formatNumber value="${series.avgRating}" type="number" maxFractionDigits="1" minFractionDigits="1"/> (${series.totalRating})
                             </div>
                         </td>
                         <td class="px-4 py-3 text-gray-700">${series.totalChapters} Chapters</td>
@@ -255,6 +251,7 @@
         closeAllDropdowns();
     })
 
+    //Function close all menu
     function closeAllDropdowns() {
         document.querySelectorAll('.relative ul').forEach(menu => {
             menu.classList.add("hidden");

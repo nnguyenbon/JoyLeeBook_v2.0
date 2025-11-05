@@ -1,5 +1,6 @@
 package controller;
 
+import dao.AccountDAO;
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,82 +9,83 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import dto.AccountDTO;
+import model.Account;
 import model.BanReason;
+import model.Staff;
+import model.User;
 import services.account.AccountServices;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/account")
+@WebServlet("/account/*")
 public class AccountServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        HttpSession session = req.getSession(false);
-//        // Nếu chưa đăng nhập thì redirect
-//        if (session == null || session.getAttribute("role") == null) {
-//            resp.sendRedirect("login.jsp");
-//            return;
-//        }
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String action = request.getPathInfo();
+            if (action == null) action = "";
 
-        String action = req.getParameter("action");
-        if ("viewAccountList".equals(action)) {
-            viewAccountList(req, resp);
-        } else if ("viewDetail".equals(action)) {
-            viewAccountDetail(req, resp);
-        } else if ("searchAccount".equals(action)) {
-            searchAccount(req, resp);
-        } else if ("showAddAccount".equals(action)) {
-            showAddAccount(req, resp);
-        } else if ("showEditAccount".equals(action)) {
-            showEditAccount(req, resp);
-        } else if ("deleteAccount".equals(action)) {
-            deleteAccount(req, resp);
-        } else if ("banAccount".equals(action)) {
-            banAccount(req, resp);
-        } else {
-            // Default to viewAccountList
-            viewAccountList(req, resp);
+            switch (action) {
+                case "/add" -> showAddAccount(request, response);
+                case "/edit" -> showEditAccount(request, response);
+                case "/detail" -> viewAccountDetail(request, response);
+                case "/list" -> viewAccountList(request, response);
+                default -> throw new ServletException("Invalid path or function does not exist.");
+            }
+        }catch (ServletException e){
+            e.printStackTrace();
+            throw e;
         }
     }
 
     private void viewAccountList(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        HttpSession session = req.getSession(false);
-//
-//        // Nếu chưa đăng nhập thì redirect
-//        if (session == null || session.getAttribute("role") == null) {
-//            resp.sendRedirect("login.jsp");
-//            return;
-//        }
+        // Determine user role and context
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(req.getSession());
+        String role = "reader";
 
-//        String role = (String) session.getAttribute("role"); // "reader", "staff", "admin"
-
+        if (loggedInAccount != null) {
+            if (loggedInAccount instanceof User user) {
+                role = user.getRole();
+            } else if (loggedInAccount instanceof Staff staff) {
+                role = staff.getRole();
+            }
+        }
         try {
-            String roleInSession = "staff";
             String search = req.getParameter("search");
             String filterByRole = req.getParameter("filterByRole");
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(req);
             paginationRequest.setOrderBy("id");
-
-            AccountServices accountServices = new AccountServices();
+            AccountDAO accountDAO = new AccountDAO();
             // Gọi service để lấy danh sách tài khoản phù hợp với role người đăng nhập
-            List<AccountDTO> accountList = accountServices.getAccountList(search,filterByRole, roleInSession, paginationRequest);
-            int totalRecords = accountServices.getTotalAccounts(search, filterByRole, roleInSession);
+            List<Account> accountList = accountDAO.getAccounts(search,filterByRole, role, paginationRequest);
+            int totalRecords = accountDAO.getTotalAccounts(search, filterByRole, role);
 
             req.setAttribute("accountList", accountList);
+            req.setAttribute("size", totalRecords);
             req.setAttribute("search", search);
             PaginationUtils.sendParameter(req, paginationRequest);
 
             //forward theo role
-            req.setAttribute("contentPage", "/WEB-INF/views/general/staffview/UsersListView.jsp");
+            if ("reader".equalsIgnoreCase(role)) {
+                req.setAttribute("contentPage", "/WEB-INF/views/_searchAuthor.jsp");
+                req.setAttribute("search", search);
+                req.setAttribute("pageTitle", "Search");
+                req.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(req, resp);
+
+            }
+            req.setAttribute("contentPage", "/WEB-INF/views/staff/_usersListView.jsp");
             req.setAttribute("activePage", "users");
             req.setAttribute("filterByRole", filterByRole);
+            req.setAttribute("pageTitle", "Manage Users");
             req.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
             req.setAttribute("errorMessage", "Lỗi khi tải danh sách tài khoản: " + e.getMessage());
-            req.getRequestDispatcher("/views/error.jsp").forward(req, resp);
+            req.getRequestDispatcher("/views/error/error.jsp").forward(req, resp);
         }
     }
 
@@ -237,18 +239,21 @@ public class AccountServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("role") == null) {
-            resp.sendRedirect("login.jsp");
-            return;
-        }
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String action = request.getPathInfo();
+            if (action == null) action = "";
 
-        String action = req.getParameter("action");
-        if ("insertAccount".equals(action)) {
-            insertAccount(req, resp);
-        } else if ("updateAccount".equals(action)) {
-            updateAccount(req, resp);
+            switch (action) {
+                case "/insert" -> insertAccount(request, response);
+                case "/update" -> updateAccount(request, response);
+                case "/delete" -> deleteAccount(request, response);
+                case "/ban" -> banAccount(request, response);
+                default -> throw new ServletException("Invalid path or function does not exist.");
+            }
+        }catch (ServletException e){
+            e.printStackTrace();
+            throw e;
         }
     }
 

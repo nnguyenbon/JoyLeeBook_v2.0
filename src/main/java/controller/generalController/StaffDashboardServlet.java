@@ -1,5 +1,8 @@
 package controller.generalController;
 
+import dao.ReportDAO;
+import dao.ReviewChapterDAO;
+import db.DBConnection;
 import dto.staff.DashboardStatsDTO;
 import dto.staff.QuickStatsDTO;
 import dto.staff.RecentActionDTO;
@@ -17,6 +20,11 @@ import utils.ValidationInput;
 
 import java.io.IOException;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -52,12 +60,12 @@ public class StaffDashboardServlet extends HttpServlet {
         int staffId = ValidationInput.isPositiveInteger(request.getParameter("staffId")) ? Integer.parseInt(request.getParameter("staffId")) : 1;
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");
 
-        try {
+        try (Connection connection = DBConnection.getConnection()) {
             //Check authentication
             StaffServices staffServices = new StaffServices();
             DashboardStatsDTO stats = staffServices.getDashboardStats(staffId);
             List<RecentActionDTO> recentActions = staffServices.getRecentActions(staffId, 4);
-            QuickStatsDTO quickStats = staffServices.getQuickStatsToday(staffId);
+            QuickStatsDTO quickStats = getQuickStatsToday(staffId, connection);
 
             // Set attributes cho JSP
             request.setAttribute("dashboardStats", stats);
@@ -70,6 +78,31 @@ public class StaffDashboardServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         }catch (Exception e) {
             throw new ServletException(e);
+        }
+    }
+    public QuickStatsDTO getQuickStatsToday(int staffId, Connection conn) throws SQLException {
+        try {
+            ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
+            ReportDAO reportDAO = new ReportDAO(conn);
+            QuickStatsDTO stats = new QuickStatsDTO();
+            LocalDate today = LocalDate.now();
+            Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+            // Reviews completed: COUNT(review_chapter) WHERE staff_id = ? AND created_at >= ?
+            stats.setReviewsCompleted(reviewChapterDAO.countByStaffAndDate(staffId, startOfDay));
+
+            // Content approved: COUNT(review_chapter) WHERE staff_id = ? AND status = 'approved' AND created_at >= ?
+            stats.setContentApproved(reviewChapterDAO.countByStaffStatusAndDate(staffId, "approved", startOfDay));
+
+            // Content rejected: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected' AND created_at >= ?
+            stats.setContentRejected(reviewChapterDAO.countByStaffStatusAndDate(staffId, "rejected", startOfDay));
+
+            // Reports resolved: COUNT(reports) WHERE staff_id = ? AND status = 'resolved' AND updated_at >= ?
+            stats.setReportsResolved(reportDAO.countResolvedByStaffAndDate(staffId, startOfDay));
+
+            return stats;
+        } catch (Exception e) {
+            throw new SQLException(e);
         }
     }
 }

@@ -2,11 +2,13 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
+import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import utils.PaginationUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,9 +19,12 @@ public class HomepageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
+
+
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             CategoryDAO categoryDAO = new CategoryDAO(conn);
             UserDAO userDAO = new UserDAO(conn);
+
             request.setAttribute("hotSeriesList", seriesDAO.getTopRatedSeries(3));
             request.setAttribute("weeklySeriesList", seriesDAO.getWeeklySeries(8));
             request.setAttribute("newReleaseSeriesList", seriesDAO.getNewReleasedSeries(4));
@@ -27,6 +32,7 @@ public class HomepageServlet extends HttpServlet {
             request.setAttribute("completedSeriesList", seriesDAO.getSeriesByStatus(6, "completed"));
             request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
             request.setAttribute("userList",  userDAO.selectTopUserPoints(8));
+            request.setAttribute("categories", categoryDAO.getAll());
             request.setAttribute("pageTitle", "JoyLeeBook");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);

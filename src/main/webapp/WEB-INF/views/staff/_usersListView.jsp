@@ -6,11 +6,8 @@
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl p-5">
 
         <!-- Search & Filter Form -->
-        <form method="GET" action="${pageContext.request.contextPath}/account" id="filterForm"
+        <form method="GET" action="${pageContext.request.contextPath}/account/list" id="filterForm"
               class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-            <input type="hidden" name="action" value="viewAccountList">
-            <input type="hidden" name="page" value="1">
-
             <!-- Ô tìm kiếm -->
             <div class="col-span-2 relative">
                 <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
@@ -47,7 +44,7 @@
                 <tbody class="divide-y divide-gray-300">
                 <c:forEach var="account" items="${accountList}">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${account.id}</td>
+                        <td class="px-4 py-3">${account.accountId}</td>
                         <td class="px-4 py-3 flex items-center gap-3">
                             <img src="${pageContext.request.contextPath}/img/shared/imgUser.png" alt="${account.fullName}"
                                  class="w-10 h-10 rounded-full object-cover">
@@ -75,7 +72,7 @@
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
 
-                                    <a href="${pageContext.request.contextPath}/account?action=viewDetail&id=${account.id}"
+                                    <a href="${pageContext.request.contextPath}/account/detail?accountId=${account.accountId}"
                                        class="block px-2 py-2 text-gray-700 border border-gray-300  rounded-lg hover:bg-blue-100">
                                         <i class="fa-regular fa-eye mr-2"></i>Detail
                                     </a>
@@ -88,24 +85,24 @@
 
                                 <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden group-hover:block">
 
-                                    <c:if test="${sessionScope.role eq 'staff' or sessionScope.role eq 'admin'}">
+                                    <c:if test="${loginedUser.getRole() eq 'staff' or loginedUser.getRole() eq 'admin'}">
                                         <li>
-                                            <a href="${pageContext.request.contextPath}/account?action=banAccount&id=${account.id}&reason=VIOLATION"
+                                            <a href="${pageContext.request.contextPath}/account/ban?accountId=${account.accountId}&reason=VIOLATION"
                                                onclick="return confirm('Xác nhận cấm tài khoản?')"
                                                class="block px-4 py-2 text-red-600 hover:bg-red-50">
                                                 <i class="fas fa-ban mr-2"></i>Ban
                                             </a>
                                         </li>
                                     </c:if>
-                                    <c:if test="${sessionScope.role eq 'admin'}">
+                                    <c:if test="${loginedUser.getRole() eq 'admin'}">
                                         <li>
-                                            <a href="${pageContext.request.contextPath}/account?action=showEditAccount&id=${account.id}"
+                                            <a href="${pageContext.request.contextPath}/account/edit?accountId=${account.accountId}"
                                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                                                 <i class="fas fa-edit mr-2"></i>Edit
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="${pageContext.request.contextPath}/account?action=deleteAccount&id=${account.id}"
+                                            <a href="${pageContext.request.contextPath}/account/delete?accountId=${account.accountId}"
                                                onclick="return confirm('Xác nhận xóa tài khoản?')"
                                                class="block px-4 py-2 text-red-600 hover:bg-red-50">
                                                 <i class="fas fa-trash mr-2"></i>Delete
@@ -122,7 +119,7 @@
         </div>
         <!-- Pagination -->
         <div class="flex justify-end items-center mb-0 gap-1 pt-2 text-sm px-9">
-            <a href="${pageContext.request.contextPath}/account?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+            <a href="${pageContext.request.contextPath}/account/list?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
                class="page-link">
                 <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                         <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -131,7 +128,7 @@
             </a>
 
             <c:if test="${currentPage > 3}">
-                <a href="${pageContext.request.contextPath}/account?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/account/list?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                 </a>
@@ -140,7 +137,7 @@
 
             <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                        end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                <a href="${pageContext.request.contextPath}/account?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/account/list?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -151,13 +148,13 @@
 
             <c:if test="${currentPage < totalPage - 2}">
                 <span class="px-2 py-1">...</span>
-                <a href="${pageContext.request.contextPath}/account?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/account/list?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                 </a>
             </c:if>
 
-            <a href="${pageContext.request.contextPath}/account?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+            <a href="${pageContext.request.contextPath}/account/list?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
                class="page-link">
                 <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                         <c:if test="${currentPage == totalPage}">disabled</c:if>>
