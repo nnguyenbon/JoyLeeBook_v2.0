@@ -98,7 +98,6 @@ public class Series {
     public int getTotalRating() {
         return totalRating;
     }
-
     public void setTotalRating(int totalRating) {
         this.totalRating = totalRating;
     }

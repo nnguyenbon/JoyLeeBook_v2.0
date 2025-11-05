@@ -150,7 +150,7 @@ public class LikeDAO {
             ps.setInt(1, userId);
             ps.setInt(2, chapterId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+               return rs.next();    
             }
         }
     }

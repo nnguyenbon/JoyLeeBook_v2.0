@@ -10,9 +10,9 @@ import java.util.List;
 public class AccountServices {
     private AccountDAO accountDAO = new AccountDAO();
 
-    public List<AccountDTO> getAccountList(String search,String filterByRole, String roleInSession, PaginationRequest paginationRequest) throws Exception {
-        return accountDAO.getAccounts(search,filterByRole, roleInSession, paginationRequest);
-    }
+//    public List<AccountDTO> getAccountList(String search,String filterByRole, String roleInSession, PaginationRequest paginationRequest) throws Exception {
+//        return accountDAO.getAccounts(search,filterByRole, roleInSession, paginationRequest);
+//    }
 
     public int getTotalAccounts(String search, String filterByRole, String roleInSession) throws Exception {
         return accountDAO.getTotalAccounts(search, filterByRole, roleInSession);

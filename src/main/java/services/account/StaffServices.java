@@ -90,25 +90,7 @@ public class StaffServices {
     }
 
     // Lấy quick stats hôm nay
-    public QuickStatsDTO getQuickStatsToday(int staffId) throws SQLException {
-        QuickStatsDTO stats = new QuickStatsDTO();
-        LocalDate today = LocalDate.now();
-        Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
-        // Reviews completed: COUNT(review_chapter) WHERE staff_id = ? AND created_at >= ?
-        stats.setReviewsCompleted(reviewChapterDAO.countByStaffAndDate(staffId, startOfDay));
-
-        // Content approved: COUNT(review_chapter) WHERE staff_id = ? AND status = 'approved' AND created_at >= ?
-        stats.setContentApproved(reviewChapterDAO.countByStaffStatusAndDate(staffId, "approved", startOfDay));
-
-        // Content rejected: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected' AND created_at >= ?
-        stats.setContentRejected(reviewChapterDAO.countByStaffStatusAndDate(staffId, "rejected", startOfDay));
-
-        // Reports resolved: COUNT(reports) WHERE staff_id = ? AND status = 'resolved' AND updated_at >= ?
-        stats.setReportsResolved(reportDAO.countResolvedByStaffAndDate(staffId, startOfDay));
-
-        return stats;
-    }
     
     public Staff getCurrentStaff(int staffId) throws SQLException, ClassNotFoundException {
         return staffDAO.findById(staffId);

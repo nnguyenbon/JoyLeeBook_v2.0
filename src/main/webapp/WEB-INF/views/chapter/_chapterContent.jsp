@@ -105,7 +105,7 @@
                         data-user-id="${10}"
                         data-chapter-id="${chapter.chapterId}">
                     <i id="like" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart'}"></i>
-                    <span id="likeCount">${totalLike}</span>
+                    <span id="likeCount">${chapter.totalLike}</span>
                 </button>
 
             </div>
@@ -204,11 +204,11 @@
 
             <input type="text" id="commentContent" name="content"
                    class="flex-1 border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                   placeholder="Write a comment..." ${sessionScope.loginedUser == null ? "disabled" : ""}
+                   placeholder="Write a comment..." ${userId == 0 ? "disabled" : ""}
                    required
             />
 
-            <button id="commentSubmitBtn" type="submit"
+            <button id="commentSubmitBtn" type="submit" ${userId == 0 ? "disabled" : ""}
                     class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
                 <i class="fa-solid fa-comment"></i>
             </button>
@@ -235,8 +235,7 @@
                             </button>
                         </c:if>
 
-                        <div
-                                class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                             <c:if test="${comment.userId == userId}">
                                 <button
                                         class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -273,7 +272,7 @@
                 <!-- Header -->
                 <div class="flex items-center mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500 mr-2" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
+                         viewBox="0 0 24 24" stroke="currentColor"></svg>
                         <i class="fa-regular fa-flag text-red-500"></i>
                     <div>
                         <h2 class="text-lg font-bold text-red-600">Report Comment</h2>

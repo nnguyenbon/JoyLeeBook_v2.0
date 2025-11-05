@@ -75,7 +75,7 @@ CREATE TABLE series (
     status NVARCHAR(20) CHECK (status IN ('completed', 'ongoing')) DEFAULT 'ongoing' NOT NULL,
 	approval_status NVARCHAR(20) CHECK (approval_status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending' NOT NULL,
     is_deleted BIT DEFAULT 0 NOT NULL,
-    rating_points INT DEFAULT 0 NOT NULL,
+    rating_points  DEFAULT 0 NOT NULL,
     created_at DATETIME DEFAULT GETDATE() NOT NULL,
     updated_at DATETIME DEFAULT GETDATE() NOT NULL
 );

@@ -4,6 +4,7 @@ import dao.helper.PaginationDAOHelper;
 import db.DBConnection;
 import dto.PaginationRequest;
 import dto.AccountDTO;
+import model.Account;
 import model.BanReason; // Assuming enum is in model
 import utils.FormatUtils;
 
@@ -39,15 +40,15 @@ public class AccountDAO {
      * @return
      * @throws SQLException
      */
-    public List<AccountDTO> getAccounts(String search, String filterByRole, String currentRole, PaginationRequest paginationRequest) throws SQLException {
-        List<AccountDTO> list = new ArrayList<>();
+    public List<Account> getAccounts(String search, String filterByRole, String currentRole, PaginationRequest paginationRequest) throws SQLException {
+        List<Account> list = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
         List<Object> params = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder();
 
         // --- Tạo truy vấn gốc theo quyền ---
-        if ("reader".equalsIgnoreCase(currentRole)) {
+        if ("reader".equalsIgnoreCase(currentRole) ) {
             sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type, created_at ")
                     .append("FROM users WHERE is_deleted = 0 AND role = 'author' ");
         }
@@ -57,9 +58,9 @@ public class AccountDAO {
         }
         else if ("admin".equalsIgnoreCase(currentRole)) {
             sql.append("SELECT * FROM (")
-                    .append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type, created_at FROM users WHERE is_deleted = 0 ")
+                    .append("SELECT user_id AS id, username, full_name, email, role, status, created_at FROM users WHERE is_deleted = 0 ")
                     .append("UNION ALL ")
-                    .append("SELECT staff_id AS id, username, full_name, NULL AS email, role, 'active' AS status, 'staff' AS type, created_at FROM staffs WHERE is_deleted = 0 ")
+                    .append("SELECT staff_id AS id, username, full_name, NULL AS email, role, 'active' AS status, created_at FROM staffs WHERE is_deleted = 0 ")
                     .append(") AS combined WHERE 1=1 ");
         }
 
@@ -79,31 +80,27 @@ public class AccountDAO {
         //Apply ordering order by id
         sql.append(paginationDAOHelper.buildPaginationClause());
 
-        PreparedStatement stmt = conn.prepareStatement(sql.toString());
+        try(PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-        //Append dynamic parameters
-        for (int i = 0; i < params.size(); i++) {
-            stmt.setObject(i + 1, params.get(i));
+            //Append dynamic parameters
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Account account = new Account();
+                account.setAccountId(rs.getInt("id"));
+                account.setUsername(rs.getString("username"));
+                account.setFullName(rs.getString("full_name"));
+                account.setEmail(rs.getString("email"));
+                account.setRole(rs.getString("role"));
+                account.setStatus(rs.getString("status"));
+                account.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+                list.add(account);
+            }
         }
 
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            AccountDTO acc = new AccountDTO();
-            acc.setId(rs.getInt("id"));
-            acc.setUsername(rs.getString("username"));
-            acc.setFullName(rs.getString("full_name"));
-            acc.setEmail(rs.getString("email"));
-            acc.setRole(rs.getString("role"));
-            acc.setStatus(rs.getString("status"));
-            acc.setType(rs.getString("type"));
-            Timestamp createdAt = rs.getTimestamp("created_at");
-            if (createdAt != null)
-                acc.setCreatedAt(FormatUtils.formatDate(createdAt.toLocalDateTime()));
-            list.add(acc);
-        }
-
-        rs.close();
-        stmt.close();
         return list;
     }
 
@@ -141,19 +138,17 @@ public class AccountDAO {
             params.add(filterByRole.trim());
         }
 
-        PreparedStatement stmt = conn.prepareStatement(sql.toString());
+        try(PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-        for (int i = 0; i < params.size(); i++) {
-            stmt.setObject(i + 1, params.get(i));
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+
         }
-
-        ResultSet rs = stmt.executeQuery();
-        int total = 0;
-        if (rs.next()) total = rs.getInt(1);
-
-        rs.close();
-        stmt.close();
-        return total;
+        return 0;
     }
 
     /**

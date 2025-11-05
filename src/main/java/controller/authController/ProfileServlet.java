@@ -3,6 +3,7 @@ package controller.authController;
 
 import dao.BadgesUserDAO;
 import dao.SeriesDAO;
+import dao.UserDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,8 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Series;
 import model.User;
-import services.account.UserServices;
 import utils.AuthenticationUtils;
+import utils.FormatUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
@@ -64,12 +65,15 @@ public class ProfileServlet extends HttpServlet {
         int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
         String role = loginedUser != null ? loginedUser.getRole() : null;
         try (Connection conn = DBConnection.getConnection()) {
-            UserServices userServices = new UserServices();
+           UserDAO userDAO = new UserDAO(conn);
             BadgesUserDAO  badgesUserDAO = new BadgesUserDAO(conn);
+            User user = userDAO.findById(userId);
+            user.setRole(FormatUtils.formatString(user.getRole()));
+            request.setAttribute("user", user);
 
             badgesUserDAO.checkAndSaveBadges(userId);
 
-            request.setAttribute("user", userServices.getUser(userId));
+            request.setAttribute("user", user);
             request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
@@ -102,7 +106,8 @@ public class ProfileServlet extends HttpServlet {
     private void editProfile(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : -1;
-        try {
+        try (Connection conn = DBConnection.getConnection()) {
+            UserDAO userDAO = new UserDAO(conn);
             String userName = request.getParameter("username");
             String fullName = request.getParameter("fullName");
             String bio = request.getParameter("bio");
@@ -113,8 +118,7 @@ public class ProfileServlet extends HttpServlet {
             user.setFullName(fullName);
             user.setBio(bio);
 
-            UserServices userServices = new UserServices();
-            boolean isSuccess = userServices.editProfile(user);
+            boolean isSuccess = userDAO.updateProfile(user);
             if (isSuccess) {
                 request.getSession().setAttribute("message", "Update user successfully!");
             } else {
@@ -137,12 +141,22 @@ public class ProfileServlet extends HttpServlet {
     private void changePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = loginedUser != null ? loginedUser.getUserId() : -1;
-        try {
+        try (Connection conn = DBConnection.getConnection()) {
+            UserDAO userDAO = new UserDAO(conn);
             String oldPassword = request.getParameter("oldPassword");
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
-            UserServices userServices = new UserServices();
-            String message = userServices.editPassword(userId, oldPassword, newPassword, confirmPassword);
+            String message = "";
+            String hashPassword = userDAO.findById(userId).getPasswordHash();
+            if (!newPassword.equals(confirmPassword)) {
+                message = "Your password and confirm password do not match";
+            }  else if (oldPassword.equals(hashPassword)) {
+                message = "Your old password is incorrect";
+            } else if(userDAO.updatePassword(userId, newPassword)) {
+                message =  "Update password successfully!";
+            } else {
+                message = "Something went wrong. Please try again.";
+            }
             request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/profile?userId=" + userId);
         } catch (SQLException | ClassNotFoundException e) {

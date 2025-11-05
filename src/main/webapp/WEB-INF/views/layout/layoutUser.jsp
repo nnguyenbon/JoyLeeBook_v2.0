@@ -13,6 +13,7 @@
     <title>
         ${pageTitle}
     </title>
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
@@ -33,7 +34,7 @@
 </head>
 <body class="overflow-x-hidden">
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
-<div class="flex-grow max-w-7xl mx-auto">
+<div class="flex-grow max-w-7xl mx-auto pt-20">
     <c:if test="${not empty contentPage}">
         <c:import url="${contentPage}"/>
     </c:if>

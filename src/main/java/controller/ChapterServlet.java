@@ -3,7 +3,6 @@ package controller;
 import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
-import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -42,10 +41,11 @@ public class ChapterServlet extends HttpServlet {
                 case "/detail" -> viewChapterContent(request, response);
                 case "/navigate" -> navigateChapter(request, response);
                 case "/list" -> viewChapterList(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -59,11 +59,12 @@ public class ChapterServlet extends HttpServlet {
                 case "/update" -> updateChapter(request, response);
                 case "/approve" -> approveChapter(request, response);
                 case "/delete" -> deleteChapter(request, response);
-                default -> throw new ServletException("Invalid action");
+                default ->  throw new ServletException("Invalid path or function does not exist.");
 
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
@@ -101,8 +102,10 @@ public class ChapterServlet extends HttpServlet {
     private void buildChapter(Chapter chapter, Connection conn) throws SQLException {
         SeriesDAO seriesDAO = new SeriesDAO(conn);
         UserDAO userDAO = new UserDAO(conn);
+        LikeDAO likeDAO = new LikeDAO(conn);
         chapter.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapter.setAuthorName(userDAO.findById(chapter.getAuthorId()).getUsername());
+        chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
     }
 
     /**
@@ -128,34 +131,45 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void viewChapterContent(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "guest";
-        int userId = -1;
+        int userId = 0;
         if (loggedInAccount instanceof User user) {
             role = user.getRole();
             userId = user.getUserId();
         } else if (loggedInAccount instanceof Staff staff) {
             role = staff.getRole();
         }
-        int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : -1;
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
+            LikeDAO likeDAO = new LikeDAO(conn);
+            int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : chapterDAO.getFirstChapterNumber(seriesId);
             if (role.equals("admin") || role.equals("staff")) {
                 Chapter chapter = chapterDAO.findById(chapterId);
+                chapter.setTotalLike(likeDAO.countByChapter(chapterId));
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
+                request.setAttribute("userId", userId);
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContentForStaff.jsp");
                 request.setAttribute("activePage", "chapters");
                 request.setAttribute("pageTitle", "Manage Chapters");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
                 String approvalStatus = ("reader".equals(role) || "guest".equals(role)) ? "approved" : null;
-                if (chapterId == -1) {
-                    chapterId = chapterDAO.getFirstChapterNumber(seriesId);
+                if (chapterId == 0) {
+                    String referer = request.getHeader("referer");
+                    if (referer != null && !referer.isEmpty()) {
+                        response.sendRedirect(referer);
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+                    }
+                    return;
                 }
                 Chapter chapter = chapterDAO.findById(chapterId, approvalStatus);
                 buildChapter(chapter, conn);
+                boolean liked = likeDAO.isLikedByUser(userId, chapter.getChapterId());
+                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
 
                 CommentDAO commentDAO = new CommentDAO(conn);
                 List<Comment> commentList = commentDAO.findByChapter(chapterId);
@@ -168,10 +182,11 @@ public class ChapterServlet extends HttpServlet {
 
                 request.setAttribute("commentList", commentList);
                 request.setAttribute("chapter", chapter);
-                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+                request.setAttribute("liked", liked);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterList.get(chapterList.size() - 1).getChapterId());
                 request.setAttribute("chapter", chapter);
+                request.setAttribute("userId", userId);
                 request.setAttribute("chapterList", chapterList);
                 request.setAttribute("pageTitle", "Chapter Content");
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContent.jsp");
@@ -657,49 +672,7 @@ public class ChapterServlet extends HttpServlet {
         return s.isEmpty() ? null : s;
     }
 
-    /**
-     * Fetches a paginated list of chapters authored by a specific user.
-     *
-     * @param userId       the ID of the user
-     * @param page         the page number (1-based)
-     * @param pageSize     the number of items per page
-     * @param statusFilter optional status filter (e.g., "published", "draft")
-     * @param keyword      optional keyword to search in chapter titles
-     * @return a PagedResult containing the list of ChapterListItem and pagination info
-     * @throws SQLException if a database access error occurs
-     */
-    public PagedResult<ChapterItemDTO> getAuthoredChapters(int userId, int page, int pageSize, String statusFilter, String keyword) throws SQLException, ClassNotFoundException {
-        try (Connection connection = DBConnection.getConnection()) {
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            int offset = (Math.max(page, 1) - 1) * pageSize;
-            var items = chapterDAO.getAuthoredChapters(userId, offset, pageSize, statusFilter, keyword);
-            int total = chapterDAO.countAuthoredChapters(userId, statusFilter, keyword);
-            return new PagedResult<>(items, page, pageSize, total);
-        }
-    }
 
-    /**
-     * Fetches a paginated list of chapters from the user's reading history.
-     *
-     * @param userId   the ID of the user
-     * @param page     the page number (1-based)
-     * @param pageSize the number of items per page
-     * @param keyword  optional keyword to search in chapter titles
-     * @return a PagedResult containing the list of ChapterListItem and pagination info
-     * @throws SQLException if a database access error occurs
-     */
-    public PagedResult<ChapterItemDTO> getReadingHistoryChapters(int userId, int page, int pageSize, String keyword) throws SQLException {
-        try (Connection connection = DBConnection.getConnection()) {
-            ChapterDAO chapterDAO = new ChapterDAO(connection);
-            int offset = (Math.max(page, 1) - 1) * pageSize;
-            var items = chapterDAO.getReadingHistoryChapters(userId, offset, pageSize, keyword);
-            int total = chapterDAO.countReadingHistoryChapters(userId, keyword);
-            return new PagedResult<ChapterItemDTO>(items, page, pageSize, total);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     public static class PagedResult<T> {
         private final List<T> items;

@@ -18,7 +18,7 @@ public class Chapter {
     // extra field
     private String authorName;
     private String seriesTitle;
-
+    private int totalLike;
 
     public Chapter() {}
 
@@ -124,5 +124,13 @@ public class Chapter {
 
     public void setSeriesTitle(String seriesTitle) {
         this.seriesTitle = seriesTitle;
+    }
+
+    public int getTotalLike() {
+        return totalLike;
+    }
+
+    public void setTotalLike(int totalLike) {
+        this.totalLike = totalLike;
     }
 }
