@@ -26,6 +26,8 @@ public class RegisterAuthorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
 
+        // thêm badge cho user nếu register thành công
+
         try (Connection conn = DBConnection.getConnection()) {
             //If user is a reader, attempt to register as author
             if (user != null && "reader".equals(user.getRole())) {
