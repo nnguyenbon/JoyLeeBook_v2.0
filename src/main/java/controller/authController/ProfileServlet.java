@@ -67,6 +67,8 @@ public class ProfileServlet extends HttpServlet {
             UserServices userServices = new UserServices();
             BadgesUserDAO  badgesUserDAO = new BadgesUserDAO(conn);
 
+            badgesUserDAO.checkAndSaveBadges(userId);
+
             request.setAttribute("user", userServices.getUser(userId));
             request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
             if (accountId == userId && role.equals("reader")) {
@@ -84,6 +86,8 @@ public class ProfileServlet extends HttpServlet {
                 request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
             }
         } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
