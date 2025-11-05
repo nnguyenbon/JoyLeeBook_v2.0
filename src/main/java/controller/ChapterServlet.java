@@ -3,6 +3,7 @@ package controller;
 import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
+import dto.chapter.ChapterItemDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.*;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.ValidationInput;
@@ -605,7 +606,7 @@ public class ChapterServlet extends HttpServlet {
                     return;
                 }
                 if (chapterDAO.insertReadingHistory(userId, chapterId)) {
-                    PointServices.trackAction(userId, 3, "Reading chapter", "chapter", chapterId);
+                    TrackPointUtils.trackAction(userId, 3, "Reading chapter", "chapter", chapterId, 5);
                 }
                 connection.commit();
             } catch (SQLException e) {
@@ -737,7 +738,7 @@ public class ChapterServlet extends HttpServlet {
            int offset = (Math.max(page, 1) - 1) * pageSize;
            var items = chapterDAO.getReadingHistoryChapters(userId, offset, pageSize, keyword);
            int total = chapterDAO.countReadingHistoryChapters(userId, keyword);
-           return new PagedResult<>(items, page, pageSize, total);
+           return new PagedResult<ChapterItemDTO>(items, page, pageSize, total);
        } catch (ClassNotFoundException e) {
            throw new RuntimeException(e);
        }

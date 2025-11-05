@@ -1,4 +1,4 @@
-package controller.reactionController;
+package controller;
 
 import dao.LikeDAO;
 import dao.RatingDAO;
@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Like;
 import model.Rating;
 import model.User;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class ReactionServlet extends HttpServlet {
                 ratingDAO.update(rating);
             } else {
                 ratingDAO.insert(rating);
-                PointServices.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) );
+                TrackPointUtils.trackAction(rating.getUserId(),1, "Rating a new chapter", "rating", Integer.parseInt(String.valueOf(rating.getUserId()) + rating.getSeriesId()) , 5);
             }
             double avgRating = (double) Math.round(ratingDAO.getAverageRating(seriesId) * 10) / 10;
             int totalRatings = ratingDAO.getRatingCount(seriesId);
@@ -150,7 +150,7 @@ public class ReactionServlet extends HttpServlet {
                 return likeDAO.countByChapter(like.getChapterId());
             }
             likeDAO.insert(like);
-            PointServices.trackAction(userId, 2, "Like new chapter", "like", likeDAO.findById(userId, chapterId).getChapterId());
+            TrackPointUtils.trackAction(userId, 2, "Like new chapter", "like", likeDAO.findById(userId, chapterId).getChapterId(), 5);
             return likeDAO.countByChapter(like.getChapterId());
         } catch (Exception exception) {
 

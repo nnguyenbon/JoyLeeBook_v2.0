@@ -1,4 +1,4 @@
-package controller.profileController;
+package controller.authController;
 
 
 import dao.BadgesUserDAO;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Series;
 import model.User;
-import services.account.AuthorServices;
 import services.account.UserServices;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
@@ -76,10 +75,9 @@ public class ProfileServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             } else {
                 SeriesDAO seriesDAO = new SeriesDAO(conn);
-                AuthorServices authorServices = new AuthorServices();
 
                 List<Series> series = seriesDAO.getSeriesByAuthorId(userId);
-//                authorServices.extractDataFromAuthorId(series, request);
+//
 
                 request.setAttribute("seriesInfoDTOList", series);
                 request.setAttribute("totalSeriesCount", series.size());

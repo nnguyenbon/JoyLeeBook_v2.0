@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -101,7 +101,7 @@ public class GoogleCallbackServlet extends HttpServlet {
 
             User user = dao.findById(userId);
             AuthenticationUtils.storeLoginedUser(req.getSession(), user);
-            PointServices.trackLogin(user.getUserId());
+            TrackPointUtils.trackAction(user.getUserId(), 10, "Login with google", "login", 0, 1);
             resp.sendRedirect(req.getContextPath() + "/");
         } catch (SQLException | InterruptedException e) {
             throw new ServletException(e);

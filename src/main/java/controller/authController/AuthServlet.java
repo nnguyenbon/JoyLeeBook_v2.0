@@ -8,11 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Staff;
 import model.User;
-import org.mindrot.jbcrypt.BCrypt;
-import services.auth.HandleOTPServices;
-import services.auth.LoginServices;
-import services.auth.RegisterServices;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
@@ -106,9 +102,8 @@ public class AuthServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         try {
-            LoginServices loginServices = new LoginServices();
-            User user = loginServices.checkLoginUser(userName, password);
-            Staff staff = loginServices.checkLoginStaff(userName, password);
+            User user = AuthenticationUtils.checkLoginUser(userName, password);
+            Staff staff = AuthenticationUtils.checkLoginStaff(userName, password);
             if (user != null) {
                 AuthenticationUtils.storeLoginedUser(request.getSession(), user);
                 String role = user.getRole();
@@ -116,7 +111,7 @@ public class AuthServlet extends HttpServlet {
                     case "author":
                     case "reader":
                         //Track login for point system
-                        PointServices.trackLogin(user.getUserId());
+                        TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
                         response.sendRedirect(request.getContextPath() + "/homepage");
                         break;
                 }
@@ -135,7 +130,7 @@ public class AuthServlet extends HttpServlet {
                 request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             request.setAttribute("error", "Something went wrong. Please try again later.");
             request.getRequestDispatcher("/WEB-INF/views/auth/LoginPage.jsp").forward(request, response);
         }
@@ -154,9 +149,8 @@ public class AuthServlet extends HttpServlet {
             String enterOTP = request.getParameter("otp");
             HttpSession session = request.getSession();
 
-            //Check OTP
-            RegisterServices registerServices = new RegisterServices();
-            boolean checkOTP = registerServices.checkOTP(session, enterOTP);
+
+            boolean checkOTP = AuthenticationUtils.checkOTP(session, enterOTP);
             if (!checkOTP) {
                 System.out.println("OTP is incorrect.");
                 request.setAttribute("message", "OTP is incorrect.");
@@ -165,7 +159,7 @@ public class AuthServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
                 return;
             }
-            User user = registerServices.createUser(session);
+            User user = AuthenticationUtils.createUser(session);
             if (user == null) {
                 System.out.println("Something went wrong.");
                 request.setAttribute("message", "Something went wrong. Please try again.");
@@ -180,7 +174,7 @@ public class AuthServlet extends HttpServlet {
             AuthenticationUtils.storeLoginedUser(session, user);
             response.sendRedirect(request.getContextPath() + "/login");
 
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             System.out.println("Error in RegisterServlet: " + e.getMessage());
             throw new RuntimeException(e);
         }
@@ -198,7 +192,7 @@ public class AuthServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User register; //Temporary user object to hold registration data
         try {
-            HandleOTPServices handleOTPServices = new HandleOTPServices();
+
 
             if (session.getAttribute("register") == null) {
                 String userName = request.getParameter("username");
@@ -206,7 +200,7 @@ public class AuthServlet extends HttpServlet {
                 String fullName = request.getParameter("fullName");
                 String confirmPassword = request.getParameter("confirmPassword");
                 String email = request.getParameter("email");
-                if (handleOTPServices.checkExistUsername(userName)) {
+                if (AuthenticationUtils.checkExistUsername(userName)) {
                     request.setAttribute("message", "Username is already exist.");
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("email", email);
@@ -215,7 +209,7 @@ public class AuthServlet extends HttpServlet {
                     return;
                 }
                 //Check if email already exists
-                if (handleOTPServices.checkExistEmail(email)) {
+                if (AuthenticationUtils.checkExistEmail(email)) {
                     request.setAttribute("message", "Email is already exist.");
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("username", userName);
@@ -244,7 +238,7 @@ public class AuthServlet extends HttpServlet {
             request.setAttribute("pageTitle", "Verify Email");
             request.setAttribute("contentPage", "/WEB-INF/views/auth/VerifyOTP.jsp");
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
-            boolean sendSuccess = handleOTPServices.sendOTP(session, register);
+            boolean sendSuccess = AuthenticationUtils.sendOTP(session, register);
             if (sendSuccess) {
                 System.out.println("OTP has been sent to your email.");
                 session.setAttribute("register", register);

@@ -9,14 +9,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Comment;
 import model.User;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 /**
  * Servlet implementation class CommentServlet
@@ -79,7 +78,7 @@ public class CommentServlet extends HttpServlet {
             if (!success) {
                 throw new SQLException("Failed to insert comment into database.");
             }
-            PointServices.trackAction(userId, 2, "Comment  a chapter", "comment", commentDAO.findByUserIdAndChapterId(userId, chapterId).getCommentId());
+            TrackPointUtils.trackAction(userId, 2, "Comment  a chapter", "comment", commentDAO.findByUserIdAndChapterId(userId, chapterId).getCommentId(), 5);
 
             response.sendRedirect(request.getContextPath()
                     + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);

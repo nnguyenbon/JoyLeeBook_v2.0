@@ -107,14 +107,14 @@ public class PointHistoryDAO {
     }
 
 
-    public boolean trackAction (int userId, String action) throws SQLException {
+    public boolean trackAction (int userId, String type, int limit) throws SQLException {
         String sql = "SELECT COUNT(*) FROM point_history WHERE user_id = ? AND reference_type = ? AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ps.setString(2, action);
+            ps.setString(2, type);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1) > 5;
+                    return rs.getInt(1) > limit;
                 }
             }
             return true;
