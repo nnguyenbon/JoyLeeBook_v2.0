@@ -678,9 +678,9 @@ public class ChapterDAO {
     public List<Chapter> findChapterBySeriesId(int seriesId, String approvalStatus) throws SQLException {
         List<Chapter> chapterList = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0 AND status = 'published'");
+        sql.append("SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0");
         if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
-            sql.append(" AND approval_status = ? ");
+            sql.append(" AND approval_status = ?  AND status = 'published'");
         }
         try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
@@ -813,6 +813,8 @@ public class ChapterDAO {
         return 0;
 
     }
+
+
 
 
 }

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -112,7 +113,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -270,12 +271,14 @@ public class SeriesServlet extends HttpServlet {
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Determine user role
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
-
+        int userId = 0;
         if (loggedInAccount instanceof User user) {
+            userId = user.getUserId();
             role = user.getRole();
         } else if (loggedInAccount instanceof Staff staff) {
+            userId = staff.getStaffId();
             role = staff.getRole();
         }
 
@@ -305,6 +308,11 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("activePage", "series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
+                SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+                if(ownerId == userId) {
+                    request.setAttribute("owner", "true");
+                }
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -410,8 +418,6 @@ public class SeriesServlet extends HttpServlet {
                 if (!filePart.getSubmittedFileName().trim().isEmpty()) {
                     System.out.println(filePart.getSubmittedFileName());
                     series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
-                } else {
-                    System.out.println("ki cuc qua");
                 }
             }
 
@@ -555,7 +561,7 @@ public class SeriesServlet extends HttpServlet {
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
         List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
         series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
-
+        System.out.println();
         return series;
     }
 

@@ -45,17 +45,29 @@
 </head>
 <body class="min-h-screen w-full relative">
 <!-- Radial Gradient Background from Bottom -->
-<div class="absolute inset-0 z-0 blue-glow"></div>
+<div
+        class="absolute inset-0 z-0"
+        style="
+      background: #ffffff;
+      background-image: radial-gradient(circle at top center, rgba(59, 130, 246, 0.5), transparent 70%);
+    "
+></div>
+
+
+
+
+
 <!-- Your Content/Components -->
 <div
-        class="relative z-10 flex flex-col items-center justify-center h-screen w-full max-w-lg mx-auto"
+        class="relative z-10 flex flex-col items-center justify-center  h-screen w-full max-w-lg mx-auto"
 >
+
     <div class="w-1/4 mx-auto">
         <a href="${pageContext.request.contextPath}/homepage" class="block">
             <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
         </a>
     </div>
-    <div class="rounded-lg ring px-6 py-4 w-full">
+    <div class="rounded-lg ring ring-gray-400 shadow-2xl px-6 py-4 w-full bg-white">
         <c:if test="${not empty contentPage}">
             <c:import url="${contentPage}"/>
         </c:if>
