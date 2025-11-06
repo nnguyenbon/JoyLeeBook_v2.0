@@ -1,6 +1,6 @@
 package dao;
 
-import dto.staff.RecentActionDTO;
+import model.staff.RecentAction;
 import model.ReviewChapter;
 import model.ReviewSeries;
 
@@ -186,7 +186,7 @@ public class ReviewChapterDAO {
         return 0;
     }
 
-    public List<RecentActionDTO> getRecentActionsByStaff(int staffId, Timestamp startOfDay, int limit) {
+    public List<RecentAction> getRecentActionsByStaff(int staffId, Timestamp startOfDay, int limit) {
         String sql = " SELECT TOP " + limit + " rc.chapter_id, rc.status, rc.comment, rc.created_at, " +
                 "c.title AS chapter_title, s.title AS series_title " +
                 "FROM review_chapter rc " +
@@ -195,7 +195,7 @@ public class ReviewChapterDAO {
                 "WHERE rc.staff_id = ? AND rc.created_at >= ? " +
                 "ORDER BY rc.created_at DESC";
 
-        List<RecentActionDTO> list = new ArrayList<>();
+        List<RecentAction> list = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, staffId);
@@ -203,7 +203,7 @@ public class ReviewChapterDAO {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                RecentActionDTO dto = new RecentActionDTO();
+                RecentAction dto = new RecentAction();
                 String chapterTitle = rs.getString("chapter_title");
                 String seriesTitle = rs.getString("series_title");
                 String status = rs.getString("status");

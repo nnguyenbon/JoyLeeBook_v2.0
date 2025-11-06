@@ -508,7 +508,7 @@ public class SeriesServlet extends HttpServlet {
                 notificationsDAO.insertNotification(notification);
             }
 
-            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=pending");
+            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

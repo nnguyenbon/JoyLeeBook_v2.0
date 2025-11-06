@@ -3,9 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <!-- Content -->
-<div class="main-content px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-[90vh] custom-scrollbar">
-    <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
-        <div class="flex justify-between items-center">
+<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-[90vh] custom-scrollbar">
+    <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2 flex flex-col h-full">
+        <div class="flex items-center gap-5">
             <!-- Tabs Header -->
             <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
                 <a href="${pageContext.request.contextPath}/report/list?type=chapter&filterByStatus=pending"
@@ -123,20 +123,22 @@
 
                                     <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-10">
                                         <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/report?action=resolve" class="w-full">
+                                            <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
                                                 <input type="hidden" name="type" value="${type}">
                                                 <input type="hidden" name="status" value="resolved">
+                                                <input type="hidden" name="chapterId" value="${report.chapterId}">
                                                 <button type="submit" class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                                                     <i class="fas fa-check mr-2 text-green-500"></i>Resolve
                                                 </button>
                                             </form>
                                         </li>
                                         <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/report?action=resolve" class="w-full">
+                                            <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
                                                 <input type="hidden" name="type" value="${type}">
                                                 <input type="hidden" name="status" value="rejected">
+                                                <input type="hidden" name="chapterId" value="${report.chapterId}">
                                                 <button type="submit" class="block w-full text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                                                     <i class="fas fa-times mr-2 text-red-500"></i>Reject
                                                 </button>
@@ -152,7 +154,7 @@
             </table>
         </div>
 
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center mt-auto">
             <div class="mb-4">
                 <p class="text-gray-500 text-sm">Total: ${size}</p>
             </div>

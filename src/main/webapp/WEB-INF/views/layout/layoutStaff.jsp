@@ -32,7 +32,7 @@
 <body class="bg-white">
 <div class="flex h-screen text-gray-500 overflow-x-hidden">
 <c:import url="/WEB-INF/views/components/_navbarStaff.jsp"/>
-    <div class="flex flex-col w-full bg-[#F5F4FA]">
+    <div class="flex flex-col w-full bg-[#F5F4FA] ">
         <div class="h-10 flex items-center justify-between border-b border-gray-300 bg-white p-8">
             <p class="font-semibold text-lg "> <span class="text-[#041E3D]">
                ${pageTitle}

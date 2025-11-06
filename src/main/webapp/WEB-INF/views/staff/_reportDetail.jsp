@@ -179,7 +179,7 @@
             <p class="text-sm text-gray-600 mb-4">Review the report and decide the appropriate action.</p>
 
             <div class="space-y-3">
-              <form method="post" action="${pageContext.request.contextPath}/report/resolve">
+              <form method="post" action="${pageContext.request.contextPath}/report/handle">
                 <input type="hidden" name="reportId" value="${report.reportId}">
                 <input type="hidden" name="type" value="${type}">
                 <input type="hidden" name="status" value="resolved">
@@ -190,7 +190,7 @@
                 </button>
               </form>
 
-              <form method="post" action="${pageContext.request.contextPath}/report/resolve">
+              <form method="post" action="${pageContext.request.contextPath}/report/handle">
                 <input type="hidden" name="reportId" value="${report.reportId}">
                 <input type="hidden" name="type" value="${type}">
                 <input type="hidden" name="status" value="rejected">

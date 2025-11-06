@@ -10,8 +10,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
-<div class="main-content px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-[90vh] px-2 custom-scrollbar ">
-    <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
+<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto overflow-visible max-h-full px-2 custom-scrollbar ">
+    <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2 flex flex-col h-full">
         <!-- Search & Filter Form -->
         <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm"
               class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
@@ -35,13 +35,10 @@
             </div>
         </form>
 
-
-
-
         <!-- Table -->
-        <div class="overflow-x-auto rounded-sm mb-3">
+        <div class="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-sm mb-3">
             <table class="min-w-full text-sm text-left">
-                <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
                 <tr>
                     <th class="px-4 py-3">ID</th>
                     <th class="px-4 py-3">Cover</th>
@@ -162,7 +159,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center mt-auto">
             <div class="mb-4">
                 <p class="text-gray-500 text-sm">Total: ${size}</p>
             </div>

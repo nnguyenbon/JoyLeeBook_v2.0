@@ -55,26 +55,6 @@
     </div>
 </main>
 <%--<script>--%>
-<%--    function updateFilter() {--%>
-<%--        const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);--%>
-
-<%--        const params = new URLSearchParams();--%>
-<%--        if (selectedGenres.length > 0) params.append("genres", selectedGenres.join(","));--%>
-
-<%--        fetch(contextPath + "/series/list?" + params.toString(), {--%>
-<%--            method: "GET",--%>
-<%--            headers: { "X-Requested-With": "XMLHttpRequest" }--%>
-<%--        })--%>
-<%--            .then(res => res.text())--%>
-<%--            .then(html => {--%>
-<%--                document.querySelector("#result-container").innerHTML = html;--%>
-<%--                restoreFilterState(selectedGenres);--%>
-<%--            })--%>
-<%--            .catch(err => console.error("Filter load error:", err));--%>
-<%--    }--%>
-
-<%--</script>--%>
-<%--<script>--%>
 <%--    const keyword = "<%= request.getAttribute("keyword") %>";--%>
 <%--    const contextPath = '<%= request.getContextPath() %>';--%>
 

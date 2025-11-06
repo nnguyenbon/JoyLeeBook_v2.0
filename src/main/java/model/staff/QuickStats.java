@@ -1,6 +1,6 @@
-package dto.staff;
+package model.staff;
 
-public class QuickStatsDTO {
+public class QuickStats {
     private int reviewsCompleted;
     private int contentApproved;
     private int contentRejected;

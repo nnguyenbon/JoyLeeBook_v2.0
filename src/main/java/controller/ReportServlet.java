@@ -5,9 +5,7 @@ import db.DBConnection;
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import model.*;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
@@ -18,240 +16,324 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Servlet implementation class ReportServlet
- * Handles report-related actions such as viewing, reporting, and managing reports.
- * Supports both chapter and comment reports.
- * For staff members to manage reports and for users to submit reports.
- */
 @WebServlet("/report/*")
 public class ReportServlet extends HttpServlet {
 
-    /**
-     * Handles HTTP GET requests for viewing report data.
-     *
-     * @param request the HTTP servlet request
-     * @param response the HTTP servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getPathInfo();
-        if (action == null) action = "";
+    /* ===========================
+       ======== HTTP GET =========
+       =========================== */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        switch (action) {
-            case "/list" -> viewReportList(request, response);
-            case "/detail" -> viewReportDetail(request, response);
-            default -> response.sendRedirect(request.getContextPath() + "/");
+        String action = request.getPathInfo();
+        if (action == null) action = "/list";
+
+        try {
+            switch (action) {
+                case "/list" -> viewReportList(request, response);
+                case "/detail" -> viewReportDetail(request, response);
+                default -> response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
+        } catch (Exception e) {
+            handleServerError(request, response, e, "Unexpected error in GET /report");
+        }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    /* ===========================
+       ======== HTTP POST ========
+       =========================== */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         request.setCharacterEncoding("UTF-8");
         String action = request.getPathInfo();
         if (action == null) action = "";
 
-        switch (action) {
-            case "/report-chapter" -> reportChapter(request, response);
-            case "/report-comment" -> reportComment(request, response);
-            case "/handle" -> handleReport(request, response);
-            case "/delete" -> deleteReport(request, response);
-            default -> response.sendRedirect(request.getContextPath() + "/");
+        try {
+            switch (action) {
+                case "/report-chapter" -> reportChapter(request, response);
+                case "/report-comment" -> reportComment(request, response);
+                case "/handle" -> handleReport(request, response);
+                case "/delete" -> deleteReport(request, response);
+                default -> response.sendRedirect(request.getContextPath() + "/");
+            }
+        } catch (Exception e) {
+            handleServerError(request, response, e, "Unexpected error in POST /report");
         }
     }
 
-    private void deleteReport(HttpServletRequest request, HttpServletResponse response) {
-    }
-
-    private void handleReport(HttpServletRequest request, HttpServletResponse response) {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
-        int staffId = ((Staff) loggedInAccount).getStaffId();
+    /* ===========================
+       ======== VIEW LIST ========
+       =========================== */
+    private void viewReportList(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         try (Connection conn = DBConnection.getConnection()) {
-            int reportId = Integer.parseInt(request.getParameter("reportId"));
-            String status = request.getParameter("status");
-            String message = request.getParameter("message");
             String type = request.getParameter("type");
-            ReportDAO reportDAO = new ReportDAO(conn);
-            NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
+            if (type == null || type.isEmpty()) type = "chapter";
 
-            // Verify series exists
-            Report report = reportDAO.findById(reportId);
-            if (report == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Report not found.");
-                return;
-            }
-
-            if (reportDAO.updateStatus(reportId, status, staffId)) {
-                // Create and send notification to series owner
-                if ("chapter".equals(type)) {
-                Notification notification = createApprovalNotification(
-                        conn, report.getChapterId(), message, status
-                );
-                notificationsDAO.insertNotification(notification);
-                }
-            }
-            //tra ve json cua ajax
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error approving series", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Error redirecting after approval", e);
-        }
-    }
-
-
-    /**
-     * Displays a paginated list of report with filtering.
-     *
-     * @param request the HTTP servlet request
-     * @param response the HTTP servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    private void viewReportList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try (Connection conn = DBConnection.getConnection()) {
-            String type = request.getParameter("type");
-            if (type == null || type.isEmpty()) {
-                type = "chapter";
-            }
             String statusFilter = request.getParameter("filterByStatus");
 
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             paginationRequest.setOrderBy("report_id");
             paginationRequest.setSortDir("DESC");
+
             ReportDAO reportDAO = new ReportDAO(conn);
 
             if ("chapter".equals(type)) {
-                // Get chapter reports
                 List<ReportChapter> chapterReports = reportDAO.getReportChapterList(statusFilter, paginationRequest);
                 request.setAttribute("reportList", chapterReports);
             } else if ("comment".equals(type)) {
-                // Get comment reports
                 List<ReportComment> commentReports = reportDAO.getReportCommentList(statusFilter, paginationRequest);
                 request.setAttribute("reportList", commentReports);
+            } else {
+                handleClientError(request, response, "Invalid report type.");
+                return;
             }
+
             PaginationUtils.sendParameter(request, paginationRequest);
             request.setAttribute("type", type);
             request.setAttribute("statusFilter", statusFilter);
             request.setAttribute("activePage", "reports");
             request.setAttribute("pageTitle", "Manage Reports");
             request.setAttribute("contentPage", "/WEB-INF/views/staff/_reportList.jsp");
+
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            handleServerError(request, response, e, "Database error while retrieving report list.");
         }
     }
 
-    private void viewReportDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    /* ===========================
+       ======== VIEW DETAIL ======
+       =========================== */
+    private void viewReportDetail(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         try (Connection conn = DBConnection.getConnection()) {
             int reportId = ValidationInput.isPositiveInteger(request.getParameter("reportId"))
-                    ? Integer.parseInt(request.getParameter("reportId")) : -1;
+                    ? Integer.parseInt(request.getParameter("reportId"))
+                    : -1;
 
             if (reportId == -1) {
-                response.sendRedirect(request.getContextPath() + "/report/list");
+                handleClientError(request, response, "Invalid reportId format.");
                 return;
             }
 
             String type = request.getParameter("type");
-            if (type == null || type.isEmpty()) {
-                type = "chapter";
-            }
+            if (type == null || type.isEmpty()) type = "chapter";
 
             ReportDAO reportDAO = new ReportDAO(conn);
             Report report = reportDAO.findById(reportId);
 
             if (report == null) {
-                request.getSession().setAttribute("errorMessage", "Report not found.");
-                response.sendRedirect(request.getContextPath() + "/report/list?type=" + type);
+                request.setAttribute("error", "Report not found!");
+                request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
                 return;
             }
+
             if ("chapter".equals(type)) {
                 ReportChapter detailReport = reportDAO.getReportChapterById(reportId);
-                request.setAttribute("report", detailReport);
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
                 Chapter chapter = chapterDAO.findById(report.getChapterId());
                 request.setAttribute("chapter", chapter);
+                request.setAttribute("report", detailReport);
             } else if ("comment".equals(type)) {
                 ReportComment detailReport = reportDAO.getReportCommentById(reportId);
                 request.setAttribute("report", detailReport);
             }
+
             request.setAttribute("type", type);
-            request.setAttribute("contentPage", "/WEB-INF/views/staff/_reportDetail.jsp");
             request.setAttribute("activePage", "reports");
-            request.setAttribute("pageTitle", "Manage Reports");
+            request.setAttribute("pageTitle", "Report Details");
+            request.setAttribute("contentPage", "/WEB-INF/views/staff/_reportDetail.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
+
+        } catch (NumberFormatException e) {
+            handleClientError(request, response, "Invalid report ID format.");
         } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            handleServerError(request, response, e, "Database error while retrieving report detail.");
         }
     }
-        private void reportComment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    /* ===========================
+       ===== REPORT CHAPTER ======
+       =========================== */
+    private void reportChapter(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-            if (user == null) throw new AssertionError();
-            int userId = user.getUserId();
+        if (user == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Login required.");
+            return;
+        }
+
         try (Connection conn = DBConnection.getConnection()) {
-            String type = "comment";
-            int commentId = Integer.parseInt(request.getParameter("commentId"));
-            String reason = request.getParameter("reason");
-
-            Report report = new Report();
-            report.setReporterId(userId);
-            report.setCommentId(commentId);
-            report.setReason(reason);
-            report.setTargetType(type);
-            ReportDAO reportDAO = new ReportDAO(conn);
-            reportDAO.insert(report);
-
-            // tra ve json ajax
-        }  catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void reportChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        if (user == null) throw new AssertionError();
-        int userId = user.getUserId();
-
-        try(Connection conn = DBConnection.getConnection()) {
-            String type = "chapter";
             int chapterId = Integer.parseInt(request.getParameter("chapterId"));
             String reason = request.getParameter("reason");
 
             Report report = new Report();
-            report.setReporterId(userId);
+            report.setReporterId(user.getUserId());
             report.setChapterId(chapterId);
             report.setReason(reason);
-            report.setTargetType(type);
+            report.setTargetType("chapter");
+
             ReportDAO reportDAO = new ReportDAO(conn);
             reportDAO.insert(report);
 
-            //tra ve json cho ajax
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            // Có thể trả JSON response sau này cho AJAX
+        } catch (NumberFormatException e) {
+            handleClientError(request, response, "Invalid chapter ID format.");
+        } catch (SQLException | ClassNotFoundException e) {
+            handleServerError(request, response, e, "Database error while reporting chapter.");
         }
     }
 
-    /**
-     * Creates a notification object for series approval/rejection.
-     *
-     * @param conn the database connection to use for queries
-     * @param message the staff's feedback message
-     * @param chapterId id of chapter
-     * @param status status of report
-     * @return a Notification object ready to be inserted into the database
-     * @throws SQLException if a database access error occurs while fetching owner ID
-     */
+    /* ===========================
+       ===== REPORT COMMENT ======
+       =========================== */
+    private void reportComment(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (user == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Login required.");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            int commentId = Integer.parseInt(request.getParameter("commentId"));
+            String reason = request.getParameter("reason");
+
+            Report report = new Report();
+            report.setReporterId(user.getUserId());
+            report.setCommentId(commentId);
+            report.setReason(reason);
+            report.setTargetType("comment");
+
+            ReportDAO reportDAO = new ReportDAO(conn);
+            reportDAO.insert(report);
+
+        } catch (NumberFormatException e) {
+            handleClientError(request, response, "Invalid comment ID format.");
+        } catch (SQLException | ClassNotFoundException e) {
+            handleServerError(request, response, e, "Database error while reporting comment.");
+        }
+    }
+
+    /* ===========================
+       ===== HANDLE REPORT =======
+       =========================== */
+    private void handleReport(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        Object loggedUser = request.getSession().getAttribute("loginedUser");
+        if (!(loggedUser instanceof Staff staff)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            int reportId = Integer.parseInt(request.getParameter("reportId"));
+            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+            int commentId = Integer.parseInt(request.getParameter("commentId"));
+            String status = request.getParameter("status");
+            String message = request.getParameter("message");
+            String type = request.getParameter("type");
+
+            ReportDAO reportDAO = new ReportDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
+            NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
+
+            Report report = reportDAO.findById(reportId);
+            if (report == null) {
+                handleClientError(request, response, "Report not found.");
+                return;
+            }
+
+            boolean updated = reportDAO.updateStatus(reportId, status, staff.getStaffId());
+            if (updated && "chapter".equals(type)) {
+                chapterDAO.updateStatus(chapterId, "rejected");
+                Notification noti = createApprovalNotification(conn, report.getChapterId(), message, status);
+                notificationsDAO.insertNotification(noti);
+            } else  if ("comment".equals(type)) {
+
+            }
+
+            response.sendRedirect(request.getContextPath() + "/report/list?type=" + type);
+
+        } catch (NumberFormatException e) {
+            handleClientError(request, response, "Invalid report ID format.");
+        } catch (SQLException | ClassNotFoundException e) {
+            handleServerError(request, response, e, "Database error while handling report.");
+        }
+    }
+
+    /* ===========================
+       ===== DELETE REPORT =======
+       =========================== */
+    private void deleteReport(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        Object loggedUser = request.getSession().getAttribute("loginedUser");
+        if (!(loggedUser instanceof Staff)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            int reportId = Integer.parseInt(request.getParameter("reportId"));
+            ReportDAO reportDAO = new ReportDAO(conn);
+            boolean success = reportDAO.deleteReport(reportId);
+
+            if (success) {
+                request.getSession().setAttribute("success", "Report deleted successfully!");
+            } else {
+                request.getSession().setAttribute("error", "Failed to delete report!");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/report/list");
+        } catch (NumberFormatException e) {
+            handleClientError(request, response, "Invalid report ID format.");
+        } catch (SQLException | ClassNotFoundException e) {
+            handleServerError(request, response, e, "Database error while deleting report.");
+        }
+    }
+
+    /* ===========================
+       ===== CREATE NOTIFY =======
+       =========================== */
     private static Notification createApprovalNotification(Connection conn, int chapterId,
-                                                           String message, String status) throws SQLException {
+                                                           String message, String status)
+            throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(conn);
+        Chapter chapter = chapterDAO.findById(chapterId);
+
         Notification notification = new Notification();
-        notification.setUserId(chapterDAO.findById(chapterId).getAuthorId());
-        notification.setTitle("Chapter" + status);
+        notification.setUserId(chapter.getAuthorId());
+        notification.setTitle("Chapter " + status);
         notification.setType("moderation");
         notification.setMessage(message);
         notification.setUrlRedirect("/chapter/detail?chapterId=" + chapterId);
 
         return notification;
+    }
+
+    /* ===========================
+       ===== ERROR HANDLERS ======
+       =========================== */
+    private void handleClientError(HttpServletRequest req, HttpServletResponse res, String message)
+            throws ServletException, IOException {
+        req.setAttribute("error", message);
+        req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, res);
+    }
+
+    private void handleServerError(HttpServletRequest req, HttpServletResponse res, Exception e, String msg)
+            throws ServletException, IOException {
+        e.printStackTrace();
+        req.setAttribute("error", msg + " " + e.getMessage());
+        req.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(req, res);
     }
 }

@@ -1,364 +1,507 @@
 package dao;
 
 import dao.helper.PaginationDAOHelper;
-import db.DBConnection;
 import dto.PaginationRequest;
-import dto.AccountDTO;
 import model.Account;
-import model.BanReason; // Assuming enum is in model
+import model.Staff;
+import model.User;
 import utils.FormatUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * DAO for managing accounts (users and staffs)
- * Supports dynamic queries based on viewer role
- * and includes pagination
- */
 public class AccountDAO {
-    private Connection conn;
+
+    private Connection connection;
+
+    public AccountDAO(Connection connection) {
+        this.connection = connection;
+    }
 
     /**
-     * Initialize the DAO and establish database connection
+     * Lấy tất cả accounts với phân quyền
      */
-    public AccountDAO() {
-        try {
-            conn = DBConnection.getConnection();
-        } catch (Exception e) {
+    public List<Account> getAllAccounts(String search, String roleFilter, String currentUserRole,
+                                        PaginationRequest pagination) {
+        List<Account> accounts = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+
+        // UNION query để lấy từ cả 2 bảng
+        sql.append("WITH AllAccounts AS (");
+
+        // Lấy từ bảng users
+        sql.append("SELECT user_id as id, username, full_name, email, password_hash, ");
+        sql.append("role, status, is_deleted, created_at, updated_at, ");
+        sql.append("bio, google_id, is_verified, points, 'user' as account_type ");
+        sql.append("FROM users WHERE 1=1 ");
+
+        // Phân quyền: reader chỉ thấy author
+        if ("reader".equalsIgnoreCase(currentUserRole)) {
+            sql.append("AND role = 'author' ");
+        }
+
+        sql.append("UNION ALL ");
+
+        // Lấy từ bảng staffs - chỉ admin mới thấy
+        sql.append("SELECT staff_id as id, username, full_name, NULL as email, password_hash, ");
+        sql.append("role, 'active' as status, is_deleted, created_at, updated_at, ");
+        sql.append("NULL as bio, NULL as google_id, 0 as is_verified, 0 as points, 'staff' as account_type ");
+        sql.append("FROM staffs WHERE 1=1 ");
+
+        // Staff không thấy admin/staff khác
+        if ("staff".equalsIgnoreCase(currentUserRole)) {
+            sql.append("AND 1=0 "); // Không lấy gì từ bảng staffs
+        }
+
+        sql.append(") ");
+        sql.append("SELECT * FROM AllAccounts WHERE is_deleted = 0 ");
+
+        // Filter theo search
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
+        }
+
+        // Filter theo role
+        if (roleFilter != null && !roleFilter.trim().isEmpty()) {
+            sql.append("AND role = ? ");
+        }
+        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(pagination);
+        // Pagination
+        sql.append(paginationDAOHelper.buildPaginationClause());
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+
+            if (search != null && !search.trim().isEmpty()) {
+                String searchPattern = "%" + search + "%";
+                ps.setString(paramIndex++, searchPattern);
+                ps.setString(paramIndex++, searchPattern);
+            }
+
+            if (roleFilter != null && !roleFilter.trim().isEmpty()) {
+                ps.setString(paramIndex, roleFilter);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String accountType = rs.getString("account_type");
+                Account account;
+
+                if ("user".equals(accountType)) {
+                    account = mapResultSetToUser(rs);
+                } else {
+                    account = mapResultSetToStaff(rs);
+                }
+
+                accounts.add(account);
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return accounts;
     }
 
     /**
-     * Get list of accounts based on viewer role with search, filter, and pagination
-     * @param search
-     * @param filterByRole
-     * @param currentRole
-     * @param paginationRequest
-     * @return
-     * @throws SQLException
+     * Đếm tổng số accounts (cho pagination)
      */
-    public List<Account> getAccounts(String search, String filterByRole, String currentRole, PaginationRequest paginationRequest) throws SQLException {
-        List<Account> list = new ArrayList<>();
-        PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
-        List<Object> params = new ArrayList<>();
-
+    public int countAccounts(String search, String roleFilter, String currentUserRole) {
+        int count = 0;
         StringBuilder sql = new StringBuilder();
 
-        // --- Tạo truy vấn gốc theo quyền ---
-        if ("reader".equalsIgnoreCase(currentRole) ) {
-            sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type, created_at ")
-                    .append("FROM users WHERE is_deleted = 0 AND role = 'author' ");
-        }
-        else if ("staff".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type, created_at ")
-                    .append("FROM users WHERE is_deleted = 0 AND role IN ('reader','author') ");
-        }
-        else if ("admin".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT * FROM (")
-                    .append("SELECT user_id AS id, username, full_name, email, role, status, created_at FROM users WHERE is_deleted = 0 ")
-                    .append("UNION ALL ")
-                    .append("SELECT staff_id AS id, username, full_name, NULL AS email, role, 'active' AS status, created_at FROM staffs WHERE is_deleted = 0 ")
-                    .append(") AS combined WHERE 1=1 ");
-        }
+        sql.append("WITH AllAccounts AS (");
+        sql.append("SELECT username, full_name, role, is_deleted FROM users ");
 
-        //Apply search filter if any
-        if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
-            params.add("%" + search.trim() + "%");
-            params.add("%" + search.trim() + "%");
-        }
-
-        //Filter by specific role if any
-        if (filterByRole != null && !filterByRole.trim().isEmpty()) {
-            sql.append("AND role = ? ");
-            params.add(filterByRole.trim());
-        }
-
-        //Apply ordering order by id
-        sql.append(paginationDAOHelper.buildPaginationClause());
-
-        try(PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-
-            //Append dynamic parameters
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
-            }
-
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Account account = new Account();
-                account.setAccountId(rs.getInt("id"));
-                account.setUsername(rs.getString("username"));
-                account.setFullName(rs.getString("full_name"));
-                account.setEmail(rs.getString("email"));
-                account.setRole(rs.getString("role"));
-                account.setStatus(rs.getString("status"));
-                account.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-                list.add(account);
-            }
-        }
-
-        return list;
-    }
-
-
-    /**
-     * Get total count of accounts based on viewer role with search and filter
-     * @param search
-     * @param filterByRole
-     * @param currentRole
-     * @return
-     * @throws SQLException
-     */
-    public int getTotalAccounts(String search, String filterByRole, String currentRole) throws SQLException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> params = new ArrayList<>();
-
-        if ("reader".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT COUNT(*) FROM users WHERE is_deleted = 0 AND role = 'author' ");
-        }
-        else if ("staff".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT COUNT(*) FROM users WHERE is_deleted = 0 AND role IN ('reader', 'author') ");
-        }
-        else if ("admin".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT COUNT(*) FROM users WHERE is_deleted = 0 ");
-        }
-
-        if (search != null && !search.trim().isEmpty()) {
-            sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
-            params.add("%" + search.trim() + "%");
-            params.add("%" + search.trim() + "%");
-        }
-
-        if (filterByRole != null && !filterByRole.trim().isEmpty()) {
-            sql.append("AND role = ? ");
-            params.add(filterByRole.trim());
-        }
-
-        try(PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.size(); i++) {
-                stmt.setObject(i + 1, params.get(i));
-            }
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-
-        }
-        return 0;
-    }
-
-    /**
-     * Get account by ID (user or staff)
-     * @param accountId
-     * @return AccountDTO or null if not found
-     * @throws SQLException
-     */
-    public AccountDTO getAccountById(int accountId) throws SQLException {
-        AccountDTO acc = null;
-
-        String sql = """
-            SELECT user_id AS id, username, full_name, email, role, status,
-            'user' AS type, created_at, updated_at
-            FROM users
-            WHERE is_deleted = 0 AND user_id = ?
-            UNION ALL
-            SELECT staff_id AS id, username, full_name, NULL AS email, role,
-            'active' AS status, 'staff' AS type, created_at, updated_at
-            FROM staffs
-            WHERE is_deleted = 0 AND staff_id = ?
-            """;
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, accountId);
-            stmt.setInt(2, accountId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                acc = new AccountDTO();
-                acc.setId(rs.getInt("id"));
-                acc.setUsername(rs.getString("username"));
-                acc.setFullName(rs.getString("full_name"));
-                acc.setEmail(rs.getString("email"));
-                acc.setRole(rs.getString("role"));
-                acc.setStatus(rs.getString("status"));
-                acc.setType(rs.getString("type"));
-                acc.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-                acc.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
-            }
-            rs.close();
-        }
-
-        return acc;
-    }
-
-    /**
-     * Search accounts by username or full name based on viewer role
-     * @param query
-     * @param currentRole
-     * @return List of AccountDTO
-     * @throws SQLException
-     */
-    public List<AccountDTO> search(String query, String currentRole) throws SQLException {
-        List<AccountDTO> list = new ArrayList<>();
-        StringBuilder sql = new StringBuilder();
-
-        // Similar to getAccounts but without pagination and with search always applied
-        if ("reader".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type ")
-                    .append("FROM users WHERE is_deleted = 0 AND role = 'author' AND (username LIKE ? OR full_name LIKE ?) ");
-        } else if ("staff".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type ")
-                    .append("FROM users WHERE is_deleted = 0 AND role IN ('reader','author') AND (username LIKE ? OR full_name LIKE ?) ");
-        } else if ("admin".equalsIgnoreCase(currentRole)) {
-            sql.append("SELECT user_id AS id, username, full_name, email, role, status, 'user' AS type FROM users WHERE is_deleted = 0 AND (username LIKE ? OR full_name LIKE ?) ")
-                    .append("UNION ALL ")
-                    .append("SELECT staff_id AS id, username, full_name, NULL AS email, role, 'active' AS status, 'staff' AS type FROM staffs WHERE is_deleted = 0 AND (username LIKE ? OR full_name LIKE ?) ");
-        }
-
-        sql.append(" ORDER BY id");
-
-        PreparedStatement stmt;
-        if ("admin".equalsIgnoreCase(currentRole)) {
-            stmt = conn.prepareStatement(sql.toString());
-            stmt.setString(1, "%" + query + "%");
-            stmt.setString(2, "%" + query + "%");
-            stmt.setString(3, "%" + query + "%");
-            stmt.setString(4, "%" + query + "%");
+        if ("reader".equalsIgnoreCase(currentUserRole)) {
+            sql.append("WHERE role = 'author' ");
         } else {
-            stmt = conn.prepareStatement(sql.toString());
-            stmt.setString(1, "%" + query + "%");
-            stmt.setString(2, "%" + query + "%");
+            sql.append("WHERE 1=1 ");
         }
 
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            AccountDTO acc = new AccountDTO();
-            acc.setId(rs.getInt("id"));
-            acc.setUsername(rs.getString("username"));
-            acc.setFullName(rs.getString("full_name"));
-            acc.setEmail(rs.getString("email"));
-            acc.setRole(rs.getString("role"));
-            acc.setStatus(rs.getString("status"));
-            acc.setType(rs.getString("type"));
-            list.add(acc);
+        sql.append("UNION ALL ");
+        sql.append("SELECT username, full_name, role, is_deleted FROM staffs ");
+
+        if ("staff".equalsIgnoreCase(currentUserRole)) {
+            sql.append("WHERE 1=0 ");
+        } else {
+            sql.append("WHERE 1=1 ");
         }
 
-        rs.close();
-        stmt.close();
-        return list;
-    }
+        sql.append(") ");
+        sql.append("SELECT COUNT(*) FROM AllAccounts WHERE is_deleted = 0 ");
 
-    /**
-     * Insert a new account (user or staff)
-     * @param account
-     * @param password
-     * @throws SQLException
-     */
-    public void insertAccount(AccountDTO account, String password) throws SQLException {
-        // Assume hashing password; insert into users table for 'user' type
-        String sql = """
-            INSERT INTO users (username, full_name, email, role, status, password_hash, created_at, updated_at)
-            VALUES (?, ?, ?, ?, 'active', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            """;
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append("AND (username LIKE ? OR full_name LIKE ?) ");
+        }
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, account.getUsername());
-            stmt.setString(2, account.getFullName());
-            stmt.setString(3, account.getEmail());
-            stmt.setString(4, account.getRole());
-            stmt.setString(5, hashPassword(password)); // Implement hashPassword
-            stmt.executeUpdate();
+        if (roleFilter != null && !roleFilter.trim().isEmpty()) {
+            sql.append("AND role = ? ");
+        }
 
-            ResultSet rs = stmt.getGeneratedKeys();
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+
+            if (search != null && !search.trim().isEmpty()) {
+                String searchPattern = "%" + search + "%";
+                ps.setString(paramIndex++, searchPattern);
+                ps.setString(paramIndex++, searchPattern);
+            }
+
+            if (roleFilter != null && !roleFilter.trim().isEmpty()) {
+                ps.setString(paramIndex++, roleFilter);
+            }
+
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                account.setId(rs.getInt(1));
+                count = rs.getInt(1);
             }
-            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    /**
+     * Lấy User theo userId
+     */
+    public User getUserById(int userId) {
+        String sql = "SELECT user_id as id, username, full_name, email, password_hash, " +
+                "role, status, is_deleted, created_at, updated_at, " +
+                "bio, google_id, is_verified, points " +
+                "FROM users WHERE user_id = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Lấy Staff theo staffId
+     */
+    public Staff getStaffById(int staffId) {
+        String sql = "SELECT staff_id, username, full_name, password_hash, " +
+                "role, is_deleted, created_at, updated_at " +
+                "FROM staffs WHERE staff_id = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToStaff(rs);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Lấy account theo ID và role (tự động phân biệt User/Staff)
+     */
+    public Account getAccountById(int id, String role) {
+        // Determine which table to query based on role
+        boolean isUserRole = "reader".equalsIgnoreCase(role) || "author".equalsIgnoreCase(role);
+
+        if (isUserRole) {
+            return getUserById(id);
+        } else {
+            return getStaffById(id);
         }
     }
 
     /**
-     * Update an existing account (user or staff)
-     * @param account
-     * @throws SQLException
+     * Lấy account theo username (tự động tìm trong cả 2 bảng)
      */
-    public void updateAccount(AccountDTO account) throws SQLException {
-        // Update users or staffs based on type
-        if ("user".equals(account.getType())) {
-            String sql = """
-                UPDATE users SET full_name = ?, email = ?, role = ?, status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = ? AND is_deleted = 0
-                """;
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, account.getFullName());
-                stmt.setString(2, account.getEmail());
-                stmt.setString(3, account.getRole());
-                stmt.setString(4, account.getStatus());
-                stmt.setInt(5, account.getId());
-                stmt.executeUpdate();
+    public Account getAccountByUsername(String username) {
+        // Try users table first
+        String sqlUser = "SELECT user_id as id, username, full_name, email, password_hash, " +
+                "role, status, is_deleted, created_at, updated_at, " +
+                "bio, google_id, is_verified, points " +
+                "FROM users WHERE username = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = connection.prepareStatement(sqlUser)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
             }
-        } else if ("staff".equals(account.getType())) {
-            String sql = """
-                UPDATE staffs SET full_name = ?, role = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE staff_id = ? AND is_deleted = 0
-                """;
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, account.getFullName());
-                stmt.setString(2, account.getRole());
-                stmt.setInt(3, account.getId());
-                stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // If not found, try staffs table
+        String sqlStaff = "SELECT staff_id as id, username, full_name, password_hash, " +
+                "role, is_deleted, created_at, updated_at " +
+                "FROM staffs WHERE username = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = connection.prepareStatement(sqlStaff)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToStaff(rs);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Thêm User mới
+     */
+    public boolean insertUser(User user) {
+        String sql = "INSERT INTO users (username, full_name, email, password_hash, role, status, bio) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getFullName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getPasswordHash());
+            ps.setString(5, user.getRole());
+            ps.setString(6, user.getStatus());
+            ps.setString(7, user.getBio());
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        user.setUserId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Thêm Staff mới
+     */
+    public boolean insertStaff(Staff staff) {
+        String sql = "INSERT INTO staffs (username, full_name, password_hash, role) " +
+                "VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, staff.getUsername());
+            ps.setString(2, staff.getFullName());
+            ps.setString(3, staff.getPasswordHash());
+            ps.setString(4, staff.getRole());
+
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        staff.setStaffId(generatedKeys.getInt(1));
+                    }
+                }
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Thêm account mới (tự động phân biệt User/Staff)
+     */
+    public boolean insertAccount(Account account) {
+        if (account instanceof User) {
+            return insertUser((User) account);
+        } else if (account instanceof Staff) {
+            return insertStaff((Staff) account);
+        }
+        return false;
+    }
+
+    /**
+     * Cập nhật User
+     */
+    public boolean updateUser(User user) {
+        String sql = "UPDATE users SET full_name = ?, email = ?, role = ?, status = ?, " +
+                "bio = ?, updated_at = GETDATE() WHERE user_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, user.getFullName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getRole());
+            ps.setString(4, user.getStatus());
+            ps.setString(5, user.getBio());
+            ps.setInt(6, user.getUserId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Cập nhật Staff
+     */
+    public boolean updateStaff(Staff staff) {
+        String sql = "UPDATE staffs SET full_name = ?, role = ?, updated_at = GETDATE() " +
+                "WHERE staff_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, staff.getFullName());
+            ps.setString(2, staff.getRole());
+            ps.setInt(3, staff.getStaffId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Cập nhật account (tự động phân biệt User/Staff)
+     */
+    public boolean updateAccount(Account account) {
+        if (account instanceof User) {
+            return updateUser((User) account);
+        } else if (account instanceof Staff) {
+            return updateStaff((Staff) account);
+        }
+        return false;
+    }
+
+    /**
+     * Xóa User (soft delete)
+     */
+    public boolean deleteUser(int userId) {
+        String sql = "UPDATE users SET is_deleted = 1, updated_at = GETDATE() WHERE user_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Xóa Staff (soft delete)
+     */
+    public boolean deleteStaff(int staffId) {
+        String sql = "UPDATE staffs SET is_deleted = 1, updated_at = GETDATE() WHERE staff_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Xóa account (tự động phân biệt User/Staff bằng accountType)
+     */
+    public boolean deleteAccount(int id, String accountType) {
+        if ("user".equalsIgnoreCase(accountType)) {
+            return deleteUser(id);
+        } else {
+            return deleteStaff(id);
         }
     }
 
     /**
-     * Delete (soft delete) an account by ID
-     * @param accountId
-     * @throws SQLException
+     * Cập nhật status của User (ban/unban)
      */
-    public void deleteAccount(int accountId) throws SQLException {
-        // Soft delete: set is_deleted = 1
-        // For both users and staffs
-        String sqlUsers = "UPDATE users SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND is_deleted = 0";
-        String sqlStaffs = "UPDATE staffs SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE staff_id = ? AND is_deleted = 0";
+    public boolean updateUserStatus(int userId, String status) {
+        String sql = "UPDATE users SET status = ?, updated_at = GETDATE() WHERE user_id = ?";
 
-        try (PreparedStatement stmtUsers = conn.prepareStatement(sqlUsers);
-             PreparedStatement stmtStaffs = conn.prepareStatement(sqlStaffs)) {
-            stmtUsers.setInt(1, accountId);
-            stmtUsers.executeUpdate();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
 
-            stmtStaffs.setInt(1, accountId);
-            stmtStaffs.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
+        return false;
     }
 
     /**
-     * Ban an account by ID with reason
-     * @param accountId
-     * @param reason
-     * @throws SQLException
+     * Map ResultSet to User object
      */
-    public void banAccount(int accountId, BanReason reason) throws SQLException {
-        // Set status to 'banned' and add reason (assume a ban_reason column)
-        String sql = """
-            UPDATE users SET status = 'banned', ban_reason = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = ? AND is_deleted = 0
-            """;
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setAccountId(rs.getInt("id"));
+        user.setUserId(rs.getInt("id"));
+        user.setUsername(rs.getString("username"));
+        user.setFullName(rs.getString("full_name"));
+        user.setEmail(rs.getString("email"));
+        user.setPasswordHash(rs.getString("password_hash"));
+        user.setRole(rs.getString("role"));
+        user.setStatus(rs.getString("status"));
+        user.setDeleted(rs.getBoolean("is_deleted"));
+        user.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        user.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, reason.name());
-            stmt.setInt(2, accountId);
-            stmt.executeUpdate();
-        }
-        // Similar for staffs if needed
+        user.setBio(rs.getString("bio"));
+        user.setVerified(rs.getBoolean("is_verified"));
+        user.setPoints(rs.getInt("points"));
+
+        user.setAccountType("user");
+
+        return user;
     }
 
-    // Helper method (implement actual hashing, e.g., BCrypt)
-    private String hashPassword(String password) {
-        return password; // Placeholder
+    /**
+     * Map ResultSet to Staff object
+     */
+    private Staff mapResultSetToStaff(ResultSet rs) throws SQLException {
+        Staff staff = new Staff();
+        staff.setAccountId(rs.getInt("id"));
+        staff.setStaffId(rs.getInt("id"));
+        staff.setUsername(rs.getString("username"));
+        staff.setFullName(rs.getString("full_name"));
+        staff.setPasswordHash(rs.getString("password_hash"));
+        staff.setRole(rs.getString("role"));
+        staff.setDeleted(rs.getBoolean("is_deleted"));
+
+        staff.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        staff.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+
+        staff.setAccountType("staff");
+        return staff;
     }
 }

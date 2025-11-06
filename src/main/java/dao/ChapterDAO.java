@@ -229,6 +229,15 @@ public class ChapterDAO {
         }
     }
 
+    public boolean updateStatus(int chapterId, String approvalStatus) throws SQLException {
+        String sql = "UPDATE chapters SET approvalStatus = ?, updated_at = ? WHERE chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, approvalStatus);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
     /**
      * Soft delete a chapter by setting its is_deleted flag to true.
      *
@@ -810,7 +819,6 @@ public class ChapterDAO {
             e.printStackTrace();
         }
         return 0;
-
     }
 
 
