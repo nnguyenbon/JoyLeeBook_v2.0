@@ -1,27 +1,22 @@
 package controller.generalController;
 
-import dao.ReportDAO;
-import dao.ReviewChapterDAO;
+import dao.*;
 import db.DBConnection;
-import dto.staff.DashboardStatsDTO;
-import dto.staff.QuickStatsDTO;
-import dto.staff.RecentActionDTO;
+import model.Account;
+import model.staff.DashboardStats;
+import model.staff.QuickStats;
+import model.staff.RecentAction;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Staff;
-import model.User;
-import services.account.StaffServices;
-
 import utils.AuthenticationUtils;
-import utils.ValidationInput;
 
 import java.io.IOException;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -57,15 +52,74 @@ public class StaffDashboardServlet extends HttpServlet {
      * @throws IOException      if an I/O error occurs
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int staffId = ValidationInput.isPositiveInteger(request.getParameter("staffId")) ? Integer.parseInt(request.getParameter("staffId")) : 1;
-        String type = request.getParameter("type") == null ? "" : request.getParameter("type");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
+        int staffId = ((Staff) loggedInAccount).getStaffId();
 
-        try (Connection connection = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getConnection()) {
             //Check authentication
-            StaffServices staffServices = new StaffServices();
-            DashboardStatsDTO stats = staffServices.getDashboardStats(staffId);
-            List<RecentActionDTO> recentActions = staffServices.getRecentActions(staffId, 4);
-            QuickStatsDTO quickStats = getQuickStatsToday(staffId, connection);
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            UserDAO userDAO = new UserDAO(conn);
+            ReportDAO reportDAO = new ReportDAO(conn);
+            ChapterDAO  chapterDAO = new ChapterDAO(conn);
+            ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
+            ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
+            DashboardStats stats = new DashboardStats();
+
+            // Total Series: COUNT(series) WHERE is_deleted = 0
+            stats.setTotalSeries(seriesDAO.countAllNonDeleted());
+
+            stats.setPendingSeries(seriesDAO.countByStatus("pending"));
+
+            stats.setYourReviewSeries(reviewSeriesDAO.countByStaff(staffId));
+
+            stats.setYourRejectSeries(reviewSeriesDAO.countByStaffAndStatus(staffId, "rejected"));
+            // Active Users: COUNT(users) WHERE status = 'active' AND role IN ('reader', 'author')
+            stats.setActiveUsers(userDAO.countActiveUsers());
+
+            // Authors: COUNT(users) WHERE role = 'author' AND status = 'active'
+            stats.setAuthors(userDAO.countActiveAuthors());
+
+            // Banned Users: COUNT(users) WHERE status = 'banned'
+            stats.setBannedUsers(userDAO.countBannedUsers());
+
+            // Total Reports: COUNT(reports) WHERE is_deleted IS NULL (tất cả)
+            stats.setTotalReports(reportDAO.countAll());
+
+            // Pending Reports: COUNT(reports) WHERE status = 'pending'
+            stats.setPendingReports(reportDAO.countByStatus("pending"));
+
+            // Reports You’ve Handled: COUNT(reports) WHERE staff_id = ? AND status = 'resolved'
+            stats.setHandledReports(reportDAO.countHandledByStaff(staffId, "resolved"));
+
+            // Total Chapters: COUNT(chapters) WHERE is_deleted = 0
+            stats.setTotalChapters(chapterDAO.countAllNonDeleted());
+
+            // Your Reviews: COUNT(review_chapter) WHERE staff_id = ?
+            stats.setYourReviews(reviewChapterDAO.countByStaff(staffId));
+
+            // Pending Chapters: COUNT(chapters) WHERE status = 'pending'
+            stats.setPendingChapters(chapterDAO.countByStatus("pending"));
+
+            // Your Rejects: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected'
+            stats.setYourRejects(reviewChapterDAO.countByStaffAndStatus(staffId, "rejected"));
+
+            LocalDate today = LocalDate.now();
+            Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+            List<RecentAction> recentActions = reviewChapterDAO.getRecentActionsByStaff(staffId, startOfDay, 4);;
+            QuickStats quickStats = new QuickStats();
+
+            // Reviews completed: COUNT(review_chapter) WHERE staff_id = ? AND created_at >= ?
+            quickStats.setReviewsCompleted(reviewChapterDAO.countByStaffAndDate(staffId, startOfDay));
+
+            // Content approved: COUNT(review_chapter) WHERE staff_id = ? AND status = 'approved' AND created_at >= ?
+            quickStats.setContentApproved(reviewChapterDAO.countByStaffStatusAndDate(staffId, "approved", startOfDay));
+
+            // Content rejected: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected' AND created_at >= ?
+            quickStats.setContentRejected(reviewChapterDAO.countByStaffStatusAndDate(staffId, "rejected", startOfDay));
+
+            // Reports resolved: COUNT(reports) WHERE staff_id = ? AND status = 'resolved' AND updated_at >= ?
+            quickStats.setReportsResolved(reportDAO.countResolvedByStaffAndDate(staffId, startOfDay));
 
             // Set attributes cho JSP
             request.setAttribute("dashboardStats", stats);
@@ -78,31 +132,6 @@ public class StaffDashboardServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         }catch (Exception e) {
             throw new ServletException(e);
-        }
-    }
-    public QuickStatsDTO getQuickStatsToday(int staffId, Connection conn) throws SQLException {
-        try {
-            ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
-            ReportDAO reportDAO = new ReportDAO(conn);
-            QuickStatsDTO stats = new QuickStatsDTO();
-            LocalDate today = LocalDate.now();
-            Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());
-
-            // Reviews completed: COUNT(review_chapter) WHERE staff_id = ? AND created_at >= ?
-            stats.setReviewsCompleted(reviewChapterDAO.countByStaffAndDate(staffId, startOfDay));
-
-            // Content approved: COUNT(review_chapter) WHERE staff_id = ? AND status = 'approved' AND created_at >= ?
-            stats.setContentApproved(reviewChapterDAO.countByStaffStatusAndDate(staffId, "approved", startOfDay));
-
-            // Content rejected: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected' AND created_at >= ?
-            stats.setContentRejected(reviewChapterDAO.countByStaffStatusAndDate(staffId, "rejected", startOfDay));
-
-            // Reports resolved: COUNT(reports) WHERE staff_id = ? AND status = 'resolved' AND updated_at >= ?
-            stats.setReportsResolved(reportDAO.countResolvedByStaffAndDate(staffId, startOfDay));
-
-            return stats;
-        } catch (Exception e) {
-            throw new SQLException(e);
         }
     }
 }

@@ -471,6 +471,36 @@ public class SeriesDAO {
         }
         return 0;
     }
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE status = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, pending);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStaffAndStatus(int staffId, String status) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE staff_id = ? AND status = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setString(2, status);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean insertSeries(Series series) throws SQLException {
         String sql = "INSERT INTO series (title, description, cover_image_url, status, approval_status, created_at, updated_at, is_deleted, rating_points) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)";

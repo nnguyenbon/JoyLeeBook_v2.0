@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-yv7FFx5UP7gP6+VwMlP97+YzUQEMCQZx1Hn0bnh5Zf0CBlSZx1ZCwYoSGB94EIMhDdjwUgt4fYxgR4L5iqn5Mg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page buffer="32kb" autoFlush="true" %>
 <main class="flex-1 bg-gray-100 max-h-[90vh] custom-scrollbar overflow-y-auto">
   <div class="p-9">
@@ -36,7 +36,9 @@
         <div class="flex items-center gap-5 mb-10">
           <span class="font-semibold text-lg">${series.totalChapters} Chapters</span>
           <div class="text-gray-500 font-semibold text-lg">
-            <span class="text-yellow-400"><i class="fa-solid fa-star"></i> ${series.avgRating}</span>
+            <span class="text-yellow-400"><i class="fa-solid fa-star"></i>
+                <fmt:formatNumber value="${series.avgRating}" type="number" maxFractionDigits="1" minFractionDigits="1"/>
+            </span>
             <span>(${series.totalRating})</span>
           </div>
         </div>

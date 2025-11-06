@@ -385,4 +385,8 @@ public class ReportDAO {
         }
         return 0;
     }
+
+    public boolean deleteReport(int reportId) {
+        return true;
+    }
 }

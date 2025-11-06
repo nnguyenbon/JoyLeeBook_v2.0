@@ -475,7 +475,7 @@ public class SeriesServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String approveStatus = request.getParameter("approveStatus");
-            String comment = request.getParameter("comment");
+            String comment = request.getParameter("comment") == null ? "" : request.getParameter("comment");
 
             // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
@@ -505,7 +505,7 @@ public class SeriesServlet extends HttpServlet {
                 notificationsDAO.insertNotification(notification);
             }
 
-            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=pending");
+            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

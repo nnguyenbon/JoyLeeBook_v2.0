@@ -13,7 +13,16 @@ public class Account {
     private String createdAt;
     private String updatedAt;
     private boolean isDeleted;
+    private String accountType;
 
+    // Getter và Setter
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
     public int getAccountId() {
         return accountId;
     }

@@ -1,6 +1,6 @@
-package dto.staff;
+package model.staff;
 
-public class RecentActionDTO {
+public class RecentAction {
     private String actionDescription;  // e.g., "Approved 'The Magic Quest' Chapter"
     private String timestamp;          // e.g., "15 minutes ago"
     private String statusColor;        // e.g., "green", "yellow", "red" cho bullet point

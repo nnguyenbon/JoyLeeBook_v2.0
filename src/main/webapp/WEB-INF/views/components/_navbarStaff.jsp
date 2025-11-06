@@ -29,9 +29,9 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span class="ml-2">Reports</span>
             </a>
-            <a href="${pageContext.request.contextPath}/account/list" class="flex items-center px-4 py-2 hover:bg-gray-100  ${pageTitle == 'Manage Users' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'}">
+            <a href="${pageContext.request.contextPath}/account/list" class="flex items-center px-4 py-2 hover:bg-gray-100  ${pageTitle == 'Manage Accounts' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'}">
                 <i class="fa-solid fa-users"></i>
-                <span class="ml-2">Users</span>
+                <span class="ml-2">Accounts</span>
             </a>
         </nav>
     </div>

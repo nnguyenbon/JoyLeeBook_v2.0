@@ -32,14 +32,12 @@ public class RegisterAuthorServlet extends HttpServlet {
             //If user is a reader, attempt to register as author
             if (user != null && "reader".equals(user.getRole())) {
                 UserDAO userDAO = new UserDAO(conn);
-                try {
-                    if (userDAO.updateUserRoleToAuthor(user.getUserId())) {
-                        response.sendRedirect(request.getContextPath() + "/author");
-                    } else {
-                        response.sendRedirect(request.getContextPath() + "/error/error.jsp");
-                    }
-                } catch (SQLException | ClassNotFoundException e) {
-                    throw new RuntimeException(e);
+                boolean isAuthor = userDAO.isAuthor(user.getEmail()) ? true : userDAO.updateUserRoleToAuthor(user.getUsername(), user.getFullName(), user.getEmail());
+                if (isAuthor) {
+                    user.setRole("author");
+                    response.sendRedirect(request.getContextPath() + "/author");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/error/error.jsp");
                 }
             } else if ("author".equals(user.getRole())) {
                 response.sendRedirect(request.getContextPath() + "/author");
