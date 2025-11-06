@@ -27,6 +27,7 @@
                 name="username"
                 class="border border-gray-400 w-full rounded-md px-4 py-2"
                 placeholder="Enter your username or email"
+                value="author1"
                 required
         />
 
@@ -39,6 +40,7 @@
                     class="border border-gray-400 w-full rounded-md pl-4 pr-10 py-2"
                     placeholder="Enter your password"
                     required
+                    value="123"
             />
             <i
                     class="fa-solid fa-eye absolute right-3 bottom-1/2 translate-y-1/2 cursor-pointer"

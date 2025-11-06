@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
 @WebServlet("/series/*")
 public class SeriesServlet extends HttpServlet {
@@ -30,10 +31,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Handles HTTP GET requests for viewing series data.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -53,10 +54,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Handles HTTP POST requests for modifying series data.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -79,10 +80,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays the form for adding a new series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void showAddSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -104,10 +105,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Inserts a new series into the database.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during file upload or redirection
+     * @throws IOException      if an I/O error occurs during file upload or redirection
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -125,15 +126,19 @@ public class SeriesServlet extends HttpServlet {
             String description = request.getParameter("description");
 
             // Process cover image upload
+            Series series = new Series();
+
+
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart == null || filePart.getSubmittedFileName().trim().isEmpty()) {
-                throw new IOException("Please select a cover image.");
+            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
+                System.out.println("Uploaded file name: " + filePart);
+                System.out.println("Content type: " + filePart.getContentType());
+                System.out.println("Size: " + filePart.getSize());
+
+                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             }
 
-            // Create series object
-            Series series = new Series();
             series.setTitle(title);
-            series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             series.setStatus(status);
             series.setApprovalStatus("pending");
             series.setDescription(description);
@@ -175,10 +180,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays a paginated list of series with filtering and search capabilities.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -257,10 +262,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays detailed information for a specific series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -316,10 +321,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Displays the form for editing an existing series.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     private void showEditSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -350,10 +355,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Updates an existing series with new data from the form submission.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection or error messages
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during file upload or redirection
+     * @throws IOException      if an I/O error occurs during file upload or redirection
      */
     private void updateSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -391,11 +396,25 @@ public class SeriesServlet extends HttpServlet {
                     ? Arrays.stream(genreParams).mapToInt(Integer::parseInt).toArray()
                     : new int[0];
 
+
             // Update cover image if provided
+            String oldImg = request.getParameter("oldCoverImgUrl").replaceFirst("img/", "");
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
-                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+            String nameFilePart = filePart.getSubmittedFileName().trim();
+            System.out.println("name:" + nameFilePart);
+            System.out.println("old: " + oldImg);
+            if(nameFilePart.isEmpty() || nameFilePart.equals(oldImg)) {
+                System.out.println(oldImg);
+                series.setCoverImgUrl(oldImg);
+            } else {
+                if (!filePart.getSubmittedFileName().trim().isEmpty()) {
+                    System.out.println(filePart.getSubmittedFileName());
+                    series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+                } else {
+                    System.out.println("ki cuc qua");
+                }
             }
+
 
             // Update series fields
             series.setTitle(title);
@@ -431,7 +450,7 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Approves or rejects a series submission.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws RuntimeException if a database error occurs during the approval process
      */
@@ -489,10 +508,10 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Deletes a series from the database.
      *
-     * @param request the HTTP servlet request
+     * @param request  the HTTP servlet request
      * @param response the HTTP servlet response for redirection
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs during redirection
+     * @throws IOException      if an I/O error occurs during redirection
      */
     private void deleteSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -519,7 +538,7 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Enriches a Series object with additional related data from the database.
      *
-     * @param conn the database connection to use for queries
+     * @param conn   the database connection to use for queries
      * @param series the Series object to enrich with additional data, or null
      * @return the enriched Series object, or null if the input was null
      * @throws SQLException if a database access error occurs
@@ -543,9 +562,9 @@ public class SeriesServlet extends HttpServlet {
     /**
      * Creates a notification object for series approval/rejection.
      *
-     * @param conn the database connection to use for queries
-     * @param seriesId the ID of the series that was reviewed
-     * @param comment the staff's feedback comment
+     * @param conn          the database connection to use for queries
+     * @param seriesId      the ID of the series that was reviewed
+     * @param comment       the staff's feedback comment
      * @param approveStatus the approval decision ("approved" or "rejected")
      * @return a Notification object ready to be inserted into the database
      * @throws SQLException if a database access error occurs while fetching owner ID

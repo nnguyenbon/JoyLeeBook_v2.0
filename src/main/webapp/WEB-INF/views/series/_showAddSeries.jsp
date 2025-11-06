@@ -33,10 +33,12 @@
             <div id="upload-box" class="h-110 flex flex-col justify-between items-center">
                 <div
                         class="h-full border-2 border-dashed border-gray-300 rounded-lg flex flex-col justify-center items-center p-6 hover:border-blue-400 transition cursor-pointer relative overflow-hidden">
-                    <input required name="coverImgUrl" id="coverImgUrl"
+                    <input name="coverImgUrl" id="coverImgUrl"
                            type="file" accept="image/*" class="hidden"
-                           value="${series.coverImgUrl}"
+<%--                           value="${series.coverImgUrl}"--%>
+                           ${series == null ? 'required' : ''}
                     />
+                    <input type="hidden" name="oldCoverImgUrl" value="${series.coverImgUrl}"/>
                     <i class="fa-solid fa-upload text-gray-400 text-3xl mb-3"></i>
                     <p class="text-gray-500 text-sm mb-3">Click to upload or drag and drop</p>
 
@@ -46,6 +48,7 @@
                          class="hidden absolute inset-0 w-full h-full object-cover rounded-lg"/>
                 </div>
                 <button type="button"
+                        for="coverImgUrl"
                         class="mt-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-4 py-1.5 rounded border">
                     Choose File Image
                 </button>
@@ -190,20 +193,23 @@
         const uploadBox = document.getElementById("upload-box");
         const fileInput = document.getElementById("coverImgUrl");
         const previewImage = document.getElementById("preview-image");
-
+        const fileInputNew = document.querySelector(`#upload-box input[type='hidden']`);
         // Khai báo hàm previewFile ở ngoài hoặc ở đầu DOMContentLoaded nếu bạn muốn nó là private
         function previewFile(source) {
             if (typeof source === 'string') {
                 // Trường hợp 1: Nguồn là một URL (ảnh đã lưu từ server)
                 previewImage.src = source;
                 previewImage.classList.remove("hidden");
-            } else if (source instanceof File) {
+                console.log("hahahah")
+            } else {
                 // Trường hợp 2: Nguồn là đối tượng File (người dùng chọn tệp mới)
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     previewImage.src = e.target.result;
+                    fileInputNew.value = "";
                     previewImage.classList.remove("hidden");
                 };
+                console.log(123)
                 reader.readAsDataURL(source);
             }
         }
@@ -227,7 +233,6 @@
             }
         }
 
-        // ... (Giữ nguyên các sự kiện lắng nghe khác)
 
         // Khi click vào box -> mở chọn file
         uploadBox.addEventListener("click", () => fileInput.click());

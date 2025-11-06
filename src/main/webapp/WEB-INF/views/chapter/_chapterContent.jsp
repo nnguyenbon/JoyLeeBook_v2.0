@@ -137,7 +137,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/report-chapter?chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/reported?type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="chapterId" id="reportChapterId">
 
@@ -181,8 +181,7 @@
 
                     <div class="flex justify-end space-x-2 mt-5">
                         <button type="submit"
-                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition
-                                     <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
+                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
                             Submit
                         </button>
                         <button type="button" id="cancelReportChapterBtn"
@@ -196,7 +195,7 @@
 
         <!-- Comment box -->
         <form id="commentForm"
-              action="${pageContext.request.contextPath}/comment/insert?chapterId=${chapterId}"
+              action="${pageContext.request.contextPath}/comment/create?seriesId=${seriesId}&chapterId=${chapterId}"
               method="post"
               class="mt-8 flex items-center gap-2">
 
@@ -210,9 +209,8 @@
             />
 
             <button id="commentSubmitBtn" type="submit"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg
-                        <c:if test='${userId == 0}'>opacity-50 cursor-not-allowed pointer-events-none text-gray-400</c:if>">
-                <i class="fa-regular fa-paper-plane text-2xl"></i>
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition duration-200 flex items-center justify-center shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-comment"></i>
             </button>
         </form>
 
@@ -284,7 +282,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/report-comment?chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/reported?type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="commentId" id="reportCommentId">
                     <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>
@@ -349,80 +347,65 @@
 </main>
 
 <script>
-        document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener("DOMContentLoaded", () => {
         const likeBtn = document.getElementById("likeBtn");
-        const icon = likeBtn.querySelector("i");
-        const likeCount = likeBtn.querySelector("span");
-        const userId = likeBtn.dataset.userId;
-        const chapterId = likeBtn.dataset.chapterId;
 
-        // 🟩 Lấy thông tin like ban đầu
-        try {
-        const res = await fetch(`${pageContext.request.contextPath}/reaction/get-like?chapterId=${chapterId}&userId=${userId}`);
-        const data = await res.json();
+        likeBtn.addEventListener("click", function () {
+            // Nếu người dùng đã like rồi thì không cho click nữa
+            if (likeBtn.classList.contains("liked")) return;
+            if ("${loginedUser.userId}" == "") {
+                toastr["warning"]("Your must login to like chapter")
+                return;
+            }
+            const chapterId = likeBtn.dataset.chapterId;
+            const icon = likeBtn.querySelector("i");
+            const likeCount = likeBtn.querySelector("span");
+            // Gửi yêu cầu đến server
+            fetch("${pageContext.request.contextPath}/reaction/like", {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "chapterId=" + encodeURIComponent(chapterId)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.liked) {
+                        // Cập nhật giao diện
+                        likeBtn.classList.add("liked");
+                        likeCount.textContent = data.newLikeCount;
 
-        likeCount.textContent = data.totalLike || 0;
-        if (data.liked) {
-        likeBtn.classList.add("liked");
-        icon.classList.remove("fa-regular");
-        icon.classList.add("fa-solid", "text-red-500");
-    }
-    } catch (err) {
-        console.error("Không thể lấy thông tin like:", err);
-    }
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid", "text-red-500");
 
-        // 🟥 Khi nhấn Like/Unlike
-        likeBtn.addEventListener("click", async () => {
-        if (userId == 0) {
-        toastr["warning"]("Vui lòng đăng nhập để like chapter!");
-        return;
-    }
-
-        const action = likeBtn.classList.contains("liked") ? "unlike-chapter" : "like-chapter";
-
-        try {
-        const res = await fetch(`${pageContext.request.contextPath}/reaction/${action}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: new URLSearchParams({ userId, chapterId })
+                        // Chặn click tiếp
+                        likeBtn.disabled = true;
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
     });
 
-        const data = await res.json();
-        likeCount.textContent = data.totalLike;
-
-        if (action === "like-chapter") {
-        likeBtn.classList.add("liked");
-        icon.classList.remove("fa-regular");
-        icon.classList.add("fa-solid", "text-red-500");
-    } else {
-        likeBtn.classList.remove("liked");
-        icon.classList.remove("fa-solid", "text-red-500");
-        icon.classList.add("fa-regular");
-    }
-    } catch (err) {
-        console.error("Lỗi khi gửi like:", err);
-    }
-    });
-    });
 </script>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const chapterListBtn = document.getElementById("chapterListBtn");
-        const chapterList = document.getElementById("chapterList");
 
-        chapterListBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        chapterList.classList.toggle("hidden");
+    document.querySelector("#chapterListBtn").addEventListener("click", () => {
+        document.querySelector("#chapterList").classList.toggle("hidden");
+    })
+
+
+    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Ngăn việc click lan ra ngoài
+            const menu = btn.nextElementSibling; // Tìm menu liền sau button
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.add('hidden'); // ẩn các menu khác
+            });
+            menu.classList.toggle('hidden');
+        });
     });
 
-        // Click ra ngoài ẩn dropdown
-        window.addEventListener("click", (e) => {
-        if (!chapterList.contains(e.target) && !chapterListBtn.contains(e.target)) {
-        chapterList.classList.add("hidden");
-    }
+    window.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
-    });
-
 </script>
 
 <script>
@@ -454,8 +437,8 @@
 
 <c:if test="${not empty successReportMessage}">
     <script>
-        if(${successReportMessage}) {
-            toastr["success"](${successReportMessage})
+        if ("${successReportMessage}" != "") {
+            toastr["success"]("${successReportMessage}")
         }
     </script>
     <c:remove var="successReportMessage" scope="session"/>
@@ -499,18 +482,23 @@
     });
 
     function deleteComment(commentId, seriesId, chapterId) {
-        fetch(`comment`, {
+        fetch("${pageContext.request.contextPath}/comment/delete", {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
-                action: 'delete',
                 commentId,
                 seriesId,
                 chapterId
             })
         }).then(response => {
-            if (response.ok) location.reload();
+            if (response.ok) {
+                return response.json()
+            }
             else alert("Xóa thất bại!");
+        }).then(data => {
+            if(data.success) {
+                location.reload()
+            }
         });
     }
 </script>
