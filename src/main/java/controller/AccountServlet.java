@@ -75,7 +75,7 @@ public class AccountServlet extends HttpServlet {
 
         String currentUserRole = getCurrentRole(request);
         String search = request.getParameter("search");
-        String roleFilter = request.getParameter("role");
+        String roleFilter = request.getParameter("roleFilter");
 
         try (Connection conn = DBConnection.getConnection()) {
             AccountDAO dao = new AccountDAO(conn);

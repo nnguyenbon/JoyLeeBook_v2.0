@@ -166,7 +166,7 @@
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
-                <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/series/list?currentPage=${currentPage-1}&filterByStatus=${filterByStatus}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                             <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -175,7 +175,7 @@
                 </a>
 
                 <c:if test="${currentPage > 3}">
-                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?currentPage=${1}&filterByStatus=${filterByStatus}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                     </a>
@@ -184,7 +184,7 @@
 
                 <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                            end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?currentPage=${i}&filterByStatus=${filterByStatus}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -195,13 +195,13 @@
 
                 <c:if test="${currentPage < totalPage - 2}">
                     <span class="px-2 py-1">...</span>
-                    <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/series/list?currentPage=${totalPage}&filterByStatus=${filterByStatus}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                     </a>
                 </c:if>
 
-                <a href="${pageContext.request.contextPath}/series/list?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                <a href="${pageContext.request.contextPath}/series/list?currentPage=${currentPage+1}&filterByStatus=${filterByStatus}"
                    class="page-link">
                     <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                             <c:if test="${currentPage == totalPage}">disabled</c:if>>

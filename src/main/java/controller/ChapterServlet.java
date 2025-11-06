@@ -145,8 +145,7 @@ public class ChapterServlet extends HttpServlet {
                 Chapter chapter = chapterDAO.findById(chapterId);
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
-                request.setAttribute("contentPage","/WEB-INF/views/chapter/_chapterContentForStaff.jsp");
-                request.setAttribute("activePage", "chapters");
+                request.setAttribute("contentPage","/WEB-INF/views/staff/_chapterContentForStaff.jsp");
                 request.setAttribute("pageTitle", "Manage Chapters");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
@@ -156,19 +155,17 @@ public class ChapterServlet extends HttpServlet {
                 }
                 Chapter chapter =  chapterDAO.findById(chapterId, approvalStatus);
                 buildChapter(chapter, conn);
-
+                request.setAttribute("chapter", chapter);
                 CommentDAO commentDAO = new CommentDAO(conn);
                 List<Comment> commentList = commentDAO.findByChapter(chapterId);
                 for (Comment comment : commentList) {
                     buildComment(comment, conn);
                 }
                 request.setAttribute("commentList", commentList);
-                request.setAttribute("chapter", chapter);
                 updateReadingHistory(userId, chapterId, chapterDAO);
                 List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
                 request.setAttribute("lastChapterId", chapterList.get(chapterList.size() - 1).getChapterId());
-                request.setAttribute("chapter", chapter);
                 request.setAttribute("chapterList", chapterList);
                 request.setAttribute("pageTitle", "Chapter Content");
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContent.jsp");

@@ -73,7 +73,7 @@
                         <td class="px-4 py-3 text-gray-700">${chapter.updatedAt}</td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
-                                <a href="${pageContext.request.contextPath}/chapter?action=detail&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
+                                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
                                    class="block px-2 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-blue-100 flex items-center gap-2">
                                     <i class="fa-regular fa-eye mr-2"></i>Detail
                                 </a>
@@ -150,7 +150,7 @@
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
-                    <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/chapter/list?currentPage=${currentPage-1}&filterByStatus=${filterByStatus}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -159,7 +159,7 @@
                     </a>
 
                     <c:if test="${currentPage > 3}">
-                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${1}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?currentPage=${1}&filterByStatus=${filterByStatus}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                         </a>
@@ -168,7 +168,7 @@
 
                     <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                                end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${i}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?currentPage=${i}&filterByStatus=${filterByStatus}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -179,13 +179,13 @@
 
                     <c:if test="${currentPage < totalPage - 2}">
                         <span class="px-2 py-1">...</span>
-                        <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${totalPage}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/chapter/list?currentPage=${totalPage}&filterByStatus=${filterByStatus}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                         </a>
                     </c:if>
 
-                    <a href="${pageContext.request.contextPath}/chapter/list?totalPage=${totalPage}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/chapter/list?currentPage=${currentPage+1}&filterByStatus=${filterByStatus}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == totalPage}">disabled</c:if>>

@@ -8,12 +8,12 @@
         <div class="flex items-center gap-5">
             <!-- Tabs Header -->
             <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
-                <a href="${pageContext.request.contextPath}/report/list?type=chapter&filterByStatus=pending"
+                <a href="${pageContext.request.contextPath}/report/list?type=chapter&filterByStatus="
                    id="tab-chapter"
                    class="tab-btn text-xl ${type == 'chapter' ? 'text-[#195DA9] border-b-4 border-[#195DA9]' : 'text-gray-500 border-b-4 border-white hover:text-[#195DA9]'} py-1">
                     Chapter Report
                 </a>
-                <a href="${pageContext.request.contextPath}/report/list?type=comment&filterByStatus=pending"
+                <a href="${pageContext.request.contextPath}/report/list?type=comment&filterByStatus="
                    id="tab-comment"
                    class="tab-btn text-xl ${type == 'comment' ? 'text-[#195DA9] border-b-4 border-[#195DA9]' : 'text-gray-500 border-b-4 border-white hover:text-[#195DA9]'} py-1">
                     Comment Report
@@ -21,6 +21,7 @@
             </div>
             <!-- Search & Filter Form -->
             <form method="GET" action="${pageContext.request.contextPath}/report/list" id="filterForm" class="mb-3">
+                <input type="hidden" name="type" value="${type}">
                 <!-- Lọc status -->
                 <div class="col-span-1">
                     <select name="filterByStatus" id="filterByStatus"
@@ -125,9 +126,7 @@
                                         <li>
                                             <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
-                                                <input type="hidden" name="type" value="${type}">
                                                 <input type="hidden" name="status" value="resolved">
-                                                <input type="hidden" name="chapterId" value="${report.chapterId}">
                                                 <button type="submit" class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                                                     <i class="fas fa-check mr-2 text-green-500"></i>Resolve
                                                 </button>
@@ -136,9 +135,7 @@
                                         <li>
                                             <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
-                                                <input type="hidden" name="type" value="${type}">
                                                 <input type="hidden" name="status" value="rejected">
-                                                <input type="hidden" name="chapterId" value="${report.chapterId}">
                                                 <button type="submit" class="block w-full text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                                                     <i class="fas fa-times mr-2 text-red-500"></i>Reject
                                                 </button>
@@ -161,7 +158,7 @@
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
-                    <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${currentPage-1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${currentPage-1}&filterByStatus=${statusFilter}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -170,7 +167,7 @@
                     </a>
 
                     <c:if test="${currentPage > 3}">
-                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${1}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${1}&filterByStatus=${statusFilter}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">1</button>
                         </a>
@@ -179,7 +176,7 @@
 
                     <c:forEach var="i" begin="${currentPage - 2 > 1 ? currentPage - 2 : 1}"
                                end="${currentPage + 2 < totalPage ? currentPage + 2 : totalPage}">
-                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${i}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${i}&filterByStatus=${statusFilter}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1
                        ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
@@ -190,13 +187,13 @@
 
                     <c:if test="${currentPage < totalPage - 2}">
                         <span class="px-2 py-1">...</span>
-                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${totalPage}&sizePage=${sizePage}"
+                        <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${totalPage}&filterByStatus=${statusFilter}"
                            class="page-link">
                             <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white">${totalPage}</button>
                         </a>
                     </c:if>
 
-                    <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${currentPage+1}&sizePage=${sizePage}"
+                    <a href="${pageContext.request.contextPath}/report?action=list&type=${type}&currentPage=${currentPage+1}&filterByStatus=${statusFilter}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == totalPage}">disabled</c:if>>

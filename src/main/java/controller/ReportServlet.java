@@ -237,14 +237,9 @@ public class ReportServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int reportId = Integer.parseInt(request.getParameter("reportId"));
-            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-            int commentId = Integer.parseInt(request.getParameter("commentId"));
             String status = request.getParameter("status");
             String message = request.getParameter("message");
-            String type = request.getParameter("type");
-
             ReportDAO reportDAO = new ReportDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
             NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             Report report = reportDAO.findById(reportId);
@@ -254,15 +249,16 @@ public class ReportServlet extends HttpServlet {
             }
 
             boolean updated = reportDAO.updateStatus(reportId, status, staff.getStaffId());
-            if (updated && "chapter".equals(type)) {
-                chapterDAO.updateStatus(chapterId, "rejected");
+            if (updated && "chapter".equals(report.getTargetType())) {
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
+                chapterDAO.updateStatus(report.getChapterId(), status);
                 Notification noti = createApprovalNotification(conn, report.getChapterId(), message, status);
                 notificationsDAO.insertNotification(noti);
-            } else  if ("comment".equals(type)) {
-
+            } else if (updated && "comment".equals(report.getTargetType())) {
+                CommentDAO commentDAO = new CommentDAO(conn);
+                commentDAO.softDelete(report.getCommentId());
             }
-
-            response.sendRedirect(request.getContextPath() + "/report/list?type=" + type);
+            response.sendRedirect(request.getContextPath() + "/report/list?type=" + report.getTargetType() + "&filterByStatus=pending");
 
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid report ID format.");
