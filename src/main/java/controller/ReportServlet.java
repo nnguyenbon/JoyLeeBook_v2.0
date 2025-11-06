@@ -85,9 +85,11 @@ public class ReportServlet extends HttpServlet {
             if ("chapter".equals(type)) {
                 List<ReportChapter> chapterReports = reportDAO.getReportChapterList(statusFilter, paginationRequest);
                 request.setAttribute("reportList", chapterReports);
+                request.setAttribute("size", chapterReports.size());
             } else if ("comment".equals(type)) {
                 List<ReportComment> commentReports = reportDAO.getReportCommentList(statusFilter, paginationRequest);
                 request.setAttribute("reportList", commentReports);
+                request.setAttribute("size", commentReports.size());
             } else {
                 handleClientError(request, response, "Invalid report type.");
                 return;
@@ -172,6 +174,7 @@ public class ReportServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String reason = request.getParameter("reason");
 
             Report report = new Report();
@@ -184,6 +187,7 @@ public class ReportServlet extends HttpServlet {
             reportDAO.insert(report);
 
             // Có thể trả JSON response sau này cho AJAX
+            response.sendRedirect(request.getContextPath() + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid chapter ID format.");
         } catch (SQLException | ClassNotFoundException e) {
@@ -205,6 +209,8 @@ public class ReportServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int commentId = Integer.parseInt(request.getParameter("commentId"));
+            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
             String reason = request.getParameter("reason");
 
             Report report = new Report();
@@ -215,7 +221,7 @@ public class ReportServlet extends HttpServlet {
 
             ReportDAO reportDAO = new ReportDAO(conn);
             reportDAO.insert(report);
-
+            response.sendRedirect(request.getContextPath() + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid comment ID format.");
         } catch (SQLException | ClassNotFoundException e) {
@@ -237,14 +243,14 @@ public class ReportServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int reportId = Integer.parseInt(request.getParameter("reportId"));
-            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-            int commentId = Integer.parseInt(request.getParameter("commentId"));
+
             String status = request.getParameter("status");
             String message = request.getParameter("message");
             String type = request.getParameter("type");
 
             ReportDAO reportDAO = new ReportDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
+            CommentDAO commentDAO = new CommentDAO(conn);
             NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             Report report = reportDAO.findById(reportId);
@@ -253,12 +259,20 @@ public class ReportServlet extends HttpServlet {
                 return;
             }
 
-            boolean updated = reportDAO.updateStatus(reportId, status, staff.getStaffId());
+            boolean updated = reportDAO.updateStatus(reportId, status.equals("approved") ? "resolved" : "rejected" , staff.getStaffId());
             if (updated && "chapter".equals(type)) {
-                chapterDAO.updateStatus(chapterId, "rejected");
-                Notification noti = createApprovalNotification(conn, report.getChapterId(), message, status);
-                notificationsDAO.insertNotification(noti);
-            } else  if ("comment".equals(type)) {
+                chapterDAO.updateStatus(report.getChapterId(), status);
+                Notification notification = createApprovalNotification(conn, report.getChapterId(), message, status);
+                notificationsDAO.insertNotification(notification);
+            } else if ("comment".equals(type)) {
+                if (status.equals("approved")) {
+                    commentDAO.updateStatus(report.getCommentId(), status);
+                    Notification notification = createApprovalNotification(conn, report.getCommentId(), message, status);
+                    notificationsDAO.insertNotification(notification);
+                } else {
+                    Notification notification = createApprovalNotification(conn, report.getCommentId(), message, status);
+                    notificationsDAO.insertNotification(notification);
+                }
 
             }
 

@@ -137,7 +137,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/reported?type=chapter&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/report-chapter?type=chapter&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="chapterId" id="reportChapterId">
 
@@ -181,7 +181,7 @@
 
                     <div class="flex justify-end space-x-2 mt-5">
                         <button type="submit"
-                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition">
+                                class="px-5 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-600 transition" ${userId == 0 ? "disabled" : ""}>
                             Submit
                         </button>
                         <button type="button" id="cancelReportChapterBtn"
@@ -195,7 +195,7 @@
 
         <!-- Comment box -->
         <form id="commentForm"
-              action="${pageContext.request.contextPath}/comment/create?seriesId=${seriesId}&chapterId=${chapterId}"
+              action="${pageContext.request.contextPath}/comment/create?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
               method="post"
               class="mt-8 flex items-center gap-2">
 
@@ -281,7 +281,7 @@
                 </div>
 
                 <!-- Form -->
-                <form action="${pageContext.request.contextPath}/report/reported?type=comment&seriesId=${seriesId}&chapterId=${chapterId}"
+                <form action="${pageContext.request.contextPath}/report/report-comment?type=comment&seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
                       method="post" class="mt-4">
                     <input type="hidden" name="commentId" id="reportCommentId">
                     <p class="font-medium text-gray-700 mb-2">Reason for reporting:</p>

@@ -108,7 +108,7 @@
           </form>
           <form action="${pageContext.request.contextPath}/series/approve" method="post">
             <input type="hidden" name="seriesId" value="${series.seriesId}">
-            <input type="hidden" name="approStatus" value="rejected">
+            <input type="hidden" name="approveStatus" value="rejected">
 
             <button type="submit" class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">
               <i class="fa-solid fa-xmark"></i> Reject
@@ -118,7 +118,7 @@
         <c:when test="${series.approvalStatus == 'approved'}">
           <form action="${pageContext.request.contextPath}/series/approve" method="post">
             <input type="hidden" name="seriesId" value="${series.seriesId}">
-            <input type="hidden" name="approStatus" value="rejected">
+            <input type="hidden" name="approveStatus" value="rejected">
 
             <button type="submit" class="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow">
               <i class="fa-solid fa-xmark"></i> Reject

@@ -309,7 +309,6 @@ public class SeriesServlet extends HttpServlet {
 
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
@@ -568,8 +567,7 @@ public class SeriesServlet extends HttpServlet {
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
         List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
         series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
-        series.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
-        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }
 

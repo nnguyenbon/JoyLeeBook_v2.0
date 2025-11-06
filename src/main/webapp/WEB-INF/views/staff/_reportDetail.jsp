@@ -182,7 +182,7 @@
               <form method="post" action="${pageContext.request.contextPath}/report/handle">
                 <input type="hidden" name="reportId" value="${report.reportId}">
                 <input type="hidden" name="type" value="${type}">
-                <input type="hidden" name="status" value="resolved">
+                <input type="hidden" name="status" value="approved">
                 <button type="submit"
                         class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
                   <i class="fas fa-check-circle"></i>

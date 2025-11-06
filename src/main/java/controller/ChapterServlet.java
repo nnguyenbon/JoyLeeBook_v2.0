@@ -106,6 +106,7 @@ public class ChapterServlet extends HttpServlet {
         chapter.setSeriesTitle(seriesDAO.findById(chapter.getSeriesId()).getTitle());
         chapter.setAuthorName(userDAO.findById(chapter.getAuthorId()).getUsername());
         chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+
     }
 
     /**
@@ -147,7 +148,6 @@ public class ChapterServlet extends HttpServlet {
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : chapterDAO.getFirstChapterNumber(seriesId);
             if (role.equals("admin") || role.equals("staff")) {
                 Chapter chapter = chapterDAO.findById(chapterId);
-                chapter.setTotalLike(likeDAO.countByChapter(chapterId));
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
                 request.setAttribute("userId", userId);

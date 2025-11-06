@@ -25,22 +25,17 @@ import java.sql.SQLException;
 public class RegisterAuthorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-
-        // thêm badge cho user nếu register thành công
-
         try (Connection conn = DBConnection.getConnection()) {
-            //If user is a reader, attempt to register as author
-            if (user != null && "reader".equals(user.getRole())) {
-                UserDAO userDAO = new UserDAO(conn);
-                boolean isAuthor = userDAO.isAuthor(user.getEmail()) ? true : userDAO.updateUserRoleToAuthor(user.getUsername(), user.getFullName(), user.getEmail());
-                if (isAuthor) {
-                    user.setRole("author");
-                    response.sendRedirect(request.getContextPath() + "/author");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/error/error.jsp");
-                }
-            } else if ("author".equals(user.getRole())) {
+            UserDAO userDAO = new UserDAO(conn);
+            if (userDAO.isAuthor(user.getEmail())) {
+                userDAO.updateUserRoleToAuthor(user.getUsername(), user.getFullName(), user.getEmail());
+            }
+            if (user.getRole().equals("reader")) {
+                user.setRole("author");
                 response.sendRedirect(request.getContextPath() + "/author");
+            } else {
+                user.setRole("reader");
+                response.sendRedirect(request.getContextPath() + "/homepage");
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);

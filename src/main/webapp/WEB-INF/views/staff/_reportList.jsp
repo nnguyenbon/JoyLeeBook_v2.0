@@ -35,7 +35,7 @@
         </div>
 
         <!-- Table -->
-        <div class="overflow-x-auto rounded-sm mb-3">
+        <div class=" rounded-sm mb-3 ">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
@@ -126,7 +126,7 @@
                                             <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
                                                 <input type="hidden" name="type" value="${type}">
-                                                <input type="hidden" name="status" value="resolved">
+                                                <input type="hidden" name="status" value="approved">
                                                 <input type="hidden" name="chapterId" value="${report.chapterId}">
                                                 <button type="submit" class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                                                     <i class="fas fa-check mr-2 text-green-500"></i>Resolve
