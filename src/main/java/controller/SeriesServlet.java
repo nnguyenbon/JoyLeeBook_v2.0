@@ -221,7 +221,6 @@ public class SeriesServlet extends HttpServlet {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            // Extract filter parameters
             String search = request.getParameter("search");
             String approvalStatus = request.getParameter("filterByStatus");
             String genreParams = request.getParameter("genre");
@@ -243,7 +242,6 @@ public class SeriesServlet extends HttpServlet {
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             paginationRequest.setOrderBy("series_id");
 
-            // Fetch series list and build full details
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, authorId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
                 buildSeries(conn, series);
@@ -254,10 +252,6 @@ public class SeriesServlet extends HttpServlet {
             } else {
                 totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, authorId, approvalStatus);
             }
-
-            // Get total count for pagination
-
-            // Set request attributes
 
             request.setAttribute("seriesList", seriesList);
             request.setAttribute("size", totalRecords);
