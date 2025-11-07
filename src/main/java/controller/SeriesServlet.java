@@ -319,7 +319,7 @@ public class SeriesServlet extends HttpServlet {
             }
             List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
-            boolean saved = savedSeriesDAO.isSaved(seriesId, userId);
+            boolean saved = savedSeriesDAO.isSaved(userId, seriesId );
 
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
@@ -364,10 +364,10 @@ public class SeriesServlet extends HttpServlet {
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
-
+            series.setCategoryList(categoryDAO.getCategoryBySeriesId(seriesId));
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
-            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
+            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("pageTitle", "Edit Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
@@ -537,7 +537,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error deleting series", e);

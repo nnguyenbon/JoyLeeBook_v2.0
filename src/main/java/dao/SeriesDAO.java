@@ -222,14 +222,15 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean updateSeries(Series series) throws SQLException {
-        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ? AND is_deleted = false";
+        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, series.getTitle());
             ps.setString(2, series.getDescription());
             ps.setString(3, series.getCoverImgUrl());
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setInt(6, series.getSeriesId());
+            ps.setDouble(6, series.getAvgRating());
+            ps.setInt(7, series.getSeriesId());
             return ps.executeUpdate() > 0;
         }
     }
@@ -242,7 +243,7 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean deleteSeries(int seriesId) throws SQLException {
-        String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
+        String sql = "UPDATE series SET is_deleted = 1, updated_at = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(2, seriesId);
@@ -313,7 +314,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ?";
+        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, authorId);
             ResultSet rs = ps.executeQuery();

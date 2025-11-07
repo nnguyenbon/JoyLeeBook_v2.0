@@ -21,7 +21,7 @@
 
                 <!-- Role Filter -->
                 <div class="col-span-1">
-                    <select name="role" id="roleFilter"
+                    <select name="roleFilter" id="roleFilter"
                             class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Roles</option>
 
@@ -216,7 +216,7 @@
             <c:if test="${totalPage > 1}">
                 <div class="flex justify-end items-center gap-1 text-sm px-9">
 
-                    <a href="${pageContext.request.contextPath}/account/list?currentPage=${currentPage-1}"
+                    <a href="${pageContext.request.contextPath}/account/list?currentPage=${currentPage-1}&roleFilter=${roleFilter}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == 1}">disabled</c:if>>
@@ -225,7 +225,7 @@
                     </a>
 
                     <c:forEach var="i" begin="${1}" end="${totalPage}">
-                        <a href="${pageContext.request.contextPath}/account/list?currentPage=${i}">
+                        <a href="${pageContext.request.contextPath}/account/list?currentPage=${i}&roleFilter=${roleFilter}">
                             <button class="border rounded-md px-2 py-1
                             ${i == currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100 bg-white'}">
                                     ${i}
@@ -233,7 +233,7 @@
                         </a>
                     </c:forEach>
 
-                    <a href="${pageContext.request.contextPath}/account/list?currentPage=${currentPage+1}"
+                    <a href="${pageContext.request.contextPath}/account/list?currentPage=${currentPage+1}&roleFilter=${roleFilter}"
                        class="page-link">
                         <button class="border rounded-md px-2 py-1 hover:bg-gray-100 bg-white"
                                 <c:if test="${currentPage == totalPage}">disabled</c:if>>

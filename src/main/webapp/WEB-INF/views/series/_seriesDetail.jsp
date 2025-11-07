@@ -8,7 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <main class=" mt-10 grid grid-cols-12 gap-8 items-center">
-
     <!-- Left Image -->
     <div class="col-span-3 col-start-2">
         <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="Series cover"
@@ -16,7 +15,7 @@
     </div>
 
     <!-- Right (Title, Info, Tags) -->
-    <div class="col-span-7 h-full flex flex-col justify-between">
+    <div class="col-span-4 h-full flex flex-col justify-between">
         <h1 class="text-4xl font-bold">${series.title}</h1>
 
         <!-- Tác giả -->
@@ -98,23 +97,67 @@
 
 
         <div class="flex items-center gap-4 mt-4">
-            <c:if test="${not empty chapterList and chapterList.get(0).chapterId != null}">
-                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapterList.get(0).chapterId}">
-                    <button class="bg-[#0A3776] text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors">
-                        <i class="fa-solid fa-play"></i>
-                        Start Reading
+            <c:set var="user" value="${loginedUser}"/>
+            <c:set var="role" value="${user.role}"/>
+            <c:if test="${not empty chapterList and chapterList.get(0) != null}">
+                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
+                    <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
+                        <i class="fa-solid fa-play"></i> Start Reading
                     </button>
                 </a>
             </c:if>
-
-            <button id="saveBtn"
-                    class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
-                    data-user-id="10" data-series-id="${series.seriesId}">
-                <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
-            </button>
+            <c:choose>
+                <c:when test="${role == 'author'}">
+                    <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </a>
+                    <form action="${pageContext.request.contextPath}/series/delete" method="post"
+                          onsubmit="return confirm('Are you sure you want to delete this series?')">
+                        <input type="hidden" name="seriesId" value="${series.seriesId}">
+                        <button type="submit"
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </c:when>
+                <c:when test="${role == 'reader'}">
+                    <button id="saveBtn" aria-label="Save series"
+                            class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                            data-user-id="10" data-series-id="${series.seriesId}">
+                        <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
+                    </button>
+                </c:when>
+<%--                <c:otherwise></c:otherwise>--%>
+            </c:choose>
         </div>
-
     </div>
+
+    <div class="col-span-3 ring-2 ring-sky-600/50 rounded-lg p-4" ${loginedUser.role == 'author' ? "" : "hidden"}>
+        <p class="font-bold text-lg mb-2">
+            <i class="fa-regular fa-user"></i>
+            Authors
+        </p>
+
+        <ul class="list-disc list-inside">
+            <c:forEach var="name" items="${series.authorNameList}">
+                <li class="">
+                        ${name}
+                </li>
+            </c:forEach>
+        </ul>
+
+        <c:if test="${owner}">
+            <a class="block mt-4 text-center"
+               href="${pageContext.request.contextPath}/manage-coauthors?seriesId=${series.seriesId}">
+                <button class=" p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
+                    Add Co-Author
+                </button>
+            </a>
+        </c:if>
+    </div>
+
     <!-- Summary -->
     <section class="col-span-12 grid grid-cols-12 gap-8">
         <div class="col-span-10 col-start-2">
@@ -127,20 +170,59 @@
     <!-- Chapter List -->
     <section class="col-span-12 mb-16 grid grid-cols-12 gap-8">
         <div class="col-span-10 col-start-2">
-            <h2 class="font-semibold text-xl mb-3">Chapter List</h2>
-            <div class="space-y-3 border-2 border-neutral-400 p-3 rounded-lg  ">
+            <div class="flex justify-between items-center w-full mb-3">
+                <h2 class="font-semibold text-xl ">Chapter List</h2>
+                <a
+                        href="${pageContext.request.contextPath}/chapter/add?seriesId=${series.seriesId}"
+                        class="px-4 py-2 bg-sky-800 text-white rounded-lg hover:bg-sky-900 cursor-pointer transition duration-300" ${loginedUser.role == 'author' ? "" : "hidden"}>Create
+                    Chapter
+                    <i class="fa-solid fa-circle-plus"></i>
+                </a>
+            </div>
+            <div class="space-y-3 border-2 border-neutral-400 p-6 rounded-lg  ">
+
                 <c:choose>
                     <c:when test="${chapterList.size() != 0}">
-                        <ul class="py-1 px-3 overflow-y-auto custom-scrollbar max-h-100">
+                        <ul class="overflow-y-auto custom-scrollbar max-h-100">
                             <c:forEach var="chapter" items="${chapterList}">
-                                <li>
-                                    <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
-                                        <div class="flex justify-between items-center border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
-                                            <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-                                            <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
+                                <li class="flex justify-between items-center gap-4 border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
+                                    <a class="flex justify-between gap-2 items-center w-full"
+                                       href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+
+                                        <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
+
+                                        <div class="flex gap-4 items-center">
+                                            <span class="text-sm text-gray-500">${chapter.updatedAt}</span>
+
+                                            <c:choose>
+                                                <c:when test="${chapter.approvalStatus == 'approved'}">
+                                                    <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                </c:when>
+                                                <c:when test="${chapter.approvalStatus == 'pending'}">
+                                                    <span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
+
                                     </a>
+                                    <div class="flex gap-2 items-center">
+                                        <a type="button"
+                                           class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
+                                           href="${pageContext.request.contextPath}/chapter/edit?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </a>
+
+                                        <a type="button"
+                                           class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
+                                           href="${pageContext.request.contextPath}/chapter/delete?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </a>
+                                    </div>
                                 </li>
+
                             </c:forEach>
                         </ul>
                     </c:when>
@@ -152,17 +234,6 @@
         </div>
     </section>
 </main>
-<div id="confirmModal"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md relative">
-        <h2 class="text-xl font-semibold mb-4">Confirm Rating</h2>
-        <p id="confirmText" class="mb-6 text-gray-700"></p>
-        <button id="confirmBtn"
-                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            OK
-        </button>
-    </div>
-</div>
 <script>
     const userId = ${userId};
     const seriesId = "${series.seriesId}";

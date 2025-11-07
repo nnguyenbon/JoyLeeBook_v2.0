@@ -243,14 +243,9 @@ public class ReportServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int reportId = Integer.parseInt(request.getParameter("reportId"));
-
             String status = request.getParameter("status");
             String message = request.getParameter("message");
-            String type = request.getParameter("type");
-
             ReportDAO reportDAO = new ReportDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
-            CommentDAO commentDAO = new CommentDAO(conn);
             NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             Report report = reportDAO.findById(reportId);
@@ -259,24 +254,17 @@ public class ReportServlet extends HttpServlet {
                 return;
             }
 
-            boolean updated = reportDAO.updateStatus(reportId, status.equals("approved") ? "resolved" : "rejected" , staff.getStaffId());
-            if (updated && "chapter".equals(type)) {
+            boolean updated = reportDAO.updateStatus(reportId, status, staff.getStaffId());
+            if (updated && "chapter".equals(report.getTargetType())) {
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
                 chapterDAO.updateStatus(report.getChapterId(), status);
-                Notification notification = createApprovalNotification(conn, report.getChapterId(), message, status);
-                notificationsDAO.insertNotification(notification);
-            } else if ("comment".equals(type)) {
-                if (status.equals("approved")) {
-                    commentDAO.updateStatus(report.getCommentId(), status);
-                    Notification notification = createApprovalNotification(conn, report.getCommentId(), message, status);
-                    notificationsDAO.insertNotification(notification);
-                } else {
-                    Notification notification = createApprovalNotification(conn, report.getCommentId(), message, status);
-                    notificationsDAO.insertNotification(notification);
-                }
-
+                Notification noti = createApprovalNotification(conn, report.getChapterId(), message, status);
+                notificationsDAO.insertNotification(noti);
+            } else if (updated && "comment".equals(report.getTargetType())) {
+                CommentDAO commentDAO = new CommentDAO(conn);
+                commentDAO.softDelete(report.getCommentId());
             }
-
-            response.sendRedirect(request.getContextPath() + "/report/list?type=" + type);
+            response.sendRedirect(request.getContextPath() + "/report/list?type=" + report.getTargetType() + "&filterByStatus=pending");
 
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid report ID format.");

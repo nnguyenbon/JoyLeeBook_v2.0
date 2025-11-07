@@ -51,7 +51,7 @@ public class ChapterDAO {
     }
 
     public int countChapterByUserId(int userId, String status) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0 ";
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setString(2, status);

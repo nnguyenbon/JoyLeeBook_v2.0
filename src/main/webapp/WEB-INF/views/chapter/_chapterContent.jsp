@@ -222,9 +222,9 @@
                 <div class="flex justify-between gap-3">
                     <div class="flex gap-5">
                         <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-                        <div>
+                        <div class="overflow-hidden">
                             <p class="font-semibold text-gray-800">${comment.username}</p>
-                            <p class="text-gray-600 text-sm">${comment.content}</p>
+                            <p class="text-gray-600 text-sm truncate">${comment.content}</p>
                             <p class="text-xs text-gray-400 mt-1">${comment.updatedAt}</p>
                         </div>
                     </div>

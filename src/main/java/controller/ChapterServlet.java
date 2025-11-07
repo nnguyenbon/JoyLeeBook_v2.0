@@ -151,7 +151,7 @@ public class ChapterServlet extends HttpServlet {
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
                 request.setAttribute("userId", userId);
-                request.setAttribute("contentPage", "/WEB-INF/views/chapter/_chapterContentForStaff.jsp");
+                request.setAttribute("contentPage", "/WEB-INF/views/staff/_chapterContentForStaff.jsp");
                 request.setAttribute("activePage", "chapters");
                 request.setAttribute("pageTitle", "Manage Chapters");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
@@ -171,6 +171,7 @@ public class ChapterServlet extends HttpServlet {
                 boolean liked = likeDAO.isLikedByUser(userId, chapter.getChapterId());
                 List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
 
+                request.setAttribute("chapter", chapter);
                 CommentDAO commentDAO = new CommentDAO(conn);
                 List<Comment> commentList = commentDAO.findByChapter(chapterId);
                 for (Comment comment : commentList) {
@@ -602,6 +603,9 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
+
+
+
     private void navigateChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : 1;
         int chapterNumber = ValidationInput.isPositiveInteger(request.getParameter("chapterNumber")) ? Integer.parseInt(request.getParameter("chapterNumber")) : 1;
@@ -672,41 +676,4 @@ public class ChapterServlet extends HttpServlet {
         return s.isEmpty() ? null : s;
     }
 
-
-
-    public static class PagedResult<T> {
-        private final List<T> items;
-        private final int page;
-        private final int pageSize;
-        private final int total;
-        private final int totalPages;
-
-        public PagedResult(List<T> items, int page, int pageSize, int total) {
-            this.items = items;
-            this.page = page;
-            this.pageSize = pageSize;
-            this.total = total;
-            this.totalPages = (int) Math.ceil(total / (double) pageSize);
-        }
-
-        public List<T> getItems() {
-            return items;
-        }
-
-        public int getPage() {
-            return page;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public int getTotal() {
-            return total;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
-        }
-    }
 }

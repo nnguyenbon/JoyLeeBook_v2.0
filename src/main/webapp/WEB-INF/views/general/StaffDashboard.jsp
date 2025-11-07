@@ -24,7 +24,7 @@
                             <p class="text-gray-600 font-medium">Total Series</p>
                             <p class="text-3xl font-bold text-[#195DA9]">${dashboardStats.totalSeries}</p>
                         </div>
-                        <i class="fa-solid fa-book text-4xl text-[#195DA9]"></i>
+                        <i class="fa-solid fa-book text-3xl text-[#195DA9]"></i>
                     </div>
                     <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
                         <p class="text-gray-600 font-semibold">Your Reviews Series</p>
@@ -113,10 +113,10 @@
                 </div>
                 </div>
                 <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Total Reports</p>
+                    <p class="text-gray-600 font-semibold">Authors</p>
                     <div class="flex items-center justify-between">
-                        <p class="text-2xl font-bold text-red-500">${dashboardStats.totalReports}</p>
-                        <i class="fa-solid fa-flag text-2xl text-red-500"></i>
+                        <p class="text-2xl font-bold text-blue-600">${dashboardStats.authors}</p>
+                        <i class="fa-solid fa-pen-nib text-2xl text-blue-600"></i>
                     </div>
                 </div>
 
@@ -129,7 +129,7 @@
                 </div>
 
                 <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Reports You’ve Handled</p>
+                    <p class="text-gray-600 font-semibold">Reports Handled</p>
                     <div class="flex items-center justify-between">
                         <p class="text-2xl font-bold text-rose-600">${dashboardStats.handledReports}</p>
                         <i class="fa-solid fa-check-double text-2xl text-rose-600"></i>
