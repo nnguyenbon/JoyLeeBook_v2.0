@@ -9,14 +9,19 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <main class="mt-10 grid grid-cols-12 gap-x-8 gap-y-4 items-center">
     <p class="col-span-12 text-center font-bold text-3xl">
-        Create New Chapter
+        <c:if test="${not empty chapter}">
+            Edit Chapter
+        </c:if>
+        <c:if test="${empty chapter}">
+            Create New Chapter
+        </c:if>
     </p>
     <p class="col-span-12 text-center fold-semibold text-xl text-gray-500">
         Create a new chapter for "${series.title}"
     </p>
 
     <form
-            action="${pageContext.request.contextPath}/chapter/insert?seriesId=${series.seriesId}"
+            action="${pageContext.request.contextPath}/chapter/${action}?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}"
             method="POST"
             class="col-span-12 mx-auto"
     >
@@ -31,6 +36,7 @@
                         id="title"
                         name="title"
                         placeholder="Enter title"
+                        value="${chapter.title}"
                         required
                 />
                 <p id="error-title" class="text-xs text-red-500 mt-1 tracking-wide"></p>
@@ -46,6 +52,7 @@
                         id="chapterNumber"
                         name="chapterNumber"
                         placeholder="Enter chapter number"
+                        value="${chapter.chapterNumber}"
                         min="0"
                 />
                 <p class="text-sm text-gray-400 mt-1 ml-2">If left blank, the system will use the next available
@@ -63,23 +70,34 @@
                         name="content"
                         rows="10"
                         required
-                ></textarea>
+                >${chapter.content}</textarea>
             </div>
 
-            <div class="flex gap-2 justify-between my-4  ">
+            <div class="flex gap-2 justify-between my-4 ">
                 <c:if test="${owner}">
                     <div>
                         <label for="status">Status: </label>
                         <select class="border border-gray-500 rounded-sm px-2 py-1" name="status" id="status">
-                            <option value="published">Public</option>
-                            <option value="draft">Draft</option>
+                            <option value="published"
+                                    <c:if test="${chapter.status eq 'published'}">selected</c:if>
+                            >Public
+                            </option>
+                            <option value="draft"
+                                    <c:if test="${series.status == 'draft'}"></c:if>
+                            >Draft
+                            </option>
                         </select>
                     </div>
                 </c:if>
                 <div class="flex gap-2">
                     <button type="submit"
-                            class="px-3 py-1 bg-sky-600  text-white rounded-md cursor-pointer hover:bg-sky-700 transition duration-300">
-                        Create
+                            class="px-3 py-1 bg-sky-600 text-white rounded-md cursor-pointer hover:bg-sky-700 transition duration-300">
+                        <c:if test="${not empty chapter}">
+                            Edit
+                        </c:if>
+                        <c:if test="${empty chapter}">
+                            Create
+                        </c:if>
                     </button>
                     <a class="block px-3 py-1 bg-neutral-300 rounded-md hover:bg-neutral-400 transition duration-300"
                        href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}">
@@ -98,7 +116,7 @@
     console.log(titleElement);
 
     titleElement.addEventListener('input', () => {
-        if(titleElement.value.length >= 20) {
+        if (titleElement.value.length >= 20) {
             errorTitleElement.textContent = "title cannot exceed 70 characters";
         } else {
             errorTitleElement.textContent = "";

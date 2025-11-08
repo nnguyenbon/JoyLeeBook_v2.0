@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 @WebServlet("/chapter/*")
 public class ChapterServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ChapterServlet.class.getName());
-    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "pending", "rejected", "approved"));
+    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "published", "rejected", "approved"));
 
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -188,6 +188,19 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void showEditChapter(HttpServletRequest request, HttpServletResponse response) {
+        String chapterId = request.getParameter("chapterId");
+
+        try (Connection conn = DBConnection.getConnection()) {
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
+            Chapter chapter = chapterDAO.findById(Integer.parseInt(chapterId));
+
+            request.setAttribute("action", "update");
+            request.setAttribute("chapter", chapter);
+            showAddChapter(request, response);
+        } catch (ClassNotFoundException | SQLException | ServletException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void approveChapter(HttpServletRequest request, HttpServletResponse response) {
@@ -350,6 +363,11 @@ public class ChapterServlet extends HttpServlet {
                 if (ownerId == userId) {
                     request.setAttribute("owner", "true");
                 }
+
+                if (request.getAttribute("action") == null) {
+                    request.setAttribute("action", "insert");
+                }
+
                 request.setAttribute("contentPage", "/WEB-INF/views/chapter/_addChapter.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
@@ -377,7 +395,7 @@ public class ChapterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try (Connection conn = DBConnection.getConnection()) {
-            int chapterId = Integer.parseInt(request.getParameter("id"));
+            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
             String title = trim(request.getParameter("title"));
             String content = request.getParameter("content");
             String numberStr = request.getParameter("chapterNumber");
@@ -442,7 +460,7 @@ public class ChapterServlet extends HttpServlet {
             }
 
 
-            response.sendRedirect(request.getContextPath() + "/chapter?id=" + chapter.getChapterId() + "&updated=true");
+            response.sendRedirect(request.getContextPath() + "/series/detail?SeriesId=" + seriesId);
 
         } catch (IllegalAccessException e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -514,6 +532,7 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void deleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = Integer.parseInt(request.getParameter("seriesId"));
         int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
         if (chapterId == -1) {
             request.setAttribute("error", "Missing chapter id.");
@@ -540,8 +559,7 @@ public class ChapterServlet extends HttpServlet {
                 throw new RuntimeException("Database delete failed.");
             }
 
-            // Xem lại đường dẫn
-            response.sendRedirect(request.getContextPath() + "/my-chapters?deleted=1");
+            response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to delete chapter.");
