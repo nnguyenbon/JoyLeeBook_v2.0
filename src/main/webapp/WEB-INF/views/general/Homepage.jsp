@@ -68,7 +68,7 @@
                                 <img
                                         src="${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
-                                        alt="img"
+                                        alt="${hotSeries.title}"
                                 />
                             </div>
 

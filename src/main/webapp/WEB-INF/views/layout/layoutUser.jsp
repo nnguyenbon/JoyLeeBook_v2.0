@@ -32,9 +32,9 @@
             rel="stylesheet"
     />
 </head>
-<body class="overflow-x-hidden">
+<body class="relative overflow-x-hidden">
 <c:import url="/WEB-INF/views/components/_header.jsp"/>
-<div class="flex-grow max-w-7xl mx-auto pt-20">
+<div class="max-w-7xl mx-auto pb-60">
     <c:if test="${not empty contentPage}">
         <c:import url="${contentPage}"/>
     </c:if>

@@ -378,5 +378,3 @@ public class AuthServlet extends HttpServlet {
 
 
 }
-
-

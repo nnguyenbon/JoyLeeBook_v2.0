@@ -13,6 +13,7 @@ import jakarta.servlet.http.Part;
 import model.*;
 import utils.AuthenticationUtils;
 import utils.FormatUtils;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -114,6 +115,7 @@ public class SeriesServlet extends HttpServlet {
             List<Category> categories = categoryDAO.getAll();
 
             request.setAttribute("categories", categories);
+            request.setAttribute("action", "insert");
             request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("activePage", "Add Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
@@ -133,7 +135,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -147,15 +149,19 @@ public class SeriesServlet extends HttpServlet {
             String description = request.getParameter("description");
 
             // Process cover image upload
+            Series series = new Series();
+
+
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart == null || filePart.getSubmittedFileName().trim().isEmpty()) {
-                throw new IOException("Please select a cover image.");
+            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
+                System.out.println("Uploaded file name: " + filePart);
+                System.out.println("Content type: " + filePart.getContentType());
+                System.out.println("Size: " + filePart.getSize());
+
+                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             }
 
-            // Create series object
-            Series series = new Series();
             series.setTitle(title);
-            series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             series.setStatus(status);
             series.setApprovalStatus("pending");
             series.setDescription(description);
@@ -295,9 +301,10 @@ public class SeriesServlet extends HttpServlet {
         String role = "reader";
         int userId = -1;
         if (loggedInAccount instanceof User user) {
-            role = user.getRole();
             userId = user.getUserId();
+            role = user.getRole();
         } else if (loggedInAccount instanceof Staff staff) {
+            userId = staff.getStaffId();
             role = staff.getRole();
         }
 
@@ -333,6 +340,11 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
+                SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+                if(ownerId == userId) {
+                    request.setAttribute("owner", "true");
+                }
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -364,11 +376,15 @@ public class SeriesServlet extends HttpServlet {
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
-            series.setCategoryList(categoryDAO.getCategoryBySeriesId(seriesId));
+            series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
+            request.setAttribute("action", "update");
+
+            //            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
             request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
-            request.setAttribute("pageTitle", "Edit Series");
+            request.setAttribute("activePage", "Edit Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -414,20 +430,29 @@ public class SeriesServlet extends HttpServlet {
             // Extract updated data
             String title = request.getParameter("title");
             String status = request.getParameter("status");
-
-            // xử lý nếu status là completed thì mở khóa badge
-
             String description = request.getParameter("description");
             String[] genreParams = request.getParameterValues("selectedGenres");
             int[] genreIds = genreParams != null
                     ? Arrays.stream(genreParams).mapToInt(Integer::parseInt).toArray()
                     : new int[0];
 
+
             // Update cover image if provided
+            String oldImg = request.getParameter("oldCoverImgUrl").replaceFirst("img/", "");
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
-                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+            String nameFilePart = filePart.getSubmittedFileName().trim();
+            System.out.println("name:" + nameFilePart);
+            System.out.println("old: " + oldImg);
+            if(nameFilePart.isEmpty() || nameFilePart.equals(oldImg)) {
+                System.out.println(oldImg);
+                series.setCoverImgUrl(oldImg);
+            } else {
+                if (!filePart.getSubmittedFileName().trim().isEmpty()) {
+                    System.out.println(filePart.getSubmittedFileName());
+                    series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+                }
             }
+
 
             // Update series fields
             series.setTitle(title);
@@ -449,7 +474,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error updating series", e);

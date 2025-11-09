@@ -4,6 +4,7 @@ import dao.SeriesAuthorDAO;
 import dao.SeriesDAO;
 import dao.UserDAO;
 import db.DBConnection;
+import model.Account;
 import model.Series;
 import model.User;
 
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import utils.AuthenticationUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -29,7 +31,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            User currentUser = (User) request.getSession().getAttribute("user");
+            Account currentUser = AuthenticationUtils.getLoginedUser(request.getSession());
 
             // test
 //            currentUser = new User();

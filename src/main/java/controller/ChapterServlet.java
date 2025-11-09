@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @WebServlet("/chapter/*")
 public class ChapterServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ChapterServlet.class.getName());
-    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "pending", "rejected", "approved"));
+    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "published", "rejected", "approved"));
 
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,6 +38,7 @@ public class ChapterServlet extends HttpServlet {
             switch (action) {
                 case "/add" -> showAddChapter(request, response);
                 case "/edit" -> showEditChapter(request, response);
+                case "/delete" -> deleteChapter(request, response);
                 case "/detail" -> viewChapterContent(request, response);
                 case "/navigate" -> navigateChapter(request, response);
                 case "/list" -> viewChapterList(request, response);
@@ -204,6 +205,19 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void showEditChapter(HttpServletRequest request, HttpServletResponse response) {
+        String chapterId = request.getParameter("chapterId");
+
+        try (Connection conn = DBConnection.getConnection()) {
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
+            Chapter chapter = chapterDAO.findById(Integer.parseInt(chapterId));
+
+            request.setAttribute("action", "update");
+            request.setAttribute("chapter", chapter);
+            showAddChapter(request, response);
+        } catch (ClassNotFoundException | SQLException | ServletException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void approveChapter(HttpServletRequest request, HttpServletResponse response) {
@@ -257,8 +271,9 @@ public class ChapterServlet extends HttpServlet {
     // Cần xem xét lại hàm này
     private void insertChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        int userId = user != null ? user.getUserId() : -1;
-        if (userId == -1) {
+        int userId = user != null ? user.getUserId() : 0;
+
+        if (userId == 0) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -267,7 +282,8 @@ public class ChapterServlet extends HttpServlet {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String title = request.getParameter("title");
             String content = request.getParameter("content");
-
+            String numberStr = request.getParameter("chapterNumber");
+            String status = request.getParameter("status") == null ? "draft" : request.getParameter("status");
             try (Connection conn = DBConnection.getConnection()) {
                 // Validate
                 if (title == null || title.trim().isEmpty()) {
@@ -292,37 +308,36 @@ public class ChapterServlet extends HttpServlet {
                 if (saDAO.isUserAuthorOfSeries(userId, seriesId)) {
                     throw new IllegalAccessException("You do not have permission to add chapter to this series.");
                 }
-
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
-                int lastNo = 0;
-                try {
-                    lastNo = chapterDAO.getLatestChapterNumber(seriesId);
-                } catch (SQLException ignore) {
+                if (chapterDAO.findChapterBySeriesId(seriesId, "").isEmpty()) {
+                    throw new IllegalAccessException("Chapter number is exist in series.");
                 }
-                int nextNo = Math.max(1, lastNo + 1);
+
+                int nextNo;
+                if (numberStr == null || numberStr.isBlank()) {
+                    try {
+                        int lastNo = chapterDAO.getLatestChapterNumber(seriesId);
+                        nextNo = Math.max(1, lastNo + 1);
+                    } catch (SQLException e) {
+                        throw new IllegalAccessException("error getting latest chapter number. " + e.getMessage());
+                    }
+                } else {
+                    nextNo = Integer.parseInt(numberStr);
+                }
 
                 Chapter ch = new Chapter();
                 ch.setSeriesId(seriesId);
                 ch.setChapterNumber(nextNo);
                 ch.setTitle(title);
                 ch.setContent(content);
-                ch.setStatus("pending");
-
+                ch.setStatus(status);
+                ch.setApprovalStatus("pending");
                 boolean ok = chapterDAO.insert(ch, seriesId, userId);
                 if (!ok) {
                     throw new RuntimeException("Database insert failed.");
                 }
 
-                Chapter saved = chapterDAO.findBySeriesAndNumberIfNotDeleted(seriesId, nextNo);
-                if (saved == null) {
-                    saved = ch;
-                }
-                if (ch != null) {
-                    response.sendRedirect(request.getContextPath() + "/manage-series?id=" + seriesId + "&success=true");
-                } else {
-                    request.setAttribute("error", "Failed to create new chapter.");
-                    request.getRequestDispatcher("/WEB-INF/views/chapter/add-chapter.jsp").forward(request, response);
-                }
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
 
             } catch (IllegalAccessException e) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -330,7 +345,7 @@ public class ChapterServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
             } catch (Exception e) {
                 request.setAttribute("error", "An error occurred: " + e.getMessage());
-                request.getRequestDispatcher("/WEB-INF/views/error/add-chapter.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/error/_addChapter.jsp").forward(request, response);
             }
 
         } catch (NumberFormatException e) {
@@ -341,6 +356,7 @@ public class ChapterServlet extends HttpServlet {
 
 
     // Cần xem xét lại hàm này
+    // chapter/add?seriesId=
     private void showAddChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int userId = ((User) loggedInAccount).getUserId();
@@ -360,7 +376,18 @@ public class ChapterServlet extends HttpServlet {
 
                 Series series = seriesDAO.findById(seriesId);
                 request.setAttribute("series", series);
-                request.getRequestDispatcher("/WEB-INF/views/chapter/add-chapter.jsp").forward(request, response);
+                SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+                if (ownerId == userId) {
+                    request.setAttribute("owner", "true");
+                }
+
+                if (request.getAttribute("action") == null) {
+                    request.setAttribute("action", "insert");
+                }
+
+                request.setAttribute("contentPage", "/WEB-INF/views/chapter/_addChapter.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
             } catch (Exception e) {
                 System.out.println("series " + e.getMessage());
@@ -386,7 +413,7 @@ public class ChapterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try (Connection conn = DBConnection.getConnection()) {
-            int chapterId = Integer.parseInt(request.getParameter("id"));
+            int chapterId = Integer.parseInt(request.getParameter("chapterId"));
             String title = trim(request.getParameter("title"));
             String content = request.getParameter("content");
             String numberStr = request.getParameter("chapterNumber");
@@ -451,7 +478,7 @@ public class ChapterServlet extends HttpServlet {
             }
 
 
-            response.sendRedirect(request.getContextPath() + "/chapter?id=" + chapter.getChapterId() + "&updated=true");
+            response.sendRedirect(request.getContextPath() + "/series/detail?SeriesId=" + seriesId);
 
         } catch (IllegalAccessException e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -495,7 +522,7 @@ public class ChapterServlet extends HttpServlet {
 
             // check permission
             int seriesId = chapter.getSeriesId();
-            if (new dao.SeriesAuthorDAO(conn).isUserAuthorOfSeries(userId, seriesId)) {
+            if (new SeriesAuthorDAO(conn).isUserAuthorOfSeries(userId, seriesId)) {
                 request.setAttribute("error", "You do not have permission to edit this chapter.");
                 request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
                 return;
@@ -524,6 +551,7 @@ public class ChapterServlet extends HttpServlet {
     }
 
     private void deleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = Integer.parseInt(request.getParameter("seriesId"));
         int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
         if (chapterId == -1) {
             request.setAttribute("error", "Missing chapter id.");
@@ -550,8 +578,7 @@ public class ChapterServlet extends HttpServlet {
                 throw new RuntimeException("Database delete failed.");
             }
 
-            // Xem lại đường dẫn
-            response.sendRedirect(request.getContextPath() + "/my-chapters?deleted=1");
+            response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to delete chapter.");
