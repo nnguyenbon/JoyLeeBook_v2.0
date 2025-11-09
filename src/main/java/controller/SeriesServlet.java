@@ -565,8 +565,7 @@ public class SeriesServlet extends HttpServlet {
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
-        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
+        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));
         series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }

@@ -83,8 +83,6 @@ public class ProfileServlet extends HttpServlet {
                 SeriesDAO seriesDAO = new SeriesDAO(conn);
 
                 List<Series> series = seriesDAO.getSeriesByAuthorId(userId);
-//
-
                 request.setAttribute("seriesInfoDTOList", series);
                 request.setAttribute("totalSeriesCount", series.size());
                 request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
