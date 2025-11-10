@@ -149,7 +149,8 @@
         </ul>
 
         <c:if test="${owner}">
-            <button onclick="showModal('${series.title}')" class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
+            <button onclick="showModal()"
+                    class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
                 Add Co-Author
             </button>
         </c:if>
@@ -231,7 +232,7 @@
         </div>
     </section>
 
-    <dialog closedby="any" id="modalCoauthor" class="md:w-lg w-sm">
+    <dialog open closedby="any" id="modalCoauthor" class="md:w-lg w-sm">
         <div class="p-4">
             <div>
                 <p class="text-2xl font-semibold">Add Co-Author</p>
@@ -240,15 +241,21 @@
                 </p>
             </div>
 
-            <form action="" method="POST" class="mt-6">
-                <label for="email" class="block text-xl">Email Address</label>
+            <form action="" method="POST" class="relative mt-6">
+                <label for="username" class="block text-xl">Email Address</label>
                 <input
-                        type="email"
+                        type="text"
                         class="py-2 px-3 mt-2 mb-6 border border-gray-400 rounded-xl w-full"
-                        id="email"
-                        name="email"
+                        id="username"
+                        name="username"
                         placeholder="coauthor@example.com"
+                        autocomplete="off"
+                        required
                 />
+
+                <ul id="suggestion"
+                    class="hidden absolute top-24 left-0 right-0 bg-white h-32 w-full border border-gray-400 rounded-lg overflow-hidden overflow-y-scroll">
+                </ul>
 
                 <div class="flex w-full justify-between gap-6">
                     <button
@@ -257,7 +264,8 @@
                     >
                         Send Invitation
                     </button>
-                    <button onclick="closeModal()" type="reset" class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400">
+                    <button onclick="closeModal()" type="reset"
+                            class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400">
                         Cancel
                     </button>
                 </div>
@@ -271,8 +279,10 @@
         const seriesId = "${series.seriesId}";
 
         const starContainer = document.getElementById('starRatingContainer');
+        <c:if test="loginedUser.role = author">
         const saveBtn = document.getElementById("saveBtn");
         const saveIcon = saveBtn.querySelector("i");
+        </c:if>
         const radioButtons = starContainer.querySelectorAll('input[name="rating"]');
         const labels = starContainer.querySelectorAll('label');
 
@@ -389,6 +399,7 @@
     });
 
     const modalCoauthor = document.getElementById('modalCoauthor');
+
     function showModal() {
         modalCoauthor.showModal();
     }
@@ -397,4 +408,45 @@
         modalCoauthor.close();
     }
 
+    const usernameInput = document.getElementById('username');
+    const suggestionList = document.getElementById('suggestion');
+    usernameInput.addEventListener('input', async () => {
+        if (usernameInput.value.length > 3) {
+            const users = await getUserName(usernameInput.value)
+            suggestion(users);
+        }
+    })
+
+    async function getUserName(username) {
+        console.log(123)
+        const url = "http://localhost:8080//manage-coauthors/users?username=" + username;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            const result = await response.json();
+            // console.log(result);
+            if (result.length > 0) {
+                return result;
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    function suggestion(username) {
+        const array = username
+        suggestionList.classList.remove('hidden');
+        const html = array.map(user => {
+            const name = user.name;
+            return `<li onclick="selectAuthor('` + name + `')" class="py-2 px-4 hover:bg-sky-300 cursor-pointer">` + name + `</li>`
+        }).join('');
+        suggestionList.innerHTML = html;
+    }
+
+    function selectAuthor(username) {
+        suggestionList.classList.add('hidden');
+        usernameInput.value = username;
+    }
 </script>
