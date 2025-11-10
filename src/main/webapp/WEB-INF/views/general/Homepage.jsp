@@ -17,9 +17,7 @@
     >
         <div class="text-6xl font-bold">
             <p>Discover Your Next</p>
-            <p
-                    class="bg-linear-to-r from-orange-300 to-neutral-900 bg-clip-text text-transparent my-2"
-            >
+            <p class="bg-gradient-to-r from-orange-300 to-neutral-900 bg-clip-text text-transparent my-2">
                 Great Story
             </p>
         </div>

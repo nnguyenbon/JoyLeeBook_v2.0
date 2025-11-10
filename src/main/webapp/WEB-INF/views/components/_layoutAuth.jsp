@@ -63,7 +63,7 @@
 >
 
     <div class="w-1/4 mx-auto">
-        <a href="${pageContext.request.contextPath}/series/list" class="block">
+        <a href="${pageContext.request.contextPath}/" class="block">
             <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
         </a>
     </div>
