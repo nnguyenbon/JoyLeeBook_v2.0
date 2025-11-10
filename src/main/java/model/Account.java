@@ -3,13 +3,33 @@ package model;
 import java.time.LocalDateTime;
 
 public class Account {
+    private int accountId;
     private String username;
     private String fullName;
     private String passwordHash;
+    private String email;
     private String role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String status;
+    private String createdAt;
+    private String updatedAt;
     private boolean isDeleted;
+    private String accountType;
+
+    // Getter và Setter
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+    }
 
     public String getUsername() {
         return username;
@@ -35,27 +55,43 @@ public class Account {
         this.passwordHash = passwordHash;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getRole() {
         return role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public void setRole(String role) {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 

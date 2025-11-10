@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -23,9 +23,10 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Servlet to handle Google OAuth2 callback.
- *
- * @author HaiDD-dev
+ * Servlet implementation class GoogleCallbackServlet
+ * Handles the OAuth2 callback from Google for user authentication.
+ * This servlet exchanges the authorization code for an access token,
+ * retrieves user information, and logs the user into the application.
  */
 @WebServlet(name = "GoogleCallbackServlet", urlPatterns = "/auth/google/callback")
 public class GoogleCallbackServlet extends HttpServlet {
@@ -39,23 +40,25 @@ public class GoogleCallbackServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         try {
-            Properties p = new Properties();
-            p.load(getClass().getClassLoader().getResourceAsStream("auth.properties"));
-            clientId = p.getProperty("GOOGLE_CLIENT_ID");
-            clientSecret = p.getProperty("GOOGLE_CLIENT_SECRET");
-            redirectUri = p.getProperty("REDIRECT_URI");
+            Properties p = new Properties(); //Load from resources folder
+            p.load(getClass().getClassLoader().getResourceAsStream("auth.properties")); //Adjust the path as necessary
+            clientId = p.getProperty("GOOGLE_CLIENT_ID"); //Load client ID
+            clientSecret = p.getProperty("GOOGLE_CLIENT_SECRET"); //Load client secret
+            redirectUri = p.getProperty("REDIRECT_URI"); //Load redirect URI
         } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     /**
-     * Handles GET requests for Google OAuth2 callback.
+     * Handles the HTTP GET request for the Google OAuth2 callback.
+     * Exchanges the authorization code for an access token, retrieves user information,
+     * and logs the user into the application.
      *
      * @param req  the HttpServletRequest object
      * @param resp the HttpServletResponse object
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an input or output error is detected
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -98,7 +101,7 @@ public class GoogleCallbackServlet extends HttpServlet {
 
             User user = dao.findById(userId);
             AuthenticationUtils.storeLoginedUser(req.getSession(), user);
-            PointServices.trackLogin(user.getUserId());
+            TrackPointUtils.trackAction(user.getUserId(), 10, "Login with google", "login", 0, 1);
             resp.sendRedirect(req.getContextPath() + "/");
         } catch (SQLException | InterruptedException e) {
             throw new ServletException(e);

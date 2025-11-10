@@ -22,19 +22,21 @@
         <h2 class="text-xl font-semibold mt-6 mb-3">Genre</h2>
         <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>
 
-        <div class="grid grid-cols-2 gap-2 text-gray-700">
+        <form id="filterForm" class="grid grid-cols-2 gap-2 text-gray-700">
             <c:forEach var="category" items="${categories}">
-                <label class="flex items-center gap-2"><input type="checkbox"
-                                                              name="genre"
-                                                              value="${category.name}"
-                                                              class="accent-[#195DA9]"
-                                                              <c:if test="${genresParam.contains(category.name)}">checked</c:if>
-                /> ${category.name}</label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox"
+                           name="genre"
+                           value="${category.categoryId}"
+                           class="accent-[#195DA9]"
+                           <c:if test="${genreIds.contains(category.categoryId)}">checked</c:if>>
+                        ${category.name}
+                </label>
             </c:forEach>
-        </div>
+        </form>
+
     </div>
     <div class="col-span-8" id="result-container">
         <jsp:include page="/WEB-INF/views/general/searchview/SearchFilterView.jsp"/>
     </div>
 </div>
-            

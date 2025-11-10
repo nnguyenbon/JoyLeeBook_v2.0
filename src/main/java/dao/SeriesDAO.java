@@ -12,8 +12,7 @@ import java.util.*;
 import dao.helper.PaginationDAOHelper;
 import dto.PaginationRequest;
 import model.Series;
-import model.SeriesAuthor;
-import services.general.FormatServices;
+import utils.FormatUtils;
 
 /**
  * Data Access Object (DAO) for the Series entity.
@@ -34,7 +33,6 @@ public class SeriesDAO {
      * @param isCount  true if building a count query, false for select query
      * @param genreIds List of genre IDs to filter by
      * @param userId   The author (user) ID
-     * @param status   Series status ("Ongoing", "Completed", etc.)
      * @param search   Keyword for title search
      * @return A StringBuilder containing the full SQL query
      */
@@ -70,12 +68,7 @@ public class SeriesDAO {
         sql.append("WHERE s.is_deleted = 0 ");
 
         if (genreIds != null && !genreIds.isEmpty()) {
-            sql.append("AND c.category_id IN (");
-            for (int i = 0; i < genreIds.size(); i++) {
-                sql.append("?");
-                if (i < genreIds.size() - 1) sql.append(",");
-            }
-            sql.append(") ");
+            sql.append("AND c.category_id = ? ".repeat(genreIds.size()));
         }
 
         if (userId > 0) {
@@ -132,16 +125,29 @@ public class SeriesDAO {
         }
         return seriesList;
     }
-
-    public List<Series> getAll(String search, List<Integer> genreIds, int userId, String status, PaginationRequest paginationRequest) throws SQLException {
+    public List<Series> getAll(String status) {
+        String sql = "SELECT * FROM series WHERE approval_status = ?";
+        List<Series> seriesList = new ArrayList<>();
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                seriesList.add(extractSeriesFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
+    public List<Series> getAll(String search, List<Integer> genreIds, int userId, String approval_status, PaginationRequest paginationRequest) throws SQLException {
         List<Series> list = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
 
-        StringBuilder sql = buildSeriesBaseQuery(false, genreIds, userId, status, search);
+        StringBuilder sql = buildSeriesBaseQuery(false, genreIds, userId, approval_status, search);
         sql.append(paginationDAOHelper.buildPaginationClause());
 
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+            setSeriesQueryParameters(stmt, genreIds, userId, approval_status, search);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -153,10 +159,10 @@ public class SeriesDAO {
         return list;
     }
 
-    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String status) throws SQLException {
-        StringBuilder sql = buildSeriesBaseQuery(true, genreIds, userId, status, search);
+    public int getTotalSeriesCount(String search, List<Integer> genreIds, int userId, String approvalStatus) throws SQLException {
+        StringBuilder sql = buildSeriesBaseQuery(true, genreIds, userId, approvalStatus, search);
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-            setSeriesQueryParameters(stmt, genreIds, userId, status, search);
+            setSeriesQueryParameters(stmt, genreIds, userId, approvalStatus, search);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
             }
@@ -172,16 +178,16 @@ public class SeriesDAO {
      * @return the Series object if found, otherwise null
      * @throws SQLException if a database access error occurs
      */
-    public Series findById(int seriesId, String approveStatus) throws SQLException {
+    public Series findById(int seriesId, String approvalStatus) throws SQLException {
         StringBuilder sql =  new StringBuilder();
              sql.append("SELECT * FROM series WHERE series_id = ? AND is_deleted = 0");
-        if (approveStatus != null && !approveStatus.trim().isEmpty()) {
+        if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
             sql.append(" AND approval_status = ? ");
         }
         try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
-            if (approveStatus != null && !approveStatus.trim().isEmpty()) {
-                ps.setString(2, approveStatus);
+            if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
+                ps.setString(2, approvalStatus);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -191,7 +197,27 @@ public class SeriesDAO {
         }
         return null;
     }
+    /**
+     * Finds a series by its ID.
+     *
+     * @param seriesId the ID of the series to find
+     * @return the Series object if found, otherwise null
+     * @throws SQLException if a database access error occurs
+     */
+    public Series findById(int seriesId) throws SQLException {
 
+        String sql = "SELECT * FROM series WHERE series_id = ? AND is_deleted = 0";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractSeriesFromResultSet(rs);
+                }
+            }
+        }
+        return null;
+    }
     public boolean approveSeries(int seriesId, String approveStatus) throws SQLException {
         String sql = "UPDATE series SET approval_status = ? WHERE series_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -209,15 +235,15 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean updateSeries(Series series) throws SQLException {
-        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ? AND is_deleted = false";
+        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, series.getTitle());
             ps.setString(2, series.getDescription());
             ps.setString(3, series.getCoverImgUrl());
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setInt(6, series.getSeriesId());
-            ps.setInt(7, series.getAvgRating());
+            ps.setDouble(6, series.getAvgRating());
+            ps.setInt(7, series.getSeriesId());
             return ps.executeUpdate() > 0;
         }
     }
@@ -230,7 +256,7 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean deleteSeries(int seriesId) throws SQLException {
-        String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
+        String sql = "UPDATE series SET is_deleted = 1, updated_at = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(2, seriesId);
@@ -247,19 +273,11 @@ public class SeriesDAO {
      */
     public List<Series> getTopRatedSeries(int limit) throws SQLException {
         List<Series> topSerieslist = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at" + " FROM series s ORDER BY rating_points DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY rating_points DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Series s = new Series();
-                s.setSeriesId(rs.getInt("series_id"));
-                s.setTitle(rs.getNString("title"));
-                s.setDescription(rs.getNString("description"));
-                s.setCoverImgUrl(rs.getNString("cover_image_url"));
-                s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
-                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-                topSerieslist.add(s);
+                topSerieslist.add(extractSeriesFromResultSet(rs));
             }
             return topSerieslist;
         }
@@ -309,7 +327,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ?";
+        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, authorId);
             ResultSet rs = ps.executeQuery();
@@ -350,7 +368,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByStatus(int limit, String status) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE status = ?";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' AND status = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ResultSet rs = ps.executeQuery();
@@ -390,7 +408,7 @@ public class SeriesDAO {
      */
     public List<Series> getRecentlyUpdated(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY updated_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY updated_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -409,7 +427,7 @@ public class SeriesDAO {
      */
     public List<Series> getNewReleasedSeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ") * FROM series ORDER BY created_at DESC";
+        String sql = "SELECT TOP (" + limit + ") * FROM series WHERE approval_status = 'approved' ORDER BY created_at DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -428,19 +446,12 @@ public class SeriesDAO {
      */
     public List<Series> getWeeklySeries(int limit) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT TOP (" + limit + ")s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at,  AVG(r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, updated_at, created_at ORDER BY AVG(r.score) DESC";
+        String sql = "SELECT TOP (" + limit + ") s.*, AVG (r.score) AS total_rating " + "FROM series s JOIN ratings r ON s.series_id = r.series_id " + "WHERE DATEPART(WEEK, r.rated_at) = DATEPART(WEEK, GETDATE()) AND DATEPART(YEAR, r.rated_at) = DATEPART(YEAR, GETDATE()) AND approval_status = 'approved' AND is_deleted = 0 " + "GROUP BY s.series_id, title, rating_points, description, cover_image_url, status, approval_status, updated_at, created_at, is_deleted ORDER BY AVG(r.score) DESC";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Series s = new Series();
-                s.setSeriesId(rs.getInt("series_id"));
-                s.setTitle(rs.getNString("title"));
-                s.setDescription(rs.getNString("description"));
-                s.setCoverImgUrl(rs.getNString("cover_image_url"));
-                s.setStatus(rs.getString("status"));
-                s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+                Series s = extractSeriesFromResultSet(rs);
                 s.setAvgRating(rs.getInt("total_rating"));
-                s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
                 seriesList.add(s);
             }
             return seriesList;
@@ -474,6 +485,36 @@ public class SeriesDAO {
         }
         return 0;
     }
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE status = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, pending);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStaffAndStatus(int staffId, String status) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE staff_id = ? AND status = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setString(2, status);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean insertSeries(Series series) throws SQLException {
         String sql = "INSERT INTO series (title, description, cover_image_url, status, approval_status, created_at, updated_at, is_deleted, rating_points) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)";
@@ -519,8 +560,8 @@ public class SeriesDAO {
         s.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
         s.setStatus(rs.getString("status"));
         s.setApprovalStatus(rs.getString("approval_status"));
-        s.setCreatedAt(FormatServices.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
-        s.setUpdatedAt(FormatServices.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
+        s.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        s.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         s.setDeleted(rs.getBoolean("is_deleted"));
         s.setAvgRating(rs.getInt("rating_points"));
         return s;

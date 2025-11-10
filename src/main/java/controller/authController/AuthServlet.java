@@ -8,17 +8,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Staff;
 import model.User;
-import org.mindrot.jbcrypt.BCrypt;
-import services.auth.HandleOTPServices;
-import services.auth.LoginServices;
-import services.auth.RegisterServices;
-import services.general.PointServices;
+import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * Servlet implementation class AuthServlet
+ * This servlet handles user authentication including login, logout, and registration with OTP verification.
+ * It supports both GET and POST requests for different authentication actions.
+ */
 @WebServlet(urlPatterns = {"/login", "/logout", "/register"})
 public class AuthServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -36,8 +37,18 @@ public class AuthServlet extends HttpServlet {
 
     }
 
+    /**
+     * Handles GET requests for login, logout, and registration pages.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String path = request.getServletPath();
+        String path = request.getServletPath(); //Get the servlet path to determine the action
+
+        //Route to the appropriate handler based on the servlet path
         switch (path) {
             case "/login" -> {
                 request.setAttribute("pageTitle", "Login");
@@ -52,6 +63,7 @@ public class AuthServlet extends HttpServlet {
                 if (checkValidate(request, response)) {
                     return;
                 }
+                //Default action for register page
                 String action = request.getParameter("action") == null ? "" : request.getParameter("action");
                 if (action.equals("sendOtp")) {
                     sendOtp(request, response);
@@ -61,6 +73,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Renders the registration page.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void viewRegister(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -69,25 +89,33 @@ public class AuthServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
     }
 
+    /**
+     * Processes user login.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void login(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String userName = request.getParameter("username");
         String password = request.getParameter("password");
 
         try {
-            LoginServices loginServices = new LoginServices();
-            User user = loginServices.checkLoginUser(userName, password);
-            Staff staff = loginServices.checkLoginStaff(userName, password);
+            User user = AuthenticationUtils.checkLoginUser(userName, password);
+            Staff staff = AuthenticationUtils.checkLoginStaff(userName, password);
             if (user != null) {
                 AuthenticationUtils.storeLoginedUser(request.getSession(), user);
                 String role = user.getRole();
                 switch (role) {
                     case "author":
                     case "reader":
-                        PointServices.trackLogin(user.getUserId());
+                        //Track login for point system
+                        TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
                         response.sendRedirect(request.getContextPath() + "/homepage");
                         break;
                 }
-            } else if (staff != null){
+            } else if (staff != null) {
                 AuthenticationUtils.storeLoginedUser(request.getSession(), staff);
                 String role = staff.getRole();
                 switch (role) {
@@ -96,26 +124,33 @@ public class AuthServlet extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/staff");
                         break;
                 }
-            }else {
+            } else {
                 request.setAttribute("error", "Invalid username or password.");
                 request.setAttribute("pageTitle", "Login");
                 request.setAttribute("contentPage", "/WEB-INF/views/auth/LoginPage.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             request.setAttribute("error", "Something went wrong. Please try again later.");
             request.getRequestDispatcher("/WEB-INF/views/auth/LoginPage.jsp").forward(request, response);
         }
     }
 
+    /**
+     * Verifies the OTP entered by the user during registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void verifyOtp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             String enterOTP = request.getParameter("otp");
             HttpSession session = request.getSession();
 
 
-            RegisterServices registerServices = new RegisterServices();
-            boolean checkOTP = registerServices.checkOTP(session, enterOTP);
+            boolean checkOTP = AuthenticationUtils.checkOTP(session, enterOTP);
             if (!checkOTP) {
                 System.out.println("OTP is incorrect.");
                 request.setAttribute("message", "OTP is incorrect.");
@@ -124,7 +159,7 @@ public class AuthServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
                 return;
             }
-            User user = registerServices.createUser(session);
+            User user = AuthenticationUtils.createUser(session);
             if (user == null) {
                 System.out.println("Something went wrong.");
                 request.setAttribute("message", "Something went wrong. Please try again.");
@@ -139,17 +174,25 @@ public class AuthServlet extends HttpServlet {
             AuthenticationUtils.storeLoginedUser(session, user);
             response.sendRedirect(request.getContextPath() + "/login");
 
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             System.out.println("Error in RegisterServlet: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Sends an OTP to the user's email during registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void sendOtp(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        User register;
+        User register; //Temporary user object to hold registration data
         try {
-            HandleOTPServices handleOTPServices = new HandleOTPServices();
+
 
             if (session.getAttribute("register") == null) {
                 String userName = request.getParameter("username");
@@ -157,7 +200,7 @@ public class AuthServlet extends HttpServlet {
                 String fullName = request.getParameter("fullName");
                 String confirmPassword = request.getParameter("confirmPassword");
                 String email = request.getParameter("email");
-                if (handleOTPServices.checkExistUsername(userName)) {
+                if (AuthenticationUtils.checkExistUsername(userName)) {
                     request.setAttribute("message", "Username is already exist.");
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("email", email);
@@ -165,7 +208,8 @@ public class AuthServlet extends HttpServlet {
                     viewRegister(request, response);
                     return;
                 }
-                if (handleOTPServices.checkExistEmail(email)) {
+                //Check if email already exists
+                if (AuthenticationUtils.checkExistEmail(email)) {
                     request.setAttribute("message", "Email is already exist.");
                     request.setAttribute("fullName", fullName);
                     request.setAttribute("username", userName);
@@ -173,6 +217,7 @@ public class AuthServlet extends HttpServlet {
                     viewRegister(request, response);
                     return;
                 }
+                //Check if password and confirm password match
                 if (!password.equals(confirmPassword)) {
                     request.setAttribute("message", "Your confirm password is not correct.");
                     request.setAttribute("fullName", fullName);
@@ -193,7 +238,7 @@ public class AuthServlet extends HttpServlet {
             request.setAttribute("pageTitle", "Verify Email");
             request.setAttribute("contentPage", "/WEB-INF/views/auth/VerifyOTP.jsp");
             request.getRequestDispatcher("/WEB-INF/views/components/_layoutAuth.jsp").forward(request, response);
-            boolean sendSuccess = handleOTPServices.sendOTP(session, register);
+            boolean sendSuccess = AuthenticationUtils.sendOTP(session, register);
             if (sendSuccess) {
                 System.out.println("OTP has been sent to your email.");
                 session.setAttribute("register", register);
@@ -207,14 +252,24 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates name fields (username, fullname) for registration.
+     *
+     * @param request
+     * @param response
+     * @param name
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validateName(HttpServletRequest request, HttpServletResponse response, String name) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        //Validate name
         if (!ValidationInput.isEmptyString(value)) {
-            String message = name + " cannot empty";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
+            String message = name + " cannot empty"; //Add name to message
+            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message); //Return JSON response
+            response.getWriter().write(json); //Write response
         } else if (ValidationInput.isValidLength(value, 3)) {
             String message = name + " cannot contain less than 3 characters";
             String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
@@ -226,6 +281,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates email field for registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validateEmail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
@@ -245,6 +308,14 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Validates password field for registration.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     private void validatePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String value = request.getParameter("value");
         response.setContentType("application/json");
@@ -277,6 +348,15 @@ public class AuthServlet extends HttpServlet {
 
     }
 
+    /**
+     * Checks which field to validate based on the "type" parameter in the request.
+     *
+     * @param request
+     * @param response
+     * @return true if a validation was performed, false otherwise
+     * @throws ServletException
+     * @throws IOException
+     */
     private boolean checkValidate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");
         switch (type) {
@@ -298,5 +378,3 @@ public class AuthServlet extends HttpServlet {
 
 
 }
-
-

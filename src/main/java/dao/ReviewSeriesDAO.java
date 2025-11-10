@@ -91,16 +91,12 @@ public class ReviewSeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean insert(ReviewSeries review) throws SQLException {
-        String sql = "INSERT INTO review_series (series_id, staff_id, status, comment, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO review_series (series_id, staff_id, status, comment) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, review.getSeriesId());
             stmt.setInt(2, review.getStaffId());
             stmt.setString(3, review.getStatus());
             stmt.setString(4, review.getComment());
-            stmt.setTimestamp(5, Timestamp.valueOf(
-                    review.getCreatedAt() != null ? review.getCreatedAt() : LocalDateTime.now()
-            ));
-
             return stmt.executeUpdate() > 0;
         }
     }
@@ -141,6 +137,34 @@ public class ReviewSeriesDAO {
         }
     }
 
+    public int countByStaff(int staffId) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE staff_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStaffAndStatus(int staffId, String status) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE staff_id = ? AND status = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setString(2, status);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
     /**
      * Maps a {@link ResultSet} row to a {@link ReviewSeries} object.
      *

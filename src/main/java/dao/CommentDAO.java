@@ -1,6 +1,7 @@
 package dao;
 
 import model.Comment;
+import utils.FormatUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -91,13 +92,11 @@ public class CommentDAO {
      * @throws SQLException If an SQL error occurs during the insertion
      */
     public boolean insert(Comment cmt) throws SQLException {
-        String sql = "INSERT INTO comments (user_id, chapter_id, content, is_deleted, created_at, updated_at) " + "VALUES (?, ?, ?, 0, ?, ?)";
+        String sql = "INSERT INTO comments (user_id, chapter_id, content, is_deleted) " + "VALUES (?, ?, ?, 0)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cmt.getUserId());
             stmt.setInt(2, cmt.getChapterId());
             stmt.setString(3, cmt.getContent());
-            stmt.setTimestamp(4, Timestamp.valueOf(cmt.getCreatedAt() != null ? cmt.getCreatedAt() : LocalDateTime.now()));
-            stmt.setTimestamp(5, Timestamp.valueOf(cmt.getUpdatedAt() != null ? cmt.getUpdatedAt() : LocalDateTime.now()));
 
             return stmt.executeUpdate() > 0;
         }
@@ -120,6 +119,14 @@ public class CommentDAO {
         }
     }
 
+    public boolean updateStatus(int commentId, String status) throws SQLException {
+        String sql = "UPDATE comments SET is_deleted = ? WHERE comment_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1,status.equals("approved") ? 1 : 0  );
+            stmt.setInt(2, commentId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
     /**
      * Soft delete a comment by setting its is_delete flag to true
      *
@@ -195,12 +202,8 @@ public class CommentDAO {
         cmt.setChapterId(rs.getInt("chapter_id"));
         cmt.setContent(rs.getString("content"));
         cmt.setDeleted(rs.getBoolean("is_deleted"));
-
-        Timestamp created = rs.getTimestamp("created_at");
-        Timestamp updated = rs.getTimestamp("updated_at");
-
-        cmt.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
-        cmt.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
+        cmt.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        cmt.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return cmt;
     }
 }

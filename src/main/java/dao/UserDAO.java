@@ -1,7 +1,9 @@
 package dao;
 
+import model.SeriesAuthor;
 import model.User;
 import utils.AuthenticationUtils;
+import utils.FormatUtils;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -41,6 +43,22 @@ public class UserDAO {
         }
         return null;
     }
+    public List<String> getAuthorNameList(List<SeriesAuthor> seriesAuthorList) throws SQLException {
+        List<String> authorNames = new ArrayList<>();
+        String sql = "SELECT username FROM users WHERE is_deleted = 0 AND user_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (SeriesAuthor sa : seriesAuthorList) {
+                stmt.setInt(1, sa.getAuthorId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        authorNames.add(rs.getString("username"));
+                    }
+                }
+            }
+        }
+        return authorNames;
+    }
 
     public boolean isAuthor(String email) throws SQLException {
         String sql = "SELECT role FROM users WHERE email = ? AND is_deleted = 0";
@@ -72,8 +90,6 @@ public class UserDAO {
             stmt.setString(4, user.getPasswordHash());
             stmt.setBoolean(5, false);
             stmt.setInt(6, 0);
-            stmt.setTimestamp(7, Timestamp.valueOf(user.getCreatedAt() != null ? user.getCreatedAt() : LocalDateTime.now()));
-            stmt.setTimestamp(8, Timestamp.valueOf(user.getUpdatedAt() != null ? user.getUpdatedAt() : LocalDateTime.now()));
             return stmt.executeUpdate() > 0;
         }
     }
@@ -179,15 +195,16 @@ public class UserDAO {
     /**
      * Update user role to 'author' by user ID.
      *
-     * @param userId The ID of the user to update.
      * @return true if the update was successful, false otherwise.
      * @throws SQLException           If a database access error occurs.
      * @throws ClassNotFoundException If the JDBC driver class is not found.
      */
-    public boolean updateUserRoleToAuthor(int userId) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE users SET role = 'author' WHERE user_id = ?";
+    public boolean updateUserRoleToAuthor(String username, String fullname, String email) throws SQLException, ClassNotFoundException {
+        String sql = "INSERT INTO users (username, full_name, email, role) VALUES (?, ?, ?, 'author')";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
+            ps.setString(1, username);
+            ps.setString(2, fullname);
+            ps.setString(3, email);
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
         }
@@ -281,10 +298,9 @@ public class UserDAO {
         user.setStatus(rs.getString("status"));
         user.setPoints(rs.getInt("points"));
 
-        Timestamp created = rs.getTimestamp("created_at");
-        Timestamp updated = rs.getTimestamp("updated_at");
-        user.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
-        user.setUpdatedAt(updated != null ? updated.toLocalDateTime() : LocalDateTime.now());
+
+        user.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
+        user.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
 
         return user;
     }
