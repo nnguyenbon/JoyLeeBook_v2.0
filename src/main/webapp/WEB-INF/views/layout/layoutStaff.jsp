@@ -49,6 +49,8 @@
 </div>
 
 <script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
+<script src="${pageContext.request.contextPath}/js/auth.js"></script>
+
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-package controller.genreController;
+package controller;
 
 import dao.CategoryDAO;
 import dao.SeriesCategoriesDAO;

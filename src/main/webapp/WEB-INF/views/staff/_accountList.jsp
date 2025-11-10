@@ -35,7 +35,6 @@
                                 <option value="reader" ${roleFilter eq 'reader' ? 'selected' : ''}>Reader</option>
                                 <option value="author" ${roleFilter eq 'author' ? 'selected' : ''}>Author</option>
                                 <option value="staff" ${roleFilter eq 'staff' ? 'selected' : ''}>Staff</option>
-                                <option value="admin" ${roleFilter eq 'admin' ? 'selected' : ''}>Admin</option>
                             </c:otherwise>
                         </c:choose>
                     </select>
@@ -68,7 +67,7 @@
         </c:if>
 
         <!-- Table -->
-        <div class="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-sm mb-3">
+        <div class="overflow-x-auto overflow-y-auto max-h-[70vh] rounded-sm mb-3">
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
                 <tr>
@@ -110,7 +109,6 @@
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 rounded-full text-xs font-semibold
                                 <c:choose>
-                                    <c:when test="${account.role eq 'admin'}">bg-purple-100 text-purple-700</c:when>
                                     <c:when test="${account.role eq 'staff'}">bg-indigo-100 text-indigo-700</c:when>
                                     <c:when test="${account.role eq 'author'}">bg-blue-100 text-blue-700</c:when>
                                     <c:otherwise>bg-gray-100 text-gray-700</c:otherwise>
@@ -120,14 +118,22 @@
                         </td>
 
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold
+
+                            <c:choose>
+                                <c:when test="${not empty account.status}">
+                                      <span class="px-2 py-1 rounded-full text-xs font-semibold
                                 <c:choose>
                                     <c:when test="${account.status eq 'active'}">bg-green-100 text-green-700</c:when>
                                     <c:when test="${account.status eq 'banned'}">bg-red-100 text-red-700</c:when>
                                     <c:otherwise>bg-gray-100 text-gray-700</c:otherwise>
                                 </c:choose>">
-                                    ${account.status}
-                            </span>
+                                              ${account.status}
+                                      </span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="text-gray-400 italic">N/A</span>
+                                </c:otherwise>
+                            </c:choose>
                         </td>
 
                         <td class="px-4 py-3 text-gray-700">${account.createdAt}</td>
@@ -151,9 +157,9 @@
                                         <ul class="absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-20">
 
                                             <!-- Edit (Admin only) -->
-                                            <c:if test="${loginedUser.role eq 'admin'}">
+                                            <c:if test="${loginedUser.role eq 'admin' and account.accountType eq 'staff'}">
                                                 <li>
-                                                    <a href="${pageContext.request.contextPath}/account/edit?id=${account.accountId}&type=${account.accountType}"
+                                                    <a href="${pageContext.request.contextPath}/account/edit?staffId=${account.accountId}"
                                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                                                         <i class="fas fa-edit"></i>Edit
                                                     </a>

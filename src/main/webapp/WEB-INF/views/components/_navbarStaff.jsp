@@ -29,6 +29,12 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span class="ml-2">Reports</span>
             </a>
+            <c:if test="${loginedUser.role == 'admin'}">
+                <a href="${pageContext.request.contextPath}/category/list" class="flex items-center px-4 py-2 hover:bg-gray-100  ${pageTitle == 'Manage Categories' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'}">
+                    <i class="fa-solid fa-list"></i>
+                    <span class="ml-2">Categories</span>
+                </a>
+            </c:if>
             <a href="${pageContext.request.contextPath}/account/list" class="flex items-center px-4 py-2 hover:bg-gray-100  ${pageTitle == 'Manage Accounts' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'}">
                 <i class="fa-solid fa-users"></i>
                 <span class="ml-2">Accounts</span>
