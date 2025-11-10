@@ -308,10 +308,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const likeBtn = document.getElementById("likeBtn");
-
+        loadComments();
         likeBtn.addEventListener("click", function () {
             // Nếu người dùng đã like rồi thì không cho click nữa
-            loadComments();
             if (likeBtn.classList.contains("liked")) return;
             if ("${loginedUser.userId}" == "") {
                 toastr["warning"]("Your must login to like chapter")
@@ -329,14 +328,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.liked) {
-                        // Cập nhật giao diện
                         likeBtn.classList.add("liked");
                         likeCount.textContent = data.newLikeCount;
 
                         icon.classList.remove("fa-regular");
                         icon.classList.add("fa-solid", "text-red-500");
 
-                        // Chặn click tiếp
                         likeBtn.disabled = true;
                     }
                 })
@@ -346,10 +343,6 @@
 
     const contextPath = '${pageContext.request.contextPath}';
     const chapterId = ${chapterId};
-
-    document.addEventListener("DOMContentLoaded", function() {
-        loadComments();
-    });
 
     function loadComments() {
         fetch("${pageContext.request.contextPath}/comment/list?chapterId=" + encodeURIComponent(chapterId))

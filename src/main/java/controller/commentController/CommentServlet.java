@@ -23,7 +23,7 @@ import java.util.List;
  * Servlet implementation class CommentServlet
  * Handles creation, updating, and deletion of comments.
  */
-@WebServlet("/comment*")
+@WebServlet("/comment/*")
 public class CommentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();

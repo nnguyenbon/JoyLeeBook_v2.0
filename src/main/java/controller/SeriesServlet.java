@@ -274,7 +274,6 @@ public class SeriesServlet extends HttpServlet {
                     request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
                 } else {
                     CategoryDAO categoryDAO = new CategoryDAO(conn);
-                    UserDAO userDAO = new UserDAO(conn);
                     List<Series> listSeries = seriesDAO.getAll("approved");
                     for (Series series : listSeries) {
                         buildSeries(conn, series);
@@ -286,7 +285,7 @@ public class SeriesServlet extends HttpServlet {
                     request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
                     request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
                     request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
-                    request.setAttribute("userList",  userDAO.selectTopUserPoints(8));
+
                     request.setAttribute("categories", categoryDAO.getAll());
                     request.setAttribute("pageTitle", "JoyLeeBook");
                     request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
@@ -328,6 +327,7 @@ public class SeriesServlet extends HttpServlet {
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
 
@@ -335,15 +335,15 @@ public class SeriesServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
             }
-            List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
+
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
 
+            request.setAttribute("totalChapter", chapterDAO.getTotalChaptersCount(seriesId));
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
             request.setAttribute("series", series);
-            request.setAttribute("chapterList", chapterList);
             request.setAttribute("pageTitle", "Series Detail");
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
@@ -606,15 +606,7 @@ public class SeriesServlet extends HttpServlet {
         return series;
     }
 
-    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
-        ChapterDAO chapterDAO = new ChapterDAO(connection);
-        LikeDAO likeDAO = new LikeDAO(connection);
-        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
-        for (Chapter chapter : chapterList) {
-            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
-        }
-        return chapterList;
-    }
+
     private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
         List<Series> copy = new ArrayList<>(seriesList);
         copy.sort((s1, s2) -> Double.compare(s2.getTotalRating(), s1.getTotalRating()));

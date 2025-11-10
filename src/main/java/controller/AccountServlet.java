@@ -1,7 +1,9 @@
 package controller;
 
 import dao.AccountDAO;
+import dao.BadgeDAO;
 import dao.SeriesDAO;
+import dao.UserDAO;
 import db.DBConnection;
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
@@ -34,6 +36,7 @@ public class AccountServlet extends HttpServlet {
                 case "/detail" -> viewAccountDetail(request, response);
                 case "/add" -> showAddAccount(request, response);
                 case "/edit" -> showEditAccount(request, response);
+                case "/ranking" -> showRanking(request, response);
                 default -> response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
@@ -148,6 +151,16 @@ public class AccountServlet extends HttpServlet {
             handleClientError(request, response, "Invalid accountId format.");
         } catch (SQLException e) {
             handleServerError(request, response, e, "Database error while retrieving account detail.");
+        }
+    }
+
+    private void showRanking (HttpServletRequest request, HttpServletResponse response ){
+        try (Connection conn = DBConnection.getConnection()){
+            UserDAO userDAO = new UserDAO(conn);
+            request.setAttribute("userList",  userDAO.selectTopUserPoints(8));
+            request.getRequestDispatcher("/WEB-INF/views/general/_userRanking.jsp").forward(request, response);
+        } catch (SQLException | ClassNotFoundException | ServletException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

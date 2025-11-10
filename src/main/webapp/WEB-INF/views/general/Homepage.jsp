@@ -196,24 +196,8 @@
             </ul>
         </div>
         <!-- Top Reader Points Section (col-span-3) -->
-        <div class="col-span-3 flex flex-col weekly-top">
-            <p class="pt-6 pb-4 font-bold text-3xl">Top reader points</p>
-            <div class="border border-gray-300 rounded-xl pr-3 flex-1 shadow-xl">
-                <ul class="">
-                    <c:forEach var="user" items="${userList}" varStatus="loop">
-                        <li class="flex justify-between items-center py-2
-                   ${loop.index == 0 ? 'text-[#E23636] font-semibold text-lg mt-2' :
-                     loop.index == 1 ? 'text-[#F5A83D] font-semibold' :
-                     loop.index == 2 ? 'text-[#195DA9] font-semibold' : 'text-gray-700'}">
-                            <div class="flex items-center gap-1">
-                                <span class="font-semibold w-6 text-right">${loop.index + 1}.</span>
-                                <p class="truncate w-48" title="${user.username}">${user.username}</p>
-                            </div>
-                            <span class="float-right">${user.points}</span>
-                        </li>
-                    </c:forEach>
-                </ul>
-            </div>
+        <div class="col-span-3 flex flex-col weekly-top" id="reader-ranking-container">
+            <jsp:include page="/WEB-INF/views/general/_userRanking.jsp" flush="true"/>
         </div>
     </section>
     <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
@@ -400,6 +384,17 @@
     <jsp:include page="/WEB-INF/views/general/_search.jsp"/>
 </main>
 <script>
+    function loadReaderRanking() {
+        fetch("${pageContext.request.contextPath}/account/ranking")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("reader-ranking-container").innerHTML = html;
+            })
+            .catch(error => console.error("Error:", error));
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        loadReaderRanking();
+    });
     function updateFilter(page = 1) {
         const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
         // console.log(selectedGenres);
