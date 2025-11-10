@@ -216,48 +216,8 @@
 
 
         <!-- Comments -->
-        <div class="mt-6 space-y-4">
-            <!-- Comment 1 -->
-            <c:forEach var="comment" items="${commentList}" varStatus="loop">
-                <div class="flex justify-between gap-3">
-                    <div class="flex gap-5">
-                        <div class="w-10 h-10 rounded-full bg-gray-200"></div>
-                        <div class="overflow-hidden">
-                            <p class="font-semibold text-gray-800">${comment.username}</p>
-                            <p class="text-gray-600 text-sm truncate">${comment.content}</p>
-                            <p class="text-xs text-gray-400 mt-1">${comment.updatedAt}</p>
-                        </div>
-                    </div>
-                    <div class="relative">
-                        <c:if test='${userId != 0}'>
-                            <button class="dropdown-btn text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <i class="fa-solid fa-ellipsis"></i>
-                            </button>
-                        </c:if>
-
-                        <div class="dropdown-menu hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                            <c:if test="${comment.userId == userId}">
-                                <button
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onclick="editComment(${comment.commentId}, '${comment.content}')">
-                                    Edit
-                                </button>
-
-                                <button onclick="deleteComment(${comment.commentId}, ${chapter.seriesId}, ${chapterId})"
-                                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Delete
-                                </button>
-                            </c:if>
-                            <c:if test="${userId != 0 && comment.userId != userId}">
-                                <button class="openReportCmtBtn block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        data-comment-id="${comment.commentId}">
-                                    Report
-                                </button>
-                            </c:if>
-                        </div>
-                    </div>
-                </div>
-            </c:forEach>
+        <div id="comment-list-container" class="mt-6 space-y-4">
+            <jsp:include page="/WEB-INF/views/chapter/_commentList.jsp" flush="true" />
         </div>
 
         <!-- Modal Report -->
@@ -351,6 +311,7 @@
 
         likeBtn.addEventListener("click", function () {
             // Nếu người dùng đã like rồi thì không cho click nữa
+            loadComments();
             if (likeBtn.classList.contains("liked")) return;
             if ("${loginedUser.userId}" == "") {
                 toastr["warning"]("Your must login to like chapter")
@@ -383,8 +344,21 @@
         });
     });
 
-</script>
-<script>
+    const contextPath = '${pageContext.request.contextPath}';
+    const chapterId = ${chapterId};
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadComments();
+    });
+
+    function loadComments() {
+        fetch("${pageContext.request.contextPath}/comment/list?chapterId=" + encodeURIComponent(chapterId))
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("comment-list-container").innerHTML = html;
+            })
+            .catch(error => console.error("Error:", error));
+    }
 
     document.querySelector("#chapterListBtn").addEventListener("click", () => {
         document.querySelector("#chapterList").classList.toggle("hidden");

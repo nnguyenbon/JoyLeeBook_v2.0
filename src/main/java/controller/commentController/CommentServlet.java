@@ -1,6 +1,7 @@
 package controller.commentController;
 
 import dao.CommentDAO;
+import dao.UserDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,7 +23,7 @@ import java.util.List;
  * Servlet implementation class CommentServlet
  * Handles creation, updating, and deletion of comments.
  */
-@WebServlet("/comment/*")
+@WebServlet("/comment*")
 public class CommentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
@@ -32,7 +33,6 @@ public class CommentServlet extends HttpServlet {
             case "/edit" -> updateComment(request, response);
             case "/delete" -> deleteComment(request, response);
         }
-
     }
 
     /**
@@ -45,14 +45,22 @@ public class CommentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getPathInfo();
         switch (action) {
-//            case "/list" -> viewCommentList(request, response);
+            case "/list" -> viewCommentList(request, response);
         }
     }
 
-    private void viewCommentList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException, ClassNotFoundException {
+    private void viewCommentList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()){
             CommentDAO commentDAO = new CommentDAO(conn);
-//            List<Comment> commentList = commentDAO.findByChapter(chapterId);
+            int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
+            List<Comment> commentList = commentDAO.findByChapter(chapterId);
+            for (Comment comment : commentList) {
+                buildComment(comment, conn);
+            }
+            request.setAttribute("commentList", commentList);
+            request.getRequestDispatcher("/WEB-INF/views/chapter/_commentList.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -176,4 +184,8 @@ public class CommentServlet extends HttpServlet {
         }
     }
 
+    private void buildComment(Comment comment, Connection conn) throws SQLException {
+        UserDAO userDAO = new UserDAO(conn);
+        comment.setUsername(userDAO.findById(comment.getUserId()).getUsername());
+    }
 }

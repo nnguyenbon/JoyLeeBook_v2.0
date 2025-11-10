@@ -174,14 +174,9 @@ public class ChapterServlet extends HttpServlet {
 
                 request.setAttribute("chapter", chapter);
 
-//                for (Comment comment : commentList) {
-//                    buildComment(comment, conn);
-//                }
-
+                request.setAttribute("chapterId", chapterId);
                 ReadingHistoryDAO rhDAO = new ReadingHistoryDAO(conn);
                 rhDAO.updateReadingHistory(userId, chapterId);
-
-//                request.setAttribute("commentList", commentList);
                 request.setAttribute("chapter", chapter);
                 request.setAttribute("liked", liked);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
@@ -198,10 +193,7 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
-    private void buildComment(Comment comment, Connection conn) throws SQLException {
-        UserDAO userDAO = new UserDAO(conn);
-        comment.setUsername(userDAO.findById(comment.getUserId()).getUsername());
-    }
+
 
     private void showEditChapter(HttpServletRequest request, HttpServletResponse response) {
         String chapterId = request.getParameter("chapterId");

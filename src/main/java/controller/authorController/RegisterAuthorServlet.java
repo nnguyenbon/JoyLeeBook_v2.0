@@ -35,7 +35,7 @@ public class RegisterAuthorServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/author");
             } else {
                 user.setRole("reader");
-                response.sendRedirect(request.getContextPath() + "/homepage");
+                response.sendRedirect(request.getContextPath() + "/series/list");
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
