@@ -62,7 +62,7 @@ public class SeriesServlet extends HttpServlet {
                 case "/list" -> viewSeriesList(request, response);
                 default -> throw new ServletException("Invalid path or function does not exist.");
             }
-        }catch (ServletException e){
+        } catch (ServletException e) {
             e.printStackTrace();
             throw e;
         }
@@ -210,21 +210,17 @@ public class SeriesServlet extends HttpServlet {
      */
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Determine user role and context
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
-        int authorId = 0;
+        int userId = 0;
 
-        if (loggedInAccount != null) {
-            if (loggedInAccount instanceof User user) {
-                role = user.getRole();
-                if ("author".equals(role)) {
-                    authorId = user.getUserId();
-                }
-            } else if (loggedInAccount instanceof Staff staff) {
-                role = staff.getRole();
-            }
+        if (loggedInAccount instanceof User user) {
+            role = user.getRole();
+            userId = ((User) loggedInAccount).getUserId();
+        } else if (loggedInAccount instanceof Staff staff) {
+            role = staff.getRole();
         }
+
 
         try (Connection conn = DBConnection.getConnection()) {
             String search = request.getParameter("search");
@@ -232,9 +228,9 @@ public class SeriesServlet extends HttpServlet {
             String genreParams = request.getParameter("genre");
             List<Integer> genreIds = new ArrayList<>();
             if (genreParams != null) {
-                    for (String genreParam : genreParams.split(" ")) {
-                        genreIds.add(Integer.parseInt(genreParam));
-                    }
+                for (String genreParam : genreParams.split(" ")) {
+                    genreIds.add(Integer.parseInt(genreParam));
+                }
             } else {
                 genreIds = null;
             }
@@ -243,12 +239,12 @@ public class SeriesServlet extends HttpServlet {
                 approvalStatus = "approved";
             }
 
-            // Setup pagination
+
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             paginationRequest.setOrderBy("series_id");
 
-            List<Series> seriesList = seriesDAO.getAll(search, genreIds, authorId, approvalStatus, paginationRequest);
+            List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
                 buildSeries(conn, series);
             }
@@ -256,7 +252,7 @@ public class SeriesServlet extends HttpServlet {
             if (seriesList.isEmpty()) {
                 seriesList = new ArrayList<>();
             } else {
-                totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, authorId, approvalStatus);
+                totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, userId, approvalStatus);
             }
 
             request.setAttribute("seriesList", seriesList);
@@ -278,10 +274,26 @@ public class SeriesServlet extends HttpServlet {
                 if ("XMLHttpRequest".equals(ajaxHeader)) {
                     request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
                 } else {
-                    request.getRequestDispatcher("/WEB-INF/views/general/Homepage.jsp").forward(request, response);
+                    CategoryDAO categoryDAO = new CategoryDAO(conn);
+                    UserDAO userDAO = new UserDAO(conn);
+                    List<Series> listSeries = seriesDAO.getAll("approved");
+                    for (Series series : listSeries) {
+                        buildSeries(conn, series);
+                    }
+
+                    request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
+                    request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
+                    request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
+                    request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
+                    request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
+                    request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
+                    request.setAttribute("userList",  userDAO.selectTopUserPoints(8));
+                    request.setAttribute("categories", categoryDAO.getAll());
+                    request.setAttribute("pageTitle", "JoyLeeBook");
+                    request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
+                    request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException("Error displaying series list", e);
         }
@@ -326,7 +338,7 @@ public class SeriesServlet extends HttpServlet {
             }
             List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
-            boolean saved = savedSeriesDAO.isSaved(userId, seriesId );
+            boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
 
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
@@ -342,7 +354,7 @@ public class SeriesServlet extends HttpServlet {
             } else {
                 SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
                 int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
-                if(ownerId == userId) {
+                if (ownerId == userId) {
                     request.setAttribute("owner", "true");
                 }
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
@@ -443,7 +455,7 @@ public class SeriesServlet extends HttpServlet {
             String nameFilePart = filePart.getSubmittedFileName().trim();
             System.out.println("name:" + nameFilePart);
             System.out.println("old: " + oldImg);
-            if(nameFilePart.isEmpty() || nameFilePart.equals(oldImg)) {
+            if (nameFilePart.isEmpty() || nameFilePart.equals(oldImg)) {
                 System.out.println(oldImg);
                 series.setCoverImgUrl(oldImg);
             } else {
@@ -595,7 +607,7 @@ public class SeriesServlet extends HttpServlet {
         return series;
     }
 
-    private List<Chapter> buildChapterList(int seriesId, String approvalStatus,  Connection connection) throws SQLException {
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(connection);
         LikeDAO likeDAO = new LikeDAO(connection);
         List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
@@ -603,6 +615,35 @@ public class SeriesServlet extends HttpServlet {
             chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
         }
         return chapterList;
+    }
+    private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> Double.compare(s2.getTotalRating(), s1.getTotalRating()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getWeeklySeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> Double.compare(s2.getAvgRating(), s1.getAvgRating()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getNewReleasedSeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> s2.getCreatedAt().compareTo(s1.getCreatedAt()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getRecentlyUpdated(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getSeriesByStatus(int limit, String status, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.removeIf(series -> !series.getStatus().equals(status));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
     }
     /**
      * Creates a notification object for series approval/rejection.

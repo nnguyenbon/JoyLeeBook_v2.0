@@ -296,22 +296,16 @@ public class ChapterServlet extends HttpServlet {
                 if (content == null || content.trim().isEmpty()) {
                     throw new IllegalArgumentException("Content is required.");
                 }
-
-                // check series exists
                 Series series = new SeriesDAO(conn).findById(seriesId);
                 if (series == null) {
                     throw new IllegalArgumentException("Series not found.");
                 }
 
                 SeriesAuthorDAO saDAO = new SeriesAuthorDAO(conn);
-                // returns TRUE if user is NOT author
                 if (saDAO.isUserAuthorOfSeries(userId, seriesId)) {
                     throw new IllegalAccessException("You do not have permission to add chapter to this series.");
                 }
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
-                if (chapterDAO.findChapterBySeriesId(seriesId, "").isEmpty()) {
-                    throw new IllegalAccessException("Chapter number is exist in series.");
-                }
 
                 int nextNo;
                 if (numberStr == null || numberStr.isBlank()) {

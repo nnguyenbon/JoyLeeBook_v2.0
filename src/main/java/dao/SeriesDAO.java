@@ -125,7 +125,20 @@ public class SeriesDAO {
         }
         return seriesList;
     }
-
+    public List<Series> getAll(String status) {
+        String sql = "SELECT * FROM series WHERE approval_status = ?";
+        List<Series> seriesList = new ArrayList<>();
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                seriesList.add(extractSeriesFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
     public List<Series> getAll(String search, List<Integer> genreIds, int userId, String approval_status, PaginationRequest paginationRequest) throws SQLException {
         List<Series> list = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);

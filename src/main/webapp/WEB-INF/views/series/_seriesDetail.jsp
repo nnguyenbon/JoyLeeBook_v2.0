@@ -64,13 +64,14 @@
                 <span class="font-semibold text-lg">${series.totalChapters}</span>
                 Chapters
             </div>
+
             <div class="flex flex-col items-center justify-center">
 
                 <div class="text-gray-500 font-semibold text-lg mb-1">
                     <span id="avgRatingDisplay" class="text-yellow-400">★ ${series.avgRating}</span>
                     <span id="totalRatingsDisplay">(${series.totalRating})</span>
                 </div>
-
+                <c:if test="${loginedUser.role != 'author'}">
                 <div id="starRatingContainer" class="flex">
                     <input type="radio" name="rating" id="star1" value="1" class="hidden"/>
                     <label for="star1"
@@ -92,7 +93,9 @@
                     <label for="star5"
                            class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
                 </div>
+                </c:if>
             </div>
+
         </div>
 
 
@@ -190,24 +193,24 @@
                                        href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
 
                                         <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
-
                                         <div class="flex gap-4 items-center">
-                                            <span class="text-sm text-gray-500">${chapter.updatedAt}</span>
-
-                                            <c:choose>
-                                                <c:when test="${chapter.approvalStatus == 'approved'}">
-                                                    <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
-                                                </c:when>
-                                                <c:when test="${chapter.approvalStatus == 'pending'}">
-                                                    <span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
-                                                </c:otherwise>
-                                            </c:choose>
+                                            <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
+                                            <c:if test="${loginedUser.role == 'author'}">
+                                                <c:choose>
+                                                    <c:when test="${chapter.approvalStatus == 'approved'}">
+                                                        <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                    </c:when>
+                                                    <c:when test="${chapter.approvalStatus == 'pending'}">
+                                                        <span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </c:if>
                                         </div>
-
                                     </a>
+                                    <c:if test="${loginedUser.role == 'author'}">
                                     <div class="flex gap-2 items-center">
                                         <a type="button"
                                            class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
@@ -221,6 +224,7 @@
                                             <i class="fa-regular fa-trash-can"></i>
                                         </a>
                                     </div>
+                                    </c:if>
                                 </li>
 
                             </c:forEach>
