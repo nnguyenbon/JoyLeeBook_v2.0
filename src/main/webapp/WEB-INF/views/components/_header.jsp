@@ -43,7 +43,6 @@ change this template use File | Settings | File Templates. --%>
         }
     }
 %>
-
 <header class="sticky top-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">

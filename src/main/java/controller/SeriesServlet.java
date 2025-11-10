@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
 import utils.AuthenticationUtils;
-import utils.FormatUtils;
-import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -21,7 +19,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 /**
  * Servlet implementation class SeriesServlet
@@ -237,6 +235,7 @@ public class SeriesServlet extends HttpServlet {
             // Readers can only see approved series
             if ("reader".equals(role)) {
                 approvalStatus = "approved";
+                userId = 0;
             }
 
 

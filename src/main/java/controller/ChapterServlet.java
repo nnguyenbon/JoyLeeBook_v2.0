@@ -173,16 +173,15 @@ public class ChapterServlet extends HttpServlet {
                 List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
 
                 request.setAttribute("chapter", chapter);
-                CommentDAO commentDAO = new CommentDAO(conn);
-                List<Comment> commentList = commentDAO.findByChapter(chapterId);
-                for (Comment comment : commentList) {
-                    buildComment(comment, conn);
-                }
+
+//                for (Comment comment : commentList) {
+//                    buildComment(comment, conn);
+//                }
 
                 ReadingHistoryDAO rhDAO = new ReadingHistoryDAO(conn);
                 rhDAO.updateReadingHistory(userId, chapterId);
 
-                request.setAttribute("commentList", commentList);
+//                request.setAttribute("commentList", commentList);
                 request.setAttribute("chapter", chapter);
                 request.setAttribute("liked", liked);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());

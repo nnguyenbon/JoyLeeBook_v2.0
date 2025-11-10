@@ -16,6 +16,7 @@ import utils.ValidationInput;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Servlet implementation class CommentServlet
@@ -42,6 +43,17 @@ public class CommentServlet extends HttpServlet {
      * @throws IOException      if an I/O error occurs
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+        switch (action) {
+//            case "/list" -> viewCommentList(request, response);
+        }
+    }
+
+    private void viewCommentList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, SQLException, ClassNotFoundException {
+        try (Connection conn = DBConnection.getConnection()){
+            CommentDAO commentDAO = new CommentDAO(conn);
+//            List<Comment> commentList = commentDAO.findByChapter(chapterId);
+        }
     }
 
     /**

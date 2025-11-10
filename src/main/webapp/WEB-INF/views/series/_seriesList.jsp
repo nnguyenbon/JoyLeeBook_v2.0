@@ -32,7 +32,7 @@
                             <!-- Hình ảnh -->
                             <div class="aspect-[3/4] overflow-hidden relative">
                                 <img
-                                        src="${series.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/${series.coverImgUrl}"
                                         class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                         alt="${series.title}"
                                 />
