@@ -25,7 +25,7 @@
                     <c:forEach var="chapter" items="${chapterList}">
                         <li class="flex justify-between items-center gap-4 border border-neutral-400 rounded-lg px-4 my-2 py-3 bg-white hover:bg-gray-50 cursor-pointer">
                             <a class="flex justify-between gap-2 items-center w-full"
-                               href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+                               href="${pageContext.request.contextPath}/chapter/detail?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
 
                                 <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                 <div class="flex gap-4 items-center">
@@ -49,13 +49,13 @@
                                 <div class="flex gap-2 items-center">
                                     <a type="button"
                                        class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
-                                       href="${pageContext.request.contextPath}/chapter/edit?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+                                       href="${pageContext.request.contextPath}/chapter/edit?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                                         <i class="fa-regular fa-pen-to-square"></i>
                                     </a>
 
                                     <a type="button"
                                        class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
-                                       href="${pageContext.request.contextPath}/chapter/delete?seriesId=${series.seriesId}&chapterId=${chapter.chapterId}">
+                                       href="${pageContext.request.contextPath}/chapter/delete?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </a>
                                 </div>

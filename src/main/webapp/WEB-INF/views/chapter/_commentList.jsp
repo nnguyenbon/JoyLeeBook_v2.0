@@ -32,7 +32,7 @@
                         Edit
                     </button>
 
-                    <button onclick="deleteComment(${comment.commentId}, ${chapter.seriesId}, ${chapterId})"
+                    <button onclick="deleteComment(${comment.commentId}, ${chapter.seriesId}, ${chapter.chapterId})"
                             class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Delete
                     </button>
@@ -47,3 +47,30 @@
         </div>
     </div>
 </c:forEach>
+<script>
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.dropdown-btn');
+        const menu = e.target.closest('.dropdown-menu');
+
+        // Nếu click vào nút ba chấm
+        if (btn) {
+            e.stopPropagation();
+            const thisMenu = btn.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== thisMenu) m.classList.add('hidden');
+            });
+            thisMenu.classList.toggle('hidden');
+            return;
+        }
+
+        // Nếu click vào bên trong menu thì không đóng
+        if (menu) {
+            e.stopPropagation();
+            return;
+        }
+
+        // Nếu click ra ngoài => đóng hết
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+    });
+
+</script>

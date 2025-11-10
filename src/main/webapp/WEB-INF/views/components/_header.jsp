@@ -272,9 +272,9 @@ change this template use File | Settings | File Templates. --%>
 
     // Ẩn menu khi click ra ngoài
     document.addEventListener('click', (e) => {
-        if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
-            genreMenu.classList.add('hidden');
-        }
+        // if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
+        //     genreMenu.classList.add('hidden');
+        // }
 
         if (BtnAvatar && MenuAvatar && !BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
             MenuAvatar.classList.add('hidden');

@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Account;
 import model.Comment;
 import model.User;
 import utils.TrackPointUtils;
@@ -51,12 +52,18 @@ public class CommentServlet extends HttpServlet {
 
     private void viewCommentList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()){
+            Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
+            int userId = 0;
+            if (loginedUser instanceof User) {
+                userId = ((User) loginedUser).getUserId();
+            }
             CommentDAO commentDAO = new CommentDAO(conn);
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
             List<Comment> commentList = commentDAO.findByChapter(chapterId);
             for (Comment comment : commentList) {
                 buildComment(comment, conn);
             }
+            request.setAttribute("userId", userId);
             request.setAttribute("commentList", commentList);
             request.getRequestDispatcher("/WEB-INF/views/chapter/_commentList.jsp").forward(request, response);
         } catch (Exception e) {

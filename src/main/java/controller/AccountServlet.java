@@ -79,28 +79,39 @@ public class AccountServlet extends HttpServlet {
         String currentUserRole = getCurrentRole(request);
         String search = request.getParameter("search");
         String roleFilter = request.getParameter("roleFilter");
+        // Check if this is an AJAX request
+        String requestedWith = request.getHeader("X-Requested-With");
+        boolean isAjax = "XMLHttpRequest".equals(requestedWith);
 
         try (Connection conn = DBConnection.getConnection()) {
             AccountDAO dao = new AccountDAO(conn);
 
             PaginationRequest pageRequest = PaginationUtils.fromRequest(request);
             pageRequest.setOrderBy("id");
+            if ("reader".equals(currentUserRole)) {
+                roleFilter = "author";
+            }
 
             List<Account> accounts = dao.getAllAccounts(search, roleFilter, currentUserRole, pageRequest);
             int totalAccounts = dao.countAccounts(search, roleFilter, currentUserRole);
 
-            request.setAttribute("accounts", accounts);
+
             request.setAttribute("size", totalAccounts);
             request.setAttribute("search", search);
             request.setAttribute("roleFilter", roleFilter);
             PaginationUtils.sendParameter(request, pageRequest);
 
             if ("staff".equals(currentUserRole) || "admin".equals(currentUserRole)) {
+                request.setAttribute("accounts", accounts);
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_accountList.jsp");
                 request.setAttribute("pageTitle", "Manage Accounts");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                if (isAjax) {
+                    // Return only the author list fragment for AJAX requests
+                    request.setAttribute("authorList", accounts);
+                    request.getRequestDispatcher("/WEB-INF/views/author/_authorList.jsp").forward(request, response);
+                }
             }
 
         } catch (SQLException | ClassNotFoundException e) {

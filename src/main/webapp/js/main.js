@@ -74,7 +74,7 @@ function removeGenre(genreRemoveElement) {
     liRemoveElement.remove();
 }
 
-indicators[0].classList.add("bg-sky-500");
+// indicators[0].classList.add("bg-sky-500");
 function toggleIndicator(index, event) {
     event.preventDefault();
     const slides = document.querySelectorAll("[id^='slide-']");
