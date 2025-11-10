@@ -1,9 +1,6 @@
 package controller.generalController;
 
-import dao.ChapterDAO;
-import dao.ReadingHistoryDAO;
-import dao.SavedSeriesDAO;
-import dao.SeriesDAO;
+import dao.*;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,12 +8,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.SavedSeries;
+import model.Series;
 import model.User;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +32,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Handles POST requests for saving/unsaving series and managing reading history.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws ServletException if a servlet-specific error occurs
@@ -61,6 +62,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Handles GET requests to view the user's library.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws ServletException if a servlet-specific error occurs
@@ -73,6 +75,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Displays the user's library, including saved series and reading history.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws ServletException if a servlet-specific error occurs
@@ -92,11 +95,17 @@ public class LibraryServlet extends HttpServlet {
             mode = "saved";
         }
 
-        try(Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getConnection()) {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
-            request.setAttribute("savedSeries", seriesDAO.getSeriesByUserId(userId));
-            request.setAttribute("historyChapters",  chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null));
+
+            List<Series> savedSeriesList = new ArrayList<>();
+            for (Series series : seriesDAO.getSeriesByUserId(userId)) {
+                savedSeriesList.add(buildSeries(conn, series));
+            }
+
+            request.setAttribute("savedSeries", savedSeriesList);
+            request.setAttribute("historyChapters", chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null));
 
             request.setAttribute("pageTitle", "Library");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Library.jsp");
@@ -110,6 +119,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Saves or unsaves a series for the logged-in user.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws IOException if an I/O error occurs
@@ -159,6 +169,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Deletes a specific reading history item for the logged-in user.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws ServletException if a servlet-specific error occurs
@@ -194,6 +205,7 @@ public class LibraryServlet extends HttpServlet {
 
     /**
      * Clears all reading history for the logged-in user.
+     *
      * @param request  the HttpServletRequest object that contains the request the client made to the servlet
      * @param response the HttpServletResponse object that contains the response the servlet returns to the client
      * @throws ServletException if a servlet-specific error occurs
@@ -220,7 +232,30 @@ public class LibraryServlet extends HttpServlet {
     }
 
     /**
+     * Enriches a Series object with additional related data from the database.
+     *
+     * @param conn   the database connection to use for queries
+     * @param series the Series object to enrich with additional data, or null
+     * @return the enriched Series object, or null if the input was null
+     * @throws SQLException if a database access error occurs
+     */
+    private static Series buildSeries(Connection conn, Series series) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(conn);
+        RatingDAO ratingDAO = new RatingDAO(conn);
+        CategoryDAO categoryDAO = new CategoryDAO(conn);
+        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        UserDAO userDAO = new UserDAO(conn);
+        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
+        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
+        return series;
+    }
+
+    /**
      * Parses a string into an Integer, returning null if parsing fails.
+     *
      * @param s the string to parse
      * @return the parsed Integer, or null if parsing fails
      */

@@ -13,36 +13,37 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="model.Notification" %>
 <%@ page import="dao.NotificationsDAO" %>
 
-<%--<%--%>
-<%--    CategoryDAO categoryDAO;--%>
-<%--    try {--%>
-<%--        categoryDAO = new CategoryDAO(DBConnection.getConnection());--%>
-<%--        List<Category> categories = categoryDAO.getAll();--%>
-<%--        request.setAttribute("categories", categories);--%>
-<%--    } catch (SQLException | ClassNotFoundException e) {--%>
-<%--        throw new RuntimeException(e);--%>
-<%--    }--%>
+<%
+//    CategoryDAO categoryDAO;
+//    try {
+//        categoryDAO = new CategoryDAO(DBConnection.getConnection());
+//        List<Category> categories = categoryDAO.getAll();
+//        request.setAttribute("categories", categories);
+//    } catch (SQLException | ClassNotFoundException e) {
+//        throw new RuntimeException(e);
+//    }
 
-<%--    Account loginedAccount = (Account) session.getAttribute("loginedUser");--%>
+    Account loginedAccount = (Account) session.getAttribute("loginedUser");
 
-<%--    if (loginedAccount != null) {--%>
-<%--        if (loginedAccount instanceof User) {--%>
-<%--            User loginedUser = (User) loginedAccount;--%>
-<%--            try {--%>
-<%--                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());--%>
+    if (loginedAccount != null) {
+        if (loginedAccount instanceof User) {
+            User loginedUser = (User) loginedAccount;
+            try {
+                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());
 
-<%--                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);--%>
-<%--                request.setAttribute("userNotifications", notifications);--%>
+                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);
+                request.setAttribute("userNotifications", notifications);
 
-<%--                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());--%>
-<%--                request.setAttribute("unreadCount", unreadCount);--%>
+                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());
+                request.setAttribute("unreadCount", unreadCount);
 
-<%--            } catch (SQLException | ClassNotFoundException e) {--%>
-<%--                e.printStackTrace();--%>
-<%--            }--%>
-<%--        }--%>
-<%--    }--%>
-<%--%>--%>
+            } catch (SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+%>
+
 <header class="sticky top-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
@@ -146,7 +147,6 @@ change this template use File | Settings | File Templates. --%>
                         </c:choose>
                     </div>
 
-                    <hr class="my-2"/>
                     <div class="text-center">
                         <a href="${pageContext.request.contextPath}/notifications/all"
                            class="text-sm font-medium text-blue-600 hover:underline">

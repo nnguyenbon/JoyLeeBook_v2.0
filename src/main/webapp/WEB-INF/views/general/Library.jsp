@@ -51,7 +51,7 @@
                         <div class="flex items-center flex-wrap gap-2 text-xs mb-2">
                             <c:forEach var="category" items="${series.categoryList}" varStatus="catStatus">
                                 <c:if test="${catStatus.index < 2}">
-                                    <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full whitespace-nowrap">${category}</span>
+                                    <span class="px-2 py-1 bg-pink-100 text-pink-600 rounded-full whitespace-nowrap">${category.name}</span>
                                 </c:if>
                             </c:forEach>
 
