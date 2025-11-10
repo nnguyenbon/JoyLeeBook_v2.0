@@ -149,12 +149,9 @@
         </ul>
 
         <c:if test="${owner}">
-            <a class="block mt-4 text-center"
-               href="${pageContext.request.contextPath}/manage-coauthors?seriesId=${series.seriesId}">
-                <button class=" p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
-                    Add Co-Author
-                </button>
-            </a>
+            <button onclick="showModal('${series.title}')" class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
+                Add Co-Author
+            </button>
         </c:if>
     </div>
 
@@ -173,7 +170,7 @@
             <div class="flex justify-between items-center w-full mb-3">
                 <h2 class="font-semibold text-xl ">Chapter List</h2>
                 <a
-                    href="${pageContext.request.contextPath}/chapter/add?seriesId=${series.seriesId}"
+                        href="${pageContext.request.contextPath}/chapter/add?seriesId=${series.seriesId}"
                         class="px-4 py-2 bg-sky-800 text-white rounded-lg hover:bg-sky-900 cursor-pointer transition duration-300">Create
                     Chapter
                     <i class="fa-solid fa-circle-plus"></i>
@@ -233,6 +230,40 @@
             </div>
         </div>
     </section>
+
+    <dialog closedby="any" id="modalCoauthor" class="md:w-lg w-sm">
+        <div class="p-4">
+            <div>
+                <p class="text-2xl font-semibold">Add Co-Author</p>
+                <p class="text-gray-500 font-light">
+                    Invite a co-author to collaborate on "${series.title}"
+                </p>
+            </div>
+
+            <form action="" method="POST" class="mt-6">
+                <label for="email" class="block text-xl">Email Address</label>
+                <input
+                        type="email"
+                        class="py-2 px-3 mt-2 mb-6 border border-gray-400 rounded-xl w-full"
+                        id="email"
+                        name="email"
+                        placeholder="coauthor@example.com"
+                />
+
+                <div class="flex w-full justify-between gap-6">
+                    <button
+                            type="submit"
+                            class="flex-1 border border-gray-400 bg-sky-200 py-2 px-3 rounded-xl cursor-pointer hover:bg-sky-300"
+                    >
+                        Send Invitation
+                    </button>
+                    <button onclick="closeModal()" type="reset" class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
 </main>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -356,4 +387,14 @@
         // 🚀 Load trạng thái ban đầu khi mở trang
         await loadUserSeriesStatus();
     });
+
+    const modalCoauthor = document.getElementById('modalCoauthor');
+    function showModal() {
+        modalCoauthor.showModal();
+    }
+
+    function closeModal() {
+        modalCoauthor.close();
+    }
+
 </script>

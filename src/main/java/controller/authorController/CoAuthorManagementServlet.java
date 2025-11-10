@@ -1,5 +1,6 @@
 package controller.authorController;
 
+import dao.BadgeDAO;
 import dao.SeriesAuthorDAO;
 import dao.SeriesDAO;
 import dao.UserDAO;
@@ -19,9 +20,10 @@ import utils.AuthenticationUtils;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
-@WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors")
+@WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors/*")
 public class CoAuthorManagementServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,20 +40,28 @@ public class CoAuthorManagementServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
-
-            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+            User user = (User) currentUser;
+            int userId = user.getUserId();
 
             Connection conn = DBConnection.getConnection();
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            Series series = seriesDAO.findById(seriesId);
+            List<Series> series = seriesDAO.getSeriesByUserId(userId);
 
             SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-            List<User> authors = seriesAuthorDAO.findUsersBySeriesId(seriesId);
+            // <SeriesId, List<User>>
+            HashMap<Integer, List<User>> seriesAuthorMap = new HashMap<>();
+            for( Series s : series) {
+                List<User> authors = seriesAuthorDAO.findUsersBySeriesId(s.getSeriesId());
+                seriesAuthorMap.put(s.getSeriesId(), authors);
+            }
 
             request.setAttribute("series", series);
-            request.setAttribute("authors", authors);
-            request.getRequestDispatcher("/WEB-INF/views/author/manage-coauthors.jsp").forward(request, response);
+            request.setAttribute("seriesAuthorMap", seriesAuthorMap);
+
+            request.setAttribute("pageTitle", "AuthorDashboard");
+            request.setAttribute("contentPage", "/WEB-INF/views/author/manage-coauthors.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
         } catch (NumberFormatException | SQLException e) {
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/error/error.jsp");
@@ -60,29 +70,31 @@ public class CoAuthorManagementServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-
+    // add
+    // remove
+    // accept
+    // reject
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-        String redirectUrl = request.getContextPath() + "/manage-coauthors?seriesId=" + seriesId;
+        String action = request.getPathInfo();
 
-        try {
-            if ("add".equals(action)) {
-                String username = request.getParameter("username");
-                addCoAuthor(username, seriesId, redirectUrl, request, response);
-            } else if ("remove".equals(action)) {
-                int userIdToRemove = Integer.parseInt(request.getParameter("userId"));
-                removeCoAuthor(request, userIdToRemove, seriesId, redirectUrl, response);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error/error.jsp");
+        if (action == null) action = "";
+        switch (action) {
+            case "/add" -> addCoAuthor(request, response);
+            case "remove" -> removeCoAuthor(request, response);
+            default -> doGet(request, response);
         }
     }
 
-    private void addCoAuthor(String username, int seriesId, String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
-        Connection conn = DBConnection.getConnection();
-
+    private void addCoAuthor(HttpServletRequest request, HttpServletResponse response) {
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         UserDAO userDAO = new UserDAO(conn);
         User userToAdd = userDAO.findByUsername(username);
 
@@ -104,7 +116,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
         response.sendRedirect(redirectUrl + "&message=authorAddedSuccess");
     }
 
-    private void removeCoAuthor(HttpServletRequest request, int userIdToRemove, int seriesId, String redirectUrl, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
+    private void removeCoAuthor(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
         HttpSession session = request.getSession();
         User currentUser = (User) session.getAttribute("user");
 
