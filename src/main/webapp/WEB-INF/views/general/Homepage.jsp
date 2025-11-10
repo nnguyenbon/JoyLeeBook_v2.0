@@ -400,18 +400,68 @@
     <jsp:include page="/WEB-INF/views/general/_search.jsp"/>
 </main>
 <script>
+    // Biến lưu tab hiện tại
+    let currentTab = 'title';
+
+    // Hàm chuyển đổi tab
+    function setActiveTab(tab) {
+        currentTab = tab;
+
+        // Cập nhật UI của các tab button
+        const btnTitle = document.getElementById('btn-title');
+        const btnAuthor = document.getElementById('btn-author');
+        const genreFilter = document.getElementById('genre-filter');
+
+        if (tab === 'title') {
+            btnTitle.classList.add('border-[#195DA9]', 'text-[#195DA9]');
+            btnTitle.classList.remove('border-white', 'text-gray-500');
+            btnAuthor.classList.remove('border-[#195DA9]', 'text-[#195DA9]');
+            btnAuthor.classList.add('border-white', 'text-gray-500');
+            // Hiện genre filter
+            genreFilter.classList.remove('hidden');
+            // Thay đổi grid layout
+            document.getElementById('result-container').className = 'col-span-8';
+        } else {
+            btnAuthor.classList.add('border-[#195DA9]', 'text-[#195DA9]');
+            btnAuthor.classList.remove('border-white', 'text-gray-500');
+            btnTitle.classList.remove('border-[#195DA9]', 'text-[#195DA9]');
+            btnTitle.classList.add('border-white', 'text-gray-500');
+            // Ẩn genre filter
+            genreFilter.classList.add('hidden');
+            // Mở rộng container
+            document.getElementById('result-container').className = 'col-span-12';
+        }
+
+        // Gọi hàm search với tab mới
+        updateFilter(1);
+    }
+
+    // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
     function updateFilter(page = 1) {
         const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
-        // console.log(selectedGenres);
         const searchKeyword = document.querySelector("#search")?.value?.trim() || "";
 
         const params = new URLSearchParams();
+
+        // Thêm keyword search
         if (searchKeyword) params.append("search", searchKeyword);
-        if (selectedGenres.length > 0) params.append("genre", selectedGenres.join(" "));
+
+        // Thêm genres nếu đang ở tab title
+        if (currentTab === 'title' && selectedGenres.length > 0) {
+            params.append("genre", selectedGenres.join(" "));
+        }
+
+        // Thêm tab type
+        params.append("searchType", currentTab);
         params.append("currentPage", page);
         params.append("sizePage", 12);
-        console.log(params.get("search"));
-        fetch("${pageContext.request.contextPath}/series/list?" + params.toString(), {
+
+        // Xác định endpoint dựa trên tab
+        const endpoint = currentTab === 'title'
+            ? "${pageContext.request.contextPath}/series/list"
+            : "${pageContext.request.contextPath}/account/list";
+
+        fetch(endpoint + "?" + params.toString(), {
             method: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"}
         })
@@ -419,26 +469,22 @@
             .then(html => {
                 const container = document.querySelector("#result-container");
                 container.innerHTML = html;
-
-                bindPagination(); // gắn lại sự kiện sau khi load JSP mới
-
+                bindPagination();
             })
-            .catch(err => console.error("Pagination load error:", err));
+            .catch(err => console.error("Search error:", err));
     }
+
+    // Xử lý sự kiện Enter trong search box
     document.getElementById("search").addEventListener("keypress", e => {
         if (e.key === "Enter") {
-            // const container = document.querySelector("#container");
-            // container.scrollIntoView({ behavior: "instant", block: "start" });
-
             e.preventDefault();
             updateFilter();
+
             const container = document.querySelector("#container");
             const header = document.querySelector("header");
             const headerHeight = header ? header.offsetHeight : 0;
-
-            // Cuộn đến vị trí trừ chiều cao header
             const elementPosition = container.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerHeight - 10; // trừ thêm 10px để thoáng
+            const offsetPosition = elementPosition - headerHeight - 10;
 
             window.scrollTo({
                 top: offsetPosition,
@@ -446,6 +492,7 @@
             });
         }
     });
+
     // Gắn click event cho nút trang
     function bindPagination() {
         document.querySelectorAll(".page-btn").forEach(btn => {
@@ -457,18 +504,13 @@
             });
         });
     }
-    function debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
+
     // Lần đầu load trang
     document.addEventListener("DOMContentLoaded", () => {
-        updateFilter(); // tự load trang đầu
+        updateFilter();
     });
 
+    // Header scroll effect
     window.addEventListener("scroll", () => {
         const header = document.querySelector("header");
         if (window.scrollY > 20) {

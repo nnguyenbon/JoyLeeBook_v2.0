@@ -10,31 +10,25 @@
 <%@ page buffer="32kb" autoFlush="true" %>
 
 <!-- Content -->
-<main class="mt-10 grid grid-cols-12 gap-x-8" id="container">
-    <div class="col-span-12 border-b-1 border-gray-300 flex items-center">
-        <button id="btn-title" class="tab-btn font-bold text-2xl px-4" onclick="loadResults('title')">All Series</button>
-<%--        <button id="btn-author" class="tab-btn font-bold text-2xl px-4" onclick="loadResults('author')">Author</button>--%>
+<main class="mt-5 grid grid-cols-12 gap-x-8" id="container">
+    <div class="col-span-12 border-b border-gray-300 flex items-center gap-5 mb-3">
+
+        <button id="btn-title"
+                class="tab-btn text-2xl py-2 border-b-4 border-[#195DA9] text-[#195DA9] hover:text-[#195DA9]"
+                onclick="setActiveTab('title')">
+            All Series
+        </button>
+
+        <button id="btn-author"
+                class="tab-btn text-2xl py-2 border-b-4 border-white text-gray-500 hover:text-[#195DA9]"
+                onclick="setActiveTab('author')">
+            Authors
+        </button>
     </div>
     <div class="col-span-12" id="search-results">
         <div class="grid grid-cols-12 gap-6 mt-4">
             <!-- FILTER -->
-            <div class="col-span-4 bg-white rounded-xl shadow p-4 h-fit">
-<%--                <h2 class="text-xl font-semibold mb-4">Filter</h2>--%>
-<%--                <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>--%>
-
-<%--                <div class="space-y-3">--%>
-<%--                    <label class="flex items-center gap-2">--%>
-<%--                        <input type="checkbox" name="status" value="completed" class="accent-[#195DA9]"--%>
-<%--                               <c:if test="${statusParam.contains('completed')}">checked</c:if>--%>
-<%--                        /> Completed--%>
-<%--                    </label>--%>
-<%--                    <label class="flex items-center gap-2">--%>
-<%--                        <input type="checkbox" name="status" value="ongoing" class="accent-[#195DA9]"--%>
-<%--                               <c:if test="${statusParam.contains('ongoing')}">checked</c:if>--%>
-<%--                        /> Ongoing--%>
-<%--                    </label>--%>
-<%--                </div>--%>
-
+            <div class="col-span-4 bg-white rounded-xl shadow p-4 h-fit" id="genre-filter">
                 <h2 class="text-xl font-semibold mt-1 mb-3">Genre</h2>
                 <p class="text-sm text-gray-500 mb-2">You can select multiple options</p>
 
@@ -50,7 +44,9 @@
                 </div>
 
             </div>
+
             <jsp:include page="/WEB-INF/views/series/_seriesList.jsp"/>
+
         </div>
     </div>
 </main>
