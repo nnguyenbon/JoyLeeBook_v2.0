@@ -1,4 +1,4 @@
-package dto.staff;
+package model.staff;
 
 public class StaffDTO {
     private int staffId;

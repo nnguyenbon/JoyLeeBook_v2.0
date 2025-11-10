@@ -1,26 +1,51 @@
-package dto.staff;
+package model.staff;
 
-public class DashboardStatsDTO {
+public class DashboardStats {
     // Left group
     private int totalSeries;
+    private int yourReviewSeries;
+    private int pendingSeries;
+    private int yourRejectSeries;
     private int activeUsers;
     private int authors;
     private int bannedUsers;
-    private int totalReports;
-    private int pendingReports;
-    private int handledReports;
 
     // Right group
     private int totalChapters;
     private int yourReviews;
     private int pendingChapters;
     private int yourRejects;
+    private int totalReports;
+    private int pendingReports;
+    private int handledReports;
 
-    // Constructors, getters, setters
-    public DashboardStatsDTO() {}
 
     public int getTotalSeries() {
         return totalSeries;
+    }
+
+    public int getYourReviewSeries() {
+        return yourReviewSeries;
+    }
+
+    public void setYourReviewSeries(int yourReviewSeries) {
+        this.yourReviewSeries = yourReviewSeries;
+    }
+
+    public int getPendingSeries() {
+        return pendingSeries;
+    }
+
+    public void setPendingSeries(int pendingSeries) {
+        this.pendingSeries = pendingSeries;
+    }
+
+    public int getYourRejectSeries() {
+        return yourRejectSeries;
+    }
+
+    public void setYourRejectSeries(int yourRejectSeries) {
+        this.yourRejectSeries = yourRejectSeries;
     }
 
     public void setTotalSeries(int totalSeries) {

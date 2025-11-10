@@ -119,6 +119,14 @@ public class CommentDAO {
         }
     }
 
+    public boolean updateStatus(int commentId, String status) throws SQLException {
+        String sql = "UPDATE comments SET is_deleted = ? WHERE comment_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1,status.equals("approved") ? 1 : 0  );
+            stmt.setInt(2, commentId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
     /**
      * Soft delete a comment by setting its is_delete flag to true
      *

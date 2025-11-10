@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
 import utils.AuthenticationUtils;
-import utils.FormatUtils;
 import utils.PaginationUtils;
 import utils.WebpConverter;
 
@@ -20,7 +19,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 /**
  * Servlet implementation class SeriesServlet
@@ -61,7 +60,7 @@ public class SeriesServlet extends HttpServlet {
                 case "/list" -> viewSeriesList(request, response);
                 default -> throw new ServletException("Invalid path or function does not exist.");
             }
-        }catch (ServletException e){
+        } catch (ServletException e) {
             e.printStackTrace();
             throw e;
         }
@@ -114,6 +113,7 @@ public class SeriesServlet extends HttpServlet {
             List<Category> categories = categoryDAO.getAll();
 
             request.setAttribute("categories", categories);
+            request.setAttribute("action", "insert");
             request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
             request.setAttribute("activePage", "Add Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
@@ -133,7 +133,7 @@ public class SeriesServlet extends HttpServlet {
      */
     private void insertSeries(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         int authorId = ((User) loggedInAccount).getUserId();
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -147,15 +147,19 @@ public class SeriesServlet extends HttpServlet {
             String description = request.getParameter("description");
 
             // Process cover image upload
+            Series series = new Series();
+
+
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart == null || filePart.getSubmittedFileName().trim().isEmpty()) {
-                throw new IOException("Please select a cover image.");
+            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
+                System.out.println("Uploaded file name: " + filePart);
+                System.out.println("Content type: " + filePart.getContentType());
+                System.out.println("Size: " + filePart.getSize());
+
+                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             }
 
-            // Create series object
-            Series series = new Series();
             series.setTitle(title);
-            series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
             series.setStatus(status);
             series.setApprovalStatus("pending");
             series.setDescription(description);
@@ -204,47 +208,42 @@ public class SeriesServlet extends HttpServlet {
      */
     private void viewSeriesList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Determine user role and context
-        Object loggedInAccount = request.getSession().getAttribute("loginedUser");
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
-        int authorId = 0;
+        int userId = 0;
 
-        if (loggedInAccount != null) {
-            if (loggedInAccount instanceof User user) {
-                role = user.getRole();
-                if ("author".equals(role)) {
-                    authorId = user.getUserId();
-                }
-            } else if (loggedInAccount instanceof Staff staff) {
-                role = staff.getRole();
-            }
+        if (loggedInAccount instanceof User user) {
+            role = user.getRole();
+            userId = ((User) loggedInAccount).getUserId();
+        } else if (loggedInAccount instanceof Staff staff) {
+            role = staff.getRole();
         }
 
+
         try (Connection conn = DBConnection.getConnection()) {
-            // Extract filter parameters
             String search = request.getParameter("search");
             String approvalStatus = request.getParameter("filterByStatus");
             String genreParams = request.getParameter("genre");
             List<Integer> genreIds = new ArrayList<>();
             if (genreParams != null) {
-                    for (String genreParam : genreParams.split(" ")) {
-                        genreIds.add(Integer.parseInt(genreParam));
-                    }
+                for (String genreParam : genreParams.split(" ")) {
+                    genreIds.add(Integer.parseInt(genreParam));
+                }
             } else {
                 genreIds = null;
             }
             // Readers can only see approved series
             if ("reader".equals(role)) {
                 approvalStatus = "approved";
+                userId = 0;
             }
 
-            // Setup pagination
+
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             paginationRequest.setOrderBy("series_id");
 
-            // Fetch series list and build full details
-            List<Series> seriesList = seriesDAO.getAll(search, genreIds, authorId, approvalStatus, paginationRequest);
+            List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
                 buildSeries(conn, series);
             }
@@ -252,12 +251,8 @@ public class SeriesServlet extends HttpServlet {
             if (seriesList.isEmpty()) {
                 seriesList = new ArrayList<>();
             } else {
-                totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, authorId, approvalStatus);
+                totalRecords = seriesDAO.getTotalSeriesCount(search, genreIds, userId, approvalStatus);
             }
-
-            // Get total count for pagination
-
-            // Set request attributes
 
             request.setAttribute("seriesList", seriesList);
             request.setAttribute("size", totalRecords);
@@ -278,10 +273,25 @@ public class SeriesServlet extends HttpServlet {
                 if ("XMLHttpRequest".equals(ajaxHeader)) {
                     request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
                 } else {
-                    request.getRequestDispatcher("/WEB-INF/views/general/Homepage.jsp").forward(request, response);
+                    CategoryDAO categoryDAO = new CategoryDAO(conn);
+                    List<Series> listSeries = seriesDAO.getAll("approved");
+                    for (Series series : listSeries) {
+                        buildSeries(conn, series);
+                    }
+
+                    request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
+                    request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
+                    request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
+                    request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
+                    request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
+                    request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
+
+                    request.setAttribute("categories", categoryDAO.getAll());
+                    request.setAttribute("pageTitle", "JoyLeeBook");
+                    request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
+                    request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException("Error displaying series list", e);
         }
@@ -301,9 +311,10 @@ public class SeriesServlet extends HttpServlet {
         String role = "reader";
         int userId = -1;
         if (loggedInAccount instanceof User user) {
-            role = user.getRole();
             userId = user.getUserId();
+            role = user.getRole();
         } else if (loggedInAccount instanceof Staff staff) {
+            userId = staff.getStaffId();
             role = staff.getRole();
         }
 
@@ -315,8 +326,8 @@ public class SeriesServlet extends HttpServlet {
 
             // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
             Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
 
@@ -324,15 +335,15 @@ public class SeriesServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
             }
-            List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
-            int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
-            boolean saved = savedSeriesDAO.isSaved(seriesId, userId);
 
+            int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
+            boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
+
+            request.setAttribute("totalChapter", chapterDAO.getTotalChaptersCount(seriesId));
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
             request.setAttribute("series", series);
-            request.setAttribute("chapterList", chapterList);
             request.setAttribute("pageTitle", "Series Detail");
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
@@ -340,6 +351,11 @@ public class SeriesServlet extends HttpServlet {
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
+                SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+                if (ownerId == userId) {
+                    request.setAttribute("owner", "true");
+                }
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -371,11 +387,15 @@ public class SeriesServlet extends HttpServlet {
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
+            series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
 
             request.setAttribute("categories", categories);
             request.setAttribute("series", series);
-            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
-            request.setAttribute("pageTitle", "Edit Series");
+            request.setAttribute("action", "update");
+
+            //            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
+            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
+            request.setAttribute("activePage", "Edit Series");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -421,20 +441,29 @@ public class SeriesServlet extends HttpServlet {
             // Extract updated data
             String title = request.getParameter("title");
             String status = request.getParameter("status");
-
-            // xử lý nếu status là completed thì mở khóa badge
-
             String description = request.getParameter("description");
             String[] genreParams = request.getParameterValues("selectedGenres");
             int[] genreIds = genreParams != null
                     ? Arrays.stream(genreParams).mapToInt(Integer::parseInt).toArray()
                     : new int[0];
 
+
             // Update cover image if provided
+            String oldImg = request.getParameter("oldCoverImgUrl").replaceFirst("img/", "");
             Part filePart = request.getPart("coverImgUrl");
-            if (filePart != null && !filePart.getSubmittedFileName().trim().isEmpty()) {
-                series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+            String nameFilePart = filePart.getSubmittedFileName().trim();
+            System.out.println("name:" + nameFilePart);
+            System.out.println("old: " + oldImg);
+            if (nameFilePart.isEmpty() || nameFilePart.equals(oldImg)) {
+                System.out.println(oldImg);
+                series.setCoverImgUrl(oldImg);
+            } else {
+                if (!filePart.getSubmittedFileName().trim().isEmpty()) {
+                    System.out.println(filePart.getSubmittedFileName());
+                    series.setCoverImgUrl(WebpConverter.convertToWebp(filePart, getServletContext()));
+                }
             }
+
 
             // Update series fields
             series.setTitle(title);
@@ -456,7 +485,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error updating series", e);
@@ -481,7 +510,7 @@ public class SeriesServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String approveStatus = request.getParameter("approveStatus");
-            String comment = request.getParameter("comment");
+            String comment = request.getParameter("comment") == null ? "" : request.getParameter("comment");
 
             // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
@@ -511,7 +540,7 @@ public class SeriesServlet extends HttpServlet {
                 notificationsDAO.insertNotification(notification);
             }
 
-            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=pending");
+            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -544,7 +573,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
 
-            response.sendRedirect(request.getContextPath() + "/author?userId=" + authorId);
+            response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error deleting series", e);
@@ -572,21 +601,40 @@ public class SeriesServlet extends HttpServlet {
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        List<SeriesAuthor> seriesAuthorList = seriesAuthorDAO.findBySeriesId(series.getSeriesId());
-        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorList));
-        series.setAvgRating(ratingDAO.getAverageRating(series.getSeriesId()));
-        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }
 
-    private List<Chapter> buildChapterList(int seriesId, String approvalStatus,  Connection connection) throws SQLException {
-        ChapterDAO chapterDAO = new ChapterDAO(connection);
-        LikeDAO likeDAO = new LikeDAO(connection);
-        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
-        for (Chapter chapter : chapterList) {
-            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
-        }
-        return chapterList;
+
+    private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> Double.compare(s2.getTotalRating(), s1.getTotalRating()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getWeeklySeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> Double.compare(s2.getAvgRating(), s1.getAvgRating()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getNewReleasedSeries(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> s2.getCreatedAt().compareTo(s1.getCreatedAt()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getRecentlyUpdated(int limit, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.sort((s1, s2) -> s2.getUpdatedAt().compareTo(s1.getUpdatedAt()));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
+    }
+
+    private List<Series> getSeriesByStatus(int limit, String status, List<Series> seriesList) throws SQLException {
+        List<Series> copy = new ArrayList<>(seriesList);
+        copy.removeIf(series -> !series.getStatus().equals(status));
+        return copy.size() > limit ? copy.subList(0, limit) : copy;
     }
     /**
      * Creates a notification object for series approval/rejection.

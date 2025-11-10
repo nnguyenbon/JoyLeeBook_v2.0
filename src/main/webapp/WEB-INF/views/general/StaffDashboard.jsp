@@ -14,18 +14,42 @@
 
     <!-- Content -->
     <section class="p-6 space-y-6">
-        <!-- Top stats: 2 nhóm 5 + 5 (tổng 10 box) -->
+        <!-- Top stats -->
         <div class="grid grid-cols-12 gap-6">
-            <!-- Left group (5 boxes) -->
+            <!-- Left group -->
             <div class="col-span-6 grid grid-cols-3 gap-4">
-                <div class="col-span-3 border border-gray-300 rounded-lg bg-white px-6 py-5 flex items-center justify-between shadow-sm">
-                    <div>
-                        <p class="text-gray-600 font-medium">Total Series</p>
-                        <p class="text-3xl font-bold text-[#195DA9]">${dashboardStats.totalSeries}</p>
+                <div class="col-span-3 grid grid-cols-2 gap-4">
+                    <div class=" border border-gray-300 rounded-lg bg-white px-6 py-5 flex items-center justify-between shadow-sm">
+                        <div>
+                            <p class="text-gray-600 font-medium">Total Series</p>
+                            <p class="text-3xl font-bold text-[#195DA9]">${dashboardStats.totalSeries}</p>
+                        </div>
+                        <i class="fa-solid fa-book text-3xl text-[#195DA9]"></i>
                     </div>
-                    <i class="fa-solid fa-book text-4xl text-[#195DA9]"></i>
-                </div>
+                    <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                        <p class="text-gray-600 font-semibold">Your Reviews Series</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-3xl font-bold text-indigo-600">${dashboardStats.yourReviewSeries}</p>
+                            <i class="fa-solid fa-check-to-slot text-3xl text-indigo-600"></i>
+                        </div>
+                    </div>
 
+                    <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                        <p class="text-gray-600 font-semibold">Pending Series</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-3xl font-bold text-yellow-500">${dashboardStats.pendingSeries}</p>
+                            <i class="fa-regular fa-clock text-3xl text-yellow-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                        <p class="text-gray-600 font-semibold">Reject Series</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-3xl font-bold text-red-500">${dashboardStats.yourRejectSeries}</p>
+                            <i class="fa-solid fa-circle-xmark text-3xl text-red-500"></i>
+                        </div>
+                    </div>
+                </div>
                 <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
                     <p class="text-gray-600 font-semibold">Active Users</p>
                     <div class="flex items-center justify-between">
@@ -50,11 +74,49 @@
                     </div>
                 </div>
 
-                <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Total Reports</p>
+
+            </div>
+
+            <!-- Right group (5 boxes) -->
+            <div class="col-span-6 grid grid-cols-3 gap-4">
+                <div class="col-span-3 grid grid-cols-2 gap-4">
+                <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex items-center justify-between shadow-sm">
+                    <div>
+                        <p class="text-gray-600 font-medium">Total Chapters</p>
+                        <p class="text-3xl font-bold text-[#195DA9]">${dashboardStats.totalChapters}</p>
+                    </div>
+                    <i class="fa-solid fa-file-lines text-4xl text-[#195DA9]"></i>
+                </div>
+
+                <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                    <p class="text-gray-600 font-semibold">Your Reviews Chapters</p>
                     <div class="flex items-center justify-between">
-                        <p class="text-2xl font-bold text-red-500">${dashboardStats.totalReports}</p>
-                        <i class="fa-solid fa-flag text-2xl text-red-500"></i>
+                        <p class="text-3xl font-bold text-indigo-600">${dashboardStats.yourReviews}</p>
+                        <i class="fa-solid fa-check-to-slot text-3xl text-indigo-600"></i>
+                    </div>
+                </div>
+
+                <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                    <p class="text-gray-600 font-semibold">Pending Chapters</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-3xl font-bold text-yellow-500">${dashboardStats.pendingChapters}</p>
+                        <i class="fa-regular fa-clock text-3xl text-yellow-500"></i>
+                    </div>
+                </div>
+
+                <div class="border border-gray-300 rounded-lg bg-white px-6 py-5 flex flex-col justify-between shadow-sm">
+                    <p class="text-gray-600 font-semibold">Reject Chapters</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-3xl font-bold text-red-500">${dashboardStats.yourRejects}</p>
+                        <i class="fa-solid fa-circle-xmark text-3xl text-red-500"></i>
+                    </div>
+                </div>
+                </div>
+                <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
+                    <p class="text-gray-600 font-semibold">Authors</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-2xl font-bold text-blue-600">${dashboardStats.authors}</p>
+                        <i class="fa-solid fa-pen-nib text-2xl text-blue-600"></i>
                     </div>
                 </div>
 
@@ -67,45 +129,10 @@
                 </div>
 
                 <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Reports You’ve Handled</p>
+                    <p class="text-gray-600 font-semibold">Reports Handled</p>
                     <div class="flex items-center justify-between">
                         <p class="text-2xl font-bold text-rose-600">${dashboardStats.handledReports}</p>
                         <i class="fa-solid fa-check-double text-2xl text-rose-600"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right group (5 boxes) -->
-            <div class="col-span-6 grid grid-cols-2 gap-4">
-                <div class="col-span-1 border border-gray-300 rounded-lg bg-white px-6 py-5 flex items-center justify-between shadow-sm">
-                    <div>
-                        <p class="text-gray-600 font-medium">Total Chapters</p>
-                        <p class="text-3xl font-bold text-[#195DA9]">${dashboardStats.totalChapters}</p>
-                    </div>
-                    <i class="fa-solid fa-file-lines text-4xl text-[#195DA9]"></i>
-                </div>
-
-                <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Your Reviews</p>
-                    <div class="flex items-center justify-between">
-                        <p class="text-2xl font-bold text-indigo-600">${dashboardStats.yourReviews}</p>
-                        <i class="fa-solid fa-check-to-slot text-2xl text-indigo-600"></i>
-                    </div>
-                </div>
-
-                <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Pending Chapters</p>
-                    <div class="flex items-center justify-between">
-                        <p class="text-2xl font-bold text-yellow-500">${dashboardStats.pendingChapters}</p>
-                        <i class="fa-regular fa-clock text-2xl text-yellow-500"></i>
-                    </div>
-                </div>
-
-                <div class="border border-gray-300 rounded-lg bg-white p-4 flex flex-col justify-between shadow-sm">
-                    <p class="text-gray-600 font-semibold">Reject</p>
-                    <div class="flex items-center justify-between">
-                        <p class="text-2xl font-bold text-red-500">${dashboardStats.yourRejects}</p>
-                        <i class="fa-solid fa-circle-xmark text-2xl text-red-500"></i>
                     </div>
                 </div>
             </div>

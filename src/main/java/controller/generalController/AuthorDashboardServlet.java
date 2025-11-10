@@ -17,14 +17,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Servlet implementation class AuthorDashboardServlet
- * This servlet handles the author dashboard page, displaying statistics and series information for the logged-in author.
- * It checks if the user is logged in and has the "author" role before fetching data from the database.
- * If the user is not logged in or does not have the correct role, they are redirected to the login page.
- * The servlet retrieves the total number of approved and pending chapters, total likes, average rating, and the list of series created by the author.
- * Finally, it forwards the request to the appropriate JSP page for rendering the dashboard.
- */
+
 @WebServlet("/author")
 public class AuthorDashboardServlet extends HttpServlet {
     /**

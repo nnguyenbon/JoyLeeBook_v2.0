@@ -13,68 +13,68 @@ change this template use File | Settings | File Templates. --%>
 <%@ page import="model.Notification" %>
 <%@ page import="dao.NotificationsDAO" %>
 
-<%--<%--%>
-<%--    CategoryDAO categoryDAO;--%>
-<%--    try {--%>
-<%--        categoryDAO = new CategoryDAO(DBConnection.getConnection());--%>
-<%--        List<Category> categories = categoryDAO.getAll();--%>
-<%--        request.setAttribute("categories", categories);--%>
-<%--    } catch (SQLException | ClassNotFoundException e) {--%>
-<%--        throw new RuntimeException(e);--%>
-<%--    }--%>
+<%
+    //    CategoryDAO categoryDAO;
+//    try {
+//        categoryDAO = new CategoryDAO(DBConnection.getConnection());
+//        List<Category> categories = categoryDAO.getAll();
+//        request.setAttribute("categories", categories);
+//    } catch (SQLException | ClassNotFoundException e) {
+//        throw new RuntimeException(e);
+//    }
 
-<%--    Account loginedAccount = (Account) session.getAttribute("loginedUser");--%>
+    Account loginedAccount = (Account) session.getAttribute("loginedUser");
 
-<%--    if (loginedAccount != null) {--%>
-<%--        if (loginedAccount instanceof User) {--%>
-<%--            User loginedUser = (User) loginedAccount;--%>
-<%--            try {--%>
-<%--                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());--%>
+    if (loginedAccount != null) {
+        if (loginedAccount instanceof User) {
+            User loginedUser = (User) loginedAccount;
+            try {
+                NotificationsDAO notiDAO = new NotificationsDAO(DBConnection.getConnection());
 
-<%--                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);--%>
-<%--                request.setAttribute("userNotifications", notifications);--%>
+                List<Notification> notifications = notiDAO.findRecentByUserId(loginedUser.getUserId(), 10);
+                request.setAttribute("userNotifications", notifications);
 
-<%--                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());--%>
-<%--                request.setAttribute("unreadCount", unreadCount);--%>
+                int unreadCount = notiDAO.getUnreadCountByUserId(loginedUser.getUserId());
+                request.setAttribute("unreadCount", unreadCount);
 
-<%--            } catch (SQLException | ClassNotFoundException e) {--%>
-<%--                e.printStackTrace();--%>
-<%--            }--%>
-<%--        }--%>
-<%--    }--%>
-<%--%>--%>
-<header class="fixed top-0 left-0 right-0 shadow-md bg-white z-50 transition-all duration-300">
+            } catch (SQLException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+%>
+<header class="sticky top-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
-            <a href="${pageContext.request.contextPath}/homepage">
+            <a href="${pageContext.request.contextPath}/${loginedUser.role == 'author' ? "author" : "series/list"}">
                 <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
             </a>
         </div>
         <div class="col-span-1 relative">
-<%--            <!-- Nút Genre -->--%>
-<%--            <button--%>
-<%--                    id="genreButton"--%>
-<%--                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"--%>
-<%--            >--%>
-<%--                Genre--%>
-<%--                <i class="fa-solid fa-caret-down"></i>--%>
-<%--            </button>--%>
+            <%--            <!-- Nút Genre -->--%>
+            <%--            <button--%>
+            <%--                    id="genreButton"--%>
+            <%--                    class="px-4 py-2 bg-white rounded-md hover:bg-gray-100 font-medium flex items-center gap-1"--%>
+            <%--            >--%>
+            <%--                Genre--%>
+            <%--                <i class="fa-solid fa-caret-down"></i>--%>
+            <%--            </button>--%>
 
-<%--            <!-- Dropdown -->--%>
-<%--            <div--%>
-<%--                    id="genreMenu"--%>
-<%--                    class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"--%>
-<%--            >--%>
-<%--                <div class="grid grid-cols-5 gap-3 text-sm">--%>
-<%--                    <c:forEach var="category" items="${categories}">--%>
-<%--                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">--%>
-<%--                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">--%>
-<%--                                    ${category.name}--%>
-<%--                            </button>--%>
-<%--                        </a>--%>
-<%--                    </c:forEach>--%>
-<%--                </div>--%>
-<%--            </div>--%>
+            <%--            <!-- Dropdown -->--%>
+            <%--            <div--%>
+            <%--                    id="genreMenu"--%>
+            <%--                    class="hidden absolute left-0 top-full mt-2 w-[600px] bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50"--%>
+            <%--            >--%>
+            <%--                <div class="grid grid-cols-5 gap-3 text-sm">--%>
+            <%--                    <c:forEach var="category" items="${categories}">--%>
+            <%--                        <a href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}" class="inline-block">--%>
+            <%--                            <button class="hover:bg-blue-100 rounded px-2 py-1 text-left w-full">--%>
+            <%--                                    ${category.name}--%>
+            <%--                            </button>--%>
+            <%--                        </a>--%>
+            <%--                    </c:forEach>--%>
+            <%--                </div>--%>
+            <%--            </div>--%>
         </div>
 
         <div class="col-span-5 col-start-4">
@@ -85,15 +85,25 @@ change this template use File | Settings | File Templates. --%>
                         class="py-2 px-3 border border-gray-300 rounded-md focus:outline-none w-full"
                         name="search"
                         id="search"
+                ${loginedUser.role == 'author' ? "hidden" : ""}
                 />
             </div>
         </div>
         <c:if test="${loginedUser != null}">
-
-            <c:if test="${loginedUser.role == 'author'}">
-                <div class="col-span-1 relative flex justify-center items-center">
+            <div class="col-span-2 text-right">
+                <button
+                        class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]" ${loginedUser.role == 'author' ? "hidden" : ""}
+                >
+                    <a href="${pageContext.request.contextPath}/register-author"
+                       class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
+                    >
+                        Write Now
+                    </a>
+                </button>
+            </div>
+                <div class="col-span-1 relative flex justify-left items-center" >
                     <button id="BtnNotify"
-                            class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600">
+                            class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600" ${loginedUser.role == 'author' ? '' : 'hidden'}>
                         <i class="fa-solid fa-bell"></i>
                         <c:if test="${unreadCount > 0}">
                             <span class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
@@ -136,7 +146,6 @@ change this template use File | Settings | File Templates. --%>
                             </c:choose>
                         </div>
 
-                        <hr class="my-2"/>
                         <div class="text-center">
                             <a href="${pageContext.request.contextPath}/notifications/all"
                                class="text-sm font-medium text-blue-600 hover:underline">
@@ -145,23 +154,11 @@ change this template use File | Settings | File Templates. --%>
                         </div>
                     </div>
                 </div>
-            </c:if>
-
             <c:if test="${loginedUser.role == 'staff' || loginedUser.role == 'admin'}">
                 <div class="col-span-1"></div>
             </c:if>
 
-            <div class="col-span-2 text-right">
-                <button
-                        class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
-                >
-          <a href="${pageContext.request.contextPath}/register-author"
-                  class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
-          >
-            Write Now
-          </a>
-                </button>
-            </div>
+
             <div class="col-span-1 relative">
                 <button id="BtnAvatar" class="px-4 py-2 flex items-center gap-1">
                     <div class="w-10 h-10 bg-gray-300 rounded-full">
@@ -182,7 +179,7 @@ change this template use File | Settings | File Templates. --%>
                             <h4
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent font-bold"
                             >
-                                ${loginedUser.username}
+                                    ${loginedUser.username}
                             </h4>
                             <p class="text-[#195DA9] text-xs">${loginedUser.role}</p>
                         </div>
@@ -204,12 +201,12 @@ change this template use File | Settings | File Templates. --%>
                             <i class="fa-solid fa-pen"></i>
                             <span
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
-                            >Author</span
+                            >${loginedUser.role == 'author' ? "Reader" : "Author"}</span
                             >
                         </a>
                         <a
                                 href="${pageContext.request.contextPath}/library?action=view"
-                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
+                                class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg" ${loginedUser.role == 'author' ? "hidden" : ""}
                         >
                             <i class="fa-solid fa-bookmark"></i>
                             <span
@@ -275,9 +272,9 @@ change this template use File | Settings | File Templates. --%>
 
     // Ẩn menu khi click ra ngoài
     document.addEventListener('click', (e) => {
-        if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
-            genreMenu.classList.add('hidden');
-        }
+        // if (!genreButton.contains(e.target) && !genreMenu.contains(e.target)) {
+        //     genreMenu.classList.add('hidden');
+        // }
 
         if (BtnAvatar && MenuAvatar && !BtnAvatar.contains(e.target) && !MenuAvatar.contains(e.target)) {
             MenuAvatar.classList.add('hidden');

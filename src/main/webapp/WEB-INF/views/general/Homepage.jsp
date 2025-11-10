@@ -66,9 +66,9 @@
                         >
                             <div class="flex-1 overflow-hidden rounded-lg aspect-[3/4]">
                                 <img
-                                        src="${hotSeries.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/${hotSeries.coverImgUrl}"
                                         class="w-full h-full"
-                                        alt="img"
+                                        alt="${hotSeries.title}"
                                 />
                             </div>
 
@@ -142,7 +142,7 @@
                             <!-- Hình ảnh -->
                             <div class="aspect-[3/4] overflow-hidden relative">
                                 <img
-                                        src="${newReleaseSeries.coverImgUrl}"
+                                        src="${pageContext.request.contextPath}/${newReleaseSeries.coverImgUrl}"
                                         class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                         alt="${newReleaseSeries.title}"
                                 />
@@ -196,31 +196,14 @@
             </ul>
         </div>
         <!-- Top Reader Points Section (col-span-3) -->
-        <div class="col-span-3 flex flex-col weekly-top">
-            <p class="pt-6 pb-4 font-bold text-3xl">Top reader points</p>
-            <div class="border border-gray-300 rounded-xl pr-3 flex-1 shadow-xl">
-                <ul class="">
-                    <c:forEach var="user" items="${userList}" varStatus="loop">
-                        <li class="flex justify-between items-center py-2
-                   ${loop.index == 0 ? 'text-[#E23636] font-semibold text-lg mt-2' :
-                     loop.index == 1 ? 'text-[#F5A83D] font-semibold' :
-                     loop.index == 2 ? 'text-[#195DA9] font-semibold' : 'text-gray-700'}">
-                            <div class="flex items-center gap-1">
-                                <span class="font-semibold w-6 text-right">${loop.index + 1}.</span>
-                                <p class="truncate w-48" title="${user.username}">${user.username}</p>
-                            </div>
-                            <span class="float-right">${user.points}</span>
-                        </li>
-                    </c:forEach>
-                </ul>
-            </div>
+        <div class="col-span-3 flex flex-col weekly-top" id="reader-ranking-container">
+            <jsp:include page="/WEB-INF/views/general/_userRanking.jsp" flush="true"/>
         </div>
     </section>
     <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <!-- Recently Updated Section (col-span-12) -->
         <div class="col-span-12 flex justify-between items-center">
             <p class="font-bold text-3xl">Recently Update</p>
-            <a href="${pageContext.request.contextPath}/search" class="hover:text-neutral-600 text-right">View all</a>
         </div>
 
 
@@ -230,7 +213,7 @@
 
                     <div class="aspect-[3/4] overflow-hidden relative">
                         <img
-                                src="${recentlyUpdatedSeries.coverImgUrl}"
+                                src="${pageContext.request.contextPath}/${recentlyUpdatedSeries.coverImgUrl}"
                                 class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                 alt="${recentlyUpdatedSeries.title}"
                         />
@@ -309,8 +292,6 @@
         <!-- Tiêu đề + View all -->
         <div class="col-span-12 flex justify-between items-center">
             <p class="font-bold text-3xl">Completed Series</p>
-            <a href="${pageContext.request.contextPath}/search?searchType=&status=completed"
-               class="hover:text-neutral-600 text-right">View all</a>
         </div>
 
         <!-- Danh sách series -->
@@ -321,7 +302,7 @@
                         <!-- Hình ảnh -->
                         <div class="aspect-[3/4] overflow-hidden relative">
                             <img
-                                    src="${completedSeries.coverImgUrl}"
+                                    src="${pageContext.request.contextPath}/${completedSeries.coverImgUrl}"
                                     class="w-full h-full object-cover transition duration-300 group-hover:opacity-40"
                                     alt="${completedSeries.title}"
                             />
@@ -400,18 +381,79 @@
     <jsp:include page="/WEB-INF/views/general/_search.jsp"/>
 </main>
 <script>
+    function loadReaderRanking() {
+        fetch("${pageContext.request.contextPath}/account/ranking")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("reader-ranking-container").innerHTML = html;
+            })
+            .catch(error => console.error("Error:", error));
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        loadReaderRanking();
+    });
+    // Biến lưu tab hiện tại
+    let currentTab = 'title';
+
+    // Hàm chuyển đổi tab
+    function setActiveTab(tab) {
+        currentTab = tab;
+
+        // Cập nhật UI của các tab button
+        const btnTitle = document.getElementById('btn-title');
+        const btnAuthor = document.getElementById('btn-author');
+        const genreFilter = document.getElementById('genre-filter');
+
+        if (tab === 'title') {
+            btnTitle.classList.add('border-[#195DA9]', 'text-[#195DA9]');
+            btnTitle.classList.remove('border-white', 'text-gray-500');
+            btnAuthor.classList.remove('border-[#195DA9]', 'text-[#195DA9]');
+            btnAuthor.classList.add('border-white', 'text-gray-500');
+            // Hiện genre filter
+            genreFilter.classList.remove('hidden');
+            // Thay đổi grid layout
+            document.getElementById('result-container').className = 'col-span-8';
+        } else {
+            btnAuthor.classList.add('border-[#195DA9]', 'text-[#195DA9]');
+            btnAuthor.classList.remove('border-white', 'text-gray-500');
+            btnTitle.classList.remove('border-[#195DA9]', 'text-[#195DA9]');
+            btnTitle.classList.add('border-white', 'text-gray-500');
+            // Ẩn genre filter
+            genreFilter.classList.add('hidden');
+            // Mở rộng container
+            document.getElementById('result-container').className = 'col-span-12';
+        }
+
+        // Gọi hàm search với tab mới
+        updateFilter(1);
+    }
+
+    // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
     function updateFilter(page = 1) {
         const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
-        // console.log(selectedGenres);
         const searchKeyword = document.querySelector("#search")?.value?.trim() || "";
 
         const params = new URLSearchParams();
+
+        // Thêm keyword search
         if (searchKeyword) params.append("search", searchKeyword);
-        if (selectedGenres.length > 0) params.append("genre", selectedGenres.join(" "));
+
+        // Thêm genres nếu đang ở tab title
+        if (currentTab === 'title' && selectedGenres.length > 0) {
+            params.append("genre", selectedGenres.join(" "));
+        }
+
+        // Thêm tab type
+        params.append("searchType", currentTab);
         params.append("currentPage", page);
         params.append("sizePage", 12);
-        console.log(params.get("search"));
-        fetch("${pageContext.request.contextPath}/series/list?" + params.toString(), {
+
+        // Xác định endpoint dựa trên tab
+        const endpoint = currentTab === 'title'
+            ? "${pageContext.request.contextPath}/series/list"
+            : "${pageContext.request.contextPath}/account/list";
+
+        fetch(endpoint + "?" + params.toString(), {
             method: "GET",
             headers: {"X-Requested-With": "XMLHttpRequest"}
         })
@@ -419,26 +461,22 @@
             .then(html => {
                 const container = document.querySelector("#result-container");
                 container.innerHTML = html;
-
-                bindPagination(); // gắn lại sự kiện sau khi load JSP mới
-
+                bindPagination();
             })
-            .catch(err => console.error("Pagination load error:", err));
+            .catch(err => console.error("Search error:", err));
     }
+
+    // Xử lý sự kiện Enter trong search box
     document.getElementById("search").addEventListener("keypress", e => {
         if (e.key === "Enter") {
-            // const container = document.querySelector("#container");
-            // container.scrollIntoView({ behavior: "instant", block: "start" });
-
             e.preventDefault();
             updateFilter();
+
             const container = document.querySelector("#container");
             const header = document.querySelector("header");
             const headerHeight = header ? header.offsetHeight : 0;
-
-            // Cuộn đến vị trí trừ chiều cao header
             const elementPosition = container.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerHeight - 10; // trừ thêm 10px để thoáng
+            const offsetPosition = elementPosition - headerHeight - 10;
 
             window.scrollTo({
                 top: offsetPosition,
@@ -446,6 +484,7 @@
             });
         }
     });
+
     // Gắn click event cho nút trang
     function bindPagination() {
         document.querySelectorAll(".page-btn").forEach(btn => {
@@ -457,18 +496,13 @@
             });
         });
     }
-    function debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
+
     // Lần đầu load trang
     document.addEventListener("DOMContentLoaded", () => {
-        updateFilter(); // tự load trang đầu
+        updateFilter();
     });
 
+    // Header scroll effect
     window.addEventListener("scroll", () => {
         const header = document.querySelector("header");
         if (window.scrollY > 20) {

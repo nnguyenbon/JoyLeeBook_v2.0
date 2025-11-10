@@ -51,7 +51,7 @@ public class ChapterDAO {
     }
 
     public int countChapterByUserId(int userId, String status) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0 ";
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setString(2, status);
@@ -87,7 +87,16 @@ public class ChapterDAO {
         }
         return 0;
     }
-
+    public int getTotalChaptersCount(int seriesId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
     private StringBuilder buildChapterBaseQuery(boolean isCount, String search, String approvalStatus) throws SQLException {
         StringBuilder sql = new StringBuilder();
 
@@ -229,6 +238,15 @@ public class ChapterDAO {
         }
     }
 
+    public boolean updateStatus(int chapterId, String approvalStatus) throws SQLException {
+        String sql = "UPDATE chapters SET approval_status = ?, updated_at = ? WHERE chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, approvalStatus);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
     /**
      * Soft delete a chapter by setting its is_deleted flag to true.
      *
@@ -677,9 +695,9 @@ public class ChapterDAO {
     public List<Chapter> findChapterBySeriesId(int seriesId, String approvalStatus) throws SQLException {
         List<Chapter> chapterList = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0 AND status = 'published'");
+        sql.append("SELECT * FROM chapters WHERE series_id = ? AND is_deleted = 0");
         if (approvalStatus != null && !approvalStatus.trim().isEmpty()) {
-            sql.append(" AND approval_status = ? ");
+            sql.append(" AND approval_status = ?  AND status = 'published'");
         }
         try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
             ps.setInt(1, seriesId);
@@ -810,8 +828,9 @@ public class ChapterDAO {
             e.printStackTrace();
         }
         return 0;
-
     }
+
+
 
 
 }

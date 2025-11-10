@@ -125,7 +125,20 @@ public class SeriesDAO {
         }
         return seriesList;
     }
-
+    public List<Series> getAll(String status) {
+        String sql = "SELECT * FROM series WHERE approval_status = ?";
+        List<Series> seriesList = new ArrayList<>();
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, status);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                seriesList.add(extractSeriesFromResultSet(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return seriesList;
+    }
     public List<Series> getAll(String search, List<Integer> genreIds, int userId, String approval_status, PaginationRequest paginationRequest) throws SQLException {
         List<Series> list = new ArrayList<>();
         PaginationDAOHelper paginationDAOHelper = new PaginationDAOHelper(paginationRequest);
@@ -222,14 +235,15 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean updateSeries(Series series) throws SQLException {
-        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ? AND is_deleted = false";
+        String sql = "UPDATE series SET title = ?, description = ?, cover_image_url = ?, status = ?, updated_at = ?, rating_points = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, series.getTitle());
             ps.setString(2, series.getDescription());
             ps.setString(3, series.getCoverImgUrl());
             ps.setString(4, series.getStatus());
             ps.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setInt(6, series.getSeriesId());
+            ps.setDouble(6, series.getAvgRating());
+            ps.setInt(7, series.getSeriesId());
             return ps.executeUpdate() > 0;
         }
     }
@@ -242,7 +256,7 @@ public class SeriesDAO {
      * @throws SQLException if a database access error occurs
      */
     public boolean deleteSeries(int seriesId) throws SQLException {
-        String sql = "UPDATE series SET is_deleted = true, updated_at = ? WHERE series_id = ?";
+        String sql = "UPDATE series SET is_deleted = 1, updated_at = ? WHERE series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
             ps.setInt(2, seriesId);
@@ -313,7 +327,7 @@ public class SeriesDAO {
      */
     public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
-        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ?";
+        String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, authorId);
             ResultSet rs = ps.executeQuery();
@@ -471,6 +485,36 @@ public class SeriesDAO {
         }
         return 0;
     }
+    public int countByStatus(String pending) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE status = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, pending);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countByStaffAndStatus(int staffId, String status) {
+        String sql = "SELECT COUNT(*) AS total FROM review_series WHERE staff_id = ? AND status = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            stmt.setString(2, status);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public boolean insertSeries(Series series) throws SQLException {
         String sql = "INSERT INTO series (title, description, cover_image_url, status, approval_status, created_at, updated_at, is_deleted, rating_points) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)";

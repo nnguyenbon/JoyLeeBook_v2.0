@@ -54,16 +54,21 @@
 
                     <div
                             class="dropdown-menu hidden absolute right-0 mt-2 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                        <button
-                                class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
+                        <a href="${pageContext.request.contextPath}/series/edit?seriesId=${mySeries.seriesId}"
+                           class="block w-full text-[#42CC75] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
                             <i class="fa-regular fa-pen-to-square"></i>
                             Edit
-                        </button>
-                        <button
-                                class="block w-full text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
-                            <i class="fa-regular fa-trash-can"></i>
-                            Delete
-                        </button>
+                        </a>
+                        <form method="POST" action="${pageContext.request.contextPath}/series/delete"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa series này?');"
+                              class="m-0">
+                            <input type="hidden" name="seriesId" value="${mySeries.seriesId}">
+                            <button type="submit"
+                                    class="block w-full text-[#E23636] flex gap-2 px-4 py-2 text-sm hover:bg-gray-100">
+                                <i class="fa-regular fa-trash-can"></i>
+                                Delete
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

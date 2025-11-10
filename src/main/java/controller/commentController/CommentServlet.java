@@ -1,12 +1,14 @@
 package controller.commentController;
 
 import dao.CommentDAO;
+import dao.UserDAO;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Account;
 import model.Comment;
 import model.User;
 import utils.TrackPointUtils;
@@ -16,6 +18,7 @@ import utils.ValidationInput;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Servlet implementation class CommentServlet
@@ -31,7 +34,6 @@ public class CommentServlet extends HttpServlet {
             case "/edit" -> updateComment(request, response);
             case "/delete" -> deleteComment(request, response);
         }
-
     }
 
     /**
@@ -42,6 +44,31 @@ public class CommentServlet extends HttpServlet {
      * @throws IOException      if an I/O error occurs
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getPathInfo();
+        switch (action) {
+            case "/list" -> viewCommentList(request, response);
+        }
+    }
+
+    private void viewCommentList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try (Connection conn = DBConnection.getConnection()){
+            Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
+            int userId = 0;
+            if (loginedUser instanceof User) {
+                userId = ((User) loginedUser).getUserId();
+            }
+            CommentDAO commentDAO = new CommentDAO(conn);
+            int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
+            List<Comment> commentList = commentDAO.findByChapter(chapterId);
+            for (Comment comment : commentList) {
+                buildComment(comment, conn);
+            }
+            request.setAttribute("userId", userId);
+            request.setAttribute("commentList", commentList);
+            request.getRequestDispatcher("/WEB-INF/views/chapter/_commentList.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -164,4 +191,8 @@ public class CommentServlet extends HttpServlet {
         }
     }
 
+    private void buildComment(Comment comment, Connection conn) throws SQLException {
+        UserDAO userDAO = new UserDAO(conn);
+        comment.setUsername(userDAO.findById(comment.getUserId()).getUsername());
+    }
 }

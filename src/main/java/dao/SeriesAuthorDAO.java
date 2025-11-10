@@ -91,7 +91,7 @@ public class SeriesAuthorDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     list.add(mapResultSetToSeriesAuthor(rs));
                 }
             }

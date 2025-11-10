@@ -21,7 +21,8 @@ public class WebpConverter {
         // 🔹 Tạo tên file ngẫu nhiên, tránh trùng
         String baseName = submittedFileName
                 .replaceAll("[^a-zA-Z0-9._-]", "_") // chỉ giữ ký tự hợp lệ
-                .replaceFirst("[.][^.]+$", ""); // bỏ phần mở rộng cũ
+                .replaceFirst("[.][^.]+$", "")
+                .replaceFirst("img/", ""); // bỏ phần mở rộng cũ
 
         String uniqueID = UUID.randomUUID().toString().substring(0, 8);
         String webpFileName = baseName + "-" + uniqueID + ".webp";
@@ -51,6 +52,7 @@ public class WebpConverter {
         // 🔹 Đọc & chuyển đổi ảnh
         BufferedImage originalImage;
         try (InputStream input = filePart.getInputStream()) {
+            ImageIO.scanForPlugins(); // 👈 quét lại toàn bộ plugin
             originalImage = ImageIO.read(input);
         }
 
@@ -82,7 +84,7 @@ public class WebpConverter {
         }
 
         // 🔹 Ghi log kiểm tra
-        System.out.println("✅ Image saved at:");
+        System.out.println("Image saved at:");
         System.out.println("   - " + projectOutput.getAbsolutePath());
         System.out.println("   - " + targetOutput.getAbsolutePath());
 
