@@ -516,13 +516,13 @@ INSERT INTO series (title, description, cover_image_url, status, approval_status
 (N'So Dua', N'Truyện dân gian Việt Nam về người nông dân thông minh.', 'so_dua.avif', 'ongoing', 'approved', 0, 41, '2025-10-28', '2025-10-28'),
 
 -- Pending / Rejected (no chapters, just for UI testing)
-(N'Dungeon Diver: Stealing a Monster', N'Adventurer who steals rare monsters.', 'dungeon_diver.avif', 'ongoing', 'pending', 0, 50, '2025-10-27', '2025-10-27'),
-(N'Evolving Infinitely from Ground Zero', N'A man starts anew after the end of the world.', 'Evolving_infinitely.avif', 'completed', 'rejected', 0, 39, '2025-10-29', '2025-10-29'),
+(N'Dungeon Diver: Stealing a Monster', N'Adventurer who steals rare monsters.', 'dungeon_diver_stealing_a_monster.avif', 'ongoing', 'pending', 0, 50, '2025-10-27', '2025-10-27'),
+(N'Evolving Infinitely from Ground Zero', N'A man starts anew after the end of the world.', 'Evolving_infinitely_from_ground_zero.avif', 'completed', 'rejected', 0, 39, '2025-10-29', '2025-10-29'),
 (N'Monarch of Time', N'A man manipulates time to change destiny.', 'monarch_of_time.avif', 'ongoing', 'pending', 0, 49, '2025-10-24', '2025-10-24'),
-(N'Supreme Magus', N'A scholar strives to master the arcane arts.', 'supreme-magus.avif', 'ongoing', 'rejected', 0, 46, '2025-10-27', '2025-10-27'),
+(N'Supreme Magus', N'A scholar strives to master the arcane arts.', 'supreme-magus-webnovel.avif', 'ongoing', 'rejected', 0, 46, '2025-10-27', '2025-10-27'),
 (N'The Epi of Leviathan', N'A fantasy about gods and mortals clashing.', 'the_epi_of_leviathan.avif', 'ongoing', 'rejected', 0, 45, '2025-10-24', '2025-10-24'),
 (N'The Mech Touch', N'Mecha engineering, war, and ambition.', 'The_Mech_Touch.avif', 'ongoing', 'pending', 0, 44, '2025-10-26', '2025-10-26'),
-(N'The World of Otome Games is Tough', N'A man reincarnates in a dating sim world.', 'otome_games.avif', 'ongoing', 'pending', 0, 40, '2025-10-31', '2025-10-31'),
+(N'The World of Otome Games is Tough', N'A man reincarnates in a dating sim world.', 'the-world-of-otome-games-is-toug.avif', 'ongoing', 'pending', 0, 40, '2025-10-31', '2025-10-31'),
 (N'Thanh Giong', N'Truyền thuyết về vị anh hùng làng Gióng cứu nước.', 'thanh_giong.avif', 'ongoing', 'pending', 0, 47, '2025-10-29', '2025-10-29');
 GO
 
