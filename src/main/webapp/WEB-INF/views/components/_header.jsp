@@ -2,6 +2,7 @@
 change this template use File | Settings | File Templates. --%>
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page import="dao.CategoryDAO" %>
 <%@ page import="model.Category" %>
 <%@ page import="java.util.List" %>
@@ -113,48 +114,75 @@ change this template use File | Settings | File Templates. --%>
                     </c:if>
                 </button>
 
-                <div id="MenuNotify"
-                     class="hidden absolute right-0 top-full mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 text-left">
-                    <h4 class="font-bold text-lg mb-2 px-2">Notifications</h4>
-                    <div class="max-h-96 overflow-y-auto">
-                        <c:choose>
-                            <c:when test="${not empty userNotifications}">
-                                <c:forEach var="noti" items="${userNotifications}">
-                                    <a href="${pageContext.request.contextPath}${noti.urlRedirect}"
-                                       class="block p-2 rounded-lg notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'}"
-                                       data-id="${noti.notificationId}"
-                                    >
-                                        <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
-                                                ${noti.title}
-                                        </p>
-                                        <p class="text-xs text-gray-600">${noti.message}</p>
-                                    </a>
-                                    <hr class="my-1"/>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                    <div class="max-h-96 overflow-y-auto">
-                        <c:choose>
-                            <c:when test="${not empty userNotifications}">
-                            </c:when>
-                            <c:otherwise>
-                                <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+                    <div id="MenuNotify"
+                         class="hidden absolute right-0 top-full mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 text-left">
+                        <h4 class="font-bold text-lg mb-2 px-2">Notifications</h4>
+                        <div class="max-h-96 overflow-y-auto">
+                            <c:choose>
+                                <c:when test="${not empty userNotifications}">
+                                    <c:forEach var="noti" items="${userNotifications}">
+                                        <div class="notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'} p-2 rounded-lg mb-2"
+                                             data-id="${noti.notificationId}">
 
-                    <div class="text-center">
-                        <a href="${pageContext.request.contextPath}/notifications/all"
-                           class="text-sm font-medium text-blue-600 hover:underline">
-                            See All Notifications
-                        </a>
+                                            <c:choose>
+                                                <%-- Co-author invitation notification - detect by title or URL --%>
+                                                <c:when test="${noti.title == 'Co-Author Invitation' or fn:contains(noti.urlRedirect, 'action=coauthor_invite')}">
+                                                    <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
+                                                            ${noti.title}
+                                                    </p>
+                                                    <p class="text-xs text-gray-600 mb-2">${noti.message}</p>
+
+                                                    <c:if test="${!noti.isRead()}">
+                                                        <%-- Extract seriesId from URL --%>
+                                                        <c:set var="urlParams" value="${noti.urlRedirect}"/>
+                                                        <c:set var="seriesIdMatch" value="${fn:substringAfter(urlParams, 'seriesId=')}"/>
+                                                        <c:set var="seriesId" value="${fn:substringBefore(seriesIdMatch, '&')}"/>
+                                                        <c:if test="${empty seriesId}">
+                                                            <c:set var="seriesId" value="${seriesIdMatch}"/>
+                                                        </c:if>
+
+                                                        <div class="flex gap-2 mt-2">
+                                                            <button onclick="acceptInvitation(${noti.notificationId}, ${seriesId})"
+                                                                    class="flex-1 bg-green-500 text-white text-xs py-1 px-2 rounded hover:bg-green-600 transition">
+                                                                Accept
+                                                            </button>
+                                                            <button onclick="declineInvitation(${noti.notificationId}, ${seriesId})"
+                                                                    class="flex-1 bg-red-500 text-white text-xs py-1 px-2 rounded hover:bg-red-600 transition">
+                                                                Decline
+                                                            </button>
+                                                        </div>
+                                                    </c:if>
+                                                </c:when>
+
+                                                <%-- Regular notification --%>
+                                                <c:otherwise>
+                                                    <a href="${pageContext.request.contextPath}${noti.urlRedirect}"
+                                                       class="block notification-link">
+                                                        <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
+                                                                ${noti.title}
+                                                        </p>
+                                                        <p class="text-xs text-gray-600">${noti.message}</p>
+                                                    </a>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <hr class="my-1"/>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <div class="text-center mt-2">
+                            <a href="${pageContext.request.contextPath}/notifications/all"
+                               class="text-sm font-medium text-blue-600 hover:underline">
+                                See All Notifications
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
             <c:if test="${loginedUser.role == 'staff' || loginedUser.role == 'admin'}">
                 <div class="col-span-1"></div>
             </c:if>
@@ -196,7 +224,7 @@ change this template use File | Settings | File Templates. --%>
                             >
                         </a>
                         <button
-                                onclick="openRegisterAuthorModal();"
+                                onclick="openRegisterAuthorModal()"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-pen"></i>
@@ -332,6 +360,126 @@ change this template use File | Settings | File Templates. --%>
                         } else {
                             window.location.href = originalUrl;
                         }
+                    })
+                    .catch(err => {
+                        console.error('Failed to mark notification as read:', err);
+                        window.location.href = originalUrl;
+                    });
+            }
+        });
+    });
+
+    // Handle accept invitation
+    async function acceptInvitation(notificationId, seriesId) { // lỗi truyền notificationId
+        try {
+            const response = await fetch('${pageContext.request.contextPath}/manage-coauthors/accept', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `notificationId=${notificationId}&seriesId=${seriesId}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toastr.success(result.message);
+
+                // Redirect to series page after a short delay
+                setTimeout(() => {
+                    window.location.href = result.redirectUrl || '${pageContext.request.contextPath}/series/detail?seriesId=' + seriesId
+                        + '&notificationId=' + notificationId;
+                }, 1500);
+            } else {
+                toastr.error(result.message);
+            }
+        } catch (error) {
+            console.error('Error accepting invitation:', error);
+            toastr.error('Failed to accept invitation. Please try again.');
+        }
+    }
+
+    // Handle decline invitation
+    async function declineInvitation(notificationId, seriesId) {
+        if (!confirm('Are you sure you want to decline this invitation?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('${pageContext.request.contextPath}/manage-coauthors/decline', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `notificationId=${notificationId}&seriesId=${seriesId}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toastr.info(result.message);
+
+                // Remove notification from UI
+                const notificationElement = document.querySelector(`[data-id="${notificationId}"]`);
+                if (notificationElement) {
+                    notificationElement.style.transition = 'opacity 0.3s';
+                    notificationElement.style.opacity = '0';
+                    setTimeout(() => {
+                        notificationElement.remove();
+
+                        // Check if there are no more notifications
+                        const notificationList = document.querySelector('#MenuNotify .overflow-y-auto');
+                        if (notificationList.children.length === 0) {
+                            notificationList.innerHTML = '<p class="text-sm text-gray-500 p-2">You have no notifications.</p>';
+                        }
+                    }, 300);
+                }
+
+                // Update unread count
+                const unreadBadge = document.querySelector('#BtnNotify .bg-red-500');
+                if (unreadBadge) {
+                    const currentCount = parseInt(unreadBadge.textContent);
+                    if (currentCount > 1) {
+                        unreadBadge.textContent = currentCount - 1;
+                    } else {
+                        unreadBadge.remove();
+                    }
+                }
+            } else {
+                toastr.error(result.message);
+            }
+        } catch (error) {
+            console.error('Error declining invitation:', error);
+            toastr.error('Failed to decline invitation. Please try again.');
+        }
+    }
+
+    // Updated notification click handler (for non-invitation notifications)
+    document.querySelectorAll('.notification-link').forEach(item => {
+        item.addEventListener('click', function (e) {
+            const notificationItem = this.closest('.notification-item');
+            const notiId = notificationItem.getAttribute('data-id');
+            const isRead = notificationItem.classList.contains('bg-white');
+            const originalUrl = this.href;
+
+            if (notiId && !isRead) {
+                e.preventDefault();
+
+                fetch('${pageContext.request.contextPath}/notification/mark-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'id=' + notiId
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        window.location.href = originalUrl;
                     })
                     .catch(err => {
                         console.error('Failed to mark notification as read:', err);

@@ -7,9 +7,14 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<main class=" mt-10 grid grid-cols-12 gap-8 items-center"> <!-- Left Image -->
-    <div class="col-span-3 col-start-2"><img src="${pageContext.request.contextPath}/${series.coverImgUrl}"
-                                             alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/></div>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<main class=" mt-10 grid grid-cols-12 gap-8 items-center">
+    <!-- Left Image -->
+    <div class="col-span-3 col-start-2">
+        <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="Series cover"
+             class="rounded-lg shadow aspect-[3/4]"/>
+    </div>
+
     <!-- Right (Title, Info, Tags) -->
     <div class="col-span-4 h-full flex flex-col justify-between"><h1 class="text-4xl font-bold">${series.title}</h1>
         <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold">
@@ -37,63 +42,96 @@
                     class="font-semibold text-lg">${series.totalChapters}</span> Chapters
             </div>
             <div class="flex flex-col items-center justify-center">
-                <div class="text-gray-500 font-semibold text-lg mb-1"><span id="avgRatingDisplay"
-                                                                            class="text-yellow-400">★ ${series.avgRating}</span>
-                    <span id="totalRatingsDisplay">(${series.totalRating})</span></div>
-                <div id="starRatingContainer" class="flex"><input type="radio" name="rating" id="star1" value="1"
-                                                                  class="hidden"/> <label for="star1"
-                                                                                          class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                    <input type="radio" name="rating" id="star2" value="2" class="hidden"/> <label for="star2"
-                                                                                                   class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                    <input type="radio" name="rating" id="star3" value="3" class="hidden"/> <label for="star3"
-                                                                                                   class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                    <input type="radio" name="rating" id="star4" value="4" class="hidden"/> <label for="star4"
-                                                                                                   class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
-                    <input type="radio" name="rating" id="star5" value="5" class="hidden"/> <label for="star5"
-                                                                                                   class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                <div class="text-gray-500 font-semibold text-lg mb-1">
+                    <span id="avgRatingDisplay" class="text-yellow-400">★ ${series.avgRating}</span>
+                    <span id="totalRatingsDisplay">(${series.totalRating})</span>
+                </div>
+
+                <div id="starRatingContainer" class="flex">
+                    <input type="radio" name="rating" id="star1" value="1" class="hidden"/>
+                    <label for="star1"
+                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                    <input type="radio" name="rating" id="star2" value="2" class="hidden"/>
+                    <label for="star2"
+                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                    <input type="radio" name="rating" id="star3" value="3" class="hidden"/>
+                    <label for="star3"
+                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                    <input type="radio" name="rating" id="star4" value="4" class="hidden"/>
+                    <label for="star4"
+                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
+
+                    <input type="radio" name="rating" id="star5" value="5" class="hidden"/>
+                    <label for="star5"
+                           class="cursor-pointer text-gray-400 text-3xl transition-colors duration-150">★</label>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-4 mt-4"><c:set var="user" value="${loginedUser}"/> <c:set var="role"
-                                                                                                    value="${user.role}"/>
-            <c:if test="${totalChapter != 0}"> <a
-                    href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
-                <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
-                    <i class="fa-solid fa-play"></i> Start Reading
-                </button>
-            </a> </c:if> <c:choose> <c:when test="${role == 'author'}"> <a
-                    href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-                    <i class="fa-solid fa-pen"></i> Edit
-                </button>
-            </a>
-                <form action="${pageContext.request.contextPath}/series/delete" method="post"
-                      onsubmit="return confirm('Are you sure you want to delete this series?')"><input type="hidden"
-                                                                                                       name="seriesId"
-                                                                                                       value="${series.seriesId}">
-                    <button type="submit"
-                            class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
-                        <i class="fa-solid fa-trash"></i> Delete
+        <div class="flex items-center gap-4 mt-4">
+            <c:set var="user" value="${loginedUser}"/>
+            <c:set var="role" value="${user.role}"/>
+            <c:if test="${totalChapter != 0}">
+                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
+                    <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
+                        <i class="fa-solid fa-play"></i> Start Reading
                     </button>
-                </form>
-            </c:when> <c:when test="${role == 'reader'}">
-                <button id="saveBtn" aria-label="Save series"
-                        class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
-                        data-user-id="10" data-series-id="${series.seriesId}"><i
-                        class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i></button>
-            </c:when> <%-- <c:otherwise></c:otherwise>--%> </c:choose></div>
+                </a>
+            </c:if>
+            <c:choose>
+                <c:when test="${role == 'author'}">
+                    <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </a>
+                    <form action="${pageContext.request.contextPath}/series/delete" method="post"
+                          onsubmit="return confirm('Are you sure you want to delete this series?')">
+                        <input type="hidden" name="seriesId" value="${series.seriesId}">
+                        <button type="submit"
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </c:when>
+                <c:when test="${role == 'reader'}">
+                    <button id="saveBtn"
+                            class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
+                            data-user-id="10" data-series-id="${series.seriesId}">
+                        <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark text-xl"></i>
+                    </button>
+                </c:when>
+                <c:otherwise></c:otherwise>
+            </c:choose>
+        </div>
     </div>
-    <div class="col-span-3 ring-2 ring-sky-600/50 rounded-lg p-4" ${loginedUser.role == 'author' ? "" : "hidden"}><p
-            class="font-bold text-lg mb-2"><i class="fa-regular fa-user"></i> Authors </p>
-        <ul class="list-disc list-inside"><c:forEach var="name" items="${series.authorNameList}">
-            <li class=""> ${name} </li>
-        </c:forEach></ul>
+
+    <div class="col-span-3 ring-2 ring-sky-600/50 rounded-lg p-4">
+        <p class="font-bold text-lg mb-2">
+            <i class="fa-regular fa-user"></i>
+            Authors
+        </p>
+
+        <ul class="list-disc list-inside">
+            <c:forEach var="name" items="${series.authorNameList}">
+                <li class="">
+                        ${name}
+                </li>
+            </c:forEach>
+        </ul>
+
         <c:if test="${owner}">
             <button onclick="showModal()"
                     class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
                 Add Co-Author
             </button>
-        </c:if></div> <!-- Summary -->
+        </c:if>
+    </div>
+
+    <!-- Summary -->
     <section class="col-span-12 grid grid-cols-12 gap-8">
         <div class="col-span-10 col-start-2"><h2 class="font-semibold text-xl mb-3">Summary</h2>
             <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700"> ${series.description} </div>
@@ -110,20 +148,22 @@
             </p>
         </div>
 
-        <form method="POST" class="relative mt-6">
-            <label for="username" class="block text-xl">Username:</label>
+        <form id="coauthorForm" class="relative mt-6">
+            <input type="hidden" name="seriesId" value="${series.seriesId}"/>
+
+            <label for="username" class="block text-xl">Username or Email</label>
             <input
                     type="text"
                     class="py-2 px-3 mt-2 mb-6 border border-gray-400 rounded-xl w-full"
                     id="username"
                     name="username"
-                    placeholder="coauthor@example.com"
+                    placeholder="username or email@example.com"
                     autocomplete="off"
                     required
             />
 
             <ul id="suggestion"
-                class="hidden absolute top-24 left-0 right-0 bg-white h-32 w-full border border-gray-400 rounded-lg overflow-hidden overflow-y-scroll">
+                class="hidden absolute top-24 left-0 right-0 bg-white h-32 w-full border border-gray-400 rounded-lg overflow-hidden overflow-y-scroll z-10">
             </ul>
 
             <div class="flex w-full justify-between gap-6">
@@ -133,7 +173,7 @@
                 >
                     Send Invitation
                 </button>
-                <button onclick="closeModal()" type="reset"
+                <button onclick="closeModal()" type="button"
                         class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400">
                     Cancel
                 </button>
@@ -293,6 +333,7 @@
         })
 
 
+
         async function getUserName(username) {
             const url = "${pageContext.request.contextPath}/manage-coauthors/users?username=" + encodeURIComponent(username);
             try {
@@ -300,30 +341,43 @@
                 if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 }
+
                 const result = await response.json();
-                // console.log(result);
-                if (result.length > 0) {
-                    return result;
-                }
+                return result;
             } catch (error) {
-                console.error(error.message);
+                console.error('Error fetching users:', error.message);
+                return [];
             }
         }
 
-        function suggestion(username) {
-            const array = username
-            suggestionList.classList.remove('hidden');
-            const html = array.map(user => {
-                const name = user.name;
-                return `<li onclick="selectAuthor('` + name + `')" class="py-2 px-4 hover:bg-sky-300 cursor-pointer">` + name + `</li>`
-            }).join('');
-            suggestionList.innerHTML = html;
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
+        function suggestion(users) {
+            suggestionList.classList.remove('hidden');
+            suggestionList.innerHTML = ''; // Clear old suggestions
+
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'py-2 px-4 hover:bg-sky-300 cursor-pointer';
+                li.textContent = user.username; // Safe, not innerHTML
+                li.addEventListener('click', () => selectAuthor(user.username));
+                suggestionList.appendChild(li);
+            });
+        }
 
         function selectAuthor(username) {
             suggestionList.classList.add('hidden');
             usernameInput.value = username;
         }
+
+        document.addEventListener('click', (e) => {
+            if (!usernameInput.contains(e.target) && !suggestionList.contains(e.target)) {
+                suggestionList.classList.add('hidden');
+            }
+        });
     });
 </script>
