@@ -463,39 +463,33 @@
     });
 
     //====================================
+    // UPLOAD
     const contextPath = "${pageContext.request.contextPath}";
-
-    function uploadChapter(seriesId, chapterId) {
-        fetch(contextPath + '/chapter/upload?seriesId=' + seriesId + '&chapterId=' + chapterId, {
-            method: 'POST'
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    toastr.success(data.message, 'Success!');
-                    setTimeout(() => {
-                        window.location.href = data.redirectUrl;
-                    }, 1500);
-                } else {
-                    toastr.error(data.message, 'Error!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('An error occurred while uploading the chapter!', 'Error!');
-            });
-    }
 
     document.addEventListener("click", function(e) {
         const btn = e.target.closest(".upload-chapter-btn");
-        if (!btn) return;
+        if (btn) {
+            e.preventDefault();       // ✅ Chặn redirect của thẻ <a>
+            e.stopImmediatePropagation();     // ✅ Ngăn bubble lên thẻ <li> hoặc <a>
 
-        e.preventDefault();       // ✅ Chặn redirect của thẻ <a>
-        e.stopPropagation();      // ✅ Ngăn bubble lên thẻ <li> hoặc <a>
-
-        const seriesId = btn.dataset.seriesId;
-        const chapterId = btn.dataset.chapterId;
-        uploadChapter(seriesId, chapterId);
+            const seriesId = btn.dataset.seriesId;
+            const chapterId = btn.dataset.chapterId;
+            fetch(contextPath + '/chapter/upload?seriesId=' + seriesId + '&chapterId=' + chapterId, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message, 'Success!');
+                    } else {
+                        toastr.error(data.message, 'Error!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('An error occurred while uploading the chapter!', 'Error!');
+                });
+        }
     });
 
     document.addEventListener("click", function (e) {

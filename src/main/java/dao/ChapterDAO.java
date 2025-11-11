@@ -50,11 +50,28 @@ public class ChapterDAO {
         return chapters;
     }
 
+    public boolean checkExistChapterNumber (int chapterNumber, int series_id) throws SQLException {
+        String sql = "SELECT * FROM chapters WHERE chapter_number = ? AND is_deleted = 0 AND series_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterNumber);
+            ps.setInt(2, series_id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+            return false;
+        }
+    }
     public int countChapterByUserId(int userId, String status) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND status = ? AND is_deleted = 0";
+        String sql = "SELECT COUNT(*) FROM chapters WHERE user_id = ? AND is_deleted = 0";
+        if (!status.isEmpty()) {
+            sql += " AND approval_status = ?";
+        }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
-            ps.setString(2, status);
+            if (!status.isEmpty()) {
+                ps.setString(2, status);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
@@ -509,7 +526,7 @@ public class ChapterDAO {
      * @return number of the latest chapter. If no chapters exist, returns 0.
      */
     public int getLatestChapterNumber(int seriesId) throws SQLException {
-        String sql = "SELECT MAX(chapter_number) FROM chapters WHERE series_id = ?";
+        String sql = "SELECT MAX(chapter_number) FROM chapters WHERE series_id = ? AND is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -739,7 +756,20 @@ public class ChapterDAO {
     }
 
     public int countChapterBySeriesId(int seriesId) throws SQLException {
+
         String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0 AND status = 'published' AND approval_status = 'approved'";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seriesId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+    public int countChapterBySeriesId(int seriesId, String role) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ? AND is_deleted = 0 ";
+        if (role.equals("reader")) {
+            sql += "AND status = 'published' AND approval_status = 'approved'";
+        }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {

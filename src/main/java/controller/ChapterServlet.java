@@ -336,15 +336,15 @@ public class ChapterServlet extends HttpServlet {
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
 
                 int nextNo;
-                if (numberStr == null || numberStr.isBlank()) {
-                    try {
-                        int lastNo = chapterDAO.getLatestChapterNumber(seriesId);
+                try {
+                    int lastNo = chapterDAO.getLatestChapterNumber(seriesId);
+                    if (numberStr == null || numberStr.isBlank() || chapterDAO.checkExistChapterNumber(Integer.parseInt(numberStr), seriesId)) {
                         nextNo = Math.max(1, lastNo + 1);
-                    } catch (SQLException e) {
-                        throw new IllegalAccessException("error getting latest chapter number. " + e.getMessage());
+                    } else {
+                        nextNo = Integer.parseInt(numberStr);
                     }
-                } else {
-                    nextNo = Integer.parseInt(numberStr);
+                } catch (SQLException e) {
+                    throw new IllegalAccessException("error getting latest chapter number. " + e.getMessage());
                 }
 
                 Chapter ch = new Chapter();

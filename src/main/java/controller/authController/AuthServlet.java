@@ -110,6 +110,10 @@ public class AuthServlet extends HttpServlet {
                 switch (role) {
                     case "author":
                     case "reader":
+                        if (user.getStatus().equals("banned")) {
+                            response.sendRedirect(request.getContextPath() + "/login");
+                            return;
+                        }
                         //Track login for point system
                         TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
                         response.sendRedirect(request.getContextPath() + "/series/list");

@@ -107,7 +107,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             List<Series> listSeries = seriesDAO.getAll("approved");
             for (Series series : listSeries) {
-                buildSeries(conn, series);
+                buildSeries(conn, series, "reader");
             }
 
             request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
@@ -277,7 +277,7 @@ public class SeriesServlet extends HttpServlet {
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
-                buildSeries(conn, series);
+                buildSeries(conn, series, role);
             }
             int totalRecords = 0;
             if (seriesList.isEmpty()) {
@@ -358,7 +358,7 @@ public class SeriesServlet extends HttpServlet {
             RatingDAO ratingDAO = new RatingDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
-            Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus));
+            Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), role);
 
             if (series == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
@@ -368,7 +368,7 @@ public class SeriesServlet extends HttpServlet {
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
 
-            request.setAttribute("totalChapter", chapterDAO.getTotalChaptersCount(seriesId));
+            request.setAttribute("totalChapter", series.getTotalChapters());
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
@@ -385,7 +385,6 @@ public class SeriesServlet extends HttpServlet {
                 if (ownerId == userId) {
                     request.setAttribute("owner", "true");
                 }
-                request.setAttribute("totalChapter", chapterDAO.getTotalChaptersCount(seriesId));
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -683,13 +682,13 @@ public class SeriesServlet extends HttpServlet {
      * @return the enriched Series object, or null if the input was null
      * @throws SQLException if a database access error occurs
      */
-    private static Series buildSeries(Connection conn, Series series) throws SQLException {
+    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(conn);
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
         UserDAO userDAO = new UserDAO(conn);
-        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
+        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
         series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));

@@ -126,7 +126,7 @@ public class SeriesDAO {
         return seriesList;
     }
     public List<Series> getAll(String status) {
-        String sql = "SELECT * FROM series WHERE approval_status = ?";
+        String sql = "SELECT * FROM series WHERE approval_status = ? AND is_deleted = 0";
         List<Series> seriesList = new ArrayList<>();
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, status);
