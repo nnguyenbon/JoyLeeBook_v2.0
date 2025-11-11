@@ -431,6 +431,25 @@ public class UserDAO {
         }
         return 0;
     }
+    /**
+     * Find a user by email address
+     * @param email the email address
+     * @return the User object if found, null otherwise
+     */
+    public User findByEmail(String email) throws SQLException {
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        }
+        return null;
+    }
 
     public WeeklyUserStats getWeeklyUserStats(Timestamp startOfWeek) throws SQLException {
         WeeklyUserStats stats = new WeeklyUserStats();
@@ -498,4 +517,5 @@ public class UserDAO {
         stats.setDailyCounts(dailyCounts);
         return stats;
     }
+
 }

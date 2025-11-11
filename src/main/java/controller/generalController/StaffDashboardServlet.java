@@ -68,7 +68,7 @@ public class StaffDashboardServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             UserDAO userDAO = new UserDAO(conn);
             ReportDAO reportDAO = new ReportDAO(conn);
-            ChapterDAO  chapterDAO = new ChapterDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
             ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
             DashboardStats stats = new DashboardStats();
