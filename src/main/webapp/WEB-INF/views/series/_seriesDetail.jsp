@@ -473,9 +473,6 @@
             .then(data => {
                 if (data.success) {
                     toastr.success(data.message, 'Success!');
-                    setTimeout(() => {
-                        window.location.href = data.redirectUrl;
-                    }, 1500);
                 } else {
                     toastr.error(data.message, 'Error!');
                 }

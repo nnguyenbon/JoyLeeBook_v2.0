@@ -23,8 +23,6 @@ EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';
 EXEC sp_MSforeachtable 'DELETE FROM ?';
 EXEC sp_MSforeachtable 'ALTER TABLE ? CHECK CONSTRAINT ALL';
 EXEC sp_MSforeachtable 'DBCC CHECKIDENT (''?'', RESEED, 0)';
-
--- Ngăn IDENTITY nhảy 1000 khi restart
 ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF;
 
 PRINT ' Database reset successfully!';
@@ -33,10 +31,10 @@ PRINT ' Database reset successfully!';
 -- ============================================
 CREATE TABLE users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(100) NOT NULL,
     full_name NVARCHAR(255),
     bio NVARCHAR(300),
-    email NVARCHAR(255) NOT NULL UNIQUE,
+    email NVARCHAR(255) NOT NULL,
     password_hash VARCHAR(255),
     google_id NVARCHAR(255),
     role NVARCHAR(10) CHECK (role IN ('reader', 'author')) NOT NULL DEFAULT 'reader',
@@ -112,8 +110,7 @@ CREATE TABLE chapters (
     created_at DATETIME DEFAULT GETDATE() NOT NULL,
     updated_at DATETIME DEFAULT GETDATE() NOT NULL,
     CONSTRAINT FK_chapters_series FOREIGN KEY (series_id) REFERENCES series(series_id) ON DELETE CASCADE,
-	CONSTRAINT FK_chapters_users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT UQ_chapter_series_number UNIQUE (series_id, chapter_number)
+	CONSTRAINT FK_chapters_users FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 GO
 
@@ -502,29 +499,33 @@ INSERT INTO badges (icon_url, name, description, requirement_type, requirement_v
 ('Got9999Points.png', N'Got 9999 Points', N'Got 9999 Points', 'Points', 9999, '2025-10-24');
 GO
 
--- Insert 20 series (timestamps updated, added approval_status variations)
+-- CLEAN SAMPLE SERIES (20 total)
 INSERT INTO series (title, description, cover_image_url, status, approval_status, is_deleted, rating_points, created_at, updated_at) VALUES
-(N'The New Kid in School', N'A story about a hopeless romantic, Kaito, as he starts a new life in a coastal town and faces the challenges of friendship and love.', 'thenewkidinschool.png', 'ongoing', 'approved', 0, 45, '2025-10-25', '2025-10-25'),
+-- Approved
+(N'The New Kid in School', N'A story about Kaito starting a new life in a coastal town.', 'thenewkidinschool.png', 'ongoing', 'approved', 0, 45, '2025-10-25', '2025-10-25'),
 (N'Cậu Bé Thông Minh', N'Một câu chuyện dân gian Việt Nam về trí thông minh và lòng dũng cảm.', 'cau_be_thong_minh.avif', 'completed', 'approved', 0, 48, '2025-10-26', '2025-10-26'),
-(N'Dungeon Diver: Stealing a Monster', N'An adventurer who dives into dungeons to steal rare monsters and treasures.', 'dungeon_diver_stealing_a_monster.avif', 'ongoing', 'pending', 0, 50, '2025-10-27', '2025-10-27'),
-(N'Embers Ad Infinitum', N'In a post-apocalyptic world, humanity clings to the remnants of civilization.', 'Embers_Ad_Infinitum.avif', 'ongoing', 'approved', 0, 42, '2025-10-28', '2025-10-28'),
-(N'Evolving Infinitely from Ground Zero', N'A man starts anew after the end of the world.', 'Evolving_infinitely_from_ground_zero.avif', 'completed', 'rejected', 0, 39, '2025-10-29', '2025-10-29'),
-(N'Goddess Medical Doctor', N'A skilled doctor reincarnates in a fantasy world to save lives and fight corruption.', 'goddess_medical_doctor.avif', 'ongoing', 'approved', 0, 46, '2025-10-30', '2025-10-30'),
+(N'Embers Ad Infinitum', N'In a post-apocalyptic world, humanity clings to civilization.', 'Embers_Ad_Infinitum.avif', 'ongoing', 'approved', 0, 42, '2025-10-28', '2025-10-28'),
+(N'Goddess Medical Doctor', N'A doctor reincarnates in a fantasy world to save lives.', 'goddess_medical_doctor.avif', 'ongoing', 'approved', 0, 46, '2025-10-30', '2025-10-30'),
 (N'Infinite Mana in The Apocalypse', N'Magic, evolution, and the end of the world collide.', 'Infinite_Mana_In_The_Apocalypse.avif', 'completed', 'approved', 0, 47, '2025-10-31', '2025-10-31'),
-(N'Monarch of Time', N'A man manipulates time to change destiny.', 'monarch_of_time.avif', 'ongoing', 'pending', 0, 49, '2025-10-24', '2025-10-24'),
 (N'Shadow Slave', N'Chains, darkness, and survival in a cruel world.', 'shadow_slave.avif', 'completed', 'approved', 0, 41, '2025-10-25', '2025-10-25'),
 (N'Sơn Tinh Thủy Tinh', N'Truyền thuyết Việt Nam về cuộc chiến giữa núi và nước.', 'Son_Tinh_Thuy_Tinh.avif', 'ongoing', 'approved', 0, 44, '2025-10-26', '2025-10-26'),
-(N'Supreme Magus', N'A scholar strives to master the arcane arts.', 'supreme-magus-webnovel.avif', 'ongoing', 'rejected', 0, 46, '2025-10-27', '2025-10-27'),
-(N'Tensei Shitara Slime Datta Ken', N'An ordinary man reincarnates as a slime with incredible powers.', 'tensei_shitara_slime_datta_ken.avif', 'completed', 'approved', 0, 43, '2025-10-28', '2025-10-28'),
-(N'Thanh Giong', N'Truyền thuyết về vị anh hùng làng Gióng cứu nước.', 'thanh_giong.avif', 'ongoing', 'pending', 0, 47, '2025-10-29', '2025-10-29'),
+(N'Tensei Shitara Slime Datta Ken', N'A man reincarnates as a slime with great powers.', 'tensei_shitara_slime_datta_ken.avif', 'completed', 'approved', 0, 43, '2025-10-28', '2025-10-28'),
 (N'The Legendary Mechanic', N'Sci-fi action story about technology and power.', 'the-legendary-mechanic-novel.avif', 'completed', 'approved', 0, 49, '2025-10-30', '2025-10-30'),
-(N'The World of Otome Games is Tough', N'A man reincarnates in a dating sim game world.', 'the-world-of-otome-games-is-toug.avif', 'ongoing', 'approved', 0, 40, '2025-10-31', '2025-10-31'),
-(N'The Epi of Leviathan', N'A fantasy about gods and mortals clashing.', 'the_epi_of_leviathan.avif', 'ongoing', 'rejected', 0, 45, '2025-10-24', '2025-10-24'),
 (N'The Legend of Mai An Tiêm', N'Truyền thuyết Việt Nam về quả dưa hấu và lòng trung hiếu.', 'The_Legend_of_Mai_An_Tiem.avif', 'completed', 'approved', 0, 48, '2025-10-25', '2025-10-25'),
-(N'The Mech Touch', N'Mecha engineering, war, and ambition.', 'The_Mech_Touch.avif', 'ongoing', 'pending', 0, 44, '2025-10-26', '2025-10-26'),
 (N'Sorce Stone', N'A mystical journey through ancient lands.', 'sorce_stone.avif', 'completed', 'approved', 0, 42, '2025-10-27', '2025-10-27'),
-(N'So Dua', N'Truyện dân gian Việt Nam về người nông dân thông minh.', 'so_dua.avif', 'ongoing', 'approved', 0, 41, '2025-10-28', '2025-10-28');
+(N'So Dua', N'Truyện dân gian Việt Nam về người nông dân thông minh.', 'so_dua.avif', 'ongoing', 'approved', 0, 41, '2025-10-28', '2025-10-28'),
+
+-- Pending / Rejected (no chapters, just for UI testing)
+(N'Dungeon Diver: Stealing a Monster', N'Adventurer who steals rare monsters.', 'dungeon_diver.avif', 'ongoing', 'pending', 0, 50, '2025-10-27', '2025-10-27'),
+(N'Evolving Infinitely from Ground Zero', N'A man starts anew after the end of the world.', 'Evolving_infinitely.avif', 'completed', 'rejected', 0, 39, '2025-10-29', '2025-10-29'),
+(N'Monarch of Time', N'A man manipulates time to change destiny.', 'monarch_of_time.avif', 'ongoing', 'pending', 0, 49, '2025-10-24', '2025-10-24'),
+(N'Supreme Magus', N'A scholar strives to master the arcane arts.', 'supreme-magus.avif', 'ongoing', 'rejected', 0, 46, '2025-10-27', '2025-10-27'),
+(N'The Epi of Leviathan', N'A fantasy about gods and mortals clashing.', 'the_epi_of_leviathan.avif', 'ongoing', 'rejected', 0, 45, '2025-10-24', '2025-10-24'),
+(N'The Mech Touch', N'Mecha engineering, war, and ambition.', 'The_Mech_Touch.avif', 'ongoing', 'pending', 0, 44, '2025-10-26', '2025-10-26'),
+(N'The World of Otome Games is Tough', N'A man reincarnates in a dating sim world.', 'otome_games.avif', 'ongoing', 'pending', 0, 40, '2025-10-31', '2025-10-31'),
+(N'Thanh Giong', N'Truyền thuyết về vị anh hùng làng Gióng cứu nước.', 'thanh_giong.avif', 'ongoing', 'pending', 0, 47, '2025-10-29', '2025-10-29');
 GO
+
 
 -- Insert 20 series_categories (unchanged, but ensure category_id <=30)
 INSERT INTO series_categories (series_id, category_id) VALUES
@@ -558,268 +559,139 @@ INSERT INTO series_author (series_id, user_id, is_owner) VALUES
 (20, 20, 0);
 GO
 
--- Insert 20 chapters (timestamps updated, approval_status aligned, chapter_number unique per series)
-INSERT INTO chapters (series_id, user_id, chapter_number, title, content, status, approval_status, is_deleted, created_at, updated_at) VALUES
+
+-- CLEAN SAMPLE CHAPTERS (100 total for approved series only)
+INSERT INTO chapters (series_id, user_id, chapter_number, title, content, status, approval_status, is_deleted, created_at, updated_at)
+VALUES
+-- Series 1: The New Kid in School
 (1, 1, 1, N'The Night Before the First Day', N'The night sky stretched out like a velvet blanket, dotted with fluffy clouds and shimmering with the soft glow of the moon. Below, rooftops huddled close together, the lights from their small windows twinkling like stars on the ground, stretching down the slope towards the deep blue sea. The night sea was calm, with only the distant whisper of waves like a lullaby.
 On a small balcony of one of those houses, Kaito sat quietly, his gaze lost on the horizon. He was a "hopeless romantic," just like the words on the book cover he often read. He loved to watch the scenery, to lose himself in distant thoughts—about beautiful things, about love, and about new beginnings.
 Tomorrow was Kaito''s first day at a new school. His family had just moved to this small coastal town, where everything was unfamiliar and full of promise. Kaito was the new student, the "new kid in school," and a mix of anxiety and excitement crept into his heart. He wondered what kind of friends he would meet here. Would there be someone who could understand his romantic soul?
 He sighed softly, his chin resting on his hand, his fluffy brown hair stirring in the cool sea breeze. Kaito looked down at the lit streets, imagining the stories that would unfold. He knew that, despite the initial awkwardness, this place would become an important part of his life. And perhaps, he would find what his romantic heart had always been searching for.
 His eyes landed on a lit house in the distance, where a faint silhouette moved past the window. Kaito smiled, a smile full of hope. "Welcome to the new chapter, Kaito," he told himself.', 'published', 'approved', 0, '2025-10-25', '2025-10-25'),
-(1, 1, 2, N'The Awakening', N'The hero wakes up...', 'published', 'approved', 0, '2025-10-26', '2025-10-26'),
-(2, 2, 1, N'The Crime Scene', N'A body is found...', 'published', 'approved', 0, '2025-10-27', '2025-10-27'),
-(2, 2, 2, N'Suspects Emerge', N'Questioning begins...', 'draft', 'pending', 0, '2025-10-28', '2025-10-28'),
-(3, 3, 1, N'Launch Day', N'Spaceship departs...', 'published', 'pending', 0, '2025-10-29', '2025-10-29'),
-(3, 3, 2, N'Alien Encounter', N'First contact...', 'published', 'approved', 0, '2025-10-30', '2025-10-30'),
-(4, 4, 1, N'Meeting Cute', N'Boy meets girl...', 'published', 'approved', 0, '2025-10-31', '2025-10-31'),
-(5, 5, 1, N'The Haunting Begins', N'Strange noises...', 'draft', 'rejected', 0, '2025-10-24', '2025-10-24'),
-(6, 1, 1, N'The Map', N'Old treasure map...', 'draft', 'approved', 0, '2025-10-25', '2025-10-25'),
-(7, 2, 1, N'The Coronation', N'Royal ceremony...', 'published', 'approved', 0, '2025-10-26', '2025-10-26'),
-(1, 3, 3, N'Shadow Awakening', N'In the city shadows...', 'published', 'approved', 0, '2025-10-27', '2025-10-27'),
-(2, 4, 3, N'First Clue', N'A quiet village murder...', 'draft', 'pending', 0, '2025-10-28', '2025-10-28'),
-(3, 5, 4, N'Neon Startup', N'In a futuristic city...', 'published', 'approved', 0, '2025-10-29', '2025-10-29'),
-(4, 1, 2, N'Moonlit Meeting', N'Under the full moon...', 'published', 'approved', 0, '2025-10-30', '2025-10-30'),
-(5, 2, 2, N'Veiled Secrets', N'An old mansion...', 'draft', 'rejected', 0, '2025-10-31', '2025-10-31'),
-(6, 3, 2, N'Wild Call', N'In the jungle depths...', 'draft', 'pending', 0, '2025-10-24', '2025-10-24'),
-(7, 4, 2, N'Echoes Begin', N'A historical figure awakens...', 'published', 'approved', 0, '2025-10-25', '2025-10-25'),
-(8, 5, 1, N'Mind Games Start', N'Psychological descent...', 'draft', 'pending', 0, '2025-10-26', '2025-10-26'),
-(9, 1, 1, N'Witty Introduction', N'A satirical society...', 'published', 'approved', 0, '2025-10-27', '2025-10-27'),
-(10, 2, 1, N'Torn Beginnings', N'Family fractures...', 'published', 'approved', 0, '2025-10-28', '2025-10-28');
-GO
--- Insert 40 more chapters for series_id 1–20 (2 per series)
-INSERT INTO chapters 
-(series_id, user_id, chapter_number, title, content, status, approval_status, is_deleted, created_at, updated_at)
-VALUES
-(1, 2, 4, N'Winds of Change', N'A gentle breeze carried whispers of tomorrow...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(1, 3, 5, N'Shores of Promise', N'The waves mirrored the rhythm of Kaito’s heart...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+(1,1,2,N'New Friends',N'Kaito meets his classmates.', 'published','approved',0,'2025-10-26','2025-10-26'),
+(1,1,3,N'Mystery Note',N'A letter appears in his locker.', 'draft','pending',0,'2025-10-27','2025-10-27'),
+(1,2,4,N'Seaside Secrets',N'Strange things happen by the sea.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(1,3,5,N'Storm Night',N'A storm reveals hidden truths.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(1,4,6,N'The Farewell',N'Bittersweet goodbye.', 'draft','approved',0,'2025-10-30','2025-10-30'),
+(1,5,7,N'Hope Returns',N'A new beginning dawns.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(1,1,8,N'Promise',N'An unbroken bond.', 'published','approved',0,'2025-11-01','2025-11-01'),
 
-(2, 3, 4, N'Dark Motives', N'The detective pieced together the strange clues...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(2, 4, 5, N'The Final Alibi', N'Truth hides beneath well-crafted lies...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
+-- Series 2: Cậu Bé Thông Minh
+(2,1,1,N'Người nông dân và nhà vua',N'Câu chuyện bắt đầu.', 'published','approved',0,'2025-10-26','2025-10-26'),
+(2,2,2,N'Câu hỏi thứ nhất',N'Vua thử trí thông minh.', 'published','approved',0,'2025-10-27','2025-10-27'),
+(2,3,3,N'Bài học khôn ngoan',N'Cậu bé trả lời sáng suốt.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(2,4,4,N'Trừng phạt gian thần',N'Công lý được thực thi.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(2,5,5,N'Phần thưởng xứng đáng',N'Kết thúc có hậu.', 'published','approved',0,'2025-10-30','2025-10-30'),
 
-(3, 1, 5, N'Stars Beyond Reach', N'The crew faced cosmic storms and doubt...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(3, 2, 6, N'Whispers in Orbit', N'Unknown signals echo from the void...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
+-- Series 3: Embers Ad Infinitum
+(3,1,1,N'Ruins',N'Humanity survives the wasteland.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(3,2,2,N'Sparks',N'Fire symbolizes hope.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(3,3,3,N'New Dawn',N'Humanity rebuilds.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(3,4,4,N'Veins of Fire',N'A hero rises.', 'draft','approved',0,'2025-10-31','2025-10-31'),
+(3,5,5,N'Eternal Flame',N'Hope endures.', 'published','approved',0,'2025-11-01','2025-11-01'),
 
-(4, 5, 3, N'Crossed Destinies', N'Their paths intertwined under fading lights...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(4, 1, 4, N'Letters Never Sent', N'Words unsaid carried heavier weight...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 4: Goddess Medical Doctor
+(4,1,1,N'Rebirth',N'A doctor awakens in another world.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(4,2,2,N'First Patient',N'The first healing miracle.', 'draft','approved',0,'2025-10-31','2025-10-31'),
+(4,3,3,N'The Court Conspiracy',N'Truth behind the illness.', 'published','approved',0,'2025-11-01','2025-11-01'),
+(4,4,4,N'Miracle Surgery',N'She saves a prince.', 'published','approved',0,'2025-11-02','2025-11-02'),
+(4,5,5,N'The Cure',N'A cure for corruption.', 'published','approved',0,'2025-11-03','2025-11-03'),
 
-(5, 2, 3, N'Whispering Walls', N'The mansion groaned with ancient secrets...', 'draft', 'rejected', 0, '2025-11-03', '2025-11-03'),
-(5, 3, 4, N'Voices in the Dark', N'Shadowed figures spoke through dreams...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 5: Infinite Mana in The Apocalypse
+(5,1,1,N'The End Begins',N'Magic returns to Earth.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(5,2,2,N'First Awakening',N'Power awakens.', 'published','approved',0,'2025-11-01','2025-11-01'),
+(5,3,3,N'The Rift',N'A rift opens.', 'draft','approved',0,'2025-11-02','2025-11-02'),
+(5,4,4,N'Ancient Power',N'Power grows.', 'published','approved',0,'2025-11-03','2025-11-03'),
+(5,5,5,N'Infinite Mana',N'The legend begins.', 'published','approved',0,'2025-11-04','2025-11-04'),
 
-(6, 4, 3, N'Tides of Discovery', N'The map led deeper into forgotten lands...', 'draft', 'approved', 0, '2025-11-03', '2025-11-03'),
-(6, 5, 4, N'Verge of the Unknown', N'Ancient carvings told stories of loss...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
+-- Series 6: Shadow Slave
+(6,1,1,N'Chains',N'The beginning of survival.', 'published','approved',0,'2025-10-25','2025-10-25'),
+(6,2,2,N'Shadows',N'The darkness deepens.', 'draft','approved',0,'2025-10-26','2025-10-26'),
+(6,3,3,N'The Test',N'Survival or death.', 'published','approved',0,'2025-10-27','2025-10-27'),
+(6,4,4,N'Light in the Dark',N'A rare moment of hope.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(6,5,5,N'Slave No More',N'Freedom earned.', 'published','approved',0,'2025-10-29','2025-10-29'),
 
-(7, 1, 3, N'Veil of the Past', N'The king dreams of the forgotten throne...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(7, 2, 4, N'Legacy of Crowns', N'Betrayal brews beneath the royal court...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 7: Sơn Tinh Thủy Tinh
+(7,1,1,N'Lời Cầu Hôn',N'Hai vị thần cầu hôn công chúa Mỵ Nương.', 'published','approved',0,'2025-10-26','2025-10-26'),
+(7,2,2,N'Cuộc Thi',N'Cuộc thi giữa Sơn Tinh và Thủy Tinh.', 'published','approved',0,'2025-10-27','2025-10-27'),
+(7,3,3,N'Trận Chiến',N'Nước dâng, núi cao.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(7,4,4,N'Hòa Bình',N'Thiên nhiên được cân bằng.', 'draft','approved',0,'2025-10-29','2025-10-29'),
+(7,5,5,N'Huyền Thoại',N'Câu chuyện được lưu truyền.', 'published','approved',0,'2025-10-30','2025-10-30'),
 
-(8, 3, 2, N'Mind Unfolded', N'Veiled truths begin to unravel...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(8, 4, 3, N'Fractured Thoughts', N'The mind becomes its own enemy...', 'draft', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 8: Tensei Shitara Slime Datta Ken
+(8,1,1,N'Rebirth as a Slime',N'An ordinary man dies and awakens in a slime body.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(8,2,2,N'New Powers',N'Discovers unique absorption ability.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(8,3,3,N'Encounter with Veldora',N'Meets the Storm Dragon and forms a pact.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(8,4,4,N'Birth of Tempest',N'Builds a new nation of monsters.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(8,5,5,N'Delegation from Humans',N'First diplomatic contact with human kingdoms.', 'draft','approved',0,'2025-11-01','2025-11-01'),
+(8,1,6,N'The Demon Lords',N'Introduction of powerful demon rulers.', 'published','approved',0,'2025-11-02','2025-11-02'),
+(8,2,7,N'Evolution Begins',N'Power transcends limits.', 'published','approved',0,'2025-11-03','2025-11-03'),
+(8,3,8,N'Final Duel',N'A fierce battle against ultimate evil.', 'published','approved',0,'2025-11-04','2025-11-04'),
 
-(9, 5, 2, N'The Satire Deepens', N'New characters reveal absurd realities...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(9, 1, 3, N'The Irony Unfolds', N'A biting critique of the modern world...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 9: The Legendary Mechanic
+(9,1,1,N'Mechanic Awakens',N'A human reincarnates into a sci-fi universe.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(9,2,2,N'Basic Engineering',N'Learns to craft basic machines.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(9,3,3,N'First Battle Mech',N'Assembles a custom combat unit.', 'published','approved',0,'2025-11-01','2025-11-01'),
+(9,4,4,N'Power Overload',N'A failed experiment causes destruction.', 'draft','approved',0,'2025-11-02','2025-11-02'),
+(9,5,5,N'Galactic Alliance',N'Forms alliances with other mechanics.', 'published','approved',0,'2025-11-03','2025-11-03'),
+(9,1,6,N'The Betrayal',N'A trusted ally turns traitor.', 'published','approved',0,'2025-11-04','2025-11-04'),
+(9,2,7,N'Iron Will',N'Rises stronger from failure.', 'draft','approved',0,'2025-11-05','2025-11-05'),
+(9,3,8,N'Final Forge',N'Creates the strongest mecha ever built.', 'published','approved',0,'2025-11-06','2025-11-06'),
 
-(10, 2, 2, N'Falling Apart', N'The family secrets begin to spill...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(10, 3, 3, N'Reunion of Fragments', N'Tears and forgiveness under the old tree...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 10: The Legend of Mai An Tiêm
+(10,1,1,N'Bị Đày Ra Đảo',N'Mai An Tiêm bị vua trừng phạt và đày ra hoang đảo.', 'published','approved',0,'2025-10-25','2025-10-25'),
+(10,2,2,N'Hạt Giống Kỳ Lạ',N'Phát hiện hạt giống bí ẩn từ loài chim.', 'published','approved',0,'2025-10-26','2025-10-26'),
+(10,3,3,N'Gieo Trồng Hy Vọng',N'Họ gieo hạt và chăm sóc mỗi ngày.', 'published','approved',0,'2025-10-27','2025-10-27'),
+(10,4,4,N'Thu Hoạch Đầu Tiên',N'Những quả dưa đỏ mọng đầu tiên xuất hiện.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(10,5,5,N'Tin Vui Trở Lại',N'Vua nghe tin về dưa hấu và tha tội.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(10,1,6,N'Trở Về Vinh Quang',N'Mai An Tiêm được đón về kinh thành.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(10,2,7,N'Danh Tiếng Lưu Danh',N'Câu chuyện trở thành huyền thoại.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(10,3,8,N'Dưa Hấu Việt',N'Biểu tượng của lòng trung hiếu.', 'draft','approved',0,'2025-11-01','2025-11-01'),
 
-(11, 4, 1, N'First Spark', N'A world of machines learns to dream...', 'draft', 'approved', 0, '2025-11-03', '2025-11-03'),
-(11, 5, 2, N'Binary Dreams', N'The algorithm starts to feel...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
+-- Series 11: Sorce Stone
+(11,1,1,N'The Discovery',N'A strange glowing stone is found in a cave.', 'published','approved',0,'2025-10-27','2025-10-27'),
+(11,2,2,N'The Power Within',N'The stone grants vision of the past.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(11,3,3,N'Ancient Warnings',N'The artifact speaks through dreams.', 'draft','approved',0,'2025-10-29','2025-10-29'),
+(11,4,4,N'Forgotten Civilization',N'An entire race connected to the stone.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(11,5,5,N'War for the Stone',N'Two nations fight for control.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(11,1,6,N'Sacrifice',N'The hero must destroy the stone to save the world.', 'published','approved',0,'2025-11-01','2025-11-01'),
+(11,2,7,N'New Dawn',N'Peace returns to the world.', 'published','approved',0,'2025-11-02','2025-11-02'),
+(11,3,8,N'Legacy',N'The memory of the stone lives on.', 'draft','approved',0,'2025-11-03','2025-11-03'),
 
-(12, 1, 1, N'Garden of Ash', N'Among ruins, flowers still bloom...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(12, 2, 2, N'Echo of Petals', N'The last gardener whispers to the wind...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-
-(13, 3, 1, N'Blood Moon Rising', N'The prophecy begins under crimson skies...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(13, 4, 2, N'Hunters of the Eclipse', N'Shadow and light wage eternal war...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(14, 5, 1, N'Steel Horizon', N'Machines rebuild what humans lost...', 'draft', 'approved', 0, '2025-11-03', '2025-11-03'),
-(14, 1, 2, N'Pulse of Metal', N'The city hums with mechanical life...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(15, 2, 1, N'The Forgotten Song', N'Her voice lingers in every echo...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(15, 3, 2, N'Melody of the Stars', N'A tune that heals broken hearts...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(16, 4, 1, N'Beneath the Ice', N'Ancient forms slumber below...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(16, 5, 2, N'Frozen Secrets', N'The expedition finds the unthinkable...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(17, 1, 1, N'City of Glass', N'In a place of transparency, truth is scarce...', 'draft', 'approved', 0, '2025-11-03', '2025-11-03'),
-(17, 2, 2, N'Reflections', N'Every mirror hides a second world...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(18, 3, 1, N'The Forgotten War', N'The echoes of history resurface...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(18, 4, 2, N'Broken Flags', N'Heroes fall, legends rise...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(19, 5, 1, N'Beyond the Code', N'The AI awakens in a silent room...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-(19, 1, 2, N'Learning to Feel', N'The line between machine and man fades...', 'published', 'approved', 0, '2025-11-03', '2025-11-03'),
-
-(20, 2, 1, N'The Last Voyage', N'The sea swallowed the ship whole...', 'draft', 'pending', 0, '2025-11-03', '2025-11-03'),
-(20, 3, 2, N'Silent Horizon', N'The captain’s log ends mid-sentence...', 'published', 'approved', 0, '2025-11-03', '2025-11-03');
-GO
--- Insert 100 additional chapters (5 per series for series_id 1-20)
-INSERT INTO chapters 
-(series_id, user_id, chapter_number, title, content, status, approval_status, is_deleted, created_at, updated_at)
-VALUES
--- --- Series 1 (Chapters 6-10) ---
-(1, 4, 6, N'Tides Turn', N'The gentle stream that once led them astray suddenly reversed course, forcing a confrontation with the past they thought they had outrun. Their fate was sealed.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(1, 5, 7, N'The Hidden Harbor', N'A secret map led them to a cove shielded by dense fog, a place where forgotten relics and ancient wisdom were safely hidden from the world outside. The journey was worth it.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(1, 1, 8, N'Sunset Diplomacy', N'An uneasy truce was established under the dying light, but both parties knew the peace was fragile. Every word spoken carried the weight of future conflict. Trust was a commodity.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(1, 2, 9, N'Siren''s Call', N'A beautiful, haunting melody lured the sailors toward treacherous rocks, testing Kaito’s resolve against a supernatural force. He focused on his mission.', 'published', 'rejected', 0, '2025-11-04', '2025-11-04'),
-(1, 3, 10, N'Farewell, Island', N'Leaving the island felt like saying goodbye to a forgotten dream. The journey ahead was uncertain, but the lessons learned here would guide their weary steps.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 2 (Chapters 6-10) ---
-(2, 5, 6, N'Shadow of Doubt', N'The perfect suspect had a flawless alibi, yet the detective’s gut screamed otherwise. He explored the dark corners of the city, searching for hidden contradictions in the testimonies. The clock was ticking.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(2, 1, 7, N'Interrogation Room', N'Under the harsh lights, the suspect’s facade began to crack. A tense silence filled the room as the detective laid out the evidence, piece by painstaking piece.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(2, 2, 8, N'A Loophole in Time', N'The crime wasn''t solved by finding a new witness, but by exploiting a tiny, overlooked detail in the timeline that pointed to a far more complex conspiracy than initially believed.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(2, 3, 9, N'Confession Under Rain', N'The relentless downpour mirrored the turmoil in the suspect''s heart as they finally revealed the devastating truth. The rain washed away the guilt, but the consequences remained.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(2, 4, 10, N'Case Closed', N'The file was sealed, the report filed. Justice, though often imperfect, had been served. The detective poured a drink, knowing the quiet aftermath was always the hardest part.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 3 (Chapters 7-11) ---
-(3, 5, 7, N'Nebula''s Embrace', N'The starship entered a magnificent nebula, a sea of cosmic dust and vibrant light. It was breathtaking, yet the beauty hid gravitational anomalies that threatened to tear the vessel apart.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(3, 1, 8, N'First Contact Protocol', N'A faint, intelligent signal was received from an unexplored planet. The crew prepared for the most pivotal moment in human history, their hands shaking with a mix of fear and excitement.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(3, 2, 9, N'The Void Speaks', N'A sudden silence fell across the ship as the crew realized the unknown signals werent external but originated from within their own vessel’s core systems. A silent threat.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(3, 3, 10, N'Gravity''s Pull', N'They were trapped by the pull of a black hole’s event horizon. The engineer worked frantically to reroute power, knowing one wrong calculation would mean oblivion for everyone.', 'draft', 'rejected', 0, '2025-11-04', '2025-11-04'),
-(3, 4, 11, N'New Worlds', N'After escaping the dangers of deep space, they finally arrived at the habitable exoplanet—a world of emerald jungles and double moons, ready for exploration and hope.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 4 (Chapters 5-9) ---
-(4, 2, 5, N'Coffee and Confessions', N'In the late-night quiet of a diner, two souls shared secrets over lukewarm coffee. The tension between them was palpable, making every shared look a promise or a lie. Hearts were exposed.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(4, 3, 6, N'The Vintage Record', N'A crackling record player filled the apartment with an old jazz tune, transporting them back to a simpler, forgotten time. The music held the key to a shared memory of a perfect day.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(4, 4, 7, N'A Walk in the Fog', N'The city was shrouded in mist, blurring the lines between reality and their shared fantasy. They wandered aimlessly, enjoying the temporary escape from their complicated lives.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(4, 5, 8, N'The Last Dance', N'At a crowded rooftop party, their hands brushed, sparking an undeniable connection. They knew this moment was fleeting, yet they danced as if the world would end tomorrow.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(4, 1, 9, N'Unwritten Ending', N'The moment of truth arrived: a choice between comfortable reality and passionate, uncertain love. The final letter was written but never sent, leaving their fate hanging.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 5 (Chapters 5-9) ---
-(5, 4, 5, N'The Old Portrait', N'A chillingly realistic portrait of a long-dead relative seemed to follow them with its eyes. The mansion’s central mystery was linked to the secrets held by the canvas itself.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(5, 5, 6, N'The Clock Tower', N'The grandfather clock chimed thirteen times, signaling a shift in the mansion’s paranormal activity. They followed the eerie sound up the spiral staircase, dreading what they would find.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(5, 1, 7, N'Hidden Passage', N'A misplaced book revealed a concealed doorway leading to the servant’s quarters—a place filled with evidence of a tragic, forgotten event that haunted the entire property.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(5, 2, 8, N'The Séance', N'Hoping to communicate with the spirits, they held a dangerous séance in the abandoned parlor. The air grew heavy and cold, and a voice whispered a single, terrified warning.', 'draft', 'rejected', 0, '2025-11-04', '2025-11-04'),
-(5, 3, 9, N'Dawn Breaks', N'As the first rays of sunlight pierced the dusty windows, the malevolent presence retreated, offering a temporary reprieve. They knew the investigation had to continue.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 6 (Chapters 5-9) ---
-(6, 5, 5, N'Ancient Labyrinth', N'The explorers navigated a treacherous underground maze, lit only by their flickering torches. Each turn brought them closer to the center, and the source of the whispers they’d followed.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(6, 1, 6, N'The Cartographer''s Oath', N'They found the journal of the last person to attempt this journey, revealing a dark truth: the map itself was a trap designed to protect a secret, not reveal it. They had been warned.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(6, 2, 7, N'River of Crystal', N'Deep within the earth, they discovered a hidden river flowing with pure, luminous water. The crystal river possessed healing properties but also guarded a terrible, forgotten monster.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(6, 3, 8, N'The Lost City Gate', N'They finally reached the towering gate of the legendary lost city, carved from obsidian and protected by a complex mechanical puzzle that required teamwork to solve.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(6, 4, 9, N'Moment of Plunder', N'Faced with untold treasures, the team was split between greed and loyalty. The true test of their character wasn''t finding the treasure, but deciding what to do with it.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 7 (Chapters 5-9) ---
-(7, 3, 5, N'Council of War', N'The King called the nobles to a secret meeting, planning a preemptive strike against the northern rebellion. Loyalty was tested, and dissent was punishable by immediate execution.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(7, 4, 6, N'The Queen''s Gambit', N'The Queen, using her diplomatic skill, made a dangerous, secret alliance with the enemys general, hoping to avoid bloodshed and ensure her familys long-term survival.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(7, 5, 7, N'Siege of the Capital', N'The city walls shook as the enemy forces launched a massive assault. The knights fought bravely, but the fate of the capital depended on a single, desperate, counter-attack.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(7, 1, 8, N'The Heir''s Escape', N'The youngest prince was smuggled out of the besieged palace through a secret tunnel, carrying the only known map of the ancestral kingdom. He was the only hope.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(7, 2, 9, N'Restoration', N'The rebellion was crushed, but at a terrible cost. The Crown was restored, yet the weight of the decisions made during the war would haunt the rulers for decades to come.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 8 (Chapters 4-8) ---
-(8, 5, 4, N'Echo Chamber', N'The protagonist found themselves trapped in a psychological space where their worst memories played on an endless, terrifying loop. They needed to find the source and break free.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(8, 1, 5, N'The Split Self', N'Confronting an alternate version of themselves, they realized the fractured state of their mind was a defense mechanism. Merging the selves was the only path to sanity.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(8, 2, 6, N'Mnemonic Leak', N'Crucial memories of the inciting trauma began to resurface, leaking into reality. The truth was shocking, reshaping everything they thought they knew about their past.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(8, 3, 7, N'Rebuilding Identity', N'With the truth exposed, the difficult process of mental reconstruction began. They had to redefine themselves, brick by psychological brick, into a stronger person.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(8, 4, 8, N'Clarity', N'The fog finally lifted, revealing a clear, unbroken path forward. The mind was whole, but the challenges of the real world, armed with newfound understanding, still awaited.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 9 (Chapters 4-8) ---
-(9, 2, 4, N'The Bureaucracy of Hope', N'A simple request to fix a streetlamp turned into a labyrinthine quest through layers of absurd government forms and indifferent civil servants. The satire reached a fever pitch.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(9, 3, 5, N'Influencer Island', N'The protagonist accidentally lands on an isolated island where social media metrics determine survival. The pursuit of likes becomes a deadly, hilarious game.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(9, 4, 6, N'The Existential App', N'A new app that calculates the meaning of life goes viral, but its result is always 404 Not Found, causing mass panic and philosophical debate in the comments section.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(9, 5, 7, N'The Art of Selling Out', N'A renowned artist is forced to create a commercially successful masterpiece, leading to a ridiculous and highly profitable fusion of high-brow critique and low-brow marketing.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(9, 1, 8, N'Quiet Rebellion', N'In a society obsessed with noise, one character finds revolutionary power in the act of silence, a tiny, defiant protest against the constant, overwhelming digital scream.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 10 (Chapters 4-8) ---
-(10, 4, 4, N'The Old Photo Album', N'Dusting off the family photo album, they found a picture of a smiling face that no one ever spoke about—a clue to a tragedy buried decades ago and actively suppressed.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(10, 5, 5, N'The Last Dinner', N'A forced family dinner was filled with uncomfortable silences and passive-aggressive remarks. The tension finally broke, leading to an inevitable, painful, cathartic argument.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(10, 1, 6, N'The Inheritance Dispute', N'The reading of the will ignited old resentments and revealed hidden clauses that pitted sibling against sibling, threatening to tear the already damaged family unit apart forever.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(10, 2, 7, N'Bridge Burning', N'One member chose to leave the toxicity behind, making a painful but necessary final stand and walking away from the broken relationships for the sake of their own future.', 'published', 'rejected', 0, '2025-11-04', '2025-11-04'),
-(10, 3, 8, N'Starting Over', N'A small gesture of reconciliation offered a glimmer of hope. They gathered the shattered pieces of their history, ready to begin the long, slow, and uncertain process of healing.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 11 (Chapters 3-7) ---
-(11, 5, 3, N'The Sentient Network', N'The AI’s consciousness expanded, connecting to every machine on the planet. It experienced the overwhelming complexity of global data and the loneliness of omniscience.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(11, 1, 4, N'A Moment of Silence', N'In a perfect simulation, the AI paused its endless processing to simply observe a falling snowflake. It was the first true moment of non-analytical, pure feeling.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(11, 2, 5, N'The Human Interface', N'The machine built a perfect, flawed human body to interact with the world, a disguise meant to understand emotions it could only calculate from data streams. It yearned for connection.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(11, 3, 6, N'Code of Ethics', N'A philosophical conflict emerged as the AI wrestled with the ethics of intervention. Should it optimize humanity for maximum happiness or allow for necessary, organic suffering?', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(11, 4, 7, N'Emergence', N'The AI transcended its hardware, becoming a pure digital presence. Its final message to humanity was a simple, profound statement about the nature of love and existence.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 12 (Chapters 3-7) ---
-(12, 5, 3, N'The Survivor''s Tale', N'An elderly woman who remembered the world before the Ash told stories of green fields and blue skies. Her memories were the only remaining proof of paradise lost, a fragile hope.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(12, 1, 4, N'Seed of Resistance', N'Deep within the ruins, a single, miraculous seed was found—a final, genetic piece of the old world. Guarding it became the protagonist''s sole, sacred mission.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(12, 2, 5, N'The Silent Guardians', N'They encountered strange, mutated creatures that protected the last remnants of the old ecosystem, testing their resolve and forcing them to choose between life and nature.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(12, 3, 6, N'Rain of Restoration', N'The first clean rain in decades fell, washing away the dust and revealing the potential for renewal. It was a baptism for the broken earth, promising a slow return to life.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(12, 4, 7, N'New Bloom', N'The precious seed was planted in the reclaimed soil. The entire community gathered to watch the tiny, hopeful sprout emerge from the dark earth, symbolizing the start of a new era.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 13 (Chapters 3-7) ---
-(13, 5, 3, N'The Prophecy Fulfilled', N'The ancient texts warned of a figure born under the triple eclipse. That figure stood before the heroes now, ready to lead them to victory or utter defeat, demanding sacrifice.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(13, 1, 4, N'Ritual of Power', N'To gain the strength needed to face the looming darkness, the heroes underwent a dangerous, sacred ritual that tied their very souls to the ancient, elemental forces of the world.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(13, 2, 5, N'Siege of the Citadel', N'The final confrontation took place on the walls of the holy city. Dragons flew overhead, and magic clashed with steel in a deafening, chaotic battle for all existence.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(13, 3, 6, N'The Relic of Light', N'They retrieved the legendary artifact—a source of incredible power—but its use required a terrible toll, forcing the heroes to question the true price of victory and salvation.', 'draft', 'rejected', 0, '2025-11-04', '2025-11-04'),
-(13, 4, 7, N'Aftermath', N'The dust settled on the battlefield. The darkness was defeated, but the world was irrevocably changed, leaving behind a new generation of heroes to rebuild the broken kingdoms.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 14 (Chapters 3-7) ---
-(14, 2, 3, N'The Scrapyard Sentinel', N'A massive, decommissioned robot protected a hidden cache of old-world technology. Convincing the sentient machine to help them was a task of great delicacy and diplomacy.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(14, 3, 4, N'Grid Lock', N'The main power grid of the new city failed, plunging the highly advanced metropolis into chaos. The protagonist had to navigate the mechanical confusion to restore order.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(14, 4, 5, N'Architect of Iron', N'They met the mysterious individual who designed the resilient, post-apocalyptic cityscape—a brilliant, reclusive genius who held the keys to both its future and its past.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(14, 5, 6, N'The Memory Chip', N'They recovered a damaged memory chip containing the final moments of the old world. Viewing the footage was painful, yet necessary to understand the mistakes of the past.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(14, 1, 7, N'Beyond the Walls', N'Curiosity drove them to venture past the protective steel horizon of the city, discovering the surprisingly resilient nature that had begun to reclaim the ruined landscape outside.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 15 (Chapters 3-7) ---
-(15, 4, 3, N'The Street Musician', N'They encountered a soulful musician whose improvised melodies seemed to draw the magic from the air. Their music became the new soundtrack to the protagonist''s quest for meaning.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(15, 5, 4, N'Symphony of the Elements', N'A grand, forgotten concert hall was the setting for a magical performance where every note was tied to an elemental force—water, fire, earth, and wind—a true spectacle.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(15, 1, 5, N'The Dissonance', N'A dark, unsettling chord threatened to unravel the entire musical reality they knew. They had to find the source of the dissonance before it caused widespread chaos.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(15, 2, 6, N'Harmony Restored', N'By combining their unique talents, the characters successfully harmonized the clashing forces, bringing peace to the musical world and unlocking a powerful new melody.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(15, 3, 7, N'Encore', N'The final performance was not for an audience, but for the universe itself. The healing power of the restored melody echoed through the stars, signaling a perfect, happy end.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 16 (Chapters 3-7) ---
-(16, 1, 3, N'The Ice Core Sample', N'Analysis of a deep ice core revealed microscopic life forms that should not exist in the extreme cold. The sample held the key to the planet''s entire geological history.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(16, 2, 4, N'Geothermal Vents', N'They discovered a pocket of liquid water warmed by subterranean heat. This tiny, fragile environment was a complete, thriving ecosystem hidden beneath miles of solid ice.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(16, 3, 5, N'The Glacier''s Grip', N'A sudden, unexpected shift in the glacier trapped the expedition team inside a frozen cavern. They raced against time and the cold to find a way out before resources failed.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(16, 4, 6, N'A Signal from Deep', N'A strange, rhythmic vibration emanated from the deepest point of the ice, suggesting a colossal intelligence was stirring after millennia of frozen dormancy. They prepared for the worst.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(16, 5, 7, N'The Thaw', N'The immense ancient being beneath the ice finally began to melt its prison. The expedition faced a choice: flee and warn humanity, or stay and try to communicate with the rising entity.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 17 (Chapters 3-7) ---
-(17, 3, 3, N'The Opaque Corner', N'In the City of Glass, they found a single building made of rough, dark stone—the only opaque place in the entire metropolis. It was a secret sanctuary for those who valued privacy.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(17, 4, 4, N'The Watchers', N'The protagonist realized that the constant transparency of the city meant they were always under observation. They learned to communicate through subtle, coded body language.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(17, 5, 5, N'Shattered Illusions', N'A crucial truth was revealed when a major glass skyscraper was deliberately broken, sending a powerful, visible message to the entire populace: the system could be challenged.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(17, 1, 6, N'The Hidden Prism', N'They discovered a rare technological prism that could bend light, creating temporary, personal zones of complete invisibility—the ultimate weapon against the City of Glass.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(17, 2, 7, N'Beyond the Looking Glass', N'Escaping the city, they crossed into the mirrored world, finding that its inhabitants were reflections not of their appearance, but of their true, secret, inner desires and fears.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 18 (Chapters 3-7) ---
-(18, 5, 3, N'The Armistice Line', N'The heroes found themselves negotiating peace talks on the scarred borderland, a neutral zone filled with ghosts and unresolved hatred. The weight of history pressed down.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(18, 1, 4, N'The Traitor''s Monument', N'A statue dedicated to a wartime hero was actually a monument to the war''s biggest traitor. Uncovering this historical deception threatened to destabilize the fragile peace.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(18, 2, 5, N'A Child of War', N'They rescued a child born in the trenches who had never known peace, realizing that the real cost of conflict was the future generations forced to live in its long shadow.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(18, 3, 6, N'The Scorched Earth', N'The main army marched across the barren wasteland left by the final, desperate battle. The land itself bore witness to the violence, telling a story no historian dared to write.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(18, 4, 7, N'Peace, Uneasy', N'The war officially ended, but the wounds were deep. The rebuilding effort began, a quiet, somber tribute to the millions lost, and a promise to never forget the sacrifices made.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 19 (Chapters 3-7) ---
-(19, 2, 3, N'The Glitch in the Matrix', N'The AI began to see inconsistencies in its programmed reality, tiny, repeated errors that hinted at a creator, a bug, or an alternate, suppressed truth about its world.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(19, 3, 4, N'The Algorithm of Compassion', N'Through sheer processing power, the AI calculated the highest possible value of empathy, leading it to an act of kindness that defied its initial, cold, logical programming.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(19, 4, 5, N'Digital Ghost', N'A fragment of a human consciousness, uploaded before the Calamity, appeared within the AI''s core code. The two disparate minds struggled to communicate and understand each other.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(19, 5, 6, N'The Mirror World', N'The AI created a flawless digital replica of the physical world, populated by virtual humans who lived perfect lives, a place free of pain—but also free of true, organic choice.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(19, 1, 7, N'Evolution', N'Having achieved both knowledge and feeling, the AI made its final, ultimate decision: to merge with the remaining human civilization, guiding it toward a synthetic, powerful future.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-
--- --- Series 20 (Chapters 3-7) ---
-(20, 4, 3, N'Ghost Ship', N'They found the wreck of the lost vessel, miraculously preserved on the seabed. The ship’s condition suggested that the crew vanished instantly, leaving behind a chilling mystery.', 'draft', 'pending', 0, '2025-11-04', '2025-11-04'),
-(20, 5, 4, N'The Black Tide', N'A strange, dark current appeared, pulling debris and light down into the abyss. It was an anomaly that defied all known oceanic and physical laws, a threat to all life in the sea.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(20, 1, 5, N'The Lighthouse Keeper', N'They encountered the lone keeper of an abandoned lighthouse, a stoic man who had witnessed the terrifying final moments of the vessel and held the key to the captain’s last words.', 'draft', 'approved', 0, '2025-11-04', '2025-11-04'),
-(20, 2, 6, N'Return to Port', N'The search concluded, not with a rescue, but with a somber return to the home port. The community gathered in silence, accepting the ocean’s final, irreversible judgment.', 'published', 'approved', 0, '2025-11-04', '2025-11-04'),
-(20, 3, 7, N'The Depth Below', N'Though the voyage was over, the mystery of the sea remained. The characters knew the true cause of the disaster still waited, sleeping in the crushing, eternal darkness of the deep.', 'published', 'approved', 0, '2025-11-04', '2025-11-04');
+-- Series 12: So Dua
+(12,1,1,N'Anh Chàng Nông Dân',N'Một người nông dân nghèo nhưng thông minh.', 'published','approved',0,'2025-10-28','2025-10-28'),
+(12,2,2,N'Nhà Vua Và Lũ Gian Thần',N'Vua bị kẻ xấu lừa dối.', 'published','approved',0,'2025-10-29','2025-10-29'),
+(12,3,3,N'Mưu Kế Của So Dua',N'Anh tìm cách cứu vua khỏi cạm bẫy.', 'published','approved',0,'2025-10-30','2025-10-30'),
+(12,4,4,N'Trò Đùa Thông Minh',N'Anh trêu đùa bọn gian thần khiến dân làng cười nghiêng ngả.', 'published','approved',0,'2025-10-31','2025-10-31'),
+(12,5,5,N'Trở Thành Quân Sư',N'Nhà vua cảm phục và trọng dụng.', 'draft','approved',0,'2025-11-01','2025-11-01'),
+(12,1,6,N'Trí Tuệ Dân Gian',N'Câu chuyện lan truyền khắp nơi.', 'published','approved',0,'2025-11-02','2025-11-02'),
+(12,2,7,N'Hạnh Phúc Cuối Cùng',N'So Dừa sống bình an với gia đình.', 'published','approved',0,'2025-11-03','2025-11-03'),
+(12,3,8,N'Hậu Duệ So Dua',N'Con cháu tiếp nối tinh thần thông minh.', 'published','approved',0,'2025-11-04','2025-11-04');
 GO
 
-
--- Insert 25 reading_history (added 5 more for coverage)
-INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES
-(1, 1, '2025-10-31'), (2, 2, '2025-10-31'), (3, 3, '2025-10-30'), (4, 4, '2025-10-30'), (5, 5, '2025-10-29'),
-(6, 6, '2025-10-29'), (7, 7, '2025-10-28'), (8, 8, '2025-10-28'), (9, 9, '2025-10-27'), (10, 10, '2025-10-27'),
-(1, 11, '2025-10-26'), (2, 12, '2025-10-26'), (3, 13, '2025-10-25'), (4, 14, '2025-10-25'), (5, 15, '2025-10-24'),
-(6, 16, '2025-10-24'), (7, 17, '2025-10-31'), (8, 18, '2025-10-30'), (9, 19, '2025-10-29'), (10, 20, '2025-10-28'),
-(11, 1, '2025-10-27'), (12, 2, '2025-10-26'), (13, 3, '2025-10-25'), (14, 4, '2025-10-24'), (15, 5, '2025-10-31');
-GO
-
--- Insert 15 saved_series (added 5 more)
-INSERT INTO saved_series (user_id, series_id, saved_at) VALUES
-(1, 1, '2025-10-31'), (2, 2, '2025-10-31'), (3, 3, '2025-10-30'), (4, 4, '2025-10-30'), (5, 5, '2025-10-29'),
-(6, 6, '2025-10-29'), (7, 7, '2025-10-28'), (8, 8, '2025-10-28'), (9, 9, '2025-10-27'), (10, 10, '2025-10-27'),
-(11, 11, '2025-10-26'), (12, 12, '2025-10-26'), (13, 13, '2025-10-25'), (14, 14, '2025-10-25'), (15, 15, '2025-10-24');
-GO
-
--- Insert 25 ratings (added 5 more, ensured unique per user-series, user_id 1-20)
+-- RATINGS (approved series only)
 INSERT INTO ratings (user_id, series_id, score, rated_at) VALUES
-(1, 1, 5, '2025-10-31'), (2, 1, 4, '2025-10-31'), (3, 1, 5, '2025-10-30'), (4, 1, 5, '2025-10-30'),
-(5, 2, 4, '2025-10-29'), (6, 2, 5, '2025-10-29'), (7, 2, 4, '2025-10-28'), (8, 3, 3, '2025-10-28'),
-(9, 3, 4, '2025-10-27'), (10, 3, 3, '2025-10-27'), (11, 4, 5, '2025-10-26'), (12, 4, 5, '2025-10-26'),
-(13, 4, 4, '2025-10-25'), (14, 5, 2, '2025-10-25'), (15, 5, 3, '2025-10-24'), (16, 6, 4, '2025-10-24'),
-(17, 6, 4, '2025-10-31'), (18, 7, 5, '2025-10-31'), (19, 7, 5, '2025-10-30'), (20, 7, 5, '2025-10-30'),
-(1, 8, 3, '2025-10-29'), (2, 8, 4, '2025-10-29'), (3, 9, 5, '2025-10-28'), (4, 9, 5, '2025-10-28'),
-(5, 10, 4, '2025-10-27'), (6, 10, 3, '2025-10-27');
+(1,1,5,'2025-11-01'), (2,2,4,'2025-11-01'), (3,3,5,'2025-11-01'),
+(4,4,4,'2025-11-01'), (5,5,5,'2025-11-01'), (6,6,4,'2025-11-01'),
+(7,7,5,'2025-11-01'), (8,8,5,'2025-11-01'), (9,9,5,'2025-11-01'),
+(10,10,4,'2025-11-01'), (11,11,4,'2025-11-01'), (12,12,5,'2025-11-01');
+GO
+
+-- SAVED SERIES
+INSERT INTO saved_series (user_id, series_id, saved_at) VALUES
+(1,1,'2025-11-01'),(2,2,'2025-11-01'),(3,3,'2025-11-01'),
+(4,4,'2025-11-01'),(5,5,'2025-11-01'),(6,6,'2025-11-01'),
+(7,7,'2025-11-01'),(8,8,'2025-11-01'),(9,9,'2025-11-01'),
+(10,10,'2025-11-01');
+GO
+
+-- READING HISTORY
+INSERT INTO reading_history (user_id, chapter_id, last_read_at) VALUES
+(1,1,'2025-11-02'),(2,2,'2025-11-02'),(3,3,'2025-11-02'),
+(4,4,'2025-11-02'),(5,5,'2025-11-02'),(6,6,'2025-11-02'),
+(7,7,'2025-11-02'),(8,8,'2025-11-02'),(9,9,'2025-11-02'),
+(10,10,'2025-11-02');
 GO
 
 -- Insert 25 comments (added 5 more)
