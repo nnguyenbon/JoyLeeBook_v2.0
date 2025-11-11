@@ -157,10 +157,10 @@ public class LibraryServlet extends HttpServlet {
                 savedSeriesDAO.delete(savedSeries.getUserId(), savedSeries.getSeriesId());
                 saved = false;
                 message = "Your series has been unsaved successfully";
-
             }
             //Return JSON response indicating success
             response.getWriter().print("{\"success\": true, \"saved\": " + saved + ", \"message\": \"" + message + "\"}");
+            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/library"));
         } catch (Exception ex) {
             ex.printStackTrace();
             response.getWriter().write("{\"success\": false}");

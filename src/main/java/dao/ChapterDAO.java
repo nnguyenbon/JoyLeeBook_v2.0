@@ -87,7 +87,16 @@ public class ChapterDAO {
         }
         return 0;
     }
-
+    public int getTotalChaptersCount(int seriesId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM chapters WHERE series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
     private StringBuilder buildChapterBaseQuery(boolean isCount, String search, String approvalStatus) throws SQLException {
         StringBuilder sql = new StringBuilder();
 

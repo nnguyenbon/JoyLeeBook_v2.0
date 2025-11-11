@@ -6,6 +6,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Access Object for PointHistory
+ * Handles CRUD operations and specific queries related to point history records.
+ * Assumes a database table 'point_history' with columns:
+ */
 public class PointHistoryDAO {
     private final Connection conn;
 
@@ -13,6 +18,13 @@ public class PointHistoryDAO {
         this.conn = conn;
     }
 
+    /**
+     * Inserts a new point history record into the database.
+     *
+     * @param history PointHistory object containing the details to insert.
+     * @return true if insertion was successful, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean insert(PointHistory history) throws SQLException {
         String sql = """
             INSERT INTO point_history (user_id, points_change, reason, reference_type, reference_id, created_at)
@@ -35,6 +47,13 @@ public class PointHistoryDAO {
         }
     }
 
+    /**
+     * Retrieves a point history record by its ID.
+     *
+     * @param historyId The ID of the point history record.
+     * @return PointHistory object if found, null otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public PointHistory getById(int historyId) throws SQLException {
         String sql = "SELECT * FROM point_history WHERE history_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,7 +67,12 @@ public class PointHistoryDAO {
         return null;
     }
 
-
+    /**
+     * Retrieves all point history records.
+     *
+     * @return List of PointHistory objects.
+     * @throws SQLException if a database access error occurs.
+     */
     public List<PointHistory> getAll() throws SQLException {
         List<PointHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM point_history ORDER BY created_at DESC";
@@ -61,7 +85,13 @@ public class PointHistoryDAO {
         return list;
     }
 
-
+    /**
+     * Retrieves all point history records for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return List of PointHistory objects for the user.
+     * @throws SQLException if a database access error occurs.
+     */
     public List<PointHistory> getByUserId(int userId) throws SQLException {
         List<PointHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM point_history WHERE user_id = ? ORDER BY created_at DESC";
@@ -76,7 +106,13 @@ public class PointHistoryDAO {
         return list;
     }
 
-
+    /**
+     * Deletes a point history record by its ID.
+     *
+     * @param historyId The ID of the point history record to delete.
+     * @return true if deletion was successful, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean delete(int historyId) throws SQLException {
         String sql = "DELETE FROM point_history WHERE history_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,7 +121,13 @@ public class PointHistoryDAO {
         }
     }
 
-
+    /**
+     * Deletes all point history records for a specific user.
+     *
+     * @param userId The ID of the user whose point history records are to be deleted.
+     * @return true if deletion was successful, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean deleteByUserId(int userId) throws SQLException {
         String sql = "DELETE FROM point_history WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -94,7 +136,14 @@ public class PointHistoryDAO {
         }
     }
 
-
+    /**
+     * Tracks if a user has performed a specific action today.
+     *
+     * @param userId The ID of the user.
+     * @param action The action type to track.
+     * @return true if the user has performed the action today, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean trackLogin(int userId, String action) throws SQLException {
         String sql = "SELECT 1 FROM point_history WHERE user_id = ? AND reference_type = ? AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -106,7 +155,15 @@ public class PointHistoryDAO {
         }
     }
 
-
+    /**
+     * Tracks if a user has exceeded a limit of specific actions today.
+     *
+     * @param userId The ID of the user.
+     * @param type The action type to track.
+     * @param limit The maximum allowed number of actions.
+     * @return true if the user has exceeded the limit, false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean trackAction (int userId, String type, int limit) throws SQLException {
         String sql = "SELECT COUNT(*) FROM point_history WHERE user_id = ? AND reference_type = ? AND CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -120,6 +177,14 @@ public class PointHistoryDAO {
             return true;
         }
     }
+
+    /**
+     * Extracts a PointHistory object from the current row of the given ResultSet.
+     *
+     * @param rs The ResultSet to extract data from.
+     * @return A PointHistory object populated with data from the ResultSet.
+     * @throws SQLException if a database access error occurs.
+     */
     private PointHistory extractFromResultSet(ResultSet rs) throws SQLException {
         PointHistory ph = new PointHistory();
         ph.setHistoryId(rs.getInt("history_id"));

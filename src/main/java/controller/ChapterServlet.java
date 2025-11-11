@@ -71,25 +71,33 @@ public class ChapterServlet extends HttpServlet {
 
     private void viewChapterList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
-            String search = request.getParameter("search");
+            Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
             String approvalStatus = request.getParameter("filterByStatus");
-
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
-            PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("chapter_id");
-            List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, paginationRequest);
-            for (Chapter chapter : chapterList) {
-                buildChapter(chapter, conn);
+            if (loggedInAccount instanceof Staff) {
+                String search = request.getParameter("search");
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
+                PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
+                paginationRequest.setOrderBy("chapter_id");
+                List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, paginationRequest);
+                for (Chapter chapter : chapterList) {
+                    buildChapter(chapter, conn);
+                }
+                int totalRecords = chapterDAO.getTotalChaptersCount(search, approvalStatus);
+                request.setAttribute("chapterList", chapterList);
+                request.setAttribute("size", totalRecords);
+                request.setAttribute("filterByStatus", approvalStatus);
+                PaginationUtils.sendParameter(request, paginationRequest);
+                request.setAttribute("contentPage", "/WEB-INF/views/staff/_chapterListForStaff.jsp");
+                request.setAttribute("activePage", "chapters");
+                request.setAttribute("pageTitle", "Manage Chapters");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
+            } else {
+                int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+                List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
+                request.setAttribute("chapterList", chapterList);
+                request.setAttribute("seriesId", seriesId);
+                request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
             }
-            int totalRecords = chapterDAO.getTotalChaptersCount(search, approvalStatus);
-            request.setAttribute("chapterList", chapterList);
-            request.setAttribute("size", totalRecords);
-            request.setAttribute("filterByStatus", approvalStatus);
-            PaginationUtils.sendParameter(request, paginationRequest);
-            request.setAttribute("contentPage", "/WEB-INF/views/staff/_chapterListForStaff.jsp");
-            request.setAttribute("activePage", "chapters");
-            request.setAttribute("pageTitle", "Manage Chapters");
-            request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Error loading Chapter List", e);
             request.setAttribute("error", "Unable to load your chapters.");
@@ -110,6 +118,15 @@ public class ChapterServlet extends HttpServlet {
 
     }
 
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(connection);
+        LikeDAO likeDAO = new LikeDAO(connection);
+        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+        for (Chapter chapter : chapterList) {
+            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+        }
+        return chapterList;
+    }
     /**
      * Creates a notification object for series approval/rejection.
      *
@@ -174,14 +191,9 @@ public class ChapterServlet extends HttpServlet {
 
                 request.setAttribute("chapter", chapter);
 
-//                for (Comment comment : commentList) {
-//                    buildComment(comment, conn);
-//                }
-
+                request.setAttribute("chapterId", chapterId);
                 ReadingHistoryDAO rhDAO = new ReadingHistoryDAO(conn);
                 rhDAO.updateReadingHistory(userId, chapterId);
-
-//                request.setAttribute("commentList", commentList);
                 request.setAttribute("chapter", chapter);
                 request.setAttribute("liked", liked);
                 request.setAttribute("firstChapterId", chapterList.get(0).getChapterId());
@@ -198,10 +210,7 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
-    private void buildComment(Comment comment, Connection conn) throws SQLException {
-        UserDAO userDAO = new UserDAO(conn);
-        comment.setUsername(userDAO.findById(comment.getUserId()).getUsername());
-    }
+
 
     private void showEditChapter(HttpServletRequest request, HttpServletResponse response) {
         String chapterId = request.getParameter("chapterId");
