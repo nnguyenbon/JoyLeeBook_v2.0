@@ -13,6 +13,7 @@ import jakarta.servlet.http.Part;
 import model.*;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
+import utils.ValidationInput;
 import utils.WebpConverter;
 
 import java.io.IOException;
@@ -91,6 +92,7 @@ public class SeriesServlet extends HttpServlet {
                 case "/update" -> updateSeries(request, response);
                 case "/approve" -> approveSeries(request, response);
                 case "/delete" -> deleteSeries(request, response);
+                case "/upload" -> uploadSeries(request, response);
                 default -> throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
@@ -100,7 +102,7 @@ public class SeriesServlet extends HttpServlet {
     }
 
     private void viewHomepage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try (Connection conn = DBConnection.getConnection()){
+        try (Connection conn = DBConnection.getConnection()) {
             CategoryDAO categoryDAO = new CategoryDAO(conn);
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             List<Series> listSeries = seriesDAO.getAll("approved");
@@ -109,8 +111,8 @@ public class SeriesServlet extends HttpServlet {
             }
 
             request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
-            request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
-            request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
+            request.setAttribute("weeklySeriesList", getWeeklySeries(8, listSeries));
+            request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4, listSeries));
             request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
             request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
             request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
@@ -351,11 +353,7 @@ public class SeriesServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-
-            // Readers can only view approved series
             String approvalStatus = "reader".equals(role) ? "approved" : null;
-
-            // Fetch and build series details
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
@@ -387,6 +385,7 @@ public class SeriesServlet extends HttpServlet {
                 if (ownerId == userId) {
                     request.setAttribute("owner", "true");
                 }
+                request.setAttribute("totalChapter", chapterDAO.getTotalChaptersCount(seriesId));
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -499,7 +498,9 @@ public class SeriesServlet extends HttpServlet {
             // Update series fields
             series.setTitle(title);
             series.setStatus(status);
-            series.setApprovalStatus("pending"); // Requires re-approval
+            if (series.getApprovalStatus().equals("approved")) {
+                series.setApprovalStatus("pending"); // Requires re-approval
+            }
             series.setDescription(description);
 
             // Update series in database
@@ -555,21 +556,37 @@ public class SeriesServlet extends HttpServlet {
                 return;
             }
 
-            // Create review record
-            ReviewSeries reviewSeries = new ReviewSeries();
-            reviewSeries.setSeriesId(seriesId);
-            reviewSeries.setStaffId(staffId);
-            reviewSeries.setStatus(approveStatus);
-            reviewSeries.setComment(comment);
 
-            // Insert review (database trigger will update series.approval_status)
-            if (reviewSeriesDAO.insert(reviewSeries)) {
-                // Create and send notification to series owner
-                Notification notification = createApprovalNotification(
-                        conn, seriesId, comment, approveStatus
-                );
-                notificationsDAO.insertNotification(notification);
+            // Create review record
+            ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId, staffId);
+            if  (reviewSeries == null) {
+                reviewSeries = new ReviewSeries();
+                reviewSeries.setSeriesId(seriesId);
+                reviewSeries.setStaffId(staffId);
+                reviewSeries.setStatus(approveStatus);
+                reviewSeries.setComment(comment);
+                // Insert review (database trigger will update series.approval_status)
+                if (reviewSeriesDAO.insert(reviewSeries)) {
+                    // Create and send notification to series owner
+                    Notification notification = createApprovalNotification(
+                            conn, seriesId, comment, approveStatus
+                    );
+                    notificationsDAO.insertNotification(notification);
+                }
+            } else {
+                reviewSeries.setStatus(approveStatus);
+                // Insert review (database trigger will update series.approval_status)
+                if (reviewSeriesDAO.update(reviewSeries)) {
+                    // Create and send notification to series owner
+                    Notification notification = createApprovalNotification(
+                            conn, seriesId, comment, approveStatus
+                    );
+                    notificationsDAO.insertNotification(notification);
+                }
             }
+
+
+
 
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
@@ -611,6 +628,49 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
+    //=======================================================================
+    //UPLOAD METHOD
+
+    private void uploadSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        if (userId == -1) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            Series series = seriesDAO.findById(seriesId);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            if (series.getApprovalStatus().equals("approved")) {
+                String jsonResponse = String.format(
+                        "{\"success\": false, \"message\": \"This series already been approved.\"}"
+                );
+                response.getWriter().write(jsonResponse);
+                return;
+            } else if (series.getApprovalStatus().equals("pending")) {
+                String jsonResponse = String.format(
+                        "{\"success\": false, \"message\": \"Series has already been uploaded and is pending review!\"}"
+                );
+                response.getWriter().write(jsonResponse);
+                return;
+            } else {
+                seriesDAO.updateApprovalStatus(seriesId, "pending");
+                String jsonResponse = String.format(
+                        "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
+                );
+                response.getWriter().write(jsonResponse);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Failed to upload chapter.");
+            request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
+        }
+    }
     // =========================================================================
     // UTILITY METHODS
     // =========================================================================
@@ -667,6 +727,7 @@ public class SeriesServlet extends HttpServlet {
         copy.removeIf(series -> !series.getStatus().equals(status));
         return copy.size() > limit ? copy.subList(0, limit) : copy;
     }
+
     /**
      * Creates a notification object for series approval/rejection.
      *

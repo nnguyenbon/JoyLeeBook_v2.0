@@ -92,7 +92,7 @@
             </a>
 
             <!-- Reactions -->
-            <div class="flex items-center gap-5">
+            <div class="flex items-center gap-5" ${loginedUser.role == 'author' ? "hidden" : ""}    >
                 <button
                         class="openReportChapterBtn text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
                     <i class="fa-regular fa-flag"></i></button>
@@ -197,7 +197,7 @@
         <form id="commentForm"
               action="${pageContext.request.contextPath}/comment/create?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}"
               method="post"
-              class="mt-8 flex items-center gap-2">
+              class="mt-8 flex items-center gap-2" ${loginedUser.role == 'author' ? "hidden" : ""}>
 
             <!-- Hidden khi edit -->
             <input type="hidden" id="commentId" name="commentId" value="">
@@ -216,7 +216,7 @@
 
 
         <!-- Comments -->
-        <div id="comment-list-container" class="mt-6 space-y-4">
+        <div id="comment-list-container" class="mt-6 space-y-4" ${loginedUser.role == 'author' ? "hidden" : ""}>
             <jsp:include page="/WEB-INF/views/chapter/_commentList.jsp" flush="true" />
         </div>
 
@@ -298,7 +298,7 @@
         </div>
 
         <div class="text-center">
-            <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black ">Show
+            <button class="mt-4 text-gray-400 text-sm border rounded-full px-3 py-2 hover:text-black " ${loginedUser.role == 'author' ? "hidden" : ""}>Show
                 more
             </button>
         </div>
@@ -339,6 +339,7 @@
                 })
                 .catch(error => console.error("Error:", error));
         });
+
     });
 
     const contextPath = '${pageContext.request.contextPath}';
@@ -352,7 +353,6 @@
             })
             .catch(error => console.error("Error:", error));
     }
-
     document.querySelector("#chapterListBtn").addEventListener("click", () => {
         document.querySelector("#chapterList").classList.toggle("hidden");
     })

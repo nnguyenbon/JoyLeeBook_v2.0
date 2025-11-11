@@ -35,7 +35,7 @@ public class ReviewChapterDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(mapResultSetToReview(rs));
+                list.add(mapResultSetToReviewSeries(rs));
             }
         }
         return list;
@@ -57,13 +57,27 @@ public class ReviewChapterDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToReview(rs);
+                    return mapResultSetToReviewSeries(rs);
                 }
             }
         }
         return null;
     }
 
+
+    public ReviewChapter findById(int chapterId) throws SQLException {
+        String sql = "SELECT * FROM review_chapter WHERE chapter_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, chapterId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToReviewChapter(rs);
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Retrieves all review records for a specific series.
      *
@@ -78,7 +92,7 @@ public class ReviewChapterDAO {
             stmt.setInt(1, seriesId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(mapResultSetToReview(rs));
+                    list.add(mapResultSetToReviewSeries(rs));
                 }
             }
         }
@@ -121,6 +135,22 @@ public class ReviewChapterDAO {
     }
 
     /**
+     * Updates an existing review record in the {@code review_series} table.
+     *
+     * @param review the {@link ReviewSeries} object containing updated information
+     * @return {@code true} if the update was successful, {@code false} otherwise
+     * @throws SQLException if a database access error occurs
+     */
+    public boolean update(ReviewChapter review) throws SQLException {
+        String sql = "UPDATE review_chapter SET status = ?, comment = ? WHERE chapter_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, review.getStatus());
+            stmt.setString(2, review.getComment());
+            stmt.setInt(3, review.getChapterId());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    /**
      * Deletes a review record from the {@code review_series} table.
      *
      * @param seriesId the ID of the series
@@ -144,7 +174,7 @@ public class ReviewChapterDAO {
      * @return a populated {@link ReviewSeries} object
      * @throws SQLException if a database access error occurs
      */
-    private ReviewSeries mapResultSetToReview(ResultSet rs) throws SQLException {
+    private ReviewSeries mapResultSetToReviewSeries(ResultSet rs) throws SQLException {
         ReviewSeries review = new ReviewSeries();
         review.setSeriesId(rs.getInt("series_id"));
         review.setStaffId(rs.getInt("staff_id"));
@@ -157,6 +187,18 @@ public class ReviewChapterDAO {
         return review;
     }
 
+    private ReviewChapter mapResultSetToReviewChapter(ResultSet rs) throws SQLException {
+        ReviewChapter review = new ReviewChapter();
+        review.setChapterId(rs.getInt("chapter_id"));
+        review.setStaffId(rs.getInt("staff_id"));
+        review.setStatus(rs.getString("status"));
+        review.setComment(rs.getString("comment"));
+
+        Timestamp created = rs.getTimestamp("created_at");
+        review.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+
+        return review;
+    }
     public int countByStaff(int staffId) {
         String sql = "SELECT COUNT(*) AS total FROM review_chapter WHERE staff_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

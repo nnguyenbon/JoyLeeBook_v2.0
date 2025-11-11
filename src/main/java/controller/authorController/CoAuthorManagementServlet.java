@@ -24,6 +24,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Servlet implementation class CoAuthorManagementServlet
+ * Handles the management of co-authors for a series.
+ * Allows authors to add or remove co-authors from their series.
+ */
 @WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors/*")
 public class CoAuthorManagementServlet extends HttpServlet {
 
