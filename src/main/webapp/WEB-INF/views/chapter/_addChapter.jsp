@@ -78,13 +78,13 @@
                     <div>
                         <label for="status">Status: </label>
                         <select class="border border-gray-500 rounded-sm px-2 py-1" name="status" id="status">
-                            <option value="published"
-                                    <c:if test="${chapter.status eq 'published'}">selected</c:if>
-                            >Public
-                            </option>
                             <option value="draft"
-                                    <c:if test="${series.status == 'draft'}"></c:if>
+                                    <c:if test="${chapter.status == 'draft'}">selected</c:if>
                             >Draft
+                            </option>
+                            <option value="published"
+                                    <c:if test="${chapter.status == 'published'}">selected</c:if>
+                            >Public
                             </option>
                         </select>
                     </div>

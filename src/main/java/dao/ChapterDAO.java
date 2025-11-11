@@ -256,7 +256,7 @@ public class ChapterDAO {
             ps.setString(5, chapter.getContent());
             ps.setString(6, chapter.getStatus());
             ps.setString(7, chapter.getApprovalStatus());
-            ps.setBoolean(8, false);   // SQL Server BIT <- 0
+            ps.setBoolean(8, false);
             ps.setTimestamp(9, now);
             ps.setTimestamp(10, now);
 

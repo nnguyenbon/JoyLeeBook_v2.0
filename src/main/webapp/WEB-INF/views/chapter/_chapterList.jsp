@@ -53,6 +53,13 @@
                                         <i class="fa-regular fa-pen-to-square"></i>
                                     </a>
 
+                                    <button type="button"
+                                            class="upload-chapter-btn text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-300"
+                                            data-series-id="${chapter.seriesId}"
+                                            data-chapter-id="${chapter.chapterId}">
+                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                    </button>
+
                                     <a type="button"
                                        class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
                                        href="${pageContext.request.contextPath}/chapter/delete?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">

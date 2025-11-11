@@ -42,6 +42,7 @@ public class ChapterServlet extends HttpServlet {
                 case "/detail" -> viewChapterContent(request, response);
                 case "/navigate" -> navigateChapter(request, response);
                 case "/list" -> viewChapterList(request, response);
+                case "/upload" -> uploadChapter(request, response);
                 default ->  throw new ServletException("Invalid path or function does not exist.");
             }
         } catch (ServletException e) {
@@ -60,6 +61,7 @@ public class ChapterServlet extends HttpServlet {
                 case "/update" -> updateChapter(request, response);
                 case "/approve" -> approveChapter(request, response);
                 case "/delete" -> deleteChapter(request, response);
+                case "/upload" -> uploadChapter(request, response);
                 default ->  throw new ServletException("Invalid path or function does not exist.");
 
             }
@@ -93,10 +95,19 @@ public class ChapterServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
                 int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-                List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
-                request.setAttribute("chapterList", chapterList);
-                request.setAttribute("seriesId", seriesId);
-                request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
+                if (loggedInAccount instanceof User) {
+                    if (loggedInAccount.getRole().equals("author")) {
+                        List<Chapter> chapterList = buildChapterList(seriesId, "", conn);
+                        request.setAttribute("chapterList", chapterList);
+                        request.setAttribute("seriesId", seriesId);
+                        request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
+                    }
+                } else {
+                    List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
+                    request.setAttribute("chapterList", chapterList);
+                    request.setAttribute("seriesId", seriesId);
+                    request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
+                }
             }
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Error loading Chapter List", e);
@@ -276,7 +287,6 @@ public class ChapterServlet extends HttpServlet {
     }
 
 
-    // Cần xem xét lại hàm này
     private void insertChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId = user != null ? user.getUserId() : 0;
@@ -588,6 +598,67 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
+    private void uploadChapter (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+        int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
+        if (chapterId == -1) {
+            request.setAttribute("error", "Missing chapter id.");
+            request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
+            return;
+        }
+
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = user != null ? user.getUserId() : -1;
+        String role = user != null ? user.getRole() : null;
+        if (userId == -1) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+            try (Connection conn = DBConnection.getConnection()) {
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
+                ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
+                SeriesDAO seriesDAO = new SeriesDAO(conn);
+                Series  series = seriesDAO.findById(seriesId);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                if (series.getApprovalStatus().equals("rejected") || series.getApprovalStatus().equals("pending")) {
+
+                    String jsonResponse = String.format(
+                            "{\"success\": false, \"message\": \"This series can not upload chapter because is rejected.\"}"
+                    );
+                    response.getWriter().write(jsonResponse);
+                    return;
+                } else {
+                    ReviewChapter reviewChapter = reviewChapterDAO.findById(chapterId);
+                    if (reviewChapter == null && reviewChapter.getStatus().equals("pending")) {
+
+
+                        String jsonResponse = String.format(
+                                "{\"success\": false, \"message\": \"Chapter has already been uploaded and is pending review!\"}"
+                        );
+                        response.getWriter().write(jsonResponse);
+                        return;
+                    } else {
+                        chapterDAO.findById(chapterId).setStatus("published");
+                        ReviewChapter newReviewChapter = new ReviewChapter();
+                        newReviewChapter.setChapterId(chapterId);
+                        newReviewChapter.setStatus("pending");
+                        newReviewChapter.setStaffId(0);
+                        newReviewChapter.setComment("");
+                        reviewChapterDAO.insert(newReviewChapter);
+                        String jsonResponse = String.format(
+                                "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
+                        );
+                        response.getWriter().write(jsonResponse);
+                    }
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Failed to upload chapter.");
+            request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
+        }
+    }
     // Sửa lại như hàm trên
     private void showDeleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer chapterId = parseIntOrNull(request.getParameter("id"));

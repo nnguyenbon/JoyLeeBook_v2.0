@@ -41,7 +41,7 @@
             <div class="flex flex-col items-center justify-center"><span
                     class="font-semibold text-lg">${series.totalChapters}</span> Chapters
             </div>
-            <div class="flex flex-col items-center justify-center">
+            <div class="flex flex-col items-center justify-center" ${loginedUser.role == 'author' ? "hidden" : ""}>
 
                 <div class="text-gray-500 font-semibold text-lg mb-1">
                     <span id="avgRatingDisplay" class="text-yellow-400">★ ${series.avgRating}</span>
@@ -74,13 +74,6 @@
         <div class="flex items-center gap-4 mt-4">
             <c:set var="user" value="${loginedUser}"/>
             <c:set var="role" value="${user.role}"/>
-            <c:if test="${totalChapter != 0}">
-                <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
-                    <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
-                        <i class="fa-solid fa-play"></i> Start Reading
-                    </button>
-                </a>
-            </c:if>
             <c:choose>
                 <c:when test="${role == 'author'}">
                     <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
@@ -88,6 +81,11 @@
                             <i class="fa-solid fa-pen"></i> Edit
                         </button>
                     </a>
+                    <button
+                            class="upload-series-btn bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                            data-series-id="${series.seriesId}">
+                        <i class="fa-solid fa-upload"></i> Upload Series
+                    </button>
                     <form action="${pageContext.request.contextPath}/series/delete" method="post"
                           onsubmit="return confirm('Are you sure you want to delete this series?')">
                         <input type="hidden" name="seriesId" value="${series.seriesId}">
@@ -96,8 +94,16 @@
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </form>
+
                 </c:when>
                 <c:when test="${role == 'reader'}">
+                    <c:if test="${totalChapter != 0}">
+                        <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
+                            <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
+                                <i class="fa-solid fa-play"></i> Start Reading
+                            </button>
+                        </a>
+                    </c:if>
                     <button id="saveBtn"
                             class="border border-pink-400 flex items-center gap-2 text-pink-400 px-2 py-2 rounded-lg font-semibold hover:bg-red-50 transition-colors"
                             data-user-id="10" data-series-id="${series.seriesId}">
@@ -109,27 +115,30 @@
         </div>
     </div>
 
-    <div class="col-span-3 ring-2 ring-sky-600/50 rounded-lg p-4">
-        <p class="font-bold text-lg mb-2">
-            <i class="fa-regular fa-user"></i>
-            Authors
-        </p>
+    <c:if test="${loginedUser.role == 'author'}">
+        <div class="col-span-3 ring-2 ring-sky-600/50 rounded-lg p-4">
+            <p class="font-bold text-lg mb-2">
+                <i class="fa-regular fa-user"></i>
+                Authors
+            </p>
 
-        <ul class="list-disc list-inside">
-            <c:forEach var="name" items="${series.authorNameList}">
-                <li class="">
-                        ${name}
-                </li>
-            </c:forEach>
-        </ul>
+            <ul class="list-disc list-inside">
+                <c:forEach var="name" items="${series.authorNameList}">
+                    <li class="">
+                            ${name}
+                    </li>
+                </c:forEach>
+            </ul>
 
-        <c:if test="${owner}">
-            <button onclick="showModal()"
-                    class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
-                Add Co-Author
-            </button>
-        </c:if>
-    </div>
+            <c:if test="${owner}">
+                <button onclick="showModal()"
+                        class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
+                    Add Co-Author
+                </button>
+            </c:if>
+        </div>
+    </c:if>
+
 
     <!-- Summary -->
     <section class="col-span-12 grid grid-cols-12 gap-8">
@@ -313,128 +322,191 @@
                     .catch(err => console.error("Save error:", err));
             });
         }
-
-
-        /* ==========================================================
+    });
+    /* ==========================================================
            ✅ 5. Co-author Modal
         ========================================================== */
-        const modalCoauthor = document.getElementById('modalCoauthor');
-        const coauthorForm = document.getElementById('coauthorForm');
+    const modalCoauthor = document.getElementById('modalCoauthor');
+    const coauthorForm = document.getElementById('coauthorForm');
 
-        function showModal() {
-            modalCoauthor.showModal();
-        }
+    function showModal() {
+        modalCoauthor.showModal();
+    }
 
-        function closeModal() {
-            modalCoauthor.close();
-            coauthorForm.reset();
-            suggestionList.classList.add('hidden');
-        }
+    function closeModal() {
+        modalCoauthor.close();
+        coauthorForm.reset();
+        suggestionList.classList.add('hidden');
+    }
 
-        // Handle form submission
-        coauthorForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // Handle form submission
+    coauthorForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const formData = new FormData(coauthorForm);
-            const submitButton = coauthorForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Sending...';
+        const formData = new FormData(coauthorForm);
+        const submitButton = coauthorForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending...';
 
-            try {
-                const response = await fetch('${pageContext.request.contextPath}/manage-coauthors/add', {
-                    method: 'POST',
-                    body: new URLSearchParams(formData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    toastr.success(result.message);
-                    closeModal();
-                } else {
-                    toastr.error(result.message);
-                }
-            } catch (error) {
-                console.error('Error sending invitation:', error);
-                toastr.error('Failed to send invitation. Please try again.');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Send Invitation';
-            }
-        });
-
-        const usernameInput = document.getElementById('username');
-        const suggestionList = document.getElementById('suggestion');
-        let debounceTimer;
-
-        usernameInput.addEventListener('input', async () => {
-            clearTimeout(debounceTimer);
-
-            if (usernameInput.value.length > 2) {
-                debounceTimer = setTimeout(async () => {
-                    const users = await getUserName(usernameInput.value);
-                    if (users && users.length > 0) {
-                        suggestion(users);
-                    } else {
-                        suggestionList.classList.add('hidden');
-                    }
-                }, 300);
-            } else {
-                suggestionList.classList.add('hidden');
-            }
-        });
-
-        async function getUserName(username) {
-            const url = "${pageContext.request.contextPath}/manage-coauthors/users?username=" + encodeURIComponent(username);
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Response status: ${response.status}`);
-                }
-                const result = await response.json();
-                return result;
-            } catch (error) {
-                console.error('Error fetching users:', error.message);
-                return [];
-            }
-        }
-
-        // Helper function to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function suggestion(users) {
-            suggestionList.classList.remove('hidden');
-            suggestionList.innerHTML = ''; // Clear previous suggestions
-
-            users.forEach(user => {
-                const li = document.createElement('li');
-                li.className = 'py-2 px-4 hover:bg-sky-300 cursor-pointer';
-
-                // Safely set text content (automatically escapes HTML)
-                const displayName = user.username;
-                li.textContent = displayName;
-
-                // Add click handler
-                li.addEventListener('click', () => selectAuthor(user.username));
-
-                suggestionList.appendChild(li);
+        try {
+            const response = await fetch('${pageContext.request.contextPath}/manage-coauthors/add', {
+                method: 'POST',
+                body: new URLSearchParams(formData)
             });
-        }
 
-        function selectAuthor(username) {
-            suggestionList.classList.add('hidden');
-            usernameInput.value = username;
-        }
+            const result = await response.json();
 
-        // Close suggestions when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!usernameInput.contains(e.target) && !suggestionList.contains(e.target)) {
-                suggestionList.classList.add('hidden');
+            if (result.success) {
+                toastr.success(result.message);
+                closeModal();
+            } else {
+                toastr.error(result.message);
             }
+        } catch (error) {
+            console.error('Error sending invitation:', error);
+            toastr.error('Failed to send invitation. Please try again.');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Send Invitation';
+        }
+    });
+
+    const usernameInput = document.getElementById('username');
+    const suggestionList = document.getElementById('suggestion');
+    let debounceTimer;
+
+    usernameInput.addEventListener('input', async () => {
+        clearTimeout(debounceTimer);
+
+        if (usernameInput.value.length > 2) {
+            debounceTimer = setTimeout(async () => {
+                const users = await getUserName(usernameInput.value);
+                if (users && users.length > 0) {
+                    suggestion(users);
+                } else {
+                    suggestionList.classList.add('hidden');
+                }
+            }, 300);
+        } else {
+            suggestionList.classList.add('hidden');
+        }
+    });
+
+    async function getUserName(username) {
+        const url = "${pageContext.request.contextPath}/manage-coauthors/users?username=" + encodeURIComponent(username);
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('Error fetching users:', error.message);
+            return [];
+        }
+    }
+
+    // Helper function to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function suggestion(users) {
+        suggestionList.classList.remove('hidden');
+        suggestionList.innerHTML = ''; // Clear previous suggestions
+
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.className = 'py-2 px-4 hover:bg-sky-300 cursor-pointer';
+
+            // Safely set text content (automatically escapes HTML)
+            const displayName = user.username;
+            li.textContent = displayName;
+
+            // Add click handler
+            li.addEventListener('click', () => selectAuthor(user.username));
+
+            suggestionList.appendChild(li);
         });
+    }
+
+    function selectAuthor(username) {
+        suggestionList.classList.add('hidden');
+        usernameInput.value = username;
+    }
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!usernameInput.contains(e.target) && !suggestionList.contains(e.target)) {
+            suggestionList.classList.add('hidden');
+        }
+    });
+
+    //====================================
+    const contextPath = "${pageContext.request.contextPath}";
+
+    function uploadChapter(seriesId, chapterId) {
+        fetch(contextPath + '/chapter/upload?seriesId=' + seriesId + '&chapterId=' + chapterId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message, 'Success!');
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl;
+                    }, 1500);
+                } else {
+                    toastr.error(data.message, 'Error!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while uploading the chapter!', 'Error!');
+            });
+    }
+
+    document.addEventListener("click", function(e) {
+        const btn = e.target.closest(".upload-chapter-btn");
+        if (!btn) return;
+
+        e.preventDefault();       // ✅ Chặn redirect của thẻ <a>
+        e.stopPropagation();      // ✅ Ngăn bubble lên thẻ <li> hoặc <a>
+
+        const seriesId = btn.dataset.seriesId;
+        const chapterId = btn.dataset.chapterId;
+        uploadChapter(seriesId, chapterId);
+    });
+
+    document.addEventListener("click", function (e) {
+        const btnSeries = e.target.closest(".upload-series-btn");
+        if (btnSeries) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const seriesId = btnSeries.dataset.seriesId;
+
+            fetch(contextPath + `/series/upload?seriesId=`+seriesId, {
+                method: "POST"
+            })
+                .then(r => r.text())
+                .then(text => {
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.success) {
+                            toastr.success(json.message || "Uploaded!");
+                        } else {
+                            toastr.error(json.message || "Failed");
+                        }
+                    } catch (err) {
+                        console.error("Invalid JSON:", text);
+                        toastr.error("Server returned invalid JSON");
+                    }
+                })
+                .catch(err => toastr.error("Request failed"));
+        }
     });
 </script>
