@@ -1,6 +1,6 @@
 <%-- register-author-modal.jsp --%>
 <div id="registerAuthorModal"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 hidden">
+     class="fixed inset-0 z-100 flex items-center justify-center bg-opacity-50 hidden">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-lg h-[80vh] flex flex-col relative animate-fade-in">
 
         <!-- Header -->
