@@ -14,7 +14,7 @@
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2 flex flex-col h-full">
         <!-- Search & Filter Form -->
         <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm"
-              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-3 mt-2">
             <!-- Ô tìm kiếm -->
             <div class="col-span-2 relative">
                 <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>

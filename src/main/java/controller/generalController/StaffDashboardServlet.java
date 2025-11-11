@@ -137,7 +137,6 @@ public class StaffDashboardServlet extends HttpServlet {
 
             if ("staff".equals(role)) {
                 request.setAttribute("pageTitle", "Staff Dashboard");
-                request.setAttribute("activePage", "overview");
                 request.setAttribute("contentPage", "/WEB-INF/views/general/StaffDashboard.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {

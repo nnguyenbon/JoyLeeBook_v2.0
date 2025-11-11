@@ -18,7 +18,16 @@ GO
 
 USE JoyLeeBook_v2;
 GO
+-- Xóa dữ liệu
+EXEC sp_MSforeachtable 'ALTER TABLE ? NOCHECK CONSTRAINT ALL';
+EXEC sp_MSforeachtable 'DELETE FROM ?';
+EXEC sp_MSforeachtable 'ALTER TABLE ? CHECK CONSTRAINT ALL';
+EXEC sp_MSforeachtable 'DBCC CHECKIDENT (''?'', RESEED, 0)';
 
+-- Ngăn IDENTITY nhảy 1000 khi restart
+ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF;
+
+PRINT ' Database reset successfully!';
 -- ============================================
 -- 1. USERS TABLE
 -- ============================================
@@ -75,7 +84,7 @@ CREATE TABLE series (
     status NVARCHAR(20) CHECK (status IN ('completed', 'ongoing')) DEFAULT 'ongoing' NOT NULL,
 	approval_status NVARCHAR(20) CHECK (approval_status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending' NOT NULL,
     is_deleted BIT DEFAULT 0 NOT NULL,
-    rating_points  DEFAULT 0 NOT NULL,
+    rating_points INT DEFAULT 0 NOT NULL,
     created_at DATETIME DEFAULT GETDATE() NOT NULL,
     updated_at DATETIME DEFAULT GETDATE() NOT NULL
 );
@@ -412,7 +421,7 @@ USE JoyLeeBook_v2;
 GO
 -- Insert 20 users (unchanged structure, timestamps to recent dates)
 INSERT INTO users (username, full_name, bio, email, password_hash, google_id, role, is_verified, is_deleted, status, points, created_at, updated_at) VALUES
-('reader1', N'John Doe', N'Book lover', 'john@example.com', 'hash1', NULL, 'reader', 1, 0, 'active', 100, '2025-10-25', '2025-10-25'),
+('reader', N'John Doe', N'Book lover', 'reader@example.com', '$2a$10$39UOPPwOgXRF/Iaeo6CGg.bFQ8lVGx6ixef39nKp27Yax7tTe.fwS', NULL, 'reader', 1, 0, 'active', 100, '2025-10-25', '2025-10-25'),
 ('author1', N'Jane Smith', N'Fantasy writer', 'jane@example.com', 'hash2', NULL, 'author', 1, 0, 'active', 500, '2025-10-26', '2025-10-26'),
 ('reader2', N'Mike Johnson', N'Casual reader', 'mike@example.com', 'hash3', NULL, 'reader', 0, 0, 'active', 50, '2025-10-27', '2025-10-27'),
 ('author2', N'Emily Davis', N'Mystery author', 'emily@example.com', 'hash4', NULL, 'author', 1, 0, 'active', 300, '2025-10-28', '2025-10-28'),
@@ -434,18 +443,17 @@ INSERT INTO users (username, full_name, bio, email, password_hash, google_id, ro
 ('author10', N'Lucas Garcia', N'Fantasy creator', 'lucas@example.com', 'hash20', 'google789', 'author', 1, 0, 'active', 700, '2025-10-28', '2025-10-28');
 GO
 
--- Insert 10 staffs (timestamps updated)
+-- XÓA TẤT CẢ DỮ LIỆU CŨ TRƯỚC KHI INSERT
+DELETE FROM staffs;
+GO
+
 INSERT INTO staffs (username, password_hash, full_name, role, is_deleted, created_at, updated_at) VALUES
-('staff1', 'staffhash1', N'Alice Moderator', 'staff', 0, '2025-10-25', '2025-10-25'),
-('admin1', 'adminhash1', N'Bob Admin', 'admin', 0, '2025-10-26', '2025-10-26'),
+('admin', '$2a$10$39UOPPwOgXRF/Iaeo6CGg.bFQ8lVGx6ixef39nKp27Yax7tTe.fwS', N'Bob Admin', 'admin', 0, '2025-10-26', '2025-10-26'),
+('staff1', '$2a$10$39UOPPwOgXRF/Iaeo6CGg.bFQ8lVGx6ixef39nKp27Yax7tTe.fwS', N'Alice Moderator', 'staff', 0, '2025-10-25', '2025-10-25'),
 ('staff2', 'staffhash2', N'Carol Reviewer', 'staff', 0, '2025-10-27', '2025-10-27'),
-('admin2', 'adminhash2', N'Dave SuperAdmin', 'admin', 0, '2025-10-28', '2025-10-28'),
 ('staff3', 'staffhash3', N'Eve Checker', 'staff', 0, '2025-10-29', '2025-10-29'),
-('admin3', 'adminhash3', N'Frank Manager', 'admin', 0, '2025-10-30', '2025-10-30'),
 ('staff4', 'staffhash4', N'Grace Editor', 'staff', 0, '2025-10-31', '2025-10-31'),
-('admin4', 'adminhash4', N'Hank Supervisor', 'admin', 0, '2025-10-24', '2025-10-24'),
-('staff5', 'staffhash5', N'Ivy Approver', 'staff', 0, '2025-10-25', '2025-10-25'),
-('admin5', 'adminhash5', N'Jack Owner', 'admin', 0, '2025-10-26', '2025-10-26');
+('staff5', 'staffhash5', N'Ivy Approver', 'staff', 0, '2025-10-25', '2025-10-25');
 GO
 
 -- Insert 30 categories (timestamps updated)
@@ -524,10 +532,30 @@ INSERT INTO series_categories (series_id, category_id) VALUES
 (11, 11), (12, 12), (13, 13), (14, 14), (15, 15), (16, 16), (17, 17), (18, 18), (19, 19), (20, 20);
 GO
 
--- Insert 20 series_author (fixed: no added_at, added is_owner variations, timestamps removed as no column)
+DELETE FROM series_author;
+GO
+
 INSERT INTO series_author (series_id, user_id, is_owner) VALUES
-(1, 2, 1), (2, 4, 1), (3, 6, 0), (4, 8, 1), (5, 10, 0), (6, 1, 1), (7, 3, 0), (8, 5, 1), (9, 7, 0), (10, 9, 1),
-(11, 2, 0), (12, 4, 1), (13, 6, 0), (14, 8, 1), (15, 10, 0), (16, 1, 1), (17, 3, 0), (18, 5, 1), (19, 7, 0), (20, 9, 1);
+(1, 2, 1),   -- author1
+(2, 4, 1),   -- author2
+(3, 6, 1),   -- author3
+(4, 8, 1),   -- author4
+(5, 10, 1),  -- author5
+(6, 12, 1),  -- author6
+(7, 14, 1),  -- author7
+(8, 16, 1),  -- author8
+(9, 18, 1),  -- author9
+(10, 20, 1), -- author10
+(11, 2, 0),  -- author1 góp thêm
+(12, 4, 0),
+(13, 6, 0),
+(14, 8, 0),
+(15, 10, 0),
+(16, 12, 0),
+(17, 14, 0),
+(18, 16, 0),
+(19, 18, 0),
+(20, 20, 0);
 GO
 
 -- Insert 20 chapters (timestamps updated, approval_status aligned, chapter_number unique per series)
@@ -840,12 +868,12 @@ INSERT INTO reports (reporter_id, staff_id, target_type, comment_id, chapter_id,
 (5, 5, 'comment', 4, NULL, N'Harassment', 'resolved', '2025-10-29', '2025-10-29'),
 (6, NULL, 'chapter', NULL, 6, N'Copyright issue', 'pending', '2025-10-30', '2025-10-30'),
 (7, 6, 'comment', 6, NULL, N'Inaccurate', 'rejected', '2025-10-31', '2025-10-31'),
-(8, 7, 'chapter', NULL, 2, N'Poor quality', 'resolved', '2025-10-24', '2025-10-24'),
-(9, 8, 'comment', 9, NULL, N'Off-topic', 'pending', '2025-10-25', '2025-10-25'),
-(1, 9, 'comment', 5, NULL, N'Offensive language', 'pending', '2025-10-26', '2025-10-26'),
-(2, 10, 'chapter', NULL, 5, N'Content violation', 'resolved', '2025-10-27', '2025-10-27'),
+(8, 1, 'chapter', NULL, 2, N'Poor quality', 'resolved', '2025-10-24', '2025-10-24'),
+(9, 1, 'comment', 9, NULL, N'Off-topic', 'pending', '2025-10-25', '2025-10-25'),
+(1, 1, 'comment', 5, NULL, N'Offensive language', 'pending', '2025-10-26', '2025-10-26'),
+(2, 2, 'chapter', NULL, 5, N'Content violation', 'resolved', '2025-10-27', '2025-10-27'),
 (3, NULL, 'comment', 3, NULL, N'Duplicate content', 'rejected', '2025-10-28', '2025-10-28'),
-(4, 1, 'chapter', NULL, 1, N'Inappropriate theme', 'pending', '2025-10-29', '2025-10-29'),
+(4, 2, 'chapter', NULL, 1, N'Inappropriate theme', 'pending', '2025-10-29', '2025-10-29'),
 (5, 2, 'comment', 10, NULL, N'Spoiler alert', 'resolved', '2025-10-30', '2025-10-30'),
 (6, NULL, 'chapter', NULL, 11, N'Plagiarism concern', 'pending', '2025-10-31', '2025-10-31'),
 (7, 3, 'comment', 7, NULL, N'Harsh criticism', 'rejected', '2025-10-24', '2025-10-24'),
@@ -887,35 +915,35 @@ INSERT INTO review_series (series_id, staff_id, status, comment, created_at) VAL
 (3, 3, 'pending', N'Needs more world-building details.', '2025-10-27'),
 (4, 4, 'approved', N'Post-apoc theme handled masterfully.', '2025-10-28'),
 (5, 5, 'rejected', N'Lacks originality in evolution mechanics.', '2025-10-29'),
-(6, 6, 'approved', N'Compelling medical fantasy blend.', '2025-10-30'),
-(7, 7, 'approved', N'Apocalyptic mana system innovative.', '2025-10-31'),
-(8, 8, 'pending', N'Time manipulation needs clarification.', '2025-10-24'),
-(9, 9, 'approved', N'Dark fantasy survival gripping.', '2025-10-25'),
-(10, 10, 'approved', N'Vietnamese legend retelling excellent.', '2025-10-26');
+(6, 4, 'approved', N'Compelling medical fantasy blend.', '2025-10-30'),
+(7, 4, 'approved', N'Apocalyptic mana system innovative.', '2025-10-31'),
+(8, 5, 'pending', N'Time manipulation needs clarification.', '2025-10-24'),
+(9, 5, 'approved', N'Dark fantasy survival gripping.', '2025-10-25'),
+(10, 6, 'approved', N'Vietnamese legend retelling excellent.', '2025-10-26');
 GO
 
 -- Insert 20 review_chapter (timestamps updated)
 INSERT INTO review_chapter (chapter_id, staff_id, status, comment, created_at) VALUES
 (1, 1, 'approved', N'Good content, well structured.', '2025-10-25'),
 (2, 2, 'approved', N'Well written and engaging.', '2025-10-26'),
-(3, 3, 'pending', N'Awaiting secondary review.', '2025-10-27'),
-(4, 4, 'rejected', N'Needs major revision for clarity.', '2025-10-28'),
-(5, 5, 'approved', N'Excellent pacing and tone.', '2025-10-29'),
-(6, 6, 'approved', N'Meets all publication criteria.', '2025-10-30'),
-(7, 7, 'pending', N'Awaiting final feedback.', '2025-10-31'),
-(8, 8, 'rejected', N'Poor narrative flow, needs rewrite.', '2025-10-24'),
-(9, 9, 'rejected', N'Lacks coherence and structure.', '2025-10-25'),
-(10, 10, 'approved', N'Clean and polished.', '2025-10-26'),
+(3, 1, 'pending', N'Awaiting secondary review.', '2025-10-27'),
+(4, 2, 'rejected', N'Needs major revision for clarity.', '2025-10-28'),
+(5, 2, 'approved', N'Excellent pacing and tone.', '2025-10-29'),
+(6, 1, 'approved', N'Meets all publication criteria.', '2025-10-30'),
+(7, 1, 'pending', N'Awaiting final feedback.', '2025-10-31'),
+(8, 2, 'rejected', N'Poor narrative flow, needs rewrite.', '2025-10-24'),
+(9, 3, 'rejected', N'Lacks coherence and structure.', '2025-10-25'),
+(10, 3, 'approved', N'Clean and polished.', '2025-10-26'),
 (11, 1, 'approved', N'Solid opening, sets tone well.', '2025-10-27'),
 (12, 2, 'pending', N'Review in progress by senior editor.', '2025-10-28'),
 (13, 3, 'approved', N'Engaging tech details, clear style.', '2025-10-29'),
 (14, 4, 'rejected', N'Too clichéd, lacks originality.', '2025-10-30'),
 (15, 5, 'approved', N'Atmospheric and emotionally strong.', '2025-10-31'),
 (16, 6, 'pending', N'Needs grammar corrections before approval.', '2025-10-24'),
-(17, 7, 'approved', N'Accurate historical references.', '2025-10-25'),
-(18, 8, 'pending', N'Requires deeper thematic review.', '2025-10-26'),
-(19, 9, 'approved', N'Funny, sharp, and well-paced.', '2025-10-27'),
-(20, 10, 'rejected', N'Overly dramatic; lacks subtlety.', '2025-10-28');
+(17, 2, 'approved', N'Accurate historical references.', '2025-10-25'),
+(18, 3, 'pending', N'Requires deeper thematic review.', '2025-10-26'),
+(19, 4, 'approved', N'Funny, sharp, and well-paced.', '2025-10-27'),
+(20, 5, 'rejected', N'Overly dramatic; lacks subtlety.', '2025-10-28');
 GO
 
 -- Insert 20 point_history (timestamps updated)

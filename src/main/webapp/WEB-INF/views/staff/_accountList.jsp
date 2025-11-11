@@ -5,10 +5,10 @@
     <div class="bg-white h-full shadow-lg shadow-gray-400 rounded-2xl px-5 py-4 m-0 flex flex-col h-full">
 
         <!-- Header -->
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mb-3">
             <!-- Search & Filter Form -->
             <form method="GET" action="${pageContext.request.contextPath}/account/list" id="filterForm"
-                  class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-1">
+                  class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
 
                 <!-- Search Input -->
                 <div class="col-span-2 relative">
@@ -146,7 +146,6 @@
                                     <i class="fa-regular fa-eye mr-1"></i>Detail
                                 </a>
 
-                                <!-- ADMIN dropdown -->
                                 <!-- ADMIN & STAFF DROPDOWN -->
                                 <c:if test="${loginedUser.role eq 'admin' || loginedUser.role eq 'staff'}">
                                     <div class="relative">

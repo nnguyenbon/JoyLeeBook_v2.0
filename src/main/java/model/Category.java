@@ -5,6 +5,7 @@ public class Category {
     private String name;
     private String description;
     private int totalSeries;
+    private String createdAt;
 
     public Category() {}
     public int getCategoryId() {
@@ -37,5 +38,12 @@ public class Category {
 
     public void setTotalSeries(int totalSeries) {
         this.totalSeries = totalSeries;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

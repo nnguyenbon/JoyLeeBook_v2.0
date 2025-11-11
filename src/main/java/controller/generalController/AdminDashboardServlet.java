@@ -3,136 +3,114 @@ package controller.generalController;
 import dao.*;
 import db.DBConnection;
 import model.Account;
+import model.Staff;
 import model.staff.DashboardStats;
-import model.staff.QuickStats;
-import model.staff.RecentAction;
+import model.staff.InteractionStats;
+import model.staff.GenreStats;
+import model.staff.WeeklyUserStats;
+import model.staff.WeeklyReportStats;
+import utils.AuthenticationUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Staff;
-import utils.AuthenticationUtils;
 
 import java.io.IOException;
-
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
- * Servlet implementation class StaffDashboardServlet
- * Handles requests for the staff dashboard page.
- * Retrieves dashboard statistics, recent actions, and quick stats for the logged-in staff member.
- * Forwards the data to the StaffDashboard JSP for rendering.
+ * Servlet implementation class AdminDashboardServlet
+ * Handles requests for the admin dashboard page.
  */
 @WebServlet("/admin")
 public class AdminDashboardServlet extends HttpServlet {
 
-    /**
-     * Handles the HTTP POST method.
-     * Currently not implemented.
-     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
-     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // Not implemented
     }
 
-    /**
-     * Handles the HTTP GET method.
-     * Retrieves dashboard statistics, recent actions, and quick stats for the logged-in staff member.
-     * Forwards the data to the StaffDashboard JSP for rendering.
-     * @param request  the HttpServletRequest object that contains the request the client made to the servlet
-     * @param response the HttpServletResponse object that contains the response the servlet returns to the client
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException      if an I/O error occurs
-     */
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
         Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
-        int staffIdParam = ((Staff) loggedInAccount).getStaffId();
-        String role = ((Staff) loggedInAccount).getRole();
+
+        if (loggedInAccount == null || !(loggedInAccount instanceof Staff)) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        Staff staff = (Staff) loggedInAccount;
+        String role = staff.getRole();
 
         try (Connection conn = DBConnection.getConnection()) {
-            //Check authentication
+            // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             UserDAO userDAO = new UserDAO(conn);
+            StaffDAO staffDAO = new StaffDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             ReportDAO reportDAO = new ReportDAO(conn);
-            ChapterDAO  chapterDAO = new ChapterDAO(conn);
-            ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
-            ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
-            DashboardStats stats = new DashboardStats();
+            InteractionDAO interactionDAO = new InteractionDAO(conn);
+            CategoryDAO categoryDAO = new CategoryDAO(conn);
 
-            // Total Series: COUNT(series) WHERE is_deleted = 0
-            stats.setTotalSeries(seriesDAO.countAllNonDeleted());
+            // Main Dashboard Stats
+            DashboardStats dashboardStats = new DashboardStats();
 
-            stats.setPendingSeries(seriesDAO.countByStatus("pending"));
+            // Series Statistics
+            dashboardStats.setTotalSeries(seriesDAO.countAllNonDeleted());
+            dashboardStats.setActiveUsers(userDAO.countActiveUsers());
+            dashboardStats.setAuthors(userDAO.countActiveAuthors());
+            dashboardStats.setBannedUsers(userDAO.countBannedUsers());
+            dashboardStats.setStaffs(staffDAO.countAllActive());
 
-            stats.setYourReviewSeries(reviewSeriesDAO.countByStaff(staffIdParam));
+            // Chapter Statistics
+            dashboardStats.setTotalChapters(chapterDAO.countAllNonDeleted());
+            dashboardStats.setPendingChapters(chapterDAO.countByStatus("pending"));
+            dashboardStats.setRejectedChapters(chapterDAO.countByStatus("rejected"));
 
-            stats.setYourRejectSeries(reviewSeriesDAO.countByStaffAndStatus(staffIdParam, "rejected"));
-            // Active Users: COUNT(users) WHERE status = 'active' AND role IN ('reader', 'author')
-            stats.setActiveUsers(userDAO.countActiveUsers());
+            // Report Statistics
+            dashboardStats.setTotalReports(reportDAO.countAll());
+            dashboardStats.setPendingReports(reportDAO.countByStatus("pending"));
 
-            // Authors: COUNT(users) WHERE role = 'author' AND status = 'active'
-            stats.setAuthors(userDAO.countActiveAuthors());
+            // Interaction Statistics (for bar chart)
+            InteractionStats interactionStats = interactionDAO.getTotalInteractions();
 
-            // Banned Users: COUNT(users) WHERE status = 'banned'
-            stats.setBannedUsers(userDAO.countBannedUsers());
+            // Genre Statistics (for pie chart)
+            List<GenreStats> genreStatsList = categoryDAO.getGenreDistribution();
 
-            // Total Reports: COUNT(reports) WHERE is_deleted IS NULL (tất cả)
-            stats.setTotalReports(reportDAO.countAll());
-
-            // Pending Reports: COUNT(reports) WHERE status = 'pending'
-            stats.setPendingReports(reportDAO.countByStatus("pending"));
-
-            // Reports You’ve Handled: COUNT(reports) WHERE staff_id = ? AND status = 'resolved'
-            stats.setHandledReports(reportDAO.countHandledByStaff(staffIdParam, "resolved"));
-
-            // Total Chapters: COUNT(chapters) WHERE is_deleted = 0
-            stats.setTotalChapters(chapterDAO.countAllNonDeleted());
-
-            // Your Reviews: COUNT(review_chapter) WHERE staff_id = ?
-            stats.setYourReviews(reviewChapterDAO.countByStaff(staffIdParam));
-
-            // Pending Chapters: COUNT(chapters) WHERE status = 'pending'
-            stats.setPendingChapters(chapterDAO.countByStatus("pending"));
-
-            // Your Rejects: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected'
-            stats.setYourRejects(reviewChapterDAO.countByStaffAndStatus(staffIdParam, "rejected"));
-
+            // Weekly User Statistics (for area chart)
             LocalDate today = LocalDate.now();
-            Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            LocalDate weekAgo = today.minusDays(30); // Last 7 days including today
+            Timestamp startOfWeek = Timestamp.valueOf(weekAgo.atStartOfDay());
 
-            List<RecentAction> recentActions = reviewChapterDAO.getRecentActionsByStaff(staffIdParam, startOfDay, 4);;
-            QuickStats quickStats = new QuickStats();
+            WeeklyUserStats weeklyUserStats = userDAO.getWeeklyUserStats(startOfWeek);
 
-            // Reviews completed: COUNT(review_chapter) WHERE staff_id = ? AND created_at >= ?
-            quickStats.setReviewsCompleted(reviewChapterDAO.countByStaffAndDate(staffIdParam, startOfDay));
+            // Weekly Report Statistics (for area chart)
+            WeeklyReportStats weeklyReportStats = reportDAO.getWeeklyReportStats(startOfWeek);
 
-            // Content approved: COUNT(review_chapter) WHERE staff_id = ? AND status = 'approved' AND created_at >= ?
-            quickStats.setContentApproved(reviewChapterDAO.countByStaffStatusAndDate(staffIdParam, "approved", startOfDay));
+            // Set attributes for JSP
+            request.setAttribute("dashboardStats", dashboardStats);
+            request.setAttribute("interactionStats", interactionStats);
+            request.setAttribute("genreStatsList", genreStatsList);
+            request.setAttribute("weeklyUserStats", weeklyUserStats);
+            request.setAttribute("weeklyReportStats", weeklyReportStats);
+            request.setAttribute("staffName", staff.getFullName());
 
-            // Content rejected: COUNT(review_chapter) WHERE staff_id = ? AND status = 'rejected' AND created_at >= ?
-            quickStats.setContentRejected(reviewChapterDAO.countByStaffStatusAndDate(staffIdParam, "rejected", startOfDay));
+            // Layout attributes
+            request.setAttribute("pageTitle", "Admin Dashboard");
+            request.setAttribute("contentPage", "/WEB-INF/views/staff/_viewStatistics.jsp");
 
-            // Reports resolved: COUNT(reports) WHERE staff_id = ? AND status = 'resolved' AND updated_at >= ?
-            quickStats.setReportsResolved(reportDAO.countResolvedByStaffAndDate(staffIdParam, startOfDay));
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp")
+                    .forward(request, response);
 
-            // Set attributes cho JSP
-            request.setAttribute("dashboardStats", stats);
-            request.setAttribute("recentActions", recentActions);
-            request.setAttribute("quickStats", quickStats);
-
-            request.setAttribute("pageTitle", "Staff Dashboard");
-            request.setAttribute("activePage", "overview");
-            request.setAttribute("contentPage", "/WEB-INF/views/general/StaffDashboard.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
-        }catch (Exception e) {
-            throw new ServletException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServletException("Error loading admin dashboard", e);
         }
     }
 }

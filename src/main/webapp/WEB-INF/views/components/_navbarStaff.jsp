@@ -15,13 +15,13 @@
         <nav class="">
             <c:choose>
                 <c:when test="${loginedUser.role == 'admin'}">
-                    <a href="${pageContext.request.contextPath}/admin" class="flex items-center px-4 py-2  ${activePage == 'overview' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
+                    <a href="${pageContext.request.contextPath}/admin" class="flex items-center px-4 py-2  ${pageTitle == 'Admin Dashboard' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
                         <i class="fa-solid fa-chart-pie"></i>
                         <span class="ml-2">Overview</span>
                     </a>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/staff" class="flex items-center px-4 py-2  ${activePage == 'overview' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
+                    <a href="${pageContext.request.contextPath}/staff" class="flex items-center px-4 py-2  ${pageTitle == 'Staff Dashboard' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
                         <i class="fa-solid fa-chart-pie"></i>
                         <span class="ml-2">Overview</span>
                     </a>

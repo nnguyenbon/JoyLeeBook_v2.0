@@ -7,7 +7,7 @@
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2 flex flex-col h-full">
         <div class="flex items-center gap-5">
             <!-- Tabs Header -->
-            <div class="border-b border-gray-200 flex items-center gap-5 mb-3">
+            <div class="border-b border-gray-200 flex items-center gap-5 mb-3 mt-2">
                 <a href="${pageContext.request.contextPath}/report/list?type=chapter&filterByStatus="
                    id="tab-chapter"
                    class="tab-btn text-xl ${type == 'chapter' ? 'text-[#195DA9] border-b-4 border-[#195DA9]' : 'text-gray-500 border-b-4 border-white hover:text-[#195DA9]'} py-1">
@@ -20,12 +20,12 @@
                 </a>
             </div>
             <!-- Search & Filter Form -->
-            <form method="GET" action="${pageContext.request.contextPath}/report/list" id="filterForm" class="mb-3">
+            <form method="GET" action="${pageContext.request.contextPath}/report/list" id="filterForm">
                 <input type="hidden" name="type" value="${type}">
                 <!-- Lọc status -->
-                <div class="col-span-1">
+                <div class="w-56">
                     <select name="filterByStatus" id="filterByStatus"
-                            class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full border border-gray-300 rounded-lg py-2 px-3 mb-3 mt-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All status</option>
                         <option value="resolved" ${statusFilter eq 'resolved' ? 'selected' : ''}>Resolved</option>
                         <option value="rejected" ${statusFilter eq 'rejected' ? 'selected' : ''}>Rejected</option>
@@ -122,7 +122,7 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
 
-                                    <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                                    <ul class="absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
                                         <li>
                                             <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
