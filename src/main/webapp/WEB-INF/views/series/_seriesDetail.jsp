@@ -318,21 +318,71 @@
         /* ==========================================================
            ✅ 5. Co-author Modal
         ========================================================== */
-        const modalCoauthor = document.getElementById("modalCoauthor");
+        const modalCoauthor = document.getElementById('modalCoauthor');
+        const coauthorForm = document.getElementById('coauthorForm');
 
-        window.showModal = () => modalCoauthor.showModal();
-        window.closeModal = () => modalCoauthor.close();
+        function showModal() {
+            modalCoauthor.showModal();
+        }
 
-        const usernameInput = document.getElementById("username");
-        const suggestionList = document.getElementById("suggestion");
-        usernameInput.addEventListener('input', async () => {
-            if (usernameInput.value.length > 3) {
-                const users = await getUserName(usernameInput.value)
-                suggestion(users);
+        function closeModal() {
+            modalCoauthor.close();
+            coauthorForm.reset();
+            suggestionList.classList.add('hidden');
+        }
+
+        // Handle form submission
+        coauthorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(coauthorForm);
+            const submitButton = coauthorForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('${pageContext.request.contextPath}/manage-coauthors/add', {
+                    method: 'POST',
+                    body: new URLSearchParams(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    toastr.success(result.message);
+                    closeModal();
+                } else {
+                    toastr.error(result.message);
+                }
+            } catch (error) {
+                console.error('Error sending invitation:', error);
+                toastr.error('Failed to send invitation. Please try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Invitation';
             }
-        })
+        });
 
+        const usernameInput = document.getElementById('username');
+        const suggestionList = document.getElementById('suggestion');
+        let debounceTimer;
 
+        usernameInput.addEventListener('input', async () => {
+            clearTimeout(debounceTimer);
+
+            if (usernameInput.value.length > 2) {
+                debounceTimer = setTimeout(async () => {
+                    const users = await getUserName(usernameInput.value);
+                    if (users && users.length > 0) {
+                        suggestion(users);
+                    } else {
+                        suggestionList.classList.add('hidden');
+                    }
+                }, 300);
+            } else {
+                suggestionList.classList.add('hidden');
+            }
+        });
 
         async function getUserName(username) {
             const url = "${pageContext.request.contextPath}/manage-coauthors/users?username=" + encodeURIComponent(username);
@@ -341,7 +391,6 @@
                 if (!response.ok) {
                     throw new Error(`Response status: ${response.status}`);
                 }
-
                 const result = await response.json();
                 return result;
             } catch (error) {
@@ -350,6 +399,7 @@
             }
         }
 
+        // Helper function to prevent XSS
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -358,13 +408,19 @@
 
         function suggestion(users) {
             suggestionList.classList.remove('hidden');
-            suggestionList.innerHTML = ''; // Clear old suggestions
+            suggestionList.innerHTML = ''; // Clear previous suggestions
 
             users.forEach(user => {
                 const li = document.createElement('li');
                 li.className = 'py-2 px-4 hover:bg-sky-300 cursor-pointer';
-                li.textContent = user.username; // Safe, not innerHTML
+
+                // Safely set text content (automatically escapes HTML)
+                const displayName = user.username;
+                li.textContent = displayName;
+
+                // Add click handler
                 li.addEventListener('click', () => selectAuthor(user.username));
+
                 suggestionList.appendChild(li);
             });
         }
@@ -374,6 +430,7 @@
             usernameInput.value = username;
         }
 
+        // Close suggestions when clicking outside
         document.addEventListener('click', (e) => {
             if (!usernameInput.contains(e.target) && !suggestionList.contains(e.target)) {
                 suggestionList.classList.add('hidden');
