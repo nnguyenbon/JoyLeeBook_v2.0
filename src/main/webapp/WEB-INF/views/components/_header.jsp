@@ -110,30 +110,55 @@ change this template use File | Settings | File Templates. --%>
                             <c:choose>
                                 <c:when test="${not empty userNotifications}">
                                     <c:forEach var="noti" items="${userNotifications}">
-                                        <a href="${pageContext.request.contextPath}${noti.urlRedirect}"
-                                           class="block p-2 rounded-lg notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'}"
-                                           data-id="${noti.notificationId}"
-                                        >
-                                            <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
-                                                    ${noti.title}
-                                            </p>
-                                            <p class="text-xs text-gray-600">${noti.message}</p>
-                                        </a>
-                                        <hr class="my-1"/>
+                                        <ul class="h-96 overflow-y-auto">
+
+<%--                                            noti bình thường --%>
+                                            <li class="border-b border-gray-500">
+                                                <a
+                                                        href="${pageContext.request.contextPath}${noti.urlRedirect}"
+                                                        class="block p-2  rounded-lg notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'}"
+                                                        data-id="${noti.notificationId}"
+                                                >
+                                                    <p
+                                                            class="font-semibold truncate ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}"
+                                                    >
+                                                            ${noti.title}
+                                                    </p>
+                                                    <p class="text-xs text-gray-600 py-1">${noti.message}</p>
+                                                </a>
+                                            </li>
+
+<%--                                            noti author mời người khác --%>
+                                            <li class="border-b border-gray-500">
+                                                <a
+                                                        href="${pageContext.request.contextPath}${noti.urlRedirect}"
+                                                        class="block p-2  rounded-lg notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'}"
+                                                        data-id="${noti.notificationId}"
+                                                >
+                                                    <p
+                                                            class="font-semibold truncate ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}"
+                                                    >
+                                                            ${noti.title}
+                                                    </p>
+                                                    <p class="text-xs text-gray-600 py-1">${noti.message}</p>
+
+                                                    <div class="flex justify-end gap-2 text-xs font-semibold">
+                                                        <button class="py-1 px-3 bg-sky-200 rounded-md hover:bg-sky-300 text-sky-700 hover:text-black cursor-pointer ">
+                                                            Accept
+                                                        </button>
+                                                        <button class="py-1 px-3 border border-gray-300 rounded-md hover:bg-gray-300 cursor-pointer">
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
                                     <p class="text-sm text-gray-500 p-2">You have no notifications.</p>
                                 </c:otherwise>
                             </c:choose>
-                        </div>
-
-                        <hr class="my-2"/>
-                        <div class="text-center">
-                            <a href="${pageContext.request.contextPath}/notifications/all"
-                               class="text-sm font-medium text-blue-600 hover:underline">
-                                See All Notifications
-                            </a>
                         </div>
                     </div>
                 </div>
