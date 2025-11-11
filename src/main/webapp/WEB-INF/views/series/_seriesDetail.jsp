@@ -16,54 +16,24 @@
     </div>
 
     <!-- Right (Title, Info, Tags) -->
-    <div class="col-span-4 h-full flex flex-col justify-between">
-        <h1 class="text-4xl font-bold">${series.title}</h1>
-
-        <!-- Tác giả -->
-        <p class="text-gray-600">
-            by
-            <span class="font-semibold">
-            <c:forEach var="author" items="${series.authorNameList}" varStatus="loop">
-                ${author}<c:if test="${!loop.last}">, </c:if>
-            </c:forEach>
-        </span>
-        </p>
-
-        <!-- Thể loại + Trạng thái -->
-        <div class="flex flex-wrap items-center gap-2">
-
-            <!-- Danh mục -->
-            <c:forEach var="category" items="${series.categoryList}">
-            <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
-                    ${category.name}
-            </span>
-            </c:forEach>
-
-            <!-- Trạng thái -->
-            <c:choose>
-                <c:when test="${series.status == 'Completed'}">
-                <span class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
-                        ${series.status}
-                </span>
-                </c:when>
-                <c:when test="${series.status == 'Ongoing'}">
-                <span class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium">
-                        ${series.status}
-                </span>
-                </c:when>
-                <c:otherwise>
-                <span class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                        ${series.status}
-                </span>
-                </c:otherwise>
-            </c:choose>
-
-        </div>
-
+    <div class="col-span-4 h-full flex flex-col justify-between"><h1 class="text-4xl font-bold">${series.title}</h1>
+        <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold"> <c:forEach var="author"
+                                                                                              items="${series.authorNameList}"
+                                                                                              varStatus="loop"> ${author}
+            <c:if test="${!loop.last}">, </c:if> </c:forEach> </span></p> <!-- Thể loại + Trạng thái -->
+        <div class="flex flex-wrap items-center gap-2"> <!-- Danh mục --> <c:forEach var="category"
+                                                                                     items="${series.categoryList}">
+            <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full"> ${category.name} </span> </c:forEach>
+            <!-- Trạng thái --> <c:choose> <c:when test="${series.status == 'Completed'}"> <span
+                    class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.status} </span> </c:when>
+                <c:when test="${series.status == 'Ongoing'}"> <span
+                        class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.status} </span> </c:when>
+                <c:otherwise> <span
+                        class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium"> ${series.status} </span> </c:otherwise>
+            </c:choose></div>
         <div class="flex items-center gap-30">
-            <div class="flex flex-col items-center justify-center">
-                <span class="font-semibold text-lg">${series.totalChapters}</span>
-                Chapters
+            <div class="flex flex-col items-center justify-center"><span
+                    class="font-semibold text-lg">${series.totalChapters}</span> Chapters
             </div>
             <div class="flex flex-col items-center justify-center">
 
@@ -159,11 +129,8 @@
 
     <!-- Summary -->
     <section class="col-span-12 grid grid-cols-12 gap-8">
-        <div class="col-span-10 col-start-2">
-            <h2 class="font-semibold text-xl mb-3">Summary</h2>
-            <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700">
-                ${series.description}
-            </div>
+        <div class="col-span-10 col-start-2"><h2 class="font-semibold text-xl mb-3">Summary</h2>
+            <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700"> ${series.description} </div>
         </div>
     </section>
     <!-- Chapter List -->

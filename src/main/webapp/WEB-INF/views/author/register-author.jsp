@@ -1,6 +1,6 @@
 <%-- register-author-modal.jsp --%>
 <div id="registerAuthorModal"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 hidden">
+     class="fixed inset-0 z-100 flex items-center justify-center bg-opacity-50 hidden">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-lg h-[80vh] flex flex-col relative animate-fade-in">
 
         <!-- Header -->
@@ -53,7 +53,7 @@
         <div class="border-t border-gray-300 p-6">
             <p class="font-semibold mb-3">Do you agree to these terms?</p>
             <div class="flex justify-end space-x-3">
-                <form action="${pageContext.request.contextPath}/register-author" method="get" class="m-0">
+                <form action="${pageContext.request.contextPath}/author/register" method="get" class="m-0">
                     <button id="agreeButton" type="submit"
                             class="bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition cursor-not-allowed"
                             disabled>
@@ -71,9 +71,21 @@
 </div>
 
 <script>
-    function openRegisterAuthorModal() {
-        document.getElementById('registerAuthorModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // chặn scroll body
+    async function openRegisterAuthorModal() {
+        try {
+            const res = await fetch('<%= request.getContextPath() %>' + '/author/check');
+            const data = await res.json();
+
+            if (data.isAuthor) {
+                window.location.href = '<%= request.getContextPath() %>' + '/author/register';
+            } else {
+                const modal = document.getElementById('registerAuthorModal');
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        } catch (err) {
+            console.error('Failed to check author status', err);
+        }
     }
 
     function closeRegisterAuthorModal() {

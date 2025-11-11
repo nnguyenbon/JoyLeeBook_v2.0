@@ -44,10 +44,12 @@ change this template use File | Settings | File Templates. --%>
         }
     }
 %>
+<%@ include file="../author/register-author.jsp" %>
+
 <header class="sticky top-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
-            <a href="${pageContext.request.contextPath}/${loginedUser.role == 'author' ? "author" : ""}">
+            <a href="${pageContext.request.contextPath}/${loginedUser.role == 'author' ? "author" : "homepage"}">
                 <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="logo"/>
             </a>
         </div>
@@ -92,26 +94,25 @@ change this template use File | Settings | File Templates. --%>
         </div>
         <c:if test="${loginedUser != null}">
             <div class="col-span-2 text-right">
-                <button
-                        class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]" ${loginedUser.role == 'author' ? "hidden" : ""}
-                >
-                    <a href="${pageContext.request.contextPath}/register-author"
-                       class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent"
-                    >
-                        Write Now
-                    </a>
-                </button>
+
+                    <button class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
+                        ${loginedUser.role == 'author' ? "hidden" : ""}
+                            onclick="openRegisterAuthorModal(); return false;">
+                        <span class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent">
+                            Write Now
+                        </span>
+                    </button>
             </div>
-                <div class="col-span-1 relative flex justify-left items-center" >
-                    <button id="BtnNotify"
-                            class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600" ${loginedUser.role == 'author' ? '' : 'hidden'}>
-                        <i class="fa-solid fa-bell"></i>
-                        <c:if test="${unreadCount > 0}">
+            <div class="col-span-1 relative flex justify-left items-center">
+                <button id="BtnNotify"
+                        class="relative px-3 py-2 flex items-center gap-1 text-2xl text-gray-600 hover:text-blue-600" ${loginedUser.role == 'author' ? '' : 'hidden'}>
+                    <i class="fa-solid fa-bell"></i>
+                    <c:if test="${unreadCount > 0}">
                             <span class="absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                                     ${unreadCount > 9 ? '9+' : unreadCount}
                             </span>
-                        </c:if>
-                    </button>
+                    </c:if>
+                </button>
 
                     <div id="MenuNotify"
                          class="hidden absolute right-0 top-full mt-2 w-96 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50 text-left">

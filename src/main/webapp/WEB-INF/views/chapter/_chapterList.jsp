@@ -11,7 +11,7 @@
     <div class="flex justify-between items-center w-full mb-3">
         <h2 class="font-semibold text-xl ">Chapter List</h2>
         <a
-                href="${pageContext.request.contextPath}/chapter/add?seriesId=${series.seriesId}"
+                href="${pageContext.request.contextPath}/chapter/add?seriesId=${seriesId}"
                 class="px-4 py-2 bg-sky-800 text-white rounded-lg hover:bg-sky-900 cursor-pointer transition duration-300" ${loginedUser.role == 'author' ? "" : "hidden"}>Create
             Chapter
             <i class="fa-solid fa-circle-plus"></i>
