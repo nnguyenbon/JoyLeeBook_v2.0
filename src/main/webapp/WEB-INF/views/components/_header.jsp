@@ -121,18 +121,18 @@ change this template use File | Settings | File Templates. --%>
                             <c:choose>
                                 <c:when test="${not empty userNotifications}">
                                     <c:forEach var="noti" items="${userNotifications}">
-                                        <div class="notification-item ${noti.isRead() ? 'bg-white' : 'bg-blue-50'} p-2 rounded-lg mb-2"
+                                        <div class="notification-item ${noti.read ? 'bg-white' : 'bg-blue-50'} p-2 rounded-lg mb-2"
                                              data-id="${noti.notificationId}">
 
                                             <c:choose>
                                                 <%-- Co-author invitation notification - detect by title or URL --%>
                                                 <c:when test="${noti.title == 'Co-Author Invitation' or fn:contains(noti.urlRedirect, 'action=coauthor_invite')}">
-                                                    <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
+                                                    <p class="text-sm font-semibold ${noti.read ? 'text-gray-700' : 'text-blue-800'}">
                                                             ${noti.title}
                                                     </p>
                                                     <p class="text-xs text-gray-600 mb-2">${noti.message}</p>
 
-                                                    <c:if test="${!noti.isRead()}">
+                                                    <c:if test="${!noti.read}">
                                                         <%-- Extract seriesId from URL --%>
                                                         <c:set var="urlParams" value="${noti.urlRedirect}"/>
                                                         <c:set var="seriesIdMatch" value="${fn:substringAfter(urlParams, 'seriesId=')}"/>
@@ -158,7 +158,7 @@ change this template use File | Settings | File Templates. --%>
                                                 <c:otherwise>
                                                     <a href="${pageContext.request.contextPath}${noti.urlRedirect}"
                                                        class="block notification-link">
-                                                        <p class="text-sm font-semibold ${noti.isRead() ? 'text-gray-700' : 'text-blue-800'}">
+                                                        <p class="text-sm font-semibold ${noti.read ? 'text-gray-700' : 'text-blue-800'}">
                                                                 ${noti.title}
                                                         </p>
                                                         <p class="text-xs text-gray-600">${noti.message}</p>
@@ -377,7 +377,8 @@ change this template use File | Settings | File Templates. --%>
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `notificationId=${notificationId}&seriesId=${seriesId}`
+                body: 'notificationId=' + encodeURIComponent(notificationId)
+                    + '&seriesId=' + encodeURIComponent(seriesId)
             });
 
             const result = await response.json();
@@ -411,7 +412,8 @@ change this template use File | Settings | File Templates. --%>
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `notificationId=${notificationId}&seriesId=${seriesId}`
+                body: 'notificationId=' + encodeURIComponent(notificationId)
+                    + '&seriesId=' + encodeURIComponent(seriesId)
             });
 
             const result = await response.json();
