@@ -48,6 +48,7 @@
     </div>
 </section>
 <main class="">
+    <div>${pageContext.request.contextPath}</div>
     <section class="mt-10 grid grid-cols-12 gap-x-5 relative">
         <div class="col-span-9">
             <p class="pt-6 pb-4 font-bold text-3xl">Hot Series</p>

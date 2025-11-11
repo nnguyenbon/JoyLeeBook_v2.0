@@ -2,6 +2,7 @@ package controller.authorController;
 
 import dao.UserDAO;
 import db.DBConnection;
+import model.Account;
 import model.User;
 
 import jakarta.servlet.ServletException;
@@ -21,13 +22,40 @@ import java.sql.SQLException;
  * Redirects to the author dashboard upon successful registration.
  * If the user is already an author, redirects to the author dashboard directly.
  */
-@WebServlet(name = "RegisterAuthorServlet", value = "/register-author")
+@WebServlet(name = "RegisterAuthorServlet", value = "/author/*")
 public class RegisterAuthorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String path = request.getPathInfo();
+        switch (path) {
+            case "/register" -> RegsiterAuthor(request, response);
+            case "/check"-> CheckRole(request, response);
+        }
+    }
+
+    private void CheckRole(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        Account account = AuthenticationUtils.getLoginedUser(request.getSession());
+        boolean isAuthor = false;
+
+        if (account != null) {
+            try (Connection conn = DBConnection.getConnection()) {
+                UserDAO userDAO = new UserDAO(conn);
+                isAuthor = userDAO.isAuthor(account.getEmail());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        response.getWriter().write("{\"isAuthor\": " + isAuthor + "}");
+    }
+
+    private void RegsiterAuthor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         try (Connection conn = DBConnection.getConnection()) {
             UserDAO userDAO = new UserDAO(conn);
-            if (userDAO.isAuthor(user.getEmail())) {
+            if (!userDAO.isAuthor(user.getEmail())) {
                 userDAO.updateUserRoleToAuthor(user.getUsername(), user.getFullName(), user.getEmail());
             }
             if (user.getRole().equals("reader")) {
@@ -35,13 +63,12 @@ public class RegisterAuthorServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/author");
             } else {
                 user.setRole("reader");
-                response.sendRedirect(request.getContextPath() + "/series/list");
+                response.sendRedirect(request.getContextPath() + "/homepage");
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
-
     //    public void extractDataFromAuthorId(List<Series> seriesList, HttpServletRequest request) throws SQLException {
 //        try {
 //            LikeDAO likesDAO = new LikeDAO(connection);

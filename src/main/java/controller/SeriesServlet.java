@@ -31,7 +31,7 @@ import java.util.*;
  * Utilizes DAOs for database interactions and utility classes for common tasks.
  */
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
-@WebServlet(urlPatterns = {"/series/*", "/", "/homepage"})
+@WebServlet(urlPatterns = {"/series/*", "/homepage"})
 public class SeriesServlet extends HttpServlet {
 
     // =========================================================================
@@ -50,17 +50,20 @@ public class SeriesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String action = request.getPathInfo();
-            if (action == null) action = "/";
+            String servletPath = request.getServletPath();
+            if (servletPath.equals("/homepage")) {
+                viewHomepage(request, response);
+            } else {
+                String action = request.getPathInfo();
+                if (action == null) action = "/";
 
-            switch (action) {
-                case "/add" -> showAddSeriesForm(request, response);
-                case "/edit" -> showEditSeriesForm(request, response);
-                case "/detail" -> viewSeriesDetail(request, response);
-                case "/list" -> viewSeriesList(request, response);
-                case "/" -> viewHomepage(request, response);
-//                case "/homepage" -> viewHomepage(request, response);
-                default -> throw new ServletException("Invalid path or function does not exist.");
+                switch (action) {
+                    case "/add" -> showAddSeriesForm(request, response);
+                    case "/edit" -> showEditSeriesForm(request, response);
+                    case "/detail" -> viewSeriesDetail(request, response);
+                    case "/list" -> viewSeriesList(request, response);
+                    default -> throw new ServletException("Invalid path or function does not exist.");
+                }
             }
         } catch (ServletException e) {
             e.printStackTrace();

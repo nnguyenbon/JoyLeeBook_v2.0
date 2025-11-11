@@ -447,13 +447,12 @@
         document.getElementById('reportChapterModal').classList.add('hidden');
     });
 
-    function deleteComment(commentId, seriesId, chapterId) {
+    function deleteComment(commentId, chapterId) {
         fetch("${pageContext.request.contextPath}/comment/delete", {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: new URLSearchParams({
                 commentId,
-                seriesId,
                 chapterId
             })
         }).then(response => {
