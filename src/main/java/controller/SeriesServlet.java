@@ -31,7 +31,7 @@ import java.util.*;
  * Utilizes DAOs for database interactions and utility classes for common tasks.
  */
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
-@WebServlet("/series/*")
+@WebServlet(urlPatterns = {"/series/*", "/homepage"})
 public class SeriesServlet extends HttpServlet {
 
     // =========================================================================
@@ -50,15 +50,20 @@ public class SeriesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            String action = request.getPathInfo();
-            if (action == null) action = "/";
+            String servletPath = request.getServletPath();
+            if (servletPath.equals("/homepage")) {
+                viewHomepage(request, response);
+            } else {
+                String action = request.getPathInfo();
+                if (action == null) action = "/";
 
-            switch (action) {
-                case "/add" -> showAddSeriesForm(request, response);
-                case "/edit" -> showEditSeriesForm(request, response);
-                case "/detail" -> viewSeriesDetail(request, response);
-                case "/list" -> viewSeriesList(request, response);
-                default -> throw new ServletException("Invalid path or function does not exist.");
+                switch (action) {
+                    case "/add" -> showAddSeriesForm(request, response);
+                    case "/edit" -> showEditSeriesForm(request, response);
+                    case "/detail" -> viewSeriesDetail(request, response);
+                    case "/list" -> viewSeriesList(request, response);
+                    default -> throw new ServletException("Invalid path or function does not exist.");
+                }
             }
         } catch (ServletException e) {
             e.printStackTrace();
@@ -93,6 +98,31 @@ public class SeriesServlet extends HttpServlet {
             throw e;
         }
     }
+
+    private void viewHomepage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try (Connection conn = DBConnection.getConnection()){
+            CategoryDAO categoryDAO = new CategoryDAO(conn);
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            List<Series> listSeries = seriesDAO.getAll("approved");
+            for (Series series : listSeries) {
+                buildSeries(conn, series);
+            }
+
+            request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
+            request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
+            request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
+            request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
+            request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
+            request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
+            request.setAttribute("categories", categoryDAO.getAll());
+            request.setAttribute("pageTitle", "JoyLeeBook");
+            request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     // =========================================================================
     // CREATE OPERATIONS
@@ -272,25 +302,26 @@ public class SeriesServlet extends HttpServlet {
                 String ajaxHeader = request.getHeader("X-Requested-With");
                 if ("XMLHttpRequest".equals(ajaxHeader)) {
                     request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
-                } else {
-                    CategoryDAO categoryDAO = new CategoryDAO(conn);
-                    List<Series> listSeries = seriesDAO.getAll("approved");
-                    for (Series series : listSeries) {
-                        buildSeries(conn, series);
-                    }
-
-                    request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
-                    request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
-                    request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
-                    request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
-                    request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
-                    request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
-
-                    request.setAttribute("categories", categoryDAO.getAll());
-                    request.setAttribute("pageTitle", "JoyLeeBook");
-                    request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
-                    request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
                 }
+//                else {
+//                    CategoryDAO categoryDAO = new CategoryDAO(conn);
+//                    List<Series> listSeries = seriesDAO.getAll("approved");
+//                    for (Series series : listSeries) {
+//                        buildSeries(conn, series);
+//                    }
+//
+//                    request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
+//                    request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
+//                    request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
+//                    request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
+//                    request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
+//                    request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
+//
+//                    request.setAttribute("categories", categoryDAO.getAll());
+//                    request.setAttribute("pageTitle", "JoyLeeBook");
+//                    request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
+//                    request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+//                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Error displaying series list", e);

@@ -95,6 +95,7 @@ public class ChapterServlet extends HttpServlet {
                 int seriesId = Integer.parseInt(request.getParameter("seriesId"));
                 List<Chapter> chapterList = buildChapterList(seriesId, approvalStatus, conn);
                 request.setAttribute("chapterList", chapterList);
+                request.setAttribute("seriesId", seriesId);
                 request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
             }
         } catch (SQLException e) {

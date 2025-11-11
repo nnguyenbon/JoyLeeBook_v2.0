@@ -1,191 +1,127 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: haishelby
-  Date: 10/15/25
-  Time: 11:03 AM
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register as Author</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Istok+Web:wght@400;700&display=swap"
-          rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<%-- register-author-modal.jsp --%>
+<div id="registerAuthorModal"
+     class="fixed inset-0 z-100 flex items-center justify-center bg-opacity-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg h-[80vh] flex flex-col relative animate-fade-in">
 
-    <style>
-        body {
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-        }
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-300 flex flex-col items-center">
+            <h1 class="text-2xl font-bold mb-2">Register As Author</h1>
+            <p class="text-gray-700 text-center">
+                Please review and accept the following terms to become an author on our platform
+            </p>
+        </div>
 
-        .register-container {
-            background: #FFFFFF;
-            width: 700px;
-            max-width: 90%;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin: 40px 0;
-        }
+        <!-- Nội dung có scroll -->
+        <div id="termsContent" class="flex-1 overflow-y-auto px-8 py-4 text-gray-800">
+            <ul class="space-y-3">
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>You must have a verified user account before submitting your author registration request.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>You are required to provide a short biography that accurately represents you as an author.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>All information and uploaded content must follow our community guidelines and must not include any offensive, harmful, or copyrighted materials.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>Your content submissions request will be reviewed by our staff or admin team before approval. You will receive a notification regarding the result.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>You must take full responsibility for all works, stories, and materials you publish on this platform.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>As an author, you are responsible for maintaining the quality and originality of your works.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>The platform and its administrators are not liable for any legal or copyright issues resulting from your published content.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check-circle text-blue-500 mr-3 mt-1"></i>
+                    <span>The platform reserves the right to suspend or revoke author privileges if any rules or content policies are violated.</span>
+                </li>
+            </ul>
+        </div>
 
-        .register-title {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 34px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #000000;
-        }
-
-        .register-description {
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            margin-bottom: 25px;
-            color: #333;
-        }
-
-        .separator {
-            border: 0;
-            height: 1px;
-            background: #000000;
-            margin: 20px 0;
-        }
-
-        .terms-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .term-item {
-            display: flex;
-            align-items: flex-start;
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            line-height: 1.5;
-            color: #000000;
-            margin-bottom: 18px;
-        }
-
-        .term-item i {
-            color: #195DA9;
-            font-size: 24px;
-            margin-right: 15px;
-            margin-top: -2px;
-        }
-
-        .agreement-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 25px;
-        }
-
-        .agreement-text {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 20px;
-            color: #000000;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn-agree {
-            background: #195DA9;
-            color: #ECF1FE;
-            font-family: 'Istok Web', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            border: none;
-            border-radius: 10px;
-            padding: 8px 30px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .btn-cancel {
-            background: #FFFFFF;
-            color: #000000;
-            font-family: 'Istok Web', sans-serif;
-            font-size: 16px;
-            border: 1px solid #D9D9D9;
-            border-radius: 10px;
-            padding: 8px 30px;
-            text-decoration: none;
-            text-align: center;
-        }
-
-    </style>
-</head>
-<body>
-
-<div class="register-container">
-    <h1 class="register-title">Register As Author</h1>
-    <p class="register-description">
-        Please review and accept the following terms to become an author on our platform.
-    </p>
-    <hr class="separator">
-
-    <ul class="terms-list">
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>You must have a verified user account before submitting your author registration request.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>You are required to provide a short biography that accurately represents you as an author.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>All information and uploaded content must follow our community guidelines and must not include any offensive, harmful, or copyrighted materials.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>Your content submissions request will be reviewed by our staff or admin team before approval. You will receive a notification regarding the result.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>You must take full responsibility for all works, stories, and materials you publish on this platform.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>As an author, you are responsible for maintaining the quality and originality of your works.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>The platform and its administrators are not liable for any legal or copyright issues resulting from your published content.</span>
-        </li>
-        <li class="term-item">
-            <i class="fas fa-check-circle"></i>
-            <span>The platform reserves the right to suspend or revoke author privileges if any rules or content policies are violated.</span>
-        </li>
-    </ul>
-
-    <hr class="separator">
-
-    <div class="agreement-section">
-        <span class="agreement-text">Do you agree to these terms?</span>
-        <div class="action-buttons">
-            <form action="${pageContext.request.contextPath}/register-author" method="post" style="margin: 0;">
-                <button type="submit" class="btn-agree">I agree</button>
-            </form>
-            <a href="${pageContext.request.contextPath}/user-profile" class="btn-cancel">Cancel</a>
+        <!-- Footer -->
+        <div class="border-t border-gray-300 p-6">
+            <p class="font-semibold mb-3">Do you agree to these terms?</p>
+            <div class="flex justify-end space-x-3">
+                <form action="${pageContext.request.contextPath}/author/register" method="get" class="m-0">
+                    <button id="agreeButton" type="submit"
+                            class="bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition cursor-not-allowed"
+                            disabled>
+                        I agree
+                    </button>
+                </form>
+                <button type="button"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition"
+                        onclick="closeRegisterAuthorModal()">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
-</body>
-</html>
+<script>
+    async function openRegisterAuthorModal() {
+        try {
+            const res = await fetch('<%= request.getContextPath() %>' + '/author/check');
+            const data = await res.json();
+
+            if (data.isAuthor) {
+                window.location.href = '<%= request.getContextPath() %>' + '/author/register';
+            } else {
+                const modal = document.getElementById('registerAuthorModal');
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        } catch (err) {
+            console.error('Failed to check author status', err);
+        }
+    }
+
+    function closeRegisterAuthorModal() {
+        document.getElementById('registerAuthorModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    const termsContent = document.getElementById('termsContent');
+    const agreeButton = document.getElementById('agreeButton');
+
+    termsContent.addEventListener('scroll', function () {
+        const isScrolledToBottom =
+            termsContent.scrollTop + termsContent.clientHeight >= termsContent.scrollHeight - 5;
+
+        if (isScrolledToBottom) {
+            agreeButton.disabled = false;
+            agreeButton.classList.remove('bg-blue-400', 'cursor-not-allowed');
+            agreeButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        }
+    });
+</script>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.25s ease-out;
+    }
+
+    #termsContent::-webkit-scrollbar {
+        width: 8px;
+    }
+    #termsContent::-webkit-scrollbar-thumb {
+        background-color: #c1c1c1;
+        border-radius: 10px;
+    }
+</style>
