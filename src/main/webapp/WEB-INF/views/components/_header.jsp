@@ -336,7 +336,7 @@ change this template use File | Settings | File Templates. --%>
         item.addEventListener('click', function (e) {
             const notiId = this.getAttribute('data-id');
             const isRead = this.classList.contains('bg-white');
-            const originalUrl = this.href;
+            const originalUrl = '<c:url value="/author"/>';
 
             if (notiId && !isRead) {
                 e.preventDefault();
