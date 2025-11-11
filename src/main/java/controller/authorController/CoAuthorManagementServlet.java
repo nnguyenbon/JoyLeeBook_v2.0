@@ -403,15 +403,25 @@ public class CoAuthorManagementServlet extends HttpServlet {
         }
 
         String seriesIdParam = request.getParameter("seriesId");
-        String userIdParam = request.getParameter("userId");
+        String username = request.getParameter("username");
+
+        if (username == null || username.trim().isEmpty()) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Username is required.");
+            response.getWriter().write(errorResponse.toString());
+            return;
+        }
 
         Connection conn = null;
         try {
             int seriesId = Integer.parseInt(seriesIdParam);
-            int userId = Integer.parseInt(userIdParam);
 
             conn = DBConnection.getConnection();
             SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            UserDAO userDAO = new UserDAO(conn);
+            NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             // Verify the current user is the owner
             int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
@@ -423,18 +433,61 @@ public class CoAuthorManagementServlet extends HttpServlet {
                 return;
             }
 
+            // Find the user to remove by username
+            User removedUser = userDAO.findByUsername(username);
+            if (removedUser == null) {
+                JSONObject errorResponse = new JSONObject();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "User not found.");
+                response.getWriter().write(errorResponse.toString());
+                return;
+            }
+
+            // Check if the user is actually a co-author
+            SeriesAuthor existing = seriesAuthorDAO.findById(seriesId, removedUser.getUserId());
+            if (existing == null || existing.getSeriesId() == 0) {
+                JSONObject errorResponse = new JSONObject();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "This user is not a co-author of this series.");
+                response.getWriter().write(errorResponse.toString());
+                return;
+            }
+
+            // Prevent removing the owner
+            if (removedUser.getUserId() == ownerId) {
+                JSONObject errorResponse = new JSONObject();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Cannot remove the series owner.");
+                response.getWriter().write(errorResponse.toString());
+                return;
+            }
+
+            // Get series details
+            Series series = seriesDAO.findById(seriesId);
+
             // Remove co-author
-            seriesAuthorDAO.removeAuthorFromSeries(seriesId, userId);
+            seriesAuthorDAO.removeAuthorFromSeries(seriesId, removedUser.getUserId());
+
+            // Send notification to the removed co-author
+            Notification notification = new Notification();
+            notification.setUserId(removedUser.getUserId());
+            notification.setTitle("Removed from Co-authorship");
+            notification.setMessage("You have been removed as a co-author from \"" + series.getTitle() + "\" by " + author.getUsername());
+            notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
+            notification.setRead(false);
+            notification.setType("system");
+
+            notificationsDAO.insertNotification(notification);
 
             JSONObject successResponse = new JSONObject();
             successResponse.put("success", true);
-            successResponse.put("message", "Co-author removed successfully.");
+            successResponse.put("message", removedUser.getUsername() + " has been removed as co-author.");
             response.getWriter().write(successResponse.toString());
 
         } catch (NumberFormatException e) {
             JSONObject errorResponse = new JSONObject();
             errorResponse.put("success", false);
-            errorResponse.put("message", "Invalid parameters.");
+            errorResponse.put("message", "Invalid series ID format.");
             response.getWriter().write(errorResponse.toString());
         } catch (SQLException | ClassNotFoundException e) {
             JSONObject errorResponse = new JSONObject();
