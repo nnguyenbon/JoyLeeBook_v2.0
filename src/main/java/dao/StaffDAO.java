@@ -123,6 +123,16 @@ public class StaffDAO {
         }
         return null;
     }
+    public int countAllActive() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM staffs WHERE is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
     private Staff mapResultSetToStaff(ResultSet rs) throws SQLException {
         Staff staff = new Staff();
         staff.setStaffId(rs.getInt("staff_id"));

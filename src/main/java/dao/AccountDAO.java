@@ -37,8 +37,8 @@ public class AccountDAO {
         sql.append("FROM users WHERE 1=1 ");
 
         // Phân quyền: reader chỉ thấy author
-        if ("reader".equalsIgnoreCase(currentUserRole)) {
-            sql.append("AND role = 'author' ");
+        if ("reader".equals(currentUserRole)) {
+            sql.append("AND role = 'author' AND status = 'active' ");
         }
 
         sql.append("UNION ALL ");
@@ -50,7 +50,7 @@ public class AccountDAO {
         sql.append("FROM staffs WHERE 1=1 ");
 
         // Staff không thấy admin/staff khác
-        if ("staff".equalsIgnoreCase(currentUserRole)) {
+        if ("staff".equalsIgnoreCase(currentUserRole) || "reader".equalsIgnoreCase(currentUserRole)) {
             sql.append("AND 1=0 "); // Không lấy gì từ bảng staffs
         }
 
@@ -115,7 +115,7 @@ public class AccountDAO {
         sql.append("SELECT username, full_name, role, is_deleted FROM users ");
 
         if ("reader".equalsIgnoreCase(currentUserRole)) {
-            sql.append("WHERE role = 'author' ");
+            sql.append("WHERE role = 'author' AND status = 'active' ");
         } else {
             sql.append("WHERE 1=1 ");
         }
@@ -123,7 +123,7 @@ public class AccountDAO {
         sql.append("UNION ALL ");
         sql.append("SELECT username, full_name, role, is_deleted FROM staffs ");
 
-        if ("staff".equalsIgnoreCase(currentUserRole)) {
+        if ("staff".equalsIgnoreCase(currentUserRole) || "reader".equalsIgnoreCase(currentUserRole)) {
             sql.append("WHERE 1=0 ");
         } else {
             sql.append("WHERE 1=1 ");
@@ -193,7 +193,7 @@ public class AccountDAO {
      * Lấy Staff theo staffId
      */
     public Staff getStaffById(int staffId) {
-        String sql = "SELECT staff_id, username, full_name, password_hash, " +
+        String sql = "SELECT staff_id AS id, username, full_name, password_hash, " +
                 "role, is_deleted, created_at, updated_at " +
                 "FROM staffs WHERE staff_id = ? AND is_deleted = 0";
 
@@ -265,33 +265,44 @@ public class AccountDAO {
 
         return null;
     }
+    public boolean checkByUsername(String username) throws SQLException {
+        String sql = "SELECT username FROM users WHERE username = ? UNION SELECT username FROM staffs WHERE username = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean checkByEmail(String email) throws SQLException {
+        String sql = "SELECT email FROM users WHERE email = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
 
     /**
      * Thêm User mới
      */
     public boolean insertUser(User user) {
-        String sql = "INSERT INTO users (username, full_name, email, password_hash, role, status, bio) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, full_name, email, password_hash, role) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
             ps.setString(2, user.getFullName());
             ps.setString(3, user.getEmail());
             ps.setString(4, user.getPasswordHash());
             ps.setString(5, user.getRole());
-            ps.setString(6, user.getStatus());
-            ps.setString(7, user.getBio());
 
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        user.setUserId(generatedKeys.getInt(1));
-                    }
-                }
-                return true;
-            }
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -306,37 +317,16 @@ public class AccountDAO {
         String sql = "INSERT INTO staffs (username, full_name, password_hash, role) " +
                 "VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, staff.getUsername());
             ps.setString(2, staff.getFullName());
             ps.setString(3, staff.getPasswordHash());
             ps.setString(4, staff.getRole());
 
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        staff.setStaffId(generatedKeys.getInt(1));
-                    }
-                }
-                return true;
-            }
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        return false;
-    }
-
-    /**
-     * Thêm account mới (tự động phân biệt User/Staff)
-     */
-    public boolean insertAccount(Account account) {
-        if (account instanceof User) {
-            return insertUser((User) account);
-        } else if (account instanceof Staff) {
-            return insertStaff((Staff) account);
         }
         return false;
     }
@@ -383,7 +373,9 @@ public class AccountDAO {
         }
         return false;
     }
-
+    public boolean checkStaffById(int staffId) {
+        return true;
+    }
     /**
      * Cập nhật account (tự động phân biệt User/Staff)
      */
@@ -504,4 +496,6 @@ public class AccountDAO {
         staff.setAccountType("staff");
         return staff;
     }
+
+
 }

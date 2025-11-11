@@ -112,7 +112,7 @@ public class AuthServlet extends HttpServlet {
                     case "reader":
                         //Track login for point system
                         TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
-                        response.sendRedirect(request.getContextPath() + "/homepage");
+                        response.sendRedirect(request.getContextPath() + "/series/list");
                         break;
                 }
             } else if (staff != null) {
@@ -120,6 +120,8 @@ public class AuthServlet extends HttpServlet {
                 String role = staff.getRole();
                 switch (role) {
                     case "admin":
+                        response.sendRedirect(request.getContextPath() + "/admin");
+                        break;
                     case "staff":
                         response.sendRedirect(request.getContextPath() + "/staff");
                         break;
