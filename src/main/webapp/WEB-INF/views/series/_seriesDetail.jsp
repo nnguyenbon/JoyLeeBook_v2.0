@@ -12,15 +12,21 @@
                                              alt="Series cover" class="rounded-lg shadow aspect-[3/4]"/></div>
     <!-- Right (Title, Info, Tags) -->
     <div class="col-span-4 h-full flex flex-col justify-between"><h1 class="text-4xl font-bold">${series.title}</h1>
-        <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold"> <c:forEach var="author"
-                                                                                              items="${series.authorNameList}"
-                                                                                              varStatus="loop"> ${author}
-            <c:if test="${!loop.last}">, </c:if> </c:forEach> </span></p> <!-- Thể loại + Trạng thái -->
-        <div class="flex flex-wrap items-center gap-2"> <!-- Danh mục --> <c:forEach var="category"
-                                                                                     items="${series.categoryList}">
-            <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full"> ${category.name} </span> </c:forEach>
-            <!-- Trạng thái --> <c:choose> <c:when test="${series.status == 'Completed'}"> <span
-                    class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.status} </span> </c:when>
+        <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold">
+            <c:forEach var="author"
+                       items="${series.authorNameList}"
+                       varStatus="loop"> ${author}
+                <c:if test="${!loop.last}">, </c:if> </c:forEach> </span></p> <!-- Thể loại + Trạng thái -->
+        <div class="flex flex-wrap items-center gap-2"> <!-- Danh mục -->
+            <c:forEach var="category"
+                       items="${series.categoryList}">
+            <span class="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                    ${category.name} </span>
+            </c:forEach>
+            <!-- Trạng thái -->
+            <c:choose>
+                <c:when test="${series.status == 'Completed'}"> <span
+                        class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.status} </span> </c:when>
                 <c:when test="${series.status == 'Ongoing'}"> <span
                         class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.status} </span> </c:when>
                 <c:otherwise> <span
@@ -105,7 +111,7 @@
         </div>
 
         <form method="POST" class="relative mt-6">
-            <label for="username" class="block text-xl">Email Address</label>
+            <label for="username" class="block text-xl">Username:</label>
             <input
                     type="text"
                     class="py-2 px-3 mt-2 mb-6 border border-gray-400 rounded-xl w-full"
@@ -124,13 +130,13 @@
                 <button
                         type="submit"
                         class="flex-1 border border-gray-400 bg-sky-200 py-2 px-3 rounded-xl cursor-pointer hover:bg-sky-300"
-                >Send Invitation</button>
-
-                <button
-                        type="button"
-                        onclick="closeModal()"
-                        class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400"
-                >Cancel</button>
+                >
+                    Send Invitation
+                </button>
+                <button onclick="closeModal()" type="reset"
+                        class="flex-1 border border-gray-400 rounded-xl cursor-pointer hover:bg-gray-400">
+                    Cancel
+                </button>
             </div>
         </form>
     </dialog>
@@ -156,6 +162,7 @@
                 })
                 .catch(error => console.error("Error:", error));
         }
+
         loadChapterList();
 
 
@@ -202,7 +209,7 @@
                     // Gửi rating
                     fetch("${pageContext.request.contextPath}/reaction/rate", {
                         method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
                         body: new URLSearchParams({
                             userId: currentUserId,
                             seriesId: seriesId,
@@ -241,7 +248,7 @@
 
                 fetch("${pageContext.request.contextPath}/library/save", {
                     method: "POST",
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: new URLSearchParams({
                         userId: currentUserId,
                         seriesId: seriesId,
@@ -272,43 +279,51 @@
            ✅ 5. Co-author Modal
         ========================================================== */
         const modalCoauthor = document.getElementById("modalCoauthor");
-        const usernameInput = document.getElementById("username");
-        const suggestionList = document.getElementById("suggestion");
 
         window.showModal = () => modalCoauthor.showModal();
         window.closeModal = () => modalCoauthor.close();
 
-        usernameInput?.addEventListener("input", async () => {
+        const usernameInput = document.getElementById("username");
+        const suggestionList = document.getElementById("suggestion");
+        usernameInput.addEventListener('input', async () => {
             if (usernameInput.value.length > 3) {
-                const result = await getUserName(usernameInput.value);
-                if (result) renderSuggestion(result);
+                const users = await getUserName(usernameInput.value)
+                suggestion(users);
             }
-        });
+        })
+
 
         async function getUserName(username) {
-            const url = "http://localhost:8080/manage-coauthors/users?username=" + encodeURIComponent(username);
+            const url = "${pageContext.request.contextPath}/manage-coauthors/users?username=" + encodeURIComponent(username);
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error("Status: " + response.status);
-
-                const data = await response.json();
-                return data.length > 0 ? data : null;
-            } catch (err) {
-                console.error(err);
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+                const result = await response.json();
+                // console.log(result);
+                if (result.length > 0) {
+                    return result;
+                }
+            } catch (error) {
+                console.error(error.message);
             }
         }
 
-        function renderSuggestion(users) {
-            suggestionList.classList.remove("hidden");
-            suggestionList.innerHTML = users
-                .map(user => `<li onclick="selectAuthor('${user.username}')" class="py-2 px-4 hover:bg-sky-300 cursor-pointer">${user.username}</li>`)
-                .join("");
+        function suggestion(username) {
+            const array = username
+            suggestionList.classList.remove('hidden');
+            const html = array.map(user => {
+                const name = user.name;
+                return `<li onclick="selectAuthor('` + name + `')" class="py-2 px-4 hover:bg-sky-300 cursor-pointer">` + name + `</li>`
+            }).join('');
+            suggestionList.innerHTML = html;
         }
 
-        window.selectAuthor = (username) => {
-            suggestionList.classList.add("hidden");
-            usernameInput.value = username;
-        };
 
+        function selectAuthor(username) {
+            suggestionList.classList.add('hidden');
+            usernameInput.value = username;
+        }
     });
 </script>

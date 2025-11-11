@@ -78,11 +78,11 @@ public class ChapterServlet extends HttpServlet {
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
                 PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
                 paginationRequest.setOrderBy("chapter_id");
-                List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, paginationRequest);
+                List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, "published" , paginationRequest);
                 for (Chapter chapter : chapterList) {
                     buildChapter(chapter, conn);
                 }
-                int totalRecords = chapterDAO.getTotalChaptersCount(search, approvalStatus);
+                int totalRecords = chapterDAO.getTotalChaptersCount(search, approvalStatus, "published");
                 request.setAttribute("chapterList", chapterList);
                 request.setAttribute("size", totalRecords);
                 request.setAttribute("filterByStatus", approvalStatus);

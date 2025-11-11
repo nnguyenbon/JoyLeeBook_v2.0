@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import utils.AuthenticationUtils;
 
 import java.io.IOException;
@@ -26,43 +28,18 @@ import java.util.List;
  * Handles the management of co-authors for a series.
  * Allows authors to add or remove co-authors from their series.
  */
-@WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors")
+@WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors/*")
 public class CoAuthorManagementServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            Account currentUser = AuthenticationUtils.getLoginedUser(request.getSession());
-
-            // test
-//            currentUser = new User();
-//            currentUser.setUserId(4);
-//            currentUser.setRole("author");
-            // end test
-
-            if (currentUser == null || !"author".equals(currentUser.getRole())) {
-                response.sendRedirect(request.getContextPath() + "/login");
-                return;
-            }
-
-            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-
-            Connection conn = DBConnection.getConnection();
-
-            SeriesDAO seriesDAO = new SeriesDAO(conn);
-            Series series = seriesDAO.findById(seriesId, "ongoing");
-
-            SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-            List<User> authors = seriesAuthorDAO.findUsersBySeriesId(seriesId);
-
-            request.setAttribute("series", series);
-            request.setAttribute("authors", authors);
-            request.getRequestDispatcher("/WEB-INF/views/author/manage-coauthors.jsp").forward(request, response);
-        } catch (NumberFormatException | SQLException e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/error/error.jsp");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Error in CoAuthorManagementServlet: " + e.getMessage());
-            throw new RuntimeException(e);
+        String action = request.getPathInfo();
+        if (action == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing action.");
+            return;
+        }
+        switch (action) {
+            case "/users" -> getUserName(request, response);
+            default -> response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action.");
         }
     }
 
@@ -166,5 +143,80 @@ public class CoAuthorManagementServlet extends HttpServlet {
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
         seriesAuthorDAO.removeAuthorFromSeries(seriesId, userIdToRemove);
         response.sendRedirect(redirectUrl + "&message=authorRemovedSuccess");
+    }
+
+    private void getUserName(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        User author = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+//        if (author == null || !"author".equals(author.getRole())) {
+//            String json = """
+//                {
+//                    "success": false,
+//                    "message": "You are not logged in or you are not an author."
+//                }";
+//                """;
+//            response.getWriter().write(json);
+//        }
+
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            String username = request.getParameter("username");
+            if (username == null) {
+                String json = """
+                    {
+                        "success": false,
+                        "message": "You must provide a username."
+                    }""";
+                response.getWriter().write(json);
+            }
+
+            UserDAO userDAO = new UserDAO(conn);
+            List<User> users = userDAO.findByName(username);
+
+            JSONArray jsonArray = new JSONArray();
+            for (User user : users) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("id", user.getUserId());
+                jsonObject.put("name", user.getUsername());
+                jsonArray.put(jsonObject);
+            }
+            response.getWriter().write(jsonArray.toString());
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void viewCoAuthor(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
+        try {
+            Account currentUser = AuthenticationUtils.getLoginedUser(request.getSession());
+
+            if (currentUser == null || !"author".equals(currentUser.getRole())) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
+            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+
+            Connection conn = DBConnection.getConnection();
+
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            Series series = seriesDAO.findById(seriesId, "ongoing");
+
+            SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+            List<User> authors = seriesAuthorDAO.findUsersBySeriesId(seriesId);
+
+            request.setAttribute("series", series);
+            request.setAttribute("authors", authors);
+            request.getRequestDispatcher("/WEB-INF/views/author/manage-coauthors.jsp").forward(request, response);
+        } catch (NumberFormatException | SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/error/error.jsp");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error in CoAuthorManagementServlet: " + e.getMessage());
+            throw new RuntimeException(e);
+        } catch (ServletException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
