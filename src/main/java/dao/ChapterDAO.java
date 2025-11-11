@@ -693,6 +693,7 @@ public class ChapterDAO {
         c.setContent(rs.getString("content"));
         c.setStatus(rs.getString("status"));
         c.setDeleted(rs.getBoolean("is_deleted"));
+        c.setApprovalStatus(rs.getString("approval_status"));
         c.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
         c.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         return c;

@@ -135,6 +135,22 @@ public class ReviewChapterDAO {
     }
 
     /**
+     * Updates an existing review record in the {@code review_series} table.
+     *
+     * @param review the {@link ReviewSeries} object containing updated information
+     * @return {@code true} if the update was successful, {@code false} otherwise
+     * @throws SQLException if a database access error occurs
+     */
+    public boolean update(ReviewChapter review) throws SQLException {
+        String sql = "UPDATE review_chapter SET status = ?, comment = ? WHERE chapter_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, review.getStatus());
+            stmt.setString(2, review.getComment());
+            stmt.setInt(3, review.getChapterId());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    /**
      * Deletes a review record from the {@code review_series} table.
      *
      * @param seriesId the ID of the series

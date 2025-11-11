@@ -95,7 +95,7 @@
                         </button>
                     </form>
                 </c:when>
-                <c:when test="${role == 'reader'}">
+                <c:when test="${role != 'author'}">
                     <c:if test="${totalChapter != 0}">
                         <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${series.seriesId}&chapterId=">
                             <button class="bg-[#0A3776] text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition">
