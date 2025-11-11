@@ -13,10 +13,20 @@
             <img src="${pageContext.request.contextPath}/img/shared/logo.png" alt="Logo" class="h-20 w-40 mx-auto ">
         </div>
         <nav class="">
-            <a href="${pageContext.request.contextPath}/staff" class="flex items-center px-4 py-2  ${activePage == 'overview' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span class="ml-2">Overview</span>
-            </a>
+            <c:choose>
+                <c:when test="${loginedUser.role == 'admin'}">
+                    <a href="${pageContext.request.contextPath}/admin" class="flex items-center px-4 py-2  ${activePage == 'overview' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span class="ml-2">Overview</span>
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/staff" class="flex items-center px-4 py-2  ${activePage == 'overview' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span class="ml-2">Overview</span>
+                    </a>
+                </c:otherwise>
+            </c:choose>
             <a href="${pageContext.request.contextPath}/series/list?filterByStatus=pending" class="flex items-center px-4 py-2   ${pageTitle == 'Manage Series' ? 'bg-[#195DA9]/10 text-[#195DA9] font-medium' : 'hover:bg-gray-100'} ">
                 <i class="fa-solid fa-book"></i>
                 <span class="ml-2">Series Review</span>

@@ -8,6 +8,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page buffer="32kb" autoFlush="true" %>
 
 <!-- Content -->
 <div class="main-content flex-1 px-5 py-3 overflow-y-auto max-h-[100vh] custom-scrollbar">

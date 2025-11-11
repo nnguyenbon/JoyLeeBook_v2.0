@@ -122,7 +122,7 @@
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
 
-                                    <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-10">
+                                    <ul class="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
                                         <li>
                                             <form method="post" action="${pageContext.request.contextPath}/report/handle" class="w-full">
                                                 <input type="hidden" name="reportId" value="${report.reportId}">
