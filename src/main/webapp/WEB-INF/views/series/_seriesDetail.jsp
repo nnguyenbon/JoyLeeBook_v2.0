@@ -115,10 +115,28 @@
             Authors
         </p>
 
-        <ul class="list-disc list-inside">
-            <c:forEach var="name" items="${series.authorNameList}">
-                <li class="">
+        <ul class="space-y-2">
+            <c:forEach var="name" items="${series.authorNameList}" varStatus="status">
+                <li class="flex items-center justify-between gap-2}">
+                    <span class="flex items-center gap-2">
+                        <c:choose>
+                            <c:when test="${owner && name == loginedUser.username}">
+                                <i class="fa-solid fa-crown text-yellow-500"></i>
+                            </c:when>
+                            <c:otherwise>
+                                <i class="fa-solid fa-circle text-xs text-gray-400"></i>
+                            </c:otherwise>
+                        </c:choose>
                         ${name}
+                    </span>
+                    <c:if test="${owner && name != loginedUser.username}">
+                        <button
+                                onclick="deleteCoauthor('${name}')"
+                                class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
+                                title="Remove co-author">
+                            <i class="fa-solid fa-user-minus"></i>
+                        </button>
+                    </c:if>
                 </li>
             </c:forEach>
         </ul>
@@ -437,4 +455,38 @@
             }
         });
     });
+
+    async function deleteCoauthor(username) {
+        if (!confirm(`Are you sure you want to remove ${username} as co-author?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${pageContext.request.contextPath}/manage-coauthors/remove`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    seriesId: '${series.seriesId}',
+                    username: username
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toastr.success(result.message);
+                // Reload page to update the co-authors list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                toastr.error(result.message);
+            }
+        } catch (error) {
+            console.error('Error removing co-author:', error);
+            toastr.error('Failed to remove co-author. Please try again.');
+        }
+    }
 </script>
