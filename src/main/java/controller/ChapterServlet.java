@@ -266,7 +266,6 @@ public class ChapterServlet extends HttpServlet {
                 reviewChapter.setStatus(approveStatus);
                 reviewChapter.setComment(comment);
 
-                // Insert review (database trigger will update series.approval_status)
                 if (reviewChapterDAO.insert(reviewChapter)) {
                     // Create and send notification to series owner
                     Notification notification = createApprovalNotification(
