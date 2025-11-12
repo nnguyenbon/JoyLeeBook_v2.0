@@ -94,17 +94,16 @@ public class ChapterServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
                 int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+
+                List<Chapter> chapterList;
                 if (loggedInAccount instanceof User && loggedInAccount.getRole().equals("author")) {
-                    List<Chapter> chapterList = buildChapterList(seriesId, "", conn);
-                    request.setAttribute("chapterList", chapterList);
-                    request.setAttribute("seriesId", seriesId);
-                    request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
+                    chapterList = buildChapterList(seriesId, "", conn);
                 } else {
-                    List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);
-                    request.setAttribute("chapterList", chapterList);
-                    request.setAttribute("seriesId", seriesId);
-                    request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
+                    chapterList = buildChapterList(seriesId, "approved", conn);
                 }
+                request.setAttribute("chapterList", chapterList);
+                request.setAttribute("seriesId", seriesId);
+                request.getRequestDispatcher("/WEB-INF/views/chapter/_chapterList.jsp").forward(request, response);
             }
         } catch (SQLException e) {
             log.log(Level.SEVERE, "Error loading Chapter List", e);
@@ -399,8 +398,8 @@ public class ChapterServlet extends HttpServlet {
                 Series series = seriesDAO.findById(seriesId);
                 request.setAttribute("series", series);
                 SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
-                if (ownerId == userId) {
+                SeriesAuthor owner = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+                if (owner.getAuthorId() == userId) {
                     request.setAttribute("owner", "true");
                 }
 

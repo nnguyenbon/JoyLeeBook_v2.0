@@ -23,7 +23,7 @@
     <aside class="w-56 border-r flex flex-col justify-between">
         <div>
             <div class="h-28 flex items-center justify-center border-b">
-                <img src="${pageContext.request.contextPath}/img/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
+                <img src="${pageContext.request.contextPath}/img/shared/logo2.png" alt="Logo" class="h-15 w-30 mx-auto ">
             </div>
             <nav class="">
                 <a href="#" class="flex items-center px-4 py-2 bg-[#195DA9]/10 text-[#195DA9] font-medium ">

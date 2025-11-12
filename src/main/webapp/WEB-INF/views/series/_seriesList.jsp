@@ -69,8 +69,8 @@
                                 <div class="flex justify-between">
                                     <p>by <span class="font-medium">
                                 <c:choose>
-                                    <c:when test="${not empty series.authorNameList}">
-                                        ${series.authorNameList[0]}
+                                    <c:when test="${not empty series.authorList}">
+                                        ${series.authorList[0]}
                                     </c:when>
                                     <c:otherwise>Unknown</c:otherwise>
                                 </c:choose>

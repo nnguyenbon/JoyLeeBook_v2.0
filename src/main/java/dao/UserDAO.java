@@ -45,21 +45,27 @@ public class UserDAO {
         }
         return null;
     }
-    public List<String> getAuthorNameList(List<SeriesAuthor> seriesAuthorList) throws SQLException {
-        List<String> authorNames = new ArrayList<>();
-        String sql = "SELECT username FROM users WHERE is_deleted = 0 AND user_id = ?";
+    public List<SeriesAuthor> getAuthorList(int seriesId) throws SQLException {
+        List<SeriesAuthor> authorList = new ArrayList<>();
+        String sql = "SELECT users.user_id, users.username, series_author.is_owner\n" +
+                "FROM   series_author \n" +
+                "INNER JOIN users ON series_author.user_id = users.user_id \n" +
+                "WHERE series_author.series_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            for (SeriesAuthor sa : seriesAuthorList) {
-                stmt.setInt(1, sa.getAuthorId());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        authorNames.add(rs.getString("username"));
-                    }
-                }
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
+               while (rs.next()) {
+                   SeriesAuthor seriesAuthor =  new SeriesAuthor();
+                   seriesAuthor.setAuthorId(rs.getInt("user_id"));
+                   seriesAuthor.setAuthorName(rs.getString("username"));
+                   seriesAuthor.setOwner(rs.getBoolean("is_owner"));
+                   authorList.add(seriesAuthor);
+               }
             }
+
         }
-        return authorNames;
+        return authorList;
     }
 
     public boolean isAuthor(String email) throws SQLException {
