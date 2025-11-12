@@ -24,6 +24,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Servlet implementation class CoAuthorManagementServlet
+ * Handles the management of co-authors for a series.
+ * Allows authors to add or remove co-authors from their series.
+ */
 @WebServlet(name = "CoAuthorManagementServlet", value = "/manage-coauthors/*")
 public class CoAuthorManagementServlet extends HttpServlet {
 
@@ -197,7 +202,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
             notification.setMessage(author.getUsername() + " invited you to collaborate on \"" + series.getTitle() + "\"");
             notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
             notification.setRead(false);
-            notification.setType("coauthor_invitation");
+            notification.setType("system");
 
             // Store invitation data in notification metadata (you can extend Notification model if needed)
             // For now, we'll use the URL to pass data

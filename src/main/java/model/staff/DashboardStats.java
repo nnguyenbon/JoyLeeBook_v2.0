@@ -9,11 +9,13 @@ public class DashboardStats {
     private int activeUsers;
     private int authors;
     private int bannedUsers;
+    private int staffs;
 
     // Right group
     private int totalChapters;
     private int yourReviews;
     private int pendingChapters;
+    private int rejectedChapters;
     private int yourRejects;
     private int totalReports;
     private int pendingReports;
@@ -130,5 +132,21 @@ public class DashboardStats {
 
     public void setYourRejects(int yourRejects) {
         this.yourRejects = yourRejects;
+    }
+
+    public int getRejectedChapters() {
+        return rejectedChapters;
+    }
+
+    public void setRejectedChapters(int rejectedChapters) {
+        this.rejectedChapters = rejectedChapters;
+    }
+
+    public int getStaffs() {
+        return staffs;
+    }
+
+    public void setStaffs(int staffs) {
+        this.staffs = staffs;
     }
 }

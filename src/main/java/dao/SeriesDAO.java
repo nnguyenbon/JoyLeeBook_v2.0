@@ -126,7 +126,7 @@ public class SeriesDAO {
         return seriesList;
     }
     public List<Series> getAll(String status) {
-        String sql = "SELECT * FROM series WHERE approval_status = ?";
+        String sql = "SELECT * FROM series WHERE approval_status = ? AND is_deleted = 0";
         List<Series> seriesList = new ArrayList<>();
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, status);
@@ -248,6 +248,14 @@ public class SeriesDAO {
         }
     }
 
+    public boolean updateApprovalStatus(int seriesId, String approvalStatus) throws SQLException {
+        String sql = "UPDATE series SET approval_status = ? WHERE series_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, approvalStatus);
+            ps.setInt(2, seriesId);
+            return ps.executeUpdate() > 0;
+        }
+    }
     /**
      * Soft deletes a series by setting its is_deleted flag to true.
      *

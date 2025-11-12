@@ -1,5 +1,6 @@
 package controller.commentController;
 
+import dao.ChapterDAO;
 import dao.CommentDAO;
 import dao.UserDAO;
 import db.DBConnection;
@@ -58,11 +59,14 @@ public class CommentServlet extends HttpServlet {
                 userId = ((User) loginedUser).getUserId();
             }
             CommentDAO commentDAO = new CommentDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : -1;
             List<Comment> commentList = commentDAO.findByChapter(chapterId);
             for (Comment comment : commentList) {
                 buildComment(comment, conn);
             }
+            request.setAttribute("chapterId", chapterId);
+            request.setAttribute("seriesId", chapterDAO.findById(chapterId).getSeriesId());
             request.setAttribute("userId", userId);
             request.setAttribute("commentList", commentList);
             request.getRequestDispatcher("/WEB-INF/views/chapter/_commentList.jsp").forward(request, response);

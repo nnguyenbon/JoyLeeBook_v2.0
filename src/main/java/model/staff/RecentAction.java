@@ -5,6 +5,12 @@ public class RecentAction {
     private String timestamp;          // e.g., "15 minutes ago"
     private String statusColor;        // e.g., "green", "yellow", "red" cho bullet point
 
+    public RecentAction(String actionDescription, String timestamp, String statusColor) {
+        this.actionDescription = actionDescription;
+        this.timestamp = timestamp;
+        this.statusColor = statusColor;
+    }
+
     public String getActionDescription() {
         return actionDescription;
     }

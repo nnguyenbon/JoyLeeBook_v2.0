@@ -5,9 +5,11 @@ import dto.PaginationRequest;
 import model.Report;
 import model.ReportChapter;
 import model.ReportComment;
+import model.staff.WeeklyReportStats;
 import utils.FormatUtils;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -316,6 +318,73 @@ public class ReportDAO {
             }
         }
         return null;
+    }
+
+    public WeeklyReportStats getWeeklyReportStats(Timestamp startOfWeek) throws SQLException {
+        WeeklyReportStats stats = new WeeklyReportStats();
+        List<Integer> dailyCounts = new ArrayList<>();
+
+        // Get this week's total
+        String thisWeekSQL = "SELECT COUNT(*) FROM reports WHERE created_at >= ?";
+        try (PreparedStatement ps = conn.prepareStatement(thisWeekSQL)) {
+            ps.setTimestamp(1, startOfWeek);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    stats.setThisWeekTotal(rs.getInt(1));
+                }
+            }
+        }
+
+        // Get last week's total for growth rate calculation
+        LocalDate weekAgoDate = startOfWeek.toLocalDateTime().toLocalDate();
+        LocalDate twoWeeksAgoDate = weekAgoDate.minusDays(7);
+        Timestamp startOfLastWeek = Timestamp.valueOf(twoWeeksAgoDate.atStartOfDay());
+
+        String lastWeekSQL = "SELECT COUNT(*) FROM reports WHERE created_at >= ? AND created_at < ?";
+        int lastWeekTotal = 0;
+        try (PreparedStatement ps = conn.prepareStatement(lastWeekSQL)) {
+            ps.setTimestamp(1, startOfLastWeek);
+            ps.setTimestamp(2, startOfWeek);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    lastWeekTotal = rs.getInt(1);
+                }
+            }
+        }
+
+        // Calculate growth rate
+        if (lastWeekTotal > 0) {
+            double growthRate = ((stats.getThisWeekTotal() - lastWeekTotal) * 100.0) / lastWeekTotal;
+            stats.setGrowthRate(growthRate);
+        } else {
+            stats.setGrowthRate(stats.getThisWeekTotal() > 0 ? 100.0 : 0.0);
+        }
+
+        // Get daily counts for the past 7 days
+        String dailySQL = "SELECT DATEPART(WEEKDAY, created_at) as day_of_week, COUNT(*) as count " +
+                "FROM reports " +
+                "WHERE created_at >= ? " +
+                "GROUP BY DATEPART(WEEKDAY, created_at) " +
+                "ORDER BY DATEPART(WEEKDAY, created_at)";
+
+        // Initialize all days to 0
+        for (int i = 0; i < 7; i++) {
+            dailyCounts.add(0);
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(dailySQL)) {
+            ps.setTimestamp(1, startOfWeek);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int dayOfWeek = rs.getInt("day_of_week") - 2; // Adjust to Monday = 0
+                    if (dayOfWeek < 0) dayOfWeek = 6; // Sunday
+                    dailyCounts.set(dayOfWeek, rs.getInt("count"));
+                }
+            }
+        }
+
+        stats.setDailyCounts(dailyCounts);
+        return stats;
     }
     // ============= COUNT METHODS =============
 
