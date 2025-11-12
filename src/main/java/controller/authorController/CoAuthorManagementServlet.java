@@ -202,7 +202,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
             notification.setMessage(author.getUsername() + " invited you to collaborate on \"" + series.getTitle() + "\"");
             notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
             notification.setRead(false);
-            notification.setType("coauthor_invitation");
+            notification.setType("system");
 
             // Store invitation data in notification metadata (you can extend Notification model if needed)
             // For now, we'll use the URL to pass data
