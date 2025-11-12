@@ -337,7 +337,7 @@ public class SeriesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-    private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
+private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
