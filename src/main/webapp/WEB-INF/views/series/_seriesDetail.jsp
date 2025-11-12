@@ -207,6 +207,15 @@
         </form>
     </dialog>
 </main>
+
+<c:if test="${not empty sessionScope.message}">
+    <script>
+        toastr["success"]("${sessionScope.message}");
+    </script>
+    <c:remove var="message" scope="session" />
+</c:if>
+<script>
+
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
 

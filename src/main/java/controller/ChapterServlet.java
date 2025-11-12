@@ -285,7 +285,7 @@ public class ChapterServlet extends HttpServlet {
                 }
             }
 
-
+            request.getSession().setAttribute("message", "Chapter successfully approved.");
             response.sendRedirect(request.getContextPath() + "/chapter/list?filterByStatus=pending");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -359,6 +359,7 @@ public class ChapterServlet extends HttpServlet {
                     throw new RuntimeException("Database insert failed.");
                 }
 
+                request.getSession().setAttribute("message", "Chapter successfully added.");
                 response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
 
             } catch (IllegalAccessException e) {
@@ -499,8 +500,8 @@ public class ChapterServlet extends HttpServlet {
                 throw new RuntimeException("Database update failed.");
             }
 
-
-            response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+            request.getSession().setAttribute("message", "Chapter successfully updated.");
+            response.sendRedirect(request.getContextPath() + "/series/detail?SeriesId=" + seriesId);
 
         } catch (IllegalAccessException e) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -600,6 +601,7 @@ public class ChapterServlet extends HttpServlet {
                 throw new RuntimeException("Database delete failed.");
             }
 
+            request.getSession().setAttribute("message", "Chapter successfully deleted.");
             response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
         } catch (Exception e) {
             e.printStackTrace();
