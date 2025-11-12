@@ -76,14 +76,20 @@ public class SeriesAuthorDAO {
         }
         return list;
     }
-    public int findOwnerIdBySeriesId(int seriesId) throws SQLException {
-        String sql = "SELECT user_id FROM series_author WHERE series_id = ? AND is_owner = 1";
+    public SeriesAuthor findOwnerIdBySeriesId(int seriesId) throws SQLException {
+        String sql = "SELECT series_author.series_id, users.user_id, users.username, series_author.is_owner\n" +
+                "FROM   series_author \n" +
+                "INNER JOIN users ON series_author.user_id = users.user_id \n" +
+                "WHERE series_author.series_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt("user_id") : 0;
+                if (rs.next()) {
+                    return mapResultSetToSeriesAuthor(rs);
+                }
             }
         }
+        return null;
     }
     public List<SeriesAuthor> findBySeriesId(int seriesId) throws SQLException {
         String sql = "SELECT * FROM series_author WHERE series_id = ?";
@@ -248,6 +254,7 @@ public class SeriesAuthorDAO {
         seriesAuthor.setAuthorId(rs.getInt("user_id"));
         seriesAuthor.setSeriesId(rs.getInt("series_id"));
         seriesAuthor.setOwner(rs.getBoolean("is_owner"));
+        seriesAuthor.setAuthorName(rs.getString("username"));
         return seriesAuthor;
     }
 }

@@ -41,8 +41,8 @@
                     <div class="ml-4 flex-1 flex flex-col min-h-0">
                         <h3 class="font-semibold text-gray-900 line-clamp-2 mb-1">${series.title}</h3>
                         <p class="text-sm text-gray-500 mb-1 line-clamp-1">by
-                            <c:forEach var="author" items="${series.authorNameList}" varStatus="loop">
-                                ${author}<c:if test="${!loop.last}">, </c:if>
+                            <c:forEach var="author" items="${series.authorList}" varStatus="loop">
+                                ${author.authorName}<c:if test="${!loop.last}">, </c:if>
                             </c:forEach>
                         </p>
                         <p class="text-sm text-gray-600 mb-2 line-clamp-2">

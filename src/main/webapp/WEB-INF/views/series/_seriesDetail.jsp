@@ -19,8 +19,8 @@
     <div class="col-span-4 h-full flex flex-col justify-between"><h1 class="text-4xl font-bold">${series.title}</h1>
         <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold">
             <c:forEach var="author"
-                       items="${series.authorNameList}"
-                       varStatus="loop"> ${author}
+                       items="${series.authorList}"
+                       varStatus="loop"> ${author.authorName}
                 <c:if test="${!loop.last}">, </c:if> </c:forEach> </span></p> <!-- Thể loại + Trạng thái -->
         <div class="flex flex-wrap items-center gap-2"> <!-- Danh mục -->
             <c:forEach var="category"
@@ -72,10 +72,8 @@
             </div>
         </div>
         <div class="flex items-center gap-4 mt-4">
-            <c:set var="user" value="${loginedUser}"/>
-            <c:set var="role" value="${user.role}"/>
             <c:choose>
-                <c:when test="${role == 'author'}">
+                <c:when test="${authorCurrent.owner && authorCurrent.authorId == loginedUser.userId}">
                     <a href="${pageContext.request.contextPath}/series/edit?seriesId=${series.seriesId}">
                         <button class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
                             <i class="fa-solid fa-pen"></i> Edit
@@ -122,22 +120,22 @@
             </p>
 
         <ul class="space-y-2">
-            <c:forEach var="name" items="${series.authorNameList}" varStatus="status">
+            <c:forEach var="author" items="${series.authorList}" varStatus="status">
                 <li class="flex items-center justify-between gap-2}">
                     <span class="flex items-center gap-2">
                         <c:choose>
-                            <c:when test="${owner && name == loginedUser.username}">
+                            <c:when test="${authorCurrent.owner}">
                                 <i class="fa-solid fa-crown text-yellow-500"></i>
                             </c:when>
                             <c:otherwise>
                                 <i class="fa-solid fa-circle text-xs text-gray-400"></i>
                             </c:otherwise>
                         </c:choose>
-                        ${name}
+                        ${author.authorName}
                     </span>
-                    <c:if test="${owner && name != loginedUser.username}">
+                    <c:if test="${authorCurrent.owner && author.authorId == loginedUser.userId}">
                         <button
-                                onclick="deleteCoauthor('${name}')"
+                                onclick="deleteCoauthor('${author.authorName}')"
                                 class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
                                 title="Remove co-author">
                             <i class="fa-solid fa-user-minus"></i>
@@ -147,7 +145,7 @@
             </c:forEach>
         </ul>
 
-            <c:if test="${owner}">
+            <c:if test="${authorCurrent.owner}">
                 <button onclick="showModal()"
                         class="mt-4 p-2 bg-sky-100 text-sky-700 font-semibold rounded-lg w-full hover:bg-sky-200 transition duration-300 cursor-pointer">
                     Add Co-Author
