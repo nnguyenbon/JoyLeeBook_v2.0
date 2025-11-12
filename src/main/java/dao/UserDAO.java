@@ -276,6 +276,25 @@ public class UserDAO {
         return false;
     }
 
+    /**
+     * Updates the email address for a user
+     * @param userId the user ID
+     * @param newEmail the new email address
+     * @return true if update was successful, false otherwise
+     */
+    public boolean updateEmail(int userId, String newEmail) {
+        String sql = "UPDATE users SET email = ? WHERE user_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newEmail);
+            ps.setInt(2, userId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean updatePoint (int userId, int point) throws SQLException {
         String sql = "UPDATE users SET points = points + ? WHERE user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -299,6 +318,7 @@ public class UserDAO {
         user.setDeleted(rs.getBoolean("is_deleted"));
         user.setStatus(rs.getString("status"));
         user.setPoints(rs.getInt("points"));
+        user.setGoogleId(rs.getString("google_id"));
 
 
         user.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));

@@ -8,6 +8,7 @@ public class User extends Account{
     private String status;
     private boolean isVerified;
     private int points;
+    private String googleId;
 
     public int getUserId() {
         return userId;
@@ -55,5 +56,13 @@ public class User extends Account{
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 }
