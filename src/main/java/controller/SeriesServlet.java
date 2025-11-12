@@ -219,6 +219,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesAuthorDAO.insertSeriesAuthor(seriesAuthor);
             }
 
+            request.getSession().setAttribute("message", "New series has been added successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -515,7 +516,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategory.setCategoryId(genreId);
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
-
+            request.getSession().setAttribute("message", "Series has been updated successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -584,9 +585,7 @@ public class SeriesServlet extends HttpServlet {
                 }
             }
 
-
-
-
+            request.getSession().setAttribute("message", "Series has been approved successfully.");
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -620,6 +619,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
 
+            request.getSession().setAttribute("message", "Series has been deleted successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
