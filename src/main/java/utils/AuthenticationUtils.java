@@ -120,4 +120,14 @@ public class AuthenticationUtils {
         }
 
     }
+
+    public static boolean updatePassword(String email, String newPassword) {
+        try (Connection conn = DBConnection.getConnection()){
+            UserDAO userDAO = new UserDAO(conn);
+            User user = userDAO.findByEmail(email);
+            return userDAO.updatePassword(user.getUserId(), newPassword);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -219,6 +219,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesAuthorDAO.insertSeriesAuthor(seriesAuthor);
             }
 
+            request.getSession().setAttribute("message", "New series has been added successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -338,7 +339,7 @@ public class SeriesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-    private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
+private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
@@ -517,7 +518,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategory.setCategoryId(genreId);
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
-
+            request.getSession().setAttribute("message", "Series has been updated successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -586,9 +587,7 @@ public class SeriesServlet extends HttpServlet {
                 }
             }
 
-
-
-
+            request.getSession().setAttribute("message", "Series has been approved successfully.");
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -622,6 +621,7 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
 
+            request.getSession().setAttribute("message", "Series has been deleted successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
         } catch (SQLException | ClassNotFoundException e) {

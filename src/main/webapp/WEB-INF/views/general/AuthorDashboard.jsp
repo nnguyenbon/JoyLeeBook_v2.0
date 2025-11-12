@@ -88,7 +88,15 @@
 
 </main>
 
+<c:if test="${not empty sessionScope.message}">
+    <script>
+        toastr["success"]("${sessionScope.message}");
+    </script>
+    <c:remove var="message" scope="session" />
+</c:if>
 <script>
+
+
     document.addEventListener("DOMContentLoaded", () => {
         loadSeriesList();
 
