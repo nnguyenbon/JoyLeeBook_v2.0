@@ -458,7 +458,8 @@ public class AccountServlet extends HttpServlet {
 
     private void setFlashMessage(HttpServletRequest req, boolean success, String ok, String fail) {
         HttpSession session = req.getSession();
-        session.setAttribute(success ? "success" : "error", success ? ok : fail);
+//        session.setAttribute(success ? "success" : "error", success ? ok : fail);
+        session.setAttribute("message", success ? ok : fail);
     }
 
     private void handleClientError(HttpServletRequest req, HttpServletResponse res, String message)

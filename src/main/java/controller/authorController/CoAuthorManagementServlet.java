@@ -147,10 +147,10 @@ public class CoAuthorManagementServlet extends HttpServlet {
             }
             Series series = seriesDAO.findById(seriesId);
             SeriesAuthor existing = seriesAuthorDAO.findById(seriesId, invitedUser != null ? invitedUser.getUserId() : -1);
-            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+            SeriesAuthor owner = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
 
             // ✅ Gọi hàm validation
-            String validationError = validateAddCoAuthor(author.getUserId(), author.getRole(), invitedUser == null ? -1 : invitedUser.getUserId(),  existing != null, ownerId);
+            String validationError = validateAddCoAuthor(author.getUserId(), author.getRole(), invitedUser == null ? -1 : invitedUser.getUserId(),  existing != null, owner.getAuthorId());
             if (validationError != null) {
                 json.put("success", false);
                 json.put("message", validationError);
@@ -250,11 +250,11 @@ public class CoAuthorManagementServlet extends HttpServlet {
             notificationsDAO.markAsRead(notificationId);
 
             // Send confirmation notification to the inviter
-            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+            SeriesAuthor owner = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
             Series series = seriesDAO.findById(seriesId);
 
             Notification confirmation = new Notification();
-            confirmation.setUserId(ownerId);
+            confirmation.setUserId(owner.getAuthorId());
             confirmation.setTitle("Co-Author Accepted");
             confirmation.setMessage(user.getUsername() + " accepted your invitation to collaborate on \"" + series.getTitle() + "\"");
             confirmation.setUrlRedirect("/series/detail?seriesId=" + seriesId);
@@ -321,11 +321,11 @@ public class CoAuthorManagementServlet extends HttpServlet {
             notificationsDAO.markAsRead(notificationId);
 
             // Optionally notify the inviter about the decline
-            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+            SeriesAuthor owner = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
             Series series = seriesDAO.findById(seriesId);
 
             Notification declineNotification = new Notification();
-            declineNotification.setUserId(ownerId);
+            declineNotification.setUserId(owner.getAuthorId());
             declineNotification.setTitle("Co-Author Invitation Declined");
             declineNotification.setMessage(user.getUsername() + " declined your invitation to collaborate on \"" + series.getTitle() + "\"");
             declineNotification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
@@ -396,8 +396,8 @@ public class CoAuthorManagementServlet extends HttpServlet {
             NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             // Verify the current user is the owner
-            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
-            if (ownerId != author.getUserId()) {
+            SeriesAuthor owner = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+            if (owner.getAuthorId() != author.getUserId()) {
                 JSONObject errorResponse = new JSONObject();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Only the series owner can remove co-authors.");
@@ -426,7 +426,7 @@ public class CoAuthorManagementServlet extends HttpServlet {
             }
 
             // Prevent removing the owner
-            if (removedUser.getUserId() == ownerId) {
+            if (removedUser.getUserId() == owner.getAuthorId()) {
                 JSONObject errorResponse = new JSONObject();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Cannot remove the series owner.");

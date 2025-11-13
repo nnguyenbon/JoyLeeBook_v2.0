@@ -40,7 +40,7 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Cover</th>
                     <th class="px-4 py-3">Title</th>
                     <th class="px-4 py-3">Categories</th>

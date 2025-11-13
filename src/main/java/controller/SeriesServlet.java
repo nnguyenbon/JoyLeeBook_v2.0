@@ -381,11 +381,13 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
-                SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-                int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
-                if (ownerId == userId) {
-                    request.setAttribute("owner", "true");
+                SeriesAuthor author = new  SeriesAuthor();
+                for(SeriesAuthor seriesAuthor : series.getAuthorList()) {
+                    if (seriesAuthor.getAuthorId() == userId) {
+                        author = seriesAuthor;
+                    }
                 }
+                request.setAttribute("authorCurrent", author);
                 request.setAttribute("contentPage", "/WEB-INF/views/series/_seriesDetail.jsp");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
@@ -585,7 +587,13 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 }
             }
 
-            request.getSession().setAttribute("message", "Series has been approved successfully.");
+            String message;
+            if(approveStatus.equals("approved")) {
+                message = "Series has been approved successfully.";
+            } else {
+                message = "Series has been rejected successfully.";
+            }
+            request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -691,7 +699,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));
+        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
         series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }
@@ -742,7 +750,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
 
         Notification notification = new Notification();
-        notification.setUserId(seriesAuthorDAO.findOwnerIdBySeriesId(seriesId));
+        notification.setUserId(seriesAuthorDAO.findOwnerIdBySeriesId(seriesId).getAuthorId());
         notification.setTitle("Series " + approveStatus);
         notification.setType("submission_status");
         notification.setMessage(comment);

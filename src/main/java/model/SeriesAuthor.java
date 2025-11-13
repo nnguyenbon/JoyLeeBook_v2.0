@@ -1,12 +1,20 @@
 package model;
 
-
-import java.time.LocalDateTime;
-
 public class SeriesAuthor {
     private int seriesId;
     private int authorId;
     private boolean isOwner;
+
+    //axtra field
+    private String authorName;
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
 
     public int getSeriesId() {
         return seriesId;
