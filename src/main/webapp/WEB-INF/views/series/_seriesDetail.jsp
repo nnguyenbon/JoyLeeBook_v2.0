@@ -268,7 +268,6 @@
     </script>
     <c:remove var="message" scope="session" />
 </c:if>
-<script>
 
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
