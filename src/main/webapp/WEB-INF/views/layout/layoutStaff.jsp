@@ -47,7 +47,12 @@
     </c:if>
     </div>
 </div>
-
+<c:if test="${not empty sessionScope.message}">
+    <script>
+        toastr["success"]("${sessionScope.message}");
+    </script>
+    <c:remove var="message" scope="session" />
+</c:if>
 <script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
 </body>
 </html>
