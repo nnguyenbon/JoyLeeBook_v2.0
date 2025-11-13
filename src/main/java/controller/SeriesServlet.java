@@ -588,7 +588,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
             }
 
             request.getSession().setAttribute("message", "Series has been approved successfully.");
-            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
+            response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=pending");
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -689,11 +689,10 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-        UserDAO userDAO = new UserDAO(conn);
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
+        series.setAuthorList(seriesAuthorDAO.getAuthorList(series.getSeriesId()));
         series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }

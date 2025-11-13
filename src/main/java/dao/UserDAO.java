@@ -45,28 +45,7 @@ public class UserDAO {
         }
         return null;
     }
-    public List<SeriesAuthor> getAuthorList(int seriesId) throws SQLException {
-        List<SeriesAuthor> authorList = new ArrayList<>();
-        String sql = "SELECT users.user_id, users.username, series_author.is_owner\n" +
-                "FROM   series_author \n" +
-                "INNER JOIN users ON series_author.user_id = users.user_id \n" +
-                "WHERE series_author.series_id = ?";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, seriesId);
-            try (ResultSet rs = stmt.executeQuery()) {
-               while (rs.next()) {
-                   SeriesAuthor seriesAuthor =  new SeriesAuthor();
-                   seriesAuthor.setAuthorId(rs.getInt("user_id"));
-                   seriesAuthor.setAuthorName(rs.getString("username"));
-                   seriesAuthor.setOwner(rs.getBoolean("is_owner"));
-                   authorList.add(seriesAuthor);
-               }
-            }
-
-        }
-        return authorList;
-    }
 
     public boolean isAuthor(String email) throws SQLException {
         String sql = "SELECT role FROM users WHERE email = ? AND is_deleted = 0";

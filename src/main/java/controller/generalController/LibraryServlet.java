@@ -243,11 +243,10 @@ public class LibraryServlet extends HttpServlet {
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-        UserDAO userDAO = new UserDAO(conn);
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
+        series.setAuthorList(seriesAuthorDAO.getAuthorList(series.getSeriesId()));
         series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }

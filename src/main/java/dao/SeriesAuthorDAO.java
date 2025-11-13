@@ -91,20 +91,24 @@ public class SeriesAuthorDAO {
         }
         return null;
     }
-    public List<SeriesAuthor> findBySeriesId(int seriesId) throws SQLException {
-        String sql = "SELECT * FROM series_author WHERE series_id = ?";
-        List<SeriesAuthor> list = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, seriesId);
-            try (ResultSet rs = ps.executeQuery()) {
+    public List<SeriesAuthor> getAuthorList(int seriesId) throws SQLException {
+        List<SeriesAuthor> authorList = new ArrayList<>();
+        String sql = "SELECT users.user_id, users.username, series_author.*\n" +
+                "FROM   series_author \n" +
+                "INNER JOIN users ON series_author.user_id = users.user_id \n" +
+                "WHERE series_author.series_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, seriesId);
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(mapResultSetToSeriesAuthor(rs));
+                    authorList.add(mapResultSetToSeriesAuthor(rs));
                 }
             }
-        }
-        return list;
-    }
 
+        }
+        return authorList;
+    }
     /**
      * Retrieves all SeriesAuthor records from the database.
      *
