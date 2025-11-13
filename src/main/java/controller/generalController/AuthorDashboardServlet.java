@@ -55,7 +55,7 @@ public class AuthorDashboardServlet extends HttpServlet {
             double rate = ratingDAO.getAverageRating(userId);
 
             //Fetching statistics and series list for the author
-            request.setAttribute("totalChapters", chapterDAO.countChapterByUserId(userId, "approved"));
+            request.setAttribute("totalChapters", chapterDAO.countChapterByUserId(userId, ""));
             request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
             request.setAttribute("avgRating", (double) Math.round(rate * 10) / 10);

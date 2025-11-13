@@ -10,11 +10,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
-<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto overflow-visible max-h-full px-2 custom-scrollbar ">
+<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-full custom-scrollbar ">
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2 flex flex-col h-full">
         <!-- Search & Filter Form -->
         <form method="GET" action="${pageContext.request.contextPath}/series/list" id="filterForm"
-              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+              class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-3 mt-2">
             <!-- Ô tìm kiếm -->
             <div class="col-span-2 relative">
                 <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
@@ -36,11 +36,11 @@
         </form>
 
         <!-- Table -->
-        <div class="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-sm mb-3">
+        <div class="overflow-x-auto rounded-sm mb-3">
             <table class="min-w-full text-sm text-left">
-                <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Cover</th>
                     <th class="px-4 py-3">Title</th>
                     <th class="px-4 py-3">Categories</th>

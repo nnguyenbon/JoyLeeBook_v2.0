@@ -76,8 +76,8 @@
                                     <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
                                     <p class="text-gray-400">
                                         by <span class="text-primary">
-                                        <c:forEach var="author" items="${hotSeries.authorNameList}" varStatus="loop">
-                                            ${author}<c:if test="${!loop.last}">, </c:if>
+                                        <c:forEach var="author" items="${hotSeries.authorList}" varStatus="loop">
+                                            ${author.authorName}<c:if test="${!loop.last}">, </c:if>
                                         </c:forEach>
                                     </span>
                                     </p>
@@ -174,8 +174,8 @@
                                 <div class="flex justify-between text-sm text-gray-500">
                                     <p>by <span class="text-gray-700 font-medium">
                                         <c:choose>
-                                            <c:when test="${not empty newReleaseSeries.authorNameList}">
-                                                ${newReleaseSeries.authorNameList[0]}
+                                            <c:when test="${not empty newReleaseSeries.authorList}">
+                                                ${newReleaseSeries.authorList[0]}
                                             </c:when>
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
@@ -248,8 +248,8 @@
                             <div class="flex justify-between">
                                 <p>by <span class="font-medium">
                                     <c:choose>
-                                        <c:when test="${not empty recentlyUpdatedSeries.authorNameList}">
-                                            ${recentlyUpdatedSeries.authorNameList[0]}
+                                        <c:when test="${not empty recentlyUpdatedSeries.authorList}">
+                                            ${recentlyUpdatedSeries.authorList[0]}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
@@ -337,8 +337,8 @@
                             <div class="flex justify-between">
                                 <p>by <span class="font-medium">
                                     <c:choose>
-                                        <c:when test="${not empty completedSeries.authorNameList}">
-                                            ${completedSeries.authorNameList[0]}
+                                        <c:when test="${not empty completedSeries.authorList}">
+                                            ${completedSeries.authorList[0]}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>

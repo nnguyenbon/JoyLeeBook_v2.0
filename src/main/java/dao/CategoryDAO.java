@@ -1,6 +1,9 @@
 package dao;
 
 import model.Category;
+import model.staff.GenreStats;
+import utils.FormatUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -91,12 +94,15 @@ public class CategoryDAO {
 
     public List<Category> getCategoryBySeriesId(int seriesId) throws SQLException {
         List<Category> listCategory = new ArrayList<>();
-        String sql = "SELECT * FROM categories c JOIN series_categories sc ON c.category_id = sc.category_id WHERE sc.series_id = ?";
+        String sql = "SELECT c.category_id, c.name FROM categories c JOIN series_categories sc ON c.category_id = sc.category_id WHERE sc.series_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, seriesId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    listCategory.add(mapResultSetToCategory(rs));
+                    Category category = new Category();
+                    category.setCategoryId(rs.getInt("category_id"));
+                    category.setName(rs.getString("name"));
+                    listCategory.add(category);
                 }
             }
             return listCategory;
@@ -125,7 +131,31 @@ public class CategoryDAO {
         }
         return false;
     }
+    public List<GenreStats> getGenreDistribution() throws SQLException {
+        List<GenreStats> statsList = new ArrayList<>();
 
+        String sql = "SELECT c.name, COUNT(sc.series_id) as count, " +
+                "CAST(COUNT(sc.series_id) * 100.0 / (SELECT COUNT(*) FROM series_categories) AS DECIMAL(5,2)) as percentage " +
+                "FROM categories c " +
+                "LEFT JOIN series_categories sc ON c.category_id = sc.category_id " +
+                "WHERE c.is_deleted = 0 " +
+                "GROUP BY c.category_id, c.name " +
+                "ORDER BY count DESC";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                GenreStats stats = new GenreStats(
+                        rs.getString("name"),
+                        rs.getInt("count"),
+                        rs.getDouble("percentage")
+                );
+                statsList.add(stats);
+            }
+        }
+
+        return statsList;
+    }
     public List<Category> getCategoryTop(int limit) throws SQLException {
         List<Category> list = new ArrayList<>();
         String sql = "SELECT TOP " + limit + """
@@ -165,6 +195,7 @@ public class CategoryDAO {
         category.setCategoryId(rs.getInt("category_id"));
         category.setName(rs.getString("name"));
         category.setDescription(rs.getString("description"));
+        category.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
         return category;
     }
 }

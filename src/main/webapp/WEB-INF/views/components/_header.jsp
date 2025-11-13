@@ -223,8 +223,8 @@ change this template use File | Settings | File Templates. --%>
                             >Profile</span
                             >
                         </a>
-                        <a
-                                href="${pageContext.request.contextPath}/register-author"
+                        <button
+                                onclick="openRegisterAuthorModal()"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg"
                         >
                             <i class="fa-solid fa-pen"></i>
@@ -232,7 +232,7 @@ change this template use File | Settings | File Templates. --%>
                                     class="bg-gradient-to-r from-[#341661] via-[#4C1D95] to-[#195BA7] bg-clip-text text-transparent text-bold"
                             >${loginedUser.role == 'author' ? "Reader" : "Author"}</span
                             >
-                        </a>
+                        </button>
                         <a
                                 href="${pageContext.request.contextPath}/library?action=view"
                                 class="flex items-center gap-2 w-full text-left hover:bg-blue-100 rounded px-2 py-1 mb-2 text-lg" ${loginedUser.role == 'author' ? "hidden" : ""}

@@ -17,7 +17,7 @@
                  class="w-16 h-24 rounded-md object-cover">
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">${mySeries.title}</h2>
-                <c:if test="${fn:length(mySeries.authorNameList) > 1}">
+                <c:if test="${fn:length(mySeries.authorList) > 1}">
                 <span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">Collab</span>
                 </c:if>
             </div>

@@ -100,6 +100,10 @@ public class GoogleCallbackServlet extends HttpServlet {
             int userId = dao.upsertGoogleUser(username, fullName, email, googleId);
 
             User user = dao.findById(userId);
+            if (user.getStatus().equals("banned")) {
+                resp.sendRedirect(req.getContextPath() + "/login");
+                return;
+            }
             AuthenticationUtils.storeLoginedUser(req.getSession(), user);
             TrackPointUtils.trackAction(user.getUserId(), 10, "Login with google", "login", 0, 1);
             resp.sendRedirect(req.getContextPath() + "/");

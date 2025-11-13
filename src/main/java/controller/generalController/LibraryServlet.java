@@ -160,7 +160,6 @@ public class LibraryServlet extends HttpServlet {
             }
             //Return JSON response indicating success
             response.getWriter().print("{\"success\": true, \"saved\": " + saved + ", \"message\": \"" + message + "\"}");
-            response.sendRedirect(response.encodeRedirectURL(request.getContextPath() + "/library"));
         } catch (Exception ex) {
             ex.printStackTrace();
             response.getWriter().write("{\"success\": false}");
@@ -248,7 +247,7 @@ public class LibraryServlet extends HttpServlet {
         series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId()));
         series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
         series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
-        series.setAuthorNameList(userDAO.getAuthorNameList(seriesAuthorDAO.findBySeriesId(series.getSeriesId())));
+        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
         series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
         return series;
     }

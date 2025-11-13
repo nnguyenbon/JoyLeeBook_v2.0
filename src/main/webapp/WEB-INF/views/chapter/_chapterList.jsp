@@ -18,7 +18,6 @@
         </a>
     </div>
     <div class="space-y-3 border-2 border-neutral-400 p-6 rounded-lg  ">
-
         <c:choose>
             <c:when test="${chapterList.size() != 0}">
                 <ul class="overflow-y-auto custom-scrollbar max-h-100">
@@ -30,7 +29,7 @@
                                 <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                 <div class="flex gap-4 items-center">
                                     <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
-                                    <c:if test="${loginedUser.role == 'author'}">
+                                    <c:if test="${chapter.authorId == loginedUser.userId}">
                                         <c:choose>
                                             <c:when test="${chapter.approvalStatus == 'approved'}">
                                                 <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
@@ -45,13 +44,20 @@
                                     </c:if>
                                 </div>
                             </a>
-                            <c:if test="${loginedUser.role == 'author'}">
+                            <c:if test="${chapter.authorId == loginedUser.userId}">
                                 <div class="flex gap-2 items-center">
                                     <a type="button"
                                        class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
                                        href="${pageContext.request.contextPath}/chapter/edit?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                                         <i class="fa-regular fa-pen-to-square"></i>
                                     </a>
+
+                                    <button type="button"
+                                            class="upload-chapter-btn text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-300"
+                                            data-series-id="${chapter.seriesId}"
+                                            data-chapter-id="${chapter.chapterId}">
+                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                    </button>
 
                                     <a type="button"
                                        class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
@@ -61,7 +67,6 @@
                                 </div>
                             </c:if>
                         </li>
-
                     </c:forEach>
                 </ul>
             </c:when>

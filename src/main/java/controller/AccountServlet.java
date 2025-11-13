@@ -10,6 +10,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
+import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 
 import java.io.IOException;
@@ -88,9 +90,6 @@ public class AccountServlet extends HttpServlet {
 
             PaginationRequest pageRequest = PaginationUtils.fromRequest(request);
             pageRequest.setOrderBy("id");
-            if ("reader".equals(currentUserRole)) {
-                roleFilter = "author";
-            }
 
             List<Account> accounts = dao.getAllAccounts(search, roleFilter, currentUserRole, pageRequest);
             int totalAccounts = dao.countAccounts(search, roleFilter, currentUserRole);
@@ -128,15 +127,9 @@ public class AccountServlet extends HttpServlet {
         try {
             int accountId = Integer.parseInt(request.getParameter("accountId"));
             String role = request.getParameter("role");
-
-            if (role == null) {
-                response.sendRedirect(request.getContextPath() + "/account/list");
-                return;
-            }
-
             try (Connection conn = DBConnection.getConnection()) {
-                AccountDAO dao = new AccountDAO(conn);
-                Account account = dao.getAccountById(accountId, role);
+                AccountDAO accountDAO = new AccountDAO(conn);
+                Account account = accountDAO.getAccountById(accountId, role);
 
                 if (account == null) {
                     request.setAttribute("error", "Account not found!");
@@ -152,7 +145,7 @@ public class AccountServlet extends HttpServlet {
 
                 request.setAttribute("account", account);
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_accountDetail.jsp");
-                request.setAttribute("pageTitle", "Account Details");
+                request.setAttribute("pageTitle", "Manage Accounts");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -184,7 +177,10 @@ public class AccountServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        request.getRequestDispatcher("/WEB-INF/views/account-add.jsp").forward(request, response);
+        request.setAttribute("type", "staff");
+        request.setAttribute("pageTitle", "Manage Accounts");
+        request.setAttribute("contentPage","/WEB-INF/views/staff/_showAddAccount.jsp");
+        request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
     }
 
     /* ===========================
@@ -199,21 +195,22 @@ public class AccountServlet extends HttpServlet {
         }
 
         try {
-            int accountId = Integer.parseInt(request.getParameter("id"));
-            String type = request.getParameter("type");
+            int staffId = Integer.parseInt(request.getParameter("staffId"));
 
             try (Connection conn = DBConnection.getConnection()) {
-                AccountDAO dao = new AccountDAO(conn);
-                Account account = dao.getAccountById(accountId, type);
-
+                AccountDAO accountDAO = new AccountDAO(conn);
+                Account account = accountDAO.getStaffById(staffId);
                 if (account == null) {
                     request.setAttribute("error", "Account not found!");
                     request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);
                     return;
                 }
-
-                request.setAttribute("account", account);
-                request.getRequestDispatcher("/WEB-INF/views/account-edit.jsp").forward(request, response);
+                request.setAttribute("staffId", staffId);
+                request.setAttribute("username", account.getUsername());
+                request.setAttribute("fullName", account.getFullName());
+                request.setAttribute("contentPage", "/WEB-INF/views/staff/_showEditAccount.jsp");
+                request.setAttribute("pageTitle", "Manage Accounts");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -235,31 +232,66 @@ public class AccountServlet extends HttpServlet {
             return;
         }
 
-        String type = request.getParameter("accountType");
+        String type = request.getParameter("type");
         boolean success = false;
 
         try (Connection conn = DBConnection.getConnection()) {
-            AccountDAO dao = new AccountDAO(conn);
-
-            if ("user".equalsIgnoreCase(type)) {
-                User u = new User();
-                u.setUsername(request.getParameter("username"));
-                u.setFullName(request.getParameter("fullName"));
-                u.setEmail(request.getParameter("email"));
-                u.setPasswordHash(hashPassword(request.getParameter("password")));
-                u.setRole(request.getParameter("role"));
-                u.setStatus(request.getParameter("status"));
-                u.setBio(request.getParameter("bio"));
-                success = dao.insertUser(u);
-            } else if ("staff".equalsIgnoreCase(type)) {
-                Staff s = new Staff();
-                s.setUsername(request.getParameter("username"));
-                s.setFullName(request.getParameter("fullName"));
-                s.setPasswordHash(hashPassword(request.getParameter("password")));
-                s.setRole(request.getParameter("role"));
-                success = dao.insertStaff(s);
+            AccountDAO accountDAO = new AccountDAO(conn);
+            String userName = request.getParameter("username");
+            String fullName = request.getParameter("fullName");
+            String password = request.getParameter("password");
+            String email = request.getParameter("email");
+            String confirmPassword = request.getParameter("confirmPassword");
+            if (accountDAO.checkByUsername(userName)) {
+                request.setAttribute("message", "Username is already exist.");
+                request.setAttribute("username", userName);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("email", email);
+                request.setAttribute("password", password);
+                showAddAccount(request, response);
+                return;
             }
-
+            //Check if email already exists
+            if (email != null && accountDAO.checkByEmail(email)) {
+                request.setAttribute("message", "Email is already exist.");
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("username", userName);
+                request.setAttribute("email", email);
+                request.setAttribute("password", password);
+                showAddAccount(request, response);
+                return;
+            }
+            //Check if password and confirm password match
+            if (!password.equals(confirmPassword)) {
+                request.setAttribute("message", "Your confirm password is not correct.");
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("username", userName);
+                request.setAttribute("email", email);
+                request.setAttribute("password", password);
+                showAddAccount(request, response);
+                return;
+            }
+            if ("reader".equalsIgnoreCase(type)) {
+                User user = new User();
+                user.setUsername(userName);
+                user.setFullName(fullName);
+                user.setEmail(email);
+                user.setPasswordHash(AuthenticationUtils.hashPwd(password));
+                user.setRole("reader");
+                success = accountDAO.insertUser(user);
+            } else if ("staff".equalsIgnoreCase(type)) {
+                Staff staff = new Staff();
+                staff.setUsername(userName);
+                staff.setFullName(fullName);
+                staff.setPasswordHash(AuthenticationUtils.hashPwd(password));
+                staff.setRole("staff");
+                success = accountDAO.insertStaff(staff);
+            }
+            if (success) {
+                setFlashMessage(request, success, "Account created successfully!", "Failed to add account!");
+                response.sendRedirect(request.getContextPath() + "/account/list");
+                return;
+            }
         } catch (SQLException e) {
             handleServerError(request, response, e, "Database error while inserting account.");
             return;
@@ -274,46 +306,72 @@ public class AccountServlet extends HttpServlet {
     /* ===========================
        ===== UPDATE ACCOUNT ======
        =========================== */
+    /* ===========================
+   ===== UPDATE ACCOUNT (STAFF ONLY) ======
+   =========================== */
     private void updateAccount(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-
+        // Kiểm tra quyền admin (chỉ admin mới được cập nhật)
         if (!isAdmin(request)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        String type = request.getParameter("accountType");
         boolean success = false;
 
         try (Connection conn = DBConnection.getConnection()) {
-            AccountDAO dao = new AccountDAO(conn);
+            AccountDAO accountDAO = new AccountDAO(conn);
 
-            if ("user".equalsIgnoreCase(type)) {
-                User user = new User();
-                user.setUserId(Integer.parseInt(request.getParameter("accountId")));
-                user.setFullName(request.getParameter("fullName"));
-                user.setEmail(request.getParameter("email"));
-                user.setRole(request.getParameter("role"));
-                user.setStatus(request.getParameter("status"));
-                user.setBio(request.getParameter("bio"));
-                success = dao.updateUser(user);
-            } else if ("staff".equalsIgnoreCase(type)) {
-                Staff staff = new Staff();
-                staff.setStaffId(Integer.parseInt(request.getParameter("accountId")));
-                staff.setFullName(request.getParameter("fullName"));
-                staff.setRole(request.getParameter("role"));
-                success = dao.updateStaff(staff);
+            String staffIdStr = request.getParameter("staffId");
+            String fullName = request.getParameter("fullName");
+            String password = request.getParameter("password");
+
+            // Kiểm tra ID hợp lệ
+            int staffId;
+            try {
+                staffId = Integer.parseInt(staffIdStr);
+            } catch (NumberFormatException e) {
+                request.setAttribute("message", "Invalid staff ID format.");
+                request.setAttribute("accountId", staffIdStr);
+                request.setAttribute("fullName", fullName);
+                showEditAccount(request, response);
+                return;
             }
 
-        } catch (NumberFormatException e) {
-            handleClientError(request, response, "Invalid account ID format.");
+            // Kiểm tra xem staff có tồn tại không
+            if (!accountDAO.checkStaffById(staffId)) {
+                request.setAttribute("message", "Staff account does not exist.");
+                request.setAttribute("accountId", staffId);
+                request.setAttribute("fullName", fullName);
+                showEditAccount(request, response);
+                return;
+            }
+
+            // Tạo đối tượng Staff và cập nhật
+            Staff staff = new Staff();
+            staff.setStaffId(staffId);
+            staff.setFullName(fullName);
+            staff.setRole("staff");
+            if (password != null && !password.isBlank()) {
+                staff.setPasswordHash(AuthenticationUtils.hashPwd(password));
+            }
+            success = accountDAO.updateStaff(staff);
+
+            if (success) {
+                setFlashMessage(request, success, "Staff account updated successfully!", "Failed to update staff account!");
+                response.sendRedirect(request.getContextPath() + "/account/list");
+                return;
+            }
+
+        } catch (SQLException e) {
+            handleServerError(request, response, e, "Database error while updating staff account.");
             return;
-        } catch (SQLException | ClassNotFoundException e) {
-            handleServerError(request, response, e, "Database error while updating account.");
-            return;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
-        setFlashMessage(request, success, "Account updated successfully!", "Failed to update account!");
+        // Nếu thất bại (không có ngoại lệ nhưng update trả về false)
+        setFlashMessage(request, success, "Staff account updated successfully!", "Failed to update staff account!");
         response.sendRedirect(request.getContextPath() + "/account/list");
     }
 
@@ -333,8 +391,8 @@ public class AccountServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             int id = Integer.parseInt(request.getParameter("accountId"));
             String type = request.getParameter("accountType");
-            AccountDAO dao = new AccountDAO(conn);
-            success = dao.deleteAccount(id, type);
+            AccountDAO accountDAO = new AccountDAO(conn);
+            success = accountDAO.deleteAccount(id, type);
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid account ID format.");
             return;

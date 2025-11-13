@@ -9,14 +9,14 @@ public class Series {
     private String coverImgUrl;
     private String status;
     private String approvalStatus;
-    private int totalChapters;
     private String createdAt;
     private String updatedAt;
     private boolean isDeleted;
 
     //extra field
+    private int totalChapters;
     private List<Category> categoryList;
-    private List<String> authorNameList;
+    private List<SeriesAuthor> authorList;
     private double avgRating;
     private int totalRating;
 
@@ -118,12 +118,12 @@ public class Series {
         this.categoryList = categoryList;
     }
 
-    public List<String> getAuthorNameList() {
-        return authorNameList;
+    public List<SeriesAuthor> getAuthorList() {
+        return authorList;
     }
 
-    public void setAuthorNameList(List<String> authorNameList) {
-        this.authorNameList = authorNameList;
+    public void setAuthorList(List<SeriesAuthor> authorNameList) {
+        this.authorList = authorNameList;
     }
 
     public String getApprovalStatus() {

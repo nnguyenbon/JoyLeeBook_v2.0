@@ -1,0 +1,40 @@
+package model.staff;
+
+public class InteractionStats {
+    private int likes;
+    private int comments;
+    private int ratings;
+    private int points;
+    private int saves;
+    private int totalInteractions;
+
+    public InteractionStats() {}
+
+    public InteractionStats(int likes, int comments, int ratings, int points, int saves) {
+        this.likes = likes;
+        this.comments = comments;
+        this.ratings = ratings;
+        this.points = points;
+        this.saves = saves;
+        this.totalInteractions = likes + comments + ratings + points + saves;
+    }
+
+    // Getters and Setters
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
+
+    public int getComments() { return comments; }
+    public void setComments(int comments) { this.comments = comments; }
+
+    public int getVotes() { return ratings; }
+    public void setVotes(int votes) { this.ratings = votes; }
+
+    public int getPoints() { return points; }
+    public void setPoints(int points) { this.points = points; }
+
+    public int getSaves() { return saves; }
+    public void setSaves(int saves) { this.saves = saves; }
+
+    public int getTotalInteractions() { return totalInteractions; }
+    public void setTotalInteractions(int totalInteractions) { this.totalInteractions = totalInteractions; }
+}

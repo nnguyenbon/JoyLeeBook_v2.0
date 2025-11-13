@@ -28,6 +28,7 @@
             href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
             rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body class="bg-white">
 <div class="flex h-screen text-gray-500 overflow-x-hidden">
@@ -54,6 +55,8 @@
     <c:remove var="message" scope="session" />
 </c:if>
 <script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
+<script src="${pageContext.request.contextPath}/js/auth.js"></script>
+
 </body>
 </html>
 

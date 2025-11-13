@@ -109,7 +109,19 @@ public class AuthServlet extends HttpServlet {
                 String role = user.getRole();
                 switch (role) {
                     case "author":
+                        if (user.getStatus().equals("banned")) {
+                            response.sendRedirect(request.getContextPath() + "/login");
+                            return;
+                        }
+                        //Track login for point system
+                        TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
+                        response.sendRedirect(request.getContextPath() + "/author");
+                        break;
                     case "reader":
+                        if (user.getStatus().equals("banned")) {
+                            response.sendRedirect(request.getContextPath() + "/login");
+                            return;
+                        }
                         //Track login for point system
                         TrackPointUtils.trackAction(user.getUserId(), 10, "Login with form", "login", 0, 1);
                         response.sendRedirect(request.getContextPath() + "/homepage");
@@ -120,6 +132,8 @@ public class AuthServlet extends HttpServlet {
                 String role = staff.getRole();
                 switch (role) {
                     case "admin":
+                        response.sendRedirect(request.getContextPath() + "/admin");
+                        break;
                     case "staff":
                         response.sendRedirect(request.getContextPath() + "/staff");
                         break;

@@ -35,7 +35,7 @@ public class ReviewChapterDAO {
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                list.add(mapResultSetToReview(rs));
+                list.add(mapResultSetToReviewSeries(rs));
             }
         }
         return list;
@@ -57,13 +57,27 @@ public class ReviewChapterDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToReview(rs);
+                    return mapResultSetToReviewSeries(rs);
                 }
             }
         }
         return null;
     }
 
+
+    public ReviewChapter findById(int chapterId) throws SQLException {
+        String sql = "SELECT * FROM review_chapter WHERE chapter_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, chapterId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToReviewChapter(rs);
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Retrieves all review records for a specific series.
      *
@@ -78,7 +92,7 @@ public class ReviewChapterDAO {
             stmt.setInt(1, seriesId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    list.add(mapResultSetToReview(rs));
+                    list.add(mapResultSetToReviewSeries(rs));
                 }
             }
         }
@@ -121,6 +135,22 @@ public class ReviewChapterDAO {
     }
 
     /**
+     * Updates an existing review record in the {@code review_series} table.
+     *
+     * @param review the {@link ReviewSeries} object containing updated information
+     * @return {@code true} if the update was successful, {@code false} otherwise
+     * @throws SQLException if a database access error occurs
+     */
+    public boolean update(ReviewChapter review) throws SQLException {
+        String sql = "UPDATE review_chapter SET status = ?, comment = ? WHERE chapter_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, review.getStatus());
+            stmt.setString(2, review.getComment());
+            stmt.setInt(3, review.getChapterId());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    /**
      * Deletes a review record from the {@code review_series} table.
      *
      * @param seriesId the ID of the series
@@ -144,7 +174,7 @@ public class ReviewChapterDAO {
      * @return a populated {@link ReviewSeries} object
      * @throws SQLException if a database access error occurs
      */
-    private ReviewSeries mapResultSetToReview(ResultSet rs) throws SQLException {
+    private ReviewSeries mapResultSetToReviewSeries(ResultSet rs) throws SQLException {
         ReviewSeries review = new ReviewSeries();
         review.setSeriesId(rs.getInt("series_id"));
         review.setStaffId(rs.getInt("staff_id"));
@@ -157,6 +187,18 @@ public class ReviewChapterDAO {
         return review;
     }
 
+    private ReviewChapter mapResultSetToReviewChapter(ResultSet rs) throws SQLException {
+        ReviewChapter review = new ReviewChapter();
+        review.setChapterId(rs.getInt("chapter_id"));
+        review.setStaffId(rs.getInt("staff_id"));
+        review.setStatus(rs.getString("status"));
+        review.setComment(rs.getString("comment"));
+
+        Timestamp created = rs.getTimestamp("created_at");
+        review.setCreatedAt(created != null ? created.toLocalDateTime() : LocalDateTime.now());
+
+        return review;
+    }
     public int countByStaff(int staffId) {
         String sql = "SELECT COUNT(*) AS total FROM review_chapter WHERE staff_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -187,7 +229,7 @@ public class ReviewChapterDAO {
     }
 
     public List<RecentAction> getRecentActionsByStaff(int staffId, Timestamp startOfDay, int limit) {
-        String sql = " SELECT TOP " + limit + " rc.chapter_id, rc.status, rc.comment, rc.created_at, " +
+        String sql = "SELECT TOP " + limit + " rc.chapter_id, rc.status, rc.comment, rc.created_at, " +
                 "c.title AS chapter_title, s.title AS series_title " +
                 "FROM review_chapter rc " +
                 "JOIN chapters c ON rc.chapter_id = c.chapter_id " +
@@ -203,18 +245,71 @@ public class ReviewChapterDAO {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                RecentAction dto = new RecentAction();
                 String chapterTitle = rs.getString("chapter_title");
                 String seriesTitle = rs.getString("series_title");
                 String status = rs.getString("status");
                 Timestamp createdAt = rs.getTimestamp("created_at");
-                list.add(dto);
+
+                // ✅ Mô tả hành động
+                String actionDesc = getActionDescription(status, chapterTitle, seriesTitle);
+
+                // ✅ Màu trạng thái
+                String statusColor = getStatusColor(status);
+
+                // ✅ Thời gian tương đối
+                String relativeTime = getRelativeTime(createdAt);
+
+                // ✅ Gộp lại thành đối tượng
+                list.add(new RecentAction(actionDesc, relativeTime, statusColor));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
     }
+    // Trả về mô tả hành động ngắn gọn
+    private String getActionDescription(String status, String chapterTitle, String seriesTitle) {
+        switch (status.toLowerCase()) {
+            case "approved":
+                return "Approved \"" + chapterTitle + "\" from \"" + seriesTitle + "\"";
+            case "rejected":
+                return "Rejected \"" + chapterTitle + "\" from \"" + seriesTitle + "\"";
+            case "pending":
+                return "Pending review for \"" + chapterTitle + "\"";
+            default:
+                return "Updated status for \"" + chapterTitle + "\"";
+        }
+    }
+
+    // Trả về màu tương ứng
+    private String getStatusColor(String status) {
+        switch (status.toLowerCase()) {
+            case "approved": return "green";
+            case "rejected": return "red";
+            case "pending": return "yellow";
+            default: return "gray";
+        }
+    }
+
+    // Tính thời gian tương đối (ví dụ: "10 minutes ago", "2 hours ago")
+    private String getRelativeTime(Timestamp timestamp) {
+        long diffMillis = System.currentTimeMillis() - timestamp.getTime();
+        long diffSeconds = diffMillis / 1000;
+        long diffMinutes = diffSeconds / 60;
+        long diffHours = diffMinutes / 60;
+        long diffDays = diffHours / 24;
+
+        if (diffMinutes < 1) {
+            return "just now";
+        } else if (diffMinutes < 60) {
+            return diffMinutes + " minute" + (diffMinutes > 1 ? "s" : "") + " ago";
+        } else if (diffHours < 24) {
+            return diffHours + " hour" + (diffHours > 1 ? "s" : "") + " ago";
+        } else {
+            return diffDays + " day" + (diffDays > 1 ? "s" : "") + " ago";
+        }
+    }
+
     public int countByStaffAndDate(int staffId, Timestamp startOfDay) {
         String sql = "SELECT COUNT(*) AS total FROM review_chapter WHERE staff_id = ? AND created_at >= ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
