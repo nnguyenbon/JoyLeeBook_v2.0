@@ -113,135 +113,107 @@ public class CoAuthorManagementServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         User author = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-
-        if (author == null || !"author".equals(author.getRole())) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "You must be logged in as an author.");
-            response.getWriter().write(errorResponse.toString());
-            return;
-        }
-
         String usernameOrEmail = request.getParameter("username");
         String seriesIdParam = request.getParameter("seriesId");
 
+        JSONObject json = new JSONObject();
+
         if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Username or email is required.");
-            response.getWriter().write(errorResponse.toString());
+            json.put("success", false);
+            json.put("message", "Username or email is required.");
+            response.getWriter().write(json.toString());
             return;
         }
 
         if (seriesIdParam == null || seriesIdParam.trim().isEmpty()) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Series ID is required.");
-            response.getWriter().write(errorResponse.toString());
+            json.put("success", false);
+            json.put("message", "Series ID is required.");
+            response.getWriter().write(json.toString());
             return;
         }
 
-        Connection conn = null;
-        try {
+        try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(seriesIdParam);
-            conn = DBConnection.getConnection();
 
             UserDAO userDAO = new UserDAO(conn);
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
             NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
-            // Find the user to invite
+            // Lấy user & series
             User invitedUser = userDAO.findByEmail(usernameOrEmail);
             if (invitedUser == null) {
                 invitedUser = userDAO.findByUsername(usernameOrEmail);
             }
-
-            if (invitedUser == null) {
-                JSONObject errorResponse = new JSONObject();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "User not found.");
-                response.getWriter().write(errorResponse.toString());
-                return;
-            }
-
-            // Check if user is already a co-author
-            SeriesAuthor existing = seriesAuthorDAO.findById(seriesId, invitedUser.getUserId());
-            if (existing != null && existing.getSeriesId() > 0) {
-                JSONObject errorResponse = new JSONObject();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "This user is already a co-author of this series.");
-                response.getWriter().write(errorResponse.toString());
-                return;
-            }
-
-            // Verify the current user is the owner
-            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
-            if (ownerId != author.getUserId()) {
-                JSONObject errorResponse = new JSONObject();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "Only the series owner can add co-authors.");
-                response.getWriter().write(errorResponse.toString());
-                return;
-            }
-
-            // Get series details
             Series series = seriesDAO.findById(seriesId);
-            if (series == null) {
-                JSONObject errorResponse = new JSONObject();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "Series not found.");
-                response.getWriter().write(errorResponse.toString());
+            SeriesAuthor existing = seriesAuthorDAO.findById(seriesId, invitedUser != null ? invitedUser.getUserId() : -1);
+            int ownerId = seriesAuthorDAO.findOwnerIdBySeriesId(seriesId);
+
+            // ✅ Gọi hàm validation
+            String validationError = validateAddCoAuthor(author.getUserId(), author.getRole(), invitedUser == null ? -1 : invitedUser.getUserId(),  existing != null, ownerId);
+            if (validationError != null) {
+                json.put("success", false);
+                json.put("message", validationError);
+                response.getWriter().write(json.toString());
                 return;
             }
 
-            // Create notification for the invited user
             Notification notification = new Notification();
             notification.setUserId(invitedUser.getUserId());
             notification.setTitle("Co-Author Invitation");
             notification.setMessage(author.getUsername() + " invited you to collaborate on \"" + series.getTitle() + "\"");
-            notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
-            notification.setRead(false);
-            notification.setType("system");
-
-            // Store invitation data in notification metadata (you can extend Notification model if needed)
-            // For now, we'll use the URL to pass data
             notification.setUrlRedirect("/manage-coauthors/invitation?seriesId=" + seriesId + "&inviterId=" + author.getUserId());
+            notification.setType("system");
+            notification.setRead(false);
 
-            boolean notificationCreated = notificationsDAO.insertNotification(notification);
-
-            if (notificationCreated) {
-                JSONObject successResponse = new JSONObject();
-                successResponse.put("success", true);
-                successResponse.put("message", "Invitation sent to " + invitedUser.getUsername());
-                response.getWriter().write(successResponse.toString());
-            } else {
-                JSONObject errorResponse = new JSONObject();
-                errorResponse.put("success", false);
-                errorResponse.put("message", "Failed to send invitation.");
-                response.getWriter().write(errorResponse.toString());
-            }
+            boolean created = notificationsDAO.insertNotification(notification);
+            json.put("success", created);
+            json.put("message", created
+                    ? "Invitation sent to " + invitedUser.getUsername()
+                    : "Failed to send invitation.");
+            response.getWriter().write(json.toString());
 
         } catch (NumberFormatException e) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Invalid series ID format.");
-            response.getWriter().write(errorResponse.toString());
+            json.put("success", false);
+            json.put("message", "Invalid series ID format.");
+            response.getWriter().write(json.toString());
         } catch (SQLException | ClassNotFoundException e) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Database error: " + e.getMessage());
-            response.getWriter().write(errorResponse.toString());
+            json.put("success", false);
+            json.put("message", "Database error: " + e.getMessage());
+            response.getWriter().write(json.toString());
             e.printStackTrace();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
+    }
+
+    public String validateAddCoAuthor(
+            int authorId,
+            String authorRole,
+            int inviterId,
+            boolean existing,
+            int ownerId
+    ) {
+        if ( !"author".equalsIgnoreCase(authorRole)) {
+            return "You must be logged in as an author.";
+        }
+
+        if (inviterId == -1) {
+            return "User not found.";
+        }
+
+        if (ownerId != authorId) {
+            return "Only the series owner can add co-authors.";
+        }
+
+        if (existing) {
+            return "This user is already a co-author of this series.";
+        }
+
+        if (inviterId == authorId) {
+            return "You cannot add yourself as a co-author.";
+        }
+
+
+        return null;
     }
 
     private void acceptInvitation(HttpServletRequest request, HttpServletResponse response) throws IOException {
