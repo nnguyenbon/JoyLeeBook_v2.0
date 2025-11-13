@@ -187,6 +187,7 @@ public class ReportServlet extends HttpServlet {
             reportDAO.insert(report);
 
             // Có thể trả JSON response sau này cho AJAX
+            request.getSession().setAttribute("messagen", "Report sent successfully!");
             response.sendRedirect(request.getContextPath() + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid chapter ID format.");
@@ -221,6 +222,8 @@ public class ReportServlet extends HttpServlet {
 
             ReportDAO reportDAO = new ReportDAO(conn);
             reportDAO.insert(report);
+
+            request.getSession().setAttribute("message", "Report sent successfully!");
             response.sendRedirect(request.getContextPath() + "/chapter/detail?seriesId=" + seriesId + "&chapterId=" + chapterId);
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid comment ID format.");
@@ -264,6 +267,8 @@ public class ReportServlet extends HttpServlet {
                 CommentDAO commentDAO = new CommentDAO(conn);
                 commentDAO.softDelete(report.getCommentId());
             }
+
+            request.getSession().setAttribute("message", "Report handled successfully!");
             response.sendRedirect(request.getContextPath() + "/report/list?type=" + report.getTargetType() + "&filterByStatus=pending");
 
         } catch (NumberFormatException e) {
@@ -296,6 +301,7 @@ public class ReportServlet extends HttpServlet {
                 request.getSession().setAttribute("error", "Failed to delete report!");
             }
 
+            request.getSession().setAttribute("message", "Report deleted successfully!");
             response.sendRedirect(request.getContextPath() + "/report/list");
         } catch (NumberFormatException e) {
             handleClientError(request, response, "Invalid report ID format.");

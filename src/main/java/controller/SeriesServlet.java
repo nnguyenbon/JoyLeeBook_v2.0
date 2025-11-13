@@ -587,7 +587,13 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 }
             }
 
-            request.getSession().setAttribute("message", "Series has been approved successfully.");
+            String message;
+            if(approveStatus.equals("approved")) {
+                message = "Series has been approved successfully.";
+            } else {
+                message = "Series has been rejected successfully.";
+            }
+            request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
         } catch (SQLException | ClassNotFoundException e) {
