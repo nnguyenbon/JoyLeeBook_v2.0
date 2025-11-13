@@ -66,12 +66,17 @@ public class ReactionServlet extends HttpServlet {
      */
     private void likeChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        try {
+        try (Connection con = DBConnection.getConnection()) {
+            LikeDAO likeDAO = new LikeDAO(con);
+            response.setContentType("application/json;charset=UTF-8");
             int userId = loginedUser != null ? loginedUser.getUserId() : 0;
             int chapterId = Integer.parseInt(request.getParameter("chapterId"));
-            int newLikeCount = likeChapter(userId, chapterId);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
+            if (loginedUser.getRole().equals("reader")) {
+                int newLikeCount = likeChapter(userId, chapterId);
+                response.getWriter().write("{\"success\": true, \"newLikeCount\": " + newLikeCount + ", \"liked\": true }");
+            } else {
+                response.getWriter().write("{\"success\": false, \"newLikeCount\": " + likeDAO.countByChapter(chapterId) + ", \"liked\": true }");
+            }
         } catch (Exception e) {
             request.setAttribute("error", "Could not insert like data. " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/error/error.jsp").forward(request, response);

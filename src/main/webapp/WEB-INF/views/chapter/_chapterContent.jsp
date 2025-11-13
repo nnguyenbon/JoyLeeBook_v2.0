@@ -92,12 +92,12 @@
             </a>
 
             <!-- Reactions -->
-            <div class="flex items-center gap-5" ${loginedUser.role == 'author' ? "hidden" : ""}    >
-                <button
+            <div class="flex items-center gap-5"     >
+                <button ${loginedUser.role == 'author' ? "hidden" : ""}
                         class="openReportChapterBtn text-gray-600 px-2 py-2  border rounded-full hover:bg-[#195DA9] hover:text-white transition-all duration-200">
                     <i class="fa-regular fa-flag"></i></button>
 
-                <p class="text-sm text-gray-500">Chapter ${chapter.chapterNumber}
+                <p class="text-sm text-gray-500" ${loginedUser.role == 'author' ? "hidden" : ""}>Chapter ${chapter.chapterNumber}
                     of ${chapterList.size()}</p>
                 <button id="likeBtn"
                         class="like-btn flex items-center justify-center gap-5 w-19 px-2 py-1 border rounded-full transition-all duration-200
