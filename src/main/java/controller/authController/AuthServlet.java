@@ -266,101 +266,6 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Validates name fields (username, fullname) for registration.
-     *
-     * @param request
-     * @param response
-     * @param name
-     * @throws ServletException
-     * @throws IOException
-     */
-    private void validateName(HttpServletRequest request, HttpServletResponse response, String name) throws ServletException, IOException {
-        String value = request.getParameter("value");
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        //Validate name
-        if (!ValidationInput.isEmptyString(value)) {
-            String message = name + " cannot empty"; //Add name to message
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message); //Return JSON response
-            response.getWriter().write(json); //Write response
-        } else if (ValidationInput.isValidLength(value, 3)) {
-            String message = name + " cannot contain less than 3 characters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.isValidCharacters(value)) {
-            String message = name + " cannot contain special characters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        }
-    }
-
-    /**
-     * Validates email field for registration.
-     *
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws IOException
-     */
-    private void validateEmail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String value = request.getParameter("value");
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        if (!ValidationInput.isEmptyString(value)) {
-            String message = "Your email cannot empty";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.isValidEmailFormat(value)) {
-            String message = "Your email format is invalid";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.hasValidDomain(value)) {
-            String message = "Your domain is invalid";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        }
-    }
-
-    /**
-     * Validates password field for registration.
-     *
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws IOException
-     */
-    private void validatePassword(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String value = request.getParameter("value");
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        if (!ValidationInput.isEmptyString(value)) {
-            String message = "Your password cannot empty";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (ValidationInput.isValidLength(value, 8)) {
-            String message = "Your password must has more than 8 characters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.hasLowercase(value)) {
-            String message = "Your password must has lower case letters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.hasUppercase(value)) {
-            String message = "Your password must has upper case letters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.hasNumber(value)) {
-            String message = "Your password must has numeric characters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        } else if (!ValidationInput.hasSpecialCharacter(value)) {
-            String message = "Your password must contain special characters";
-            String json = String.format("{\"valid\": %b, \"message\": \"%s\"}", false, message);
-            response.getWriter().write(json);
-        }
-
-    }
 
     /**
      * Checks which field to validate based on the "type" parameter in the request.
@@ -373,22 +278,74 @@ public class AuthServlet extends HttpServlet {
      */
     private boolean checkValidate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type") == null ? "" : request.getParameter("type");
-        switch (type) {
-            case "username":
-                validateName(request, response, "Username");
-                return true;
-            case "fullname":
-                validateName(request, response, "Fullname");
-                return true;
-            case "email":
-                validateEmail(request, response);
-                return true;
-            case "password":
-                validatePassword(request, response);
-                return true;
-        }
-        return false;
+        String value = request.getParameter("value");
+
+        // Gọi logic validate riêng (độc lập với request/response)
+        String jsonResult = validateInput(type, value);
+
+        if (jsonResult.isEmpty()) return false;
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResult);
+        return true;
     }
 
+    public String validateInput(String type, String value) {
+        switch (type) {
+            case "username":
+                return validateName("Username", value);
+            case "fullname":
+                return validateName("Fullname", value);
+            case "email":
+                return validateEmail(value);
+            case "password":
+                return validatePassword(value);
+            default:
+                return "";
+        }
+    }
+    private String validateName(String name, String value) {
+        if (!ValidationInput.isEmptyString(value)) {
+            return json(false, name + " cannot empty");
+        } else if (ValidationInput.isValidLength(value, 3)) {
+            return json(false, name + " cannot contain less than 3 characters");
+        } else if (!ValidationInput.isValidCharacters(value)) {
+            return json(false, name + " cannot contain special characters");
+        }
+        return json(true, "Valid " + name);
+    }
 
+    private String validateEmail(String value) {
+        if (!ValidationInput.isEmptyString(value)) {
+            return json(false, "Your email cannot empty");
+        } else if (!ValidationInput.isValidEmailFormat(value)) {
+            return json(false, "Your email format is invalid");
+        } else if (!ValidationInput.hasValidDomain(value)) {
+            return json(false, "Your domain is invalid");
+        }
+        return json(true, "Valid email");
+    }
+
+    private String validatePassword(String value) {
+        if (!ValidationInput.isEmptyString(value)) {
+            return json(false, "Your password cannot empty");
+        } else if (ValidationInput.isValidLength(value, 8)) {
+            return json(false, "Your password must has more than 8 characters");
+        } else if (!ValidationInput.hasLowercase(value)) {
+            return json(false, "Your password must has lower case letters");
+        } else if (!ValidationInput.hasUppercase(value)) {
+            return json(false, "Your password must has upper case letters");
+        } else if (!ValidationInput.hasNumber(value)) {
+            return json(false, "Your password must has numeric characters");
+        } else if (!ValidationInput.hasSpecialCharacter(value)) {
+            return json(false, "Your password must contain special characters");
+        }
+        return json(true, "Valid password");
+    }
+
+    /** Hàm tạo JSON dùng chung */
+    private String json(boolean valid, String message) {
+        return String.format("{\"valid\": %b, \"message\": \"%s\"}", valid, message);
+    }
 }

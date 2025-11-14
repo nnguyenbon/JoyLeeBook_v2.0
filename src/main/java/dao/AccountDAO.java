@@ -54,7 +54,7 @@ public class AccountDAO {
             sql.append("AND 1=0 "); // Không lấy gì từ bảng staffs
         }
 
-        sql.append(") ");
+        sql.append(" ");
         sql.append("SELECT * FROM AllAccounts WHERE is_deleted = 0 ");
 
         // Filter theo search

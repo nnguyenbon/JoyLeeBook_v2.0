@@ -212,9 +212,69 @@
     </script>
     <c:remove var="message" scope="session" />
 </c:if>
-<script>
-    document.addEventListener("DOMContentLoaded", async () => {
 
+<script>
+
+    document.addEventListener("DOMContentLoaded", async () => {
+//====================================
+        // UPLOAD
+        const contextPath = "${pageContext.request.contextPath}";
+
+        document.addEventListener("click", function(e) {
+            const btn = e.target.closest(".upload-chapter-btn");
+            if (btn) {
+                e.preventDefault();       // ✅ Chặn redirect của thẻ <a>
+                e.stopImmediatePropagation();     // ✅ Ngăn bubble lên thẻ <li> hoặc <a>
+
+                const seriesId = btn.dataset.seriesId;
+                const chapterId = btn.dataset.chapterId;
+                fetch(contextPath + '/chapter/upload?seriesId=' + seriesId + '&chapterId=' + chapterId, {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            toastr.success(data.message, 'Success!');
+                            loadChapterList()
+                        } else {
+                            toastr.error(data.message, 'Error!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        toastr.error('An error occurred while uploading the chapter!', 'Error!');
+                    });
+            }
+        });
+
+        document.addEventListener("click", function (e) {
+            const btnSeries = e.target.closest(".upload-series-btn");
+            if (btnSeries) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const seriesId = btnSeries.dataset.seriesId;
+
+                fetch(contextPath + `/series/upload?seriesId=`+seriesId, {
+                    method: "POST"
+                })
+                    .then(r => r.text())
+                    .then(text => {
+                        try {
+                            const json = JSON.parse(text);
+                            if (json.success) {
+                                toastr.success(json.message || "Uploaded!");
+                            } else {
+                                toastr.error(json.message || "Failed");
+                            }
+                        } catch (err) {
+                            console.error("Invalid JSON:", text);
+                            toastr.error("Server returned invalid JSON");
+                        }
+                    })
+                    .catch(err => toastr.error("Request failed"));
+            }
+        });
         /* ==========================================================
            ✅ 1. Khởi tạo biến từ server
         ========================================================== */
@@ -467,64 +527,7 @@
         }
     });
 
-    //====================================
-    // UPLOAD
-    const contextPath = "${pageContext.request.contextPath}";
 
-    document.addEventListener("click", function(e) {
-        const btn = e.target.closest(".upload-chapter-btn");
-        if (btn) {
-            e.preventDefault();       // ✅ Chặn redirect của thẻ <a>
-            e.stopImmediatePropagation();     // ✅ Ngăn bubble lên thẻ <li> hoặc <a>
-
-            const seriesId = btn.dataset.seriesId;
-            const chapterId = btn.dataset.chapterId;
-            fetch(contextPath + '/chapter/upload?seriesId=' + seriesId + '&chapterId=' + chapterId, {
-                method: 'POST'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message, 'Success!');
-                    } else {
-                        toastr.error(data.message, 'Error!');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('An error occurred while uploading the chapter!', 'Error!');
-                });
-        }
-    });
-
-    document.addEventListener("click", function (e) {
-        const btnSeries = e.target.closest(".upload-series-btn");
-        if (btnSeries) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const seriesId = btnSeries.dataset.seriesId;
-
-            fetch(contextPath + `/series/upload?seriesId=`+seriesId, {
-                method: "POST"
-            })
-                .then(r => r.text())
-                .then(text => {
-                    try {
-                        const json = JSON.parse(text);
-                        if (json.success) {
-                            toastr.success(json.message || "Uploaded!");
-                        } else {
-                            toastr.error(json.message || "Failed");
-                        }
-                    } catch (err) {
-                        console.error("Invalid JSON:", text);
-                        toastr.error("Server returned invalid JSON");
-                    }
-                })
-                .catch(err => toastr.error("Request failed"));
-        }
-    });
     async function deleteCoauthor(username) {
         if (!confirm(`Are you sure you want to remove ${username} as co-author?`)) {
             return;
