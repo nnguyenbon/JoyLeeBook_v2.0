@@ -277,9 +277,7 @@ public class SeriesServlet extends HttpServlet {
             paginationRequest.setOrderBy("series_id");
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
-            for (Series series : seriesList) {
-                buildSeries(conn, series, role);
-            }
+
             int totalRecords = 0;
             if (seriesList.isEmpty()) {
                 seriesList = new ArrayList<>();
@@ -301,6 +299,9 @@ public class SeriesServlet extends HttpServlet {
             } else if ("author".equals(role)) {
                 request.getRequestDispatcher("/WEB-INF/views/series/_seriesListOfAuthor.jsp").forward(request, response);
             } else {
+                for (Series series : seriesList) {
+                    buildSeries(conn, series, role);
+                }
                 request.setAttribute("genresParam", genreIds);
                 String ajaxHeader = request.getHeader("X-Requested-With");
                 if ("XMLHttpRequest".equals(ajaxHeader)) {
@@ -496,7 +497,6 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 }
             }
 
-
             // Update series fields
             series.setTitle(title);
             series.setStatus(status);
@@ -632,7 +632,8 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
     //=======================================================================
     //UPLOAD METHOD
 
-    private void uploadSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void
+    uploadSeries(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int seriesId = Integer.parseInt(request.getParameter("seriesId"));
 
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());

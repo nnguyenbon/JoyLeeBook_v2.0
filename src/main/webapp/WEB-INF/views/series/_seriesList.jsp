@@ -70,7 +70,7 @@
                                     <p>by <span class="font-medium">
                                 <c:choose>
                                     <c:when test="${not empty series.authorList}">
-                                        ${series.authorList[0]}
+                                        ${series.authorList.get(0).authorName}
                                     </c:when>
                                     <c:otherwise>Unknown</c:otherwise>
                                 </c:choose>

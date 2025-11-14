@@ -467,7 +467,7 @@ public class SeriesDAO {
     }
 
 
-    public List<Series> getSeriesByUserId(int userId) throws SQLException {
+    public List<Series> getSavedSeriesByUserId(int userId) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM series s JOIN saved_series ss ON s.series_id = ss.series_id WHERE ss.user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

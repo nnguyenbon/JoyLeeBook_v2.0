@@ -100,7 +100,7 @@ public class LibraryServlet extends HttpServlet {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
 
             List<Series> savedSeriesList = new ArrayList<>();
-            for (Series series : seriesDAO.getSeriesByUserId(userId)) {
+            for (Series series : seriesDAO.getSavedSeriesByUserId(userId)) {
                 savedSeriesList.add(buildSeries(conn, series));
             }
 
