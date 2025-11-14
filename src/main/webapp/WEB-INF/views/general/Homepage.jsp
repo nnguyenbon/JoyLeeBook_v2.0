@@ -175,7 +175,7 @@
                                     <p>by <span class="text-gray-700 font-medium">
                                         <c:choose>
                                             <c:when test="${not empty newReleaseSeries.authorList}">
-                                                ${newReleaseSeries.authorList[0]}
+                                                ${newReleaseSeries.authorList[0].authorName}
                                             </c:when>
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
@@ -249,7 +249,7 @@
                                 <p>by <span class="font-medium">
                                     <c:choose>
                                         <c:when test="${not empty recentlyUpdatedSeries.authorList}">
-                                            ${recentlyUpdatedSeries.authorList[0]}
+                                            ${recentlyUpdatedSeries.authorList[0].authorName}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
@@ -338,7 +338,7 @@
                                 <p>by <span class="font-medium">
                                     <c:choose>
                                         <c:when test="${not empty completedSeries.authorList}">
-                                            ${completedSeries.authorList[0]}
+                                            ${completedSeries.authorList[0].authorName}
                                         </c:when>
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
