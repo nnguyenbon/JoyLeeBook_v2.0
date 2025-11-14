@@ -32,7 +32,7 @@ import java.util.*;
  * Utilizes DAOs for database interactions and utility classes for common tasks.
  */
 @MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
-@WebServlet(urlPatterns = {"/series/*", "/homepage"})
+@WebServlet(urlPatterns = {"/series/*", "/homepage", "/author"})
 public class SeriesServlet extends HttpServlet {
 
     // =========================================================================
@@ -52,8 +52,11 @@ public class SeriesServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             String servletPath = request.getServletPath();
-            if (servletPath.equals("/homepage")) {
-                viewHomepage(request, response);
+            if (servletPath != null && !servletPath.equals("/series")) {
+                switch (servletPath) {
+                    case "/homepage" -> viewHomepage(request, response);
+                    case "/author" -> viewAuthorDashboard(request, response);
+                }
             } else {
                 String action = request.getPathInfo();
                 if (action == null) action = "/";
@@ -125,6 +128,36 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
+    private void viewAuthorDashboard (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId;
+        if (user == null || !"author".equals(user.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        } else {
+            userId = user.getUserId();
+        }
+
+        try (Connection conn = DBConnection.getConnection()) {
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
+            ChapterDAO chapterDAO = new  ChapterDAO(conn);
+            LikeDAO likeDAO = new LikeDAO(conn);
+            RatingDAO ratingDAO = new RatingDAO(conn);
+            double rate = ratingDAO.getAverageRating(userId);
+
+            //Fetching statistics and series list for the author
+            request.setAttribute("totalChapters", chapterDAO.countChapterByUserId(userId, ""));
+            request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
+            request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
+            request.setAttribute("avgRating", (double) Math.round(rate * 10) / 10);
+            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
+            request.setAttribute("pageTitle", "AuthorDashboard");
+            request.setAttribute("contentPage", "/WEB-INF/views/general/AuthorDashboard.jsp");
+            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // =========================================================================
     // CREATE OPERATIONS

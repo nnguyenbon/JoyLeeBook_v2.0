@@ -18,7 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 
-@WebServlet("/author")
+//@WebServlet("/author")
 public class AuthorDashboardServlet extends HttpServlet {
     /**
      * Handles the HTTP POST method.
@@ -38,34 +38,7 @@ public class AuthorDashboardServlet extends HttpServlet {
      * @throws IOException      if an I/O error occurs
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
-        int userId;
-        if (user == null || !"author".equals(user.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        } else {
-            userId = user.getUserId();
-        }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new  ChapterDAO(conn);
-            LikeDAO likeDAO = new LikeDAO(conn);
-            RatingDAO ratingDAO = new RatingDAO(conn);
-            double rate = ratingDAO.getAverageRating(userId);
-
-            //Fetching statistics and series list for the author
-            request.setAttribute("totalChapters", chapterDAO.countChapterByUserId(userId, ""));
-            request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
-            request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
-            request.setAttribute("avgRating", (double) Math.round(rate * 10) / 10);
-            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
-            request.setAttribute("pageTitle", "AuthorDashboard");
-            request.setAttribute("contentPage", "/WEB-INF/views/general/AuthorDashboard.jsp");
-            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
 
