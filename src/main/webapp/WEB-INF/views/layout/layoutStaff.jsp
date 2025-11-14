@@ -16,12 +16,14 @@
     </title>
     <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/img/shared/favicon.png">
 
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
+    <link rel="stylesheet"
+          href="${pageContext.request.contextPath}/css/styles.css?v=<%= System.currentTimeMillis() %>"/>
     <link
             rel="stylesheet"
             href="${pageContext.request.contextPath}/css/fontawesome/css/all.min.css"
     />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
@@ -36,20 +38,20 @@
 </head>
 <body class="bg-white">
 <div class="flex h-screen text-gray-500 overflow-x-hidden">
-<c:import url="/WEB-INF/views/components/_navbarStaff.jsp"/>
+    <c:import url="/WEB-INF/views/components/_navbarStaff.jsp"/>
     <div class="flex flex-col w-full bg-[#F5F4FA] ">
         <div class="h-10 flex items-center justify-between border-b border-gray-300 bg-white p-8">
             <p class="font-semibold text-lg "> <span class="text-[#041E3D]">
-               ${pageTitle}
+                ${pageTitle}
             </span></p>
             <p class="font-semibold text-lg ">Staff: <span class="text-[#041E3D]">
-               ${sessionScope.loginedUser.username}
+                ${sessionScope.loginedUser.username}
             </span></p>
         </div>
 
         <c:if test="${not empty contentPage}">
-        <c:import url="${contentPage}" />
-    </c:if>
+            <c:import url="${contentPage}"/>
+        </c:if>
     </div>
 </div>
 <c:if test="${not empty sessionScope.message}">
@@ -75,7 +77,7 @@
 
         toastr["success"]("${sessionScope.message}");
     </script>
-    <c:remove var="message" scope="session" />
+    <c:remove var="message" scope="session"/>
 </c:if>
 <script src="${pageContext.request.contextPath}/js/main.js?v=<%= System.currentTimeMillis() %>"></script>
 <script src="${pageContext.request.contextPath}/js/auth.js"></script>

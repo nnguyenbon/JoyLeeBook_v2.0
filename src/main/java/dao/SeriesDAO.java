@@ -572,6 +572,8 @@ public class SeriesDAO {
         s.setUpdatedAt(FormatUtils.formatDate(rs.getTimestamp("updated_at").toLocalDateTime()));
         s.setDeleted(rs.getBoolean("is_deleted"));
         s.setAvgRating(rs.getInt("rating_points"));
+
+        System.out.println(s.getTitle());
         return s;
     }
 
