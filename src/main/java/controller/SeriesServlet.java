@@ -11,10 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
-import utils.AuthenticationUtils;
-import utils.PaginationUtils;
-import utils.ValidationInput;
-import utils.WebpConverter;
+import utils.*;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -582,7 +579,6 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
             // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
-            NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             // Verify series exists
             Series series = seriesDAO.findById(seriesId, "");
@@ -603,20 +599,18 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 // Insert review (database trigger will update series.approval_status)
                 if (reviewSeriesDAO.insert(reviewSeries)) {
                     // Create and send notification to series owner
-                    Notification notification = createApprovalNotification(
+                    Notification notification = NotificationUtils.createApprovalNotification(
                             conn, seriesId, comment, approveStatus
                     );
-                    notificationsDAO.insertNotification(notification);
                 }
             } else {
                 reviewSeries.setStatus(approveStatus);
                 // Insert review (database trigger will update series.approval_status)
                 if (reviewSeriesDAO.update(reviewSeries)) {
                     // Create and send notification to series owner
-                    Notification notification = createApprovalNotification(
+                    Notification notification = NotificationUtils.createApprovalNotification(
                             conn, seriesId, comment, approveStatus
                     );
-                    notificationsDAO.insertNotification(notification);
                 }
             }
 
@@ -766,29 +760,5 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         List<Series> copy = new ArrayList<>(seriesList);
         copy.removeIf(series -> !series.getStatus().equals(status));
         return copy.size() > limit ? copy.subList(0, limit) : copy;
-    }
-
-    /**
-     * Creates a notification object for series approval/rejection.
-     *
-     * @param conn          the database connection to use for queries
-     * @param seriesId      the ID of the series that was reviewed
-     * @param comment       the staff's feedback comment
-     * @param approveStatus the approval decision ("approved" or "rejected")
-     * @return a Notification object ready to be inserted into the database
-     * @throws SQLException if a database access error occurs while fetching owner ID
-     */
-    private static Notification createApprovalNotification(Connection conn, int seriesId,
-                                                           String comment, String approveStatus) throws SQLException {
-        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-
-        Notification notification = new Notification();
-        notification.setUserId(seriesAuthorDAO.findOwnerIdBySeriesId(seriesId).getAuthorId());
-        notification.setTitle("Series " + approveStatus);
-        notification.setType("submission_status");
-        notification.setMessage(comment);
-        notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
-
-        return notification;
     }
 }

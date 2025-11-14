@@ -153,7 +153,6 @@ public class ChapterServlet extends HttpServlet {
         notification.setType("submission_status");
         notification.setMessage(comment);
         notification.setUrlRedirect("/series/detail?seriesId=" + chapter.getSeriesId() + "&chapterId=" + chapter.getChapterId());
-
         return notification;
     }
 
