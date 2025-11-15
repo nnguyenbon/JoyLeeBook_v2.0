@@ -164,7 +164,7 @@
     <section class="col-span-12 mb-16 grid grid-cols-12 gap-8" id="chapter-list-container">
         <jsp:include page="/WEB-INF/views/chapter/_chapterList.jsp"/>
     </section>
-    <dialog id="modalCoauthor" class="md:w-lg w-sm rounded-xl p-4">
+    <dialog id="modalCoauthor" class="md:w-lg w-sm rounded-xl p-4 h-64">
         <div>
             <p class="text-2xl font-semibold">Add Co-Author</p>
             <p class="text-gray-500 font-light">

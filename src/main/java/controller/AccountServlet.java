@@ -1,9 +1,6 @@
 package controller;
 
-import dao.AccountDAO;
-import dao.BadgeDAO;
-import dao.SeriesDAO;
-import dao.UserDAO;
+import dao.*;
 import db.DBConnection;
 import dto.PaginationRequest;
 import jakarta.servlet.ServletException;
@@ -78,7 +75,14 @@ public class AccountServlet extends HttpServlet {
     private void viewAccountList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String currentUserRole = getCurrentRole(request);
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
+        String currentUserRole;
+        if (loginedUser == null) {
+            currentUserRole = "reader";
+        } else {
+            currentUserRole = loginedUser.getRole();
+        }
+
         String search = request.getParameter("search");
         String roleFilter = request.getParameter("roleFilter");
         // Check if this is an AJAX request
@@ -139,7 +143,7 @@ public class AccountServlet extends HttpServlet {
 
                 if ("author".equals(role)) {
                     SeriesDAO seriesDAO = new SeriesDAO(conn);
-                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId);
+                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId,"" );
                     request.setAttribute("authorSeriesList", authorSeriesList);
                 }
 

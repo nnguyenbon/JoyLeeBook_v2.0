@@ -56,7 +56,9 @@ public class SeriesAuthorDAO {
             ps.setInt(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    seriesAuthor = mapResultSetToSeriesAuthor(rs);
+                    seriesAuthor.setAuthorId(rs.getInt("user_id"));
+                    seriesAuthor.setSeriesId(rs.getInt("series_id"));
+                    seriesAuthor.setOwner(rs.getBoolean("is_owner"));
                 }
             }
         }

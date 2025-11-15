@@ -15,7 +15,7 @@ public class ValidationInput {
     }
 
     public static boolean isValidCharacters(String name) {
-        String regex = "^[\\p{L}\\s]+$";
+        String regex = "^[A-Za-z0-9 ]+$";
         return name.matches(regex);
     }
 

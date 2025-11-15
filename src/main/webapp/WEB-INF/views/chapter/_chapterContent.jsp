@@ -47,12 +47,33 @@
                         <!-- Các chương -->
                     </div>
                 </div>
-                <div class="relative inline-block">
-                    <!-- Nút settings -->
-                    <button id="settingsBtn"
-                            class="text-gray-600 px-2 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
-                        <i class="fa-solid fa-gear text-2xl"></i>
-                    </button>
+
+                    <div class="relative inline-block">
+                        <!-- Nút settings -->
+                        <button id="settingsBtn"
+                                class="text-gray-600 px-2 py-2 border rounded-md hover:bg-[#195DA9] hover:text-white transition-all duration-200">
+                            <i class="fa-solid fa-gear text-2xl"></i>
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <div id="settingsMenu"
+                             class="hidden absolute right-0 mt-2 w-60 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 space-y-4">
+
+                            <h3 class="text-lg font-semibold">Reading Settings</h3>
+
+                            <!-- Font size -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Font Size</label>
+                                <div class="flex items-center justify-between">
+                                    <button id="decreaseFont"
+                                            class="w-8 h-8 flex items-center justify-center border rounded-md text-xl hover:bg-gray-100">−</button>
+                                    <span id="fontSizeDisplay" class="font-medium">16px</span>
+                                    <button id="increaseFont"
+                                            class="w-8 h-8 flex items-center justify-center border rounded-md text-xl hover:bg-gray-100">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Dropdown menu -->
                     <!-- <div id="settingsMenu"
@@ -76,7 +97,6 @@
                     </div> -->
                 </div>
             </div>
-        </div>
 
         <div id="contentArea" class="mt-6 text-gray-800 text-base transition-all duration-200">
             <p class="text-gray-700 leading-relaxed mb-4">
@@ -119,7 +139,7 @@
 
         <!-- Modal Report Chapter -->
         <div id="reportChapterModal"
-             class="fixed inset-0 flex items-center justify-center bg-opacity-50 hidden z-50">
+             class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center bg-opacity-50 hidden z-50">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
 
                 <!-- Nút đóng -->
@@ -372,50 +392,62 @@
             }
         });
     }
+    document.addEventListener("DOMContentLoaded", () => {
+        const settingsBtn = document.getElementById("settingsBtn");
+        const settingsMenu = document.getElementById("settingsMenu");
+
+        const content = document.getElementById("contentArea");
+        const fontDisplay = document.getElementById("fontSizeDisplay");
+        const increaseBtn = document.getElementById("increaseFont");
+        const decreaseBtn = document.getElementById("decreaseFont");
+
+        /* -------------------------------
+           Load Settings từ localStorage
+        -------------------------------- */
+        let fontSize = localStorage.getItem("readerFontSize") || 16;
+        applyFontSize(fontSize);
+
+
+        /* -------------------------------
+            Toggle Settings Menu (luôn mở)
+        -------------------------------- */
+        settingsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.remove("hidden"); // luôn mở
+        });
+
+        // Không tắt khi click vào bên trong menu
+        settingsMenu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        // Click ra ngoài => ẩn menu
+        window.addEventListener("click", () => {
+            settingsMenu.classList.add("hidden");
+        });
+
+
+        /* -------------------------------
+            Font Size Functions
+        -------------------------------- */
+        increaseBtn.addEventListener("click", () => {
+            fontSize = Math.min(30, Number(fontSize) + 1);
+            saveFontSize();
+        });
+
+        decreaseBtn.addEventListener("click", () => {
+            fontSize = Math.max(12, Number(fontSize) - 1);
+            saveFontSize();
+        });
+
+        function saveFontSize() {
+            localStorage.setItem("readerFontSize", fontSize);
+            applyFontSize(fontSize);
+        }
+
+        function applyFontSize(size) {
+            content.style.fontSize = size + "px";
+            fontDisplay.textContent = size + "px";
+        }
+    });
 </script>
-
-
-<!-- <script>
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsMenu = document.getElementById('settingsMenu');
-const fontButtons = document.querySelectorAll('.font-btn');
-const content = document.getElementById('contentArea');
-const lightBtn = document.getElementById('lightMode');
-const darkBtn = document.getElementById('darkMode');
-
-// Toggle dropdown
-settingsBtn.addEventListener('click', (e) => {
-e.stopPropagation();
-settingsMenu.classList.toggle('hidden');
-});
-
-// Font size change
-fontButtons.forEach(btn => {
-btn.addEventListener('click', () => {
-const size = btn.dataset.size;
-if (size === 'small') content.className = 'mt-6 text-gray-800 text-sm transition-all duration-200';
-if (size === 'medium') content.className = 'mt-6 text-gray-800 text-base transition-all duration-200';
-if (size === 'large') content.className = 'mt-6 text-gray-800 text-lg transition-all duration-200';
-});
-});
-
-// Theme change
-lightBtn.addEventListener('click', () => {
-document.documentElement.classList.remove('dark');
-document.body.classList.remove('bg-gray-900', 'text-white');
-document.body.classList.add('bg-white', 'text-gray-800');
-});
-
-darkBtn.addEventListener('click', () => {
-document.documentElement.classList.add('dark');
-document.body.classList.add('bg-gray-900', 'text-white');
-document.body.classList.remove('bg-white', 'text-gray-800');
-});
-
-// Đóng khi click ra ngoài
-window.addEventListener('click', (e) => {
-if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
-settingsMenu.classList.add('hidden');
-}
-});
-</script> -->
