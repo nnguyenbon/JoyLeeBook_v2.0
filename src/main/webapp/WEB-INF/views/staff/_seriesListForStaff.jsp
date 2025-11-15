@@ -49,7 +49,7 @@
                     <th class="px-4 py-3">Avg Rating</th>
                     <th class="px-4 py-3">Total Chapters</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3">Updated At</th>
                     <th class="px-4 py-4 text-center">Actions</th>
                 </tr>
                 </thead>
@@ -86,7 +86,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-700">
-                              ${series.createdAt}
+                              ${series.updatedAt}
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
