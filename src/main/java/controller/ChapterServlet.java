@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.*;
 import utils.AuthenticationUtils;
+import utils.LockManager;
 import utils.PaginationUtils;
 import utils.ValidationInput;
 
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +79,7 @@ public class ChapterServlet extends HttpServlet {
                 String search = request.getParameter("search");
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
                 PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-                paginationRequest.setOrderBy("chapter_id");
+                paginationRequest.setOrderBy("created_at");
                 List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, "published", paginationRequest);
                 for (Chapter chapter : chapterList) {
                     buildChapter(chapter, conn);
@@ -166,6 +168,7 @@ public class ChapterServlet extends HttpServlet {
             userId = user.getUserId();
         } else if (loggedInAccount instanceof Staff staff) {
             role = staff.getRole();
+            userId =  staff.getStaffId();
         }
         int seriesId = ValidationInput.isPositiveInteger(request.getParameter("seriesId")) ? Integer.parseInt(request.getParameter("seriesId")) : -1;
         try (Connection conn = DBConnection.getConnection()) {
@@ -173,6 +176,7 @@ public class ChapterServlet extends HttpServlet {
             LikeDAO likeDAO = new LikeDAO(conn);
             int chapterId = ValidationInput.isPositiveInteger(request.getParameter("chapterId")) ? Integer.parseInt(request.getParameter("chapterId")) : chapterDAO.getFirstChapterNumber(seriesId);
             if (role.equals("admin") || role.equals("staff")) {
+                boolean lock = LockManager.acquire(chapterId, userId, true);
                 Chapter chapter = chapterDAO.findById(chapterId);
                 buildChapter(chapter, conn);
                 request.setAttribute("chapter", chapter);
@@ -221,14 +225,23 @@ public class ChapterServlet extends HttpServlet {
 
     private void showEditChapter(HttpServletRequest request, HttpServletResponse response) {
         String chapterId = request.getParameter("chapterId");
-
+        Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
+        int userId = 0;
+        if (loggedInAccount instanceof User user) {
+            userId = user.getUserId();
+        }
         try (Connection conn = DBConnection.getConnection()) {
+            boolean accquire = LockManager.acquire(Integer.parseInt(chapterId),userId, false);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             Chapter chapter = chapterDAO.findById(Integer.parseInt(chapterId));
-
-            request.setAttribute("action", "update");
-            request.setAttribute("chapter", chapter);
-            showAddChapter(request, response);
+            if (accquire) {
+                request.setAttribute("action", "update");
+                request.setAttribute("chapter", chapter);
+                showAddChapter(request, response);
+            } else {
+                request.getSession().setAttribute("message", "Chapter is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + chapter.getSeriesId());
+            }
         } catch (ClassNotFoundException | SQLException | ServletException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -289,6 +302,7 @@ public class ChapterServlet extends HttpServlet {
                 }
             }
 
+            LockManager.release(chapterId, staffId);
             request.getSession().setAttribute("message", "Chapter handled successfully.");
             response.sendRedirect(request.getContextPath() + "/chapter/list?filterByStatus=pending");
 
@@ -592,18 +606,25 @@ public class ChapterServlet extends HttpServlet {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
+            boolean accquire = LockManager.acquire(chapterId, userId, false);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             Chapter chapter = chapterDAO.findByIdIfNotDeleted(chapterId);
-            if (chapter == null) {
-                throw new IllegalArgumentException("Chapter not found or already deleted.");
-            }
-            boolean ok = chapterDAO.delete(chapterId);
-            if (!ok) {
-                throw new RuntimeException("Database delete failed.");
-            }
+            if (accquire) {
+                if (chapter == null) {
+                    throw new IllegalArgumentException("Chapter not found or already deleted.");
+                }
+                boolean ok = chapterDAO.delete(chapterId);
+                if (!ok) {
+                    throw new RuntimeException("Database delete failed.");
+                }
 
-            request.getSession().setAttribute("message", "Chapter successfully deleted.");
-            response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+                request.getSession().setAttribute("message", "Chapter successfully deleted.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+
+            } else {
+                request.getSession().setAttribute("message", "Chapter is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + chapter.getSeriesId());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to delete chapter.");

@@ -82,9 +82,9 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="account" items="${accounts}">
+                <c:forEach var="account" items="${accounts}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${account.accountId}</td>
+                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
 
                         <td class="px-4 py-3">
                             <a href="${pageContext.request.contextPath}/account/detail?accountId=${account.accountId}&role=${account.role}"
