@@ -8,6 +8,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
 <div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-full custom-scrollbar ">
@@ -52,9 +54,11 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="series" items="${seriesList}">
+                <c:forEach var="series" items="${seriesList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${series.seriesId}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
                         <td class="px-4 py-3">
                             <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="${series.title}"
                                  class="w-10 h-12 rounded object-cover">
@@ -163,6 +167,7 @@
             <div class="mb-4">
                 <p class="text-gray-500 text-sm">Total: ${size}</p>
             </div>
+
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">

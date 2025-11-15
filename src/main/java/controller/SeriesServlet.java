@@ -304,7 +304,8 @@ public class SeriesServlet extends HttpServlet {
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("series_id");
+            paginationRequest.setOrderBy("updated_at");
+            paginationRequest.setSortDir("desc");
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {

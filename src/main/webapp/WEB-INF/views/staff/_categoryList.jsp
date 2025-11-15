@@ -48,7 +48,7 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Name</th>
                     <th class="px-4 py-3">Created At</th>
                     <th class="px-4 py-3 text-center w-32">Actions</th>
@@ -56,10 +56,12 @@
                 </thead>
 
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="category" items="${categories}">
+                <c:forEach var="category" items="${categories}" varStatus="loop">
                     <!-- Normal row -->
                     <tr class="hover:bg-gray-50 transition" data-id="${category.categoryId}">
-                        <td class="px-4 py-3">${category.categoryId}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
                         <td class="px-4 py-3 font-semibold text-gray-800">${category.name}</td>
                         <td class="px-4 py-3 text-gray-700">${category.createdAt}</td>
                         <td class="px-1 py-3 text-center">
