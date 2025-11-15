@@ -60,7 +60,7 @@
     <!-- Danh sách Series -->
     <div class="col-span-12 mt-10 border border-[#195DA9] rounded-xl p-4 h-[400px] mb-5 overflow-y-auto">
         <c:choose>
-            <c:when test="${empty seriesInfoDTOList}">
+            <c:when test="${empty mySeriesList}">
                 <p class="text-center text-gray-800 text-xl font-semibold mt-32">
                     There are currently no series
                 </p>
@@ -68,7 +68,7 @@
             <c:otherwise>
                 <div class="flex flex-col gap-4">
                     <!-- Card Series -->
-                    <c:forEach var="series" items="${seriesInfoDTOList}" varStatus="loop">
+                    <c:forEach var="series" items="${mySeriesList}" varStatus="loop">
                         <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}">
                             <div
                                     class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
