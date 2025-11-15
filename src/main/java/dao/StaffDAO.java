@@ -124,7 +124,7 @@ public class StaffDAO {
         return null;
     }
     public int countAllActive() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM staffs WHERE is_deleted = 0";
+            String sql = "SELECT COUNT(*) FROM staffs WHERE is_deleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {

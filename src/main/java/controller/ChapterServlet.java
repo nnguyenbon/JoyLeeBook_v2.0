@@ -488,10 +488,18 @@ public class ChapterServlet extends HttpServlet {
                 chapter.setStatus("pending");
             }
 
+
             // Update DB
             boolean ok = chapterDAO.update(chapter);
             if (!ok) {
                 throw new RuntimeException("Database update failed.");
+            } else {
+                ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
+                ReviewChapter reviewChapter = reviewChapterDAO.findById(chapter.getChapterId());
+                if (reviewChapter.getStatus().equals("approved")) {
+                    reviewChapter.setStatus("pending");
+                    reviewChapterDAO.update(reviewChapter);
+                }
             }
             request.getSession().setAttribute("message", "Chapter successfully updated.");
             response.sendRedirect("/series/detail?seriesId=" + seriesId);
