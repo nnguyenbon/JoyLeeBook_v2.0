@@ -171,6 +171,17 @@ public class ReportDAO {
         return list;
     }
 
+    public List<Report> getAll() throws SQLException {
+        List<Report> list = new ArrayList<>();
+        String sql = "SELECT * FROM reports";
+        try (PreparedStatement statement = conn.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()){
+            while (rs.next()) {
+                list.add(extractReportFromResultSet(rs));
+            }
+            return list;
+        }
+    }
     // ============= GET DETAILED REPORT LISTS =============
 
     public List<ReportChapter> getReportChapterList() throws SQLException {
@@ -260,6 +271,7 @@ public class ReportDAO {
         }
         return reports;
     }
+
     /**
      * Get chapter report detail by ID
      */

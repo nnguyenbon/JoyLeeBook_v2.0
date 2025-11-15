@@ -43,14 +43,7 @@ public class InteractionDAO {
             }
         }
 
-        // Count total points given
-        String pointsSQL = "SELECT COALESCE(SUM(points_change), 0) FROM point_history WHERE points_change > 0";
-        try (PreparedStatement ps = conn.prepareStatement(pointsSQL);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                stats.setPoints(rs.getInt(1));
-            }
-        }
+
 
         // Count saved series
         String savesSQL = "SELECT COUNT(*) FROM saved_series";
@@ -63,8 +56,7 @@ public class InteractionDAO {
 
         // Calculate total
         stats.setTotalInteractions(
-                stats.getLikes() + stats.getComments() + stats.getVotes() +
-                        stats.getPoints() + stats.getSaves()
+                stats.getLikes() + stats.getComments() + stats.getVotes() + stats.getSaves()
         );
 
         return stats;

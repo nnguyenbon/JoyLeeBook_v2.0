@@ -134,7 +134,7 @@ public class CategoryDAO {
     public List<GenreStats> getGenreDistribution() throws SQLException {
         List<GenreStats> statsList = new ArrayList<>();
 
-        String sql = "SELECT c.name, COUNT(sc.series_id) as count, " +
+        String sql = "SELECT TOP 5 c.name, COUNT(sc.series_id) as count, " +
                 "CAST(COUNT(sc.series_id) * 100.0 / (SELECT COUNT(*) FROM series_categories) AS DECIMAL(5,2)) as percentage " +
                 "FROM categories c " +
                 "LEFT JOIN series_categories sc ON c.category_id = sc.category_id " +
