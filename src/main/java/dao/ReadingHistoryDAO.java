@@ -1,6 +1,7 @@
 package dao;
 
 import model.ReadingHistory;
+import utils.FormatUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,8 +30,7 @@ public class ReadingHistoryDAO {
         ReadingHistory rh = new ReadingHistory();
         rh.setUserId(rs.getInt("user_id"));
         rh.setChapterId(rs.getInt("chapter_id"));
-        Timestamp ts = rs.getTimestamp("last_read_at");
-        rh.setLastReadAt(ts != null ? ts.toLocalDateTime() : null);
+        rh.setLastReadAt(FormatUtils.formatString(String.valueOf(rs.getTimestamp("last_read_at").toLocalDateTime())));
         return rh;
     }
 
@@ -69,24 +69,57 @@ public class ReadingHistoryDAO {
     }
 
     /**
-     * Retrieves all ReadingHistory records for a specific user.
+     * Retrieve a paginated list of chapters from a user's reading history with optional keyword filter.
+     * History mode
      *
-     * @param userId The ID of the user whose reading history is to be retrieved.
-     * @return A list of ReadingHistory records for the specified user.
-     * @throws SQLException If an SQL error occurs during the retrieval.
+     * @param userId   the ID of the user
+     * @param offset   the starting point for pagination
+     * @param pageSize the number of records to retrieve
+     * @param keyword  optional keyword to search in series or chapter titles
+     * @return a list of ChapterListItem objects from the user's reading history matching the criteria
+     * @throws SQLException if a database access error occurs
      */
-    public List<ReadingHistory> getByUserId(int userId) throws SQLException {
-        List<ReadingHistory> list = new ArrayList<>();
-        String sql = "SELECT * FROM reading_history WHERE user_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
+    public List<ReadingHistory> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {
+
+        StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, " + " c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at, cover_image_url " + "FROM reading_history h " + "JOIN chapters c ON c.chapter_id = h.chapter_id " + "JOIN series s ON s.series_id = c.series_id " + "WHERE h.user_id = ? ");
+
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (keyword != null && !keyword.isBlank()) {
+            sql.append("AND (s.title LIKE ? OR c.title LIKE ?) ");
+            params.add("%" + keyword + "%");
+            params.add("%" + keyword + "%");
+        }
+
+        sql.append("ORDER BY h.last_read_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add(offset);
+        params.add(pageSize);
+
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
             try (ResultSet rs = ps.executeQuery()) {
+                List<ReadingHistory> list = new ArrayList<>();
                 while (rs.next()) {
-                    list.add(extractReadingHistoryFromResultSet(rs));
+                    ReadingHistory it = new ReadingHistory();
+                    it.setChapterId(rs.getInt("chapter_id"));
+                    it.setSeriesId(rs.getInt("series_id"));
+                    it.setSeriesTitle(rs.getString("series_title"));
+                    it.setChapterNumber(rs.getInt("chapter_number"));
+                    it.setTitle(rs.getString("chapter_title"));
+                    it.setStatus(rs.getString("status"));
+                    it.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
+                    String up = rs.getString("updated_at");
+                    it.setUpdatedAt(up != null ? up : null);
+                    String lr =  FormatUtils.formatDate(rs.getTimestamp("last_read_at").toLocalDateTime());
+                    it.setLastReadAt(lr != null ?lr : null);
+                    list.add(it);
                 }
+                return list;
             }
         }
-        return list;
     }
 
     /**

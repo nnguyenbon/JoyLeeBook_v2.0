@@ -1,7 +1,7 @@
 package dao;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Report;
 import model.ReportChapter;
 import model.ReportComment;

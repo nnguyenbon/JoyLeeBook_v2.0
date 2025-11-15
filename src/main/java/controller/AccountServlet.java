@@ -1,16 +1,14 @@
 package controller;
 
 import dao.AccountDAO;
-import dao.BadgeDAO;
 import dao.SeriesDAO;
 import dao.UserDAO;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.*;
-import org.mindrot.jbcrypt.BCrypt;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 

@@ -97,15 +97,14 @@ public class LibraryServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
-
+            ReadingHistoryDAO readingHistoryDAO = new ReadingHistoryDAO(conn);
             List<Series> savedSeriesList = new ArrayList<>();
             for (Series series : seriesDAO.getSeriesByUserId(userId)) {
                 savedSeriesList.add(buildSeries(conn, series));
             }
 
             request.setAttribute("savedSeries", savedSeriesList);
-            request.setAttribute("historyChapters", chapterDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null));
+            request.setAttribute("historyChapters", readingHistoryDAO.getReadingHistoryChapters(userId, 0, Integer.MAX_VALUE, null));
 
             request.setAttribute("pageTitle", "Library");
             request.setAttribute("contentPage", "/WEB-INF/views/general/Library.jsp");

@@ -2,7 +2,7 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.*;
-import utils.TrackPointUtils;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 import utils.ValidationInput;

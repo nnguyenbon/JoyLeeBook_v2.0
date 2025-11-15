@@ -1,6 +1,6 @@
 package dao.helper;
 
-import dto.PaginationRequest;
+import model.PaginationRequest;
 
 public class PaginationDAOHelper {
 
