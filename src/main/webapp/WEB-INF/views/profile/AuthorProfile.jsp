@@ -13,18 +13,22 @@
 <main class="my-12 grid grid-cols-12 gap-x-12 justify-center">
 
     <div class="col-span-3 flex flex-col items-center text-center">
-        <img src="${pageContext.request.contextPath}/img/shared/imgUser.png" alt="avatar" class="rounded-full mb-4">
+        <img src="${pageContext.request.contextPath}/img/shared/imgUser.png"
+             alt="avatar"
+             class="w-32 h-32 rounded-full object-cover mb-4">
     </div>
+
     <div class="col-span-9">
         <div class="flex items-center gap-4">
-            <h2 class="flex-1 text-3xl font-semibold text-[#195DA9] text-nowrap">Nguyen Trung Nguyen</h2>
+            <h2 class="flex-1 text-3xl font-semibold text-[#195DA9] text-nowrap">${user.fullName}</h2>
+
             <c:forEach var="badge" items="${badgeList}" begin="1" end="4">
                 <div>
-                    <img alt="${badge.name}" src="${badge.iconUrl}" class="rounded-full">
+                    <img alt="${badge.name}"
+                         src="${badge.iconUrl}"
+                         class="w-20 h-20 rounded-full object-cover">
                 </div>
             </c:forEach>
-
-
         </div>
 
         <div class=" mt-4 text-gray-600 border border-[#195DA9] rounded-lg p-3 leading-relaxed">
