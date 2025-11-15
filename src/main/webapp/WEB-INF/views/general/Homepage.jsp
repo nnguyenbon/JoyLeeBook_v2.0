@@ -449,6 +449,16 @@
         });
 
         updateFilter(1);
+        const container = document.querySelector("#container");
+        const header = document.querySelector("header");
+        const headerHeight = header ? header.offsetHeight : 0;
+        const elementPosition = container.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - headerHeight - 10;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
     }
     // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
     function updateFilter(page = 1) {
