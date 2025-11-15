@@ -630,10 +630,11 @@ public class ChapterServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             Chapter chapter = chapterDAO.findByIdIfNotDeleted(chapterId);
+            String jsonResponse = "";
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             if (chapter.getApprovalStatus().equals("approved")) {
-                String jsonResponse = String.format(
+                jsonResponse = String.format(
                         "{\"success\": false, \"message\": \"This chapter already been approved.\"}"
                 );
                 response.getWriter().write(jsonResponse);
@@ -641,15 +642,19 @@ public class ChapterServlet extends HttpServlet {
             } else if (chapter.getApprovalStatus().equals("pending")) {
                 if (chapter.getStatus().equals("draft")) {
                     chapterDAO.updateStatus(chapterId, "published");
+                    jsonResponse = String.format(
+                            "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
+                    );
+                } else {
+                    jsonResponse = String.format(
+                            "{\"success\": false, \"message\": \"Chapter has already been uploaded and is pending review!\"}"
+                    );
                 }
-                String jsonResponse = String.format(
-                        "{\"success\": true, \"message\": \"Chapter has already been uploaded and is pending review!\"}"
-                );
                 response.getWriter().write(jsonResponse);
                 return;
             } else {
                 chapterDAO.updateApprovalStatus(chapterId, "pending");
-                String jsonResponse = String.format(
+                jsonResponse = String.format(
                         "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
                 );
                 response.getWriter().write(jsonResponse);
