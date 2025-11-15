@@ -54,6 +54,7 @@
                     <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3">Staff</th>
                     <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3 text-center">Reports</th>
                     <th class="px-4 py-4 text-center">Actions</th>
                 </tr>
                 </thead>
@@ -108,6 +109,7 @@
                         <td class="px-4 py-3 text-gray-700">
                             ${report.createdAt}
                         </td>
+                        <td class="px-4 py-3 text-center">${report.reportCount}</td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
                                 <a href="${pageContext.request.contextPath}/report/detail?reportId=${report.reportId}&type=${type}"
