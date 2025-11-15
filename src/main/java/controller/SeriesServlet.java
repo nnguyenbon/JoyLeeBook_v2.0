@@ -304,7 +304,7 @@ public class SeriesServlet extends HttpServlet {
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("series_id");
+            paginationRequest.setOrderBy("created_at");
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
@@ -399,7 +399,6 @@ public class SeriesServlet extends HttpServlet {
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
             List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);
-            ;
             request.setAttribute("totalChapter", series.getTotalChapters());
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
@@ -409,6 +408,7 @@ public class SeriesServlet extends HttpServlet {
             request.setAttribute("chapterList", chapterList);
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
+                boolean acquire = LockManager.acquire(seriesId, userId, true);
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
@@ -444,23 +444,32 @@ public class SeriesServlet extends HttpServlet {
     private void showEditSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
+            Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
+            int userId = 0;
+            if (loggedInAccount instanceof User) {
+                userId = ((User) loggedInAccount).getUserId();
+            }
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+            boolean accquire = LockManager.acquire(seriesId ,userId, false);
 
             CategoryDAO categoryDAO = new CategoryDAO(conn);
             SeriesDAO seriesDAO = new SeriesDAO(conn);
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
-            series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+            if (accquire) {
+                series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
 
-            request.setAttribute("categories", categories);
-            request.setAttribute("series", series);
-            request.setAttribute("action", "update");
-
-            //            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
-            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
-            request.setAttribute("activePage", "Edit Series");
-            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+                request.setAttribute("categories", categories);
+                request.setAttribute("series", series);
+                request.setAttribute("action", "update");
+                request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
+                request.setAttribute("activePage", "Edit Series");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+            } else {
+                request.getSession().setAttribute("message", "Series is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+            }
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error loading edit series form", e);
@@ -636,6 +645,7 @@ public class SeriesServlet extends HttpServlet {
             } else {
                 message = "Series has been rejected successfully.";
             }
+            LockManager.release(seriesId, staffId);
             request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
@@ -666,18 +676,21 @@ public class SeriesServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-
-            SeriesDAO seriesDAO = new SeriesDAO(conn);
-            seriesDAO.deleteSeries(seriesId);
-            ChapterDAO chapterDAO = new ChapterDAO(conn);
-            List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, "");
-            for (Chapter chapter : chapterList) {
-                chapterDAO.delete(chapter.getChapterId());
+            boolean accquire = LockManager.acquire(seriesId ,authorId, false);
+            if (accquire) {
+                SeriesDAO seriesDAO = new SeriesDAO(conn);
+                seriesDAO.deleteSeries(seriesId);
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
+                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, "");
+                for (Chapter chapter : chapterList) {
+                    chapterDAO.delete(chapter.getChapterId());
+                }
+                request.getSession().setAttribute("message", "Series has been deleted successfully.");
+                response.sendRedirect(request.getContextPath() + "/author");
+            } else {
+                request.getSession().setAttribute("message", "Series is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
             }
-
-            request.getSession().setAttribute("message", "Series has been deleted successfully.");
-            response.sendRedirect(request.getContextPath() + "/author");
-
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error deleting series", e);
         }

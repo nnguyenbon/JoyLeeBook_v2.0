@@ -59,9 +59,9 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="report" items="${reportList}">
+                <c:forEach var="report" items="${reportList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${report.reportId}</td>
+                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
                         <td class="px-4 py-3">
                             <c:choose>
                                 <c:when test="${type == 'chapter'}">

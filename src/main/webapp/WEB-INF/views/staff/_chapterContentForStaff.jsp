@@ -129,8 +129,7 @@
                             <i class="fas fa-tasks text-yellow-600"></i>
                             Review Actions
                         </h2>
-                        <p class="text-sm text-gray-600 mb-4">Review the chapter content and take appropriate
-                            action.</p>
+                        <p class="text-sm text-gray-600 mb-4">Review the chapter content and take appropriate action.</p>
 
                         <div class="space-y-3">
                             <button type="button"
@@ -289,7 +288,7 @@
     });
 
     // Close modal on Escape key
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeReasonModal();
         }
