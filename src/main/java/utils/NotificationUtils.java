@@ -19,12 +19,12 @@ public class NotificationUtils {
      * @throws SQLException if a database access error occurs while fetching owner ID
      */
     public static Notification createApprovalNotification(Connection conn, int seriesId,
-                                                          String comment, String approveStatus) throws SQLException {
+                                                          String comment,String title,  String approveStatus) throws SQLException {
         SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
         NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
         Notification notification = new Notification();
         notification.setUserId(seriesAuthorDAO.findOwnerIdBySeriesId(seriesId).getAuthorId());
-        notification.setTitle("Series " + approveStatus);
+        notification.setTitle("Series " + title + " " + approveStatus);
         notification.setType("submission_status");
         notification.setMessage(comment);
         notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);

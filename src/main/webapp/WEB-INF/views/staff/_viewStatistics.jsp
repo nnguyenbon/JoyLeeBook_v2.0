@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div class="flex-1 bg-gray-100 p-4">
+<div class="flex-1 bg-gray-100 p-4 overflow-y-auto max-h-[100vh] custom-scrollbar">
   <!-- Dashboard Content -->
   <div class="flex-1 grid grid-cols-8 gap-6 px-6">
     <!-- Bar Chart - Total Interactions -->

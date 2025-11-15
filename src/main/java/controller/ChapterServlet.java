@@ -148,7 +148,7 @@ public class ChapterServlet extends HttpServlet {
         UserDAO userDAO = new UserDAO(conn);
         Notification notification = new Notification();
         notification.setUserId(userDAO.findById(chapter.getAuthorId()).getUserId());
-        notification.setTitle("Chapter " + approveStatus);
+        notification.setTitle("Chapter " + chapter.getTitle() + " "+ approveStatus);
         notification.setType("submission_status");
         notification.setMessage(comment);
         notification.setUrlRedirect("/series/detail?seriesId=" + chapter.getSeriesId() + "&chapterId=" + chapter.getChapterId());
@@ -240,8 +240,14 @@ public class ChapterServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             int chapterId = Integer.parseInt(request.getParameter("chapterId"));
             String approveStatus = request.getParameter("approveStatus");
-            String comment = request.getParameter("comment");
-
+            String comment = request.getParameter("reason") == null ? "" : request.getParameter("reason");
+            if (comment.isEmpty()) {
+                if (approveStatus.equals("approved")) {
+                    comment = "This chapter is in line with our policy.";
+                } else {
+                    comment = "This chapter isn't in line with our policy.";
+                }
+            }
             // Initialize DAOs
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
