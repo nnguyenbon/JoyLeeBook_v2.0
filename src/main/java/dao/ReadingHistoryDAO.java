@@ -19,20 +19,6 @@ public class ReadingHistoryDAO {
         this.conn = conn;
     }
 
-    /**
-     * Extracts a ReadingHistory object from the current row of the given ResultSet.
-     *
-     * @param rs The ResultSet to extract data from.
-     * @return A ReadingHistory object populated with data from the ResultSet.
-     * @throws SQLException If an SQL error occurs while accessing the ResultSet.
-     */
-    private ReadingHistory extractReadingHistoryFromResultSet(ResultSet rs) throws SQLException {
-        ReadingHistory rh = new ReadingHistory();
-        rh.setUserId(rs.getInt("user_id"));
-        rh.setChapterId(rs.getInt("chapter_id"));
-        rh.setLastReadAt(FormatUtils.formatString(String.valueOf(rs.getTimestamp("last_read_at").toLocalDateTime())));
-        return rh;
-    }
 
     /**
      * Inserts a new ReadingHistory record into the database.
@@ -49,23 +35,6 @@ public class ReadingHistoryDAO {
             ps.setTimestamp(3, Timestamp.valueOf(rh.getLastReadAt()));
             return ps.executeUpdate() > 0;
         }
-    }
-
-    /**
-     * Retrieves all ReadingHistory records from the database.
-     *
-     * @return A list of all ReadingHistory records.
-     * @throws SQLException If an SQL error occurs during the retrieval.
-     */
-    public List<ReadingHistory> getAll() throws SQLException {
-        List<ReadingHistory> list = new ArrayList<>();
-        String sql = "SELECT * FROM reading_history";
-        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(extractReadingHistoryFromResultSet(rs));
-            }
-        }
-        return list;
     }
 
     /**
@@ -171,37 +140,6 @@ public class ReadingHistoryDAO {
         }
     }
 
-    public boolean deleteByChapterId(int chapterId) throws SQLException {
-        String sql = "DELETE FROM reading_history WHERE chapter_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, chapterId);
-            return ps.executeUpdate() > 0;
-        }
-    }
-
-    /**
-     * Upserts a ReadingHistory record in the database. If a record with the given userId and chapterId exists,
-     * it updates the last_read_at timestamp. If it does not exist, it inserts a new record.
-     *
-     * @param userId    The ID of the user.
-     * @param chapterId The ID of the chapter.
-     * @throws SQLException If an SQL error occurs during the upsert operation.
-     */
-    public void upsert(int userId, int chapterId) throws SQLException {
-        String sql = """
-                    MERGE reading_history AS t
-                    USING (SELECT ? AS user_id, ? AS chapter_id) AS s
-                    ON (t.user_id = s.user_id AND t.chapter_id = s.chapter_id)
-                    WHEN MATCHED THEN UPDATE SET last_read_at = GETDATE()
-                    WHEN NOT MATCHED THEN INSERT (user_id, chapter_id, last_read_at)
-                         VALUES (s.user_id, s.chapter_id, GETDATE());
-                """;
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, chapterId);
-            ps.executeUpdate();
-        }
-    }
 
     public void updateReadingHistory(int userId, int chapterId) throws SQLException {
         int seriesId = -1;
