@@ -117,10 +117,6 @@
                     Create Account
                 </button>
             </form>
-
-            <div class="mt-6 text-center text-sm text-gray-500">
-                <p>Back to <a href="${pageContext.request.contextPath}/admin/accounts" class="text-[#0A2A66] hover:underline">Accounts Management</a></p>
-            </div>
         </main>
     </div>
 </div>
