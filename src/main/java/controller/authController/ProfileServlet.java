@@ -65,9 +65,12 @@ public class ProfileServlet extends HttpServlet {
             } else {
                 SeriesDAO seriesDAO = new SeriesDAO(conn);
                 List<Series> series = seriesDAO.getSeriesByAuthorId(userId);
-                request.setAttribute("seriesInfoDTOList", series);
+
+                request.setAttribute("seriesList", series);
                 request.setAttribute("totalSeriesCount", series.size());
-                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
+
+                request.setAttribute("contentPage","/WEB-INF/views/profile/AuthorProfile.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);

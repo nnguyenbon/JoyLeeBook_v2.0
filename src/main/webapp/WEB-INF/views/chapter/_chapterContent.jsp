@@ -139,7 +139,7 @@
 
         <!-- Modal Report Chapter -->
         <div id="reportChapterModal"
-             class="fixed inset-0 flex items-center justify-center bg-opacity-50 hidden z-50">
+             class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center bg-opacity-50 hidden z-50">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
 
                 <!-- Nút đóng -->
