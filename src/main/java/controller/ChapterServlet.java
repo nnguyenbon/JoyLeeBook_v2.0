@@ -79,7 +79,8 @@ public class ChapterServlet extends HttpServlet {
                 String search = request.getParameter("search");
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
                 PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-                paginationRequest.setOrderBy("created_at");
+                paginationRequest.setOrderBy("updated_at");
+                paginationRequest.setSortDir("desc");
                 List<Chapter> chapterList = chapterDAO.getAll(search, approvalStatus, "published", paginationRequest);
                 for (Chapter chapter : chapterList) {
                     buildChapter(chapter, conn);

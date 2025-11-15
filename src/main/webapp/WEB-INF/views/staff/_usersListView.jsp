@@ -32,19 +32,21 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Name</th>
                     <th class="px-4 py-3">Role</th>
                     <th class="px-4 py-3">Email</th>
                     <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3">Create Date</th>
-                    <th class="px-4 py-4 text-center"></th>
+                    <th class="px-4 py-4 text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="account" items="${accountList}">
+                <c:forEach var="account" items="${accountList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${account.accountId}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
                         <td class="px-4 py-3 flex items-center gap-3">
                             <img src="${pageContext.request.contextPath}/img/shared/imgUser.png" alt="${account.fullName}"
                                  class="w-10 h-10 rounded-full object-cover">

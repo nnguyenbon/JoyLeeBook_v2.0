@@ -80,8 +80,9 @@ public class CategoryServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             CategoryDAO dao = new CategoryDAO(conn);
 
-            PaginationRequest pageRequest = PaginationUtils.fromRequest(request);
-            pageRequest.setOrderBy("category_id");
+            PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
+            paginationRequest.setOrderBy("updated_at");
+            paginationRequest.setSortDir("desc");
 
             List<Category> categories = dao.getAll();
             int totalCategories = categories.size();
@@ -89,7 +90,7 @@ public class CategoryServlet extends HttpServlet {
             request.setAttribute("size", totalCategories);
             request.setAttribute("search", search);
             request.setAttribute("categories", categories);
-            PaginationUtils.sendParameter(request, pageRequest);
+            PaginationUtils.sendParameter(request, paginationRequest);
 
             if (isAjax) {
                 request.getRequestDispatcher("/WEB-INF/views/category/_categoryList.jsp").forward(request, response);
