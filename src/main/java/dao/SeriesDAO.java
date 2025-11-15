@@ -336,7 +336,7 @@ public class SeriesDAO {
     public List<Series> getSeriesByAuthorId(int authorId, String approvalStatus) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ? AND is_deleted = 0";
-        if (approvalStatus != null) {
+        if (!approvalStatus.equals("")) {
             sql += "AND s.approval_status = '" + approvalStatus + "'";
         }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {

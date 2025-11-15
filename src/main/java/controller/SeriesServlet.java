@@ -398,13 +398,14 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
-
+            List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);;
             request.setAttribute("totalChapter", series.getTotalChapters());
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
             request.setAttribute("series", series);
             request.setAttribute("pageTitle", "Series Detail");
+            request.setAttribute("chapterList", chapterList);
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
@@ -737,7 +738,15 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         return series;
     }
 
-
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(connection);
+        LikeDAO likeDAO = new LikeDAO(connection);
+        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+        for (Chapter chapter : chapterList) {
+            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+        }
+        return chapterList;
+    }
     private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
         List<Series> copy = new ArrayList<>(seriesList);
         copy.sort((s1, s2) -> Double.compare(s2.getTotalRating(), s1.getTotalRating()));

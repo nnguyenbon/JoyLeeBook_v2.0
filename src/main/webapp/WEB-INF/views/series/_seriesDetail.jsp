@@ -124,7 +124,7 @@
                 <li class="flex items-center justify-between gap-2}">
                     <span class="flex items-center gap-2">
                         <c:choose>
-                            <c:when test="${authorCurrent.owner}">
+                            <c:when test="${authorCurrent.authorId == author.authorId}">
                                 <i class="fa-solid fa-crown text-yellow-500"></i>
                             </c:when>
                             <c:otherwise>

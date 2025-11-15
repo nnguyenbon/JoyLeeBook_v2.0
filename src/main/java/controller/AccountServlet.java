@@ -1,8 +1,6 @@
 package controller;
 
-import dao.AccountDAO;
-import dao.SeriesDAO;
-import dao.UserDAO;
+import dao.*;
 import db.DBConnection;
 import model.PaginationRequest;
 import jakarta.servlet.ServletException;
@@ -144,7 +142,10 @@ public class AccountServlet extends HttpServlet {
 
                 if ("author".equals(role)) {
                     SeriesDAO seriesDAO = new SeriesDAO(conn);
-                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId,"" );
+                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId,"");
+                    for (Series series : authorSeriesList) {
+                        buildSeries(conn, series, "");
+                    }
                     request.setAttribute("authorSeriesList", authorSeriesList);
                 }
 
@@ -445,6 +446,19 @@ public class AccountServlet extends HttpServlet {
         response.sendRedirect(referer != null ? referer : request.getContextPath() + "/account/list");
     }
 
+    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(conn);
+        RatingDAO ratingDAO = new RatingDAO(conn);
+        CategoryDAO categoryDAO = new CategoryDAO(conn);
+        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        UserDAO userDAO = new UserDAO(conn);
+        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
+        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
+        return series;
+    }
     /* ===========================
        ======= HELPERS ===========
        =========================== */

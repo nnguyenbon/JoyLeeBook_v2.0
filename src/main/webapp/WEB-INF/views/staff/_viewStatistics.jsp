@@ -209,14 +209,13 @@
         ${interactionStats.likes},
         ${interactionStats.comments},
         ${interactionStats.votes},
-        ${interactionStats.points},
         ${interactionStats.saves}
       ]
     }],
     chart: {
       sparkline: { enabled: false },
       type: "bar",
-      width: 300,
+      width: 270,
       height: 220,
       toolbar: { show: false }
     },
@@ -252,7 +251,7 @@
           cssClass: 'text-xs font-normal fill-gray-500'
         }
       },
-      categories: ["Likes", "Comments", "Votes", "Points", "Saves"],
+      categories: ["Likes", "Comments", "Votes", "Saves"],
       axisTicks: { show: false },
       axisBorder: { show: false }
     },
