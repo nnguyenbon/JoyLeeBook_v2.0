@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Series;
 import utils.FormatUtils;
 

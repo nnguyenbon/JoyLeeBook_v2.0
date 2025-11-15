@@ -1,8 +1,7 @@
 package utils;
 
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 public class PaginationUtils {
 

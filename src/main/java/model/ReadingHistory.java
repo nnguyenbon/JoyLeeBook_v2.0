@@ -3,23 +3,25 @@ package model;
 import java.time.LocalDateTime;
 
 public class ReadingHistory {
-    private int userId;
     private int chapterId;
-    private LocalDateTime lastReadAt;
+    private int userId;
+    private String lastReadAt;
 
-    public ReadingHistory(int userId, int chapterId, LocalDateTime lastReadAt) {
-        this.userId = userId;
+    //extra field
+    private int chapterNumber;
+    private String title;
+    private String status;
+    private String updatedAt;
+    private int seriesId;
+    private String seriesTitle;
+    private String coverImgUrl;
+
+    public int getChapterId() {
+        return chapterId;
+    }
+
+    public void setChapterId(int chapterId) {
         this.chapterId = chapterId;
-        this.lastReadAt = lastReadAt;
-    }
-
-    public ReadingHistory() {}
-    public LocalDateTime getLastReadAt() {
-        return lastReadAt;
-    }
-
-    public void setLastReadAt(LocalDateTime lastReadAt) {
-        this.lastReadAt = lastReadAt;
     }
 
     public int getUserId() {
@@ -30,11 +32,67 @@ public class ReadingHistory {
         this.userId = userId;
     }
 
-    public int getChapterId() {
-        return chapterId;
+    public int getChapterNumber() {
+        return chapterNumber;
     }
 
-    public void setChapterId(int chapterId) {
-        this.chapterId = chapterId;
+    public void setChapterNumber(int chapterNumber) {
+        this.chapterNumber = chapterNumber;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public int getSeriesId() {
+        return seriesId;
+    }
+
+    public void setSeriesId(int seriesId) {
+        this.seriesId = seriesId;
+    }
+
+    public String getSeriesTitle() {
+        return seriesTitle;
+    }
+
+    public void setSeriesTitle(String seriesTitle) {
+        this.seriesTitle = seriesTitle;
+    }
+
+    public String getCoverImgUrl() {
+        return coverImgUrl;
+    }
+
+    public void setCoverImgUrl(String coverImgUrl) {
+        this.coverImgUrl = coverImgUrl;
+    }
+
+    public String getLastReadAt() {
+        return lastReadAt;
+    }
+
+    public void setLastReadAt(String lastReadAt) {
+        this.lastReadAt = lastReadAt;
     }
 }

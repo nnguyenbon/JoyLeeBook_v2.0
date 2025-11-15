@@ -1,4 +1,4 @@
-package controller.commentController;
+package controller;
 
 import dao.ChapterDAO;
 import dao.CommentDAO;

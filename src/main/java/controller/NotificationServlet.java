@@ -1,4 +1,4 @@
-package controller.notificationController;
+package controller;
 
 import dao.NotificationsDAO;
 import db.DBConnection;
@@ -15,7 +15,6 @@ import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 /**

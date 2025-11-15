@@ -2,7 +2,7 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
