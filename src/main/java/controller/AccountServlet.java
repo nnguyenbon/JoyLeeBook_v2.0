@@ -200,7 +200,7 @@ public class AccountServlet extends HttpServlet {
         }
 
         try {
-            int staffId = Integer.parseInt(request.getParameter("staffId"));
+            int staffId = Integer.parseInt(request.getParameter("id"));
 
             try (Connection conn = DBConnection.getConnection()) {
                 AccountDAO accountDAO = new AccountDAO(conn);
@@ -330,8 +330,7 @@ public class AccountServlet extends HttpServlet {
             String staffIdStr = request.getParameter("staffId");
             String fullName = request.getParameter("fullName");
             String password = request.getParameter("password");
-
-            // Kiểm tra ID hợp lệ
+            String username = request.getParameter("username");
             int staffId;
             try {
                 staffId = Integer.parseInt(staffIdStr);
@@ -355,6 +354,7 @@ public class AccountServlet extends HttpServlet {
             // Tạo đối tượng Staff và cập nhật
             Staff staff = new Staff();
             staff.setStaffId(staffId);
+            staff.setUsername(username);
             staff.setFullName(fullName);
             staff.setRole("staff");
             if (password != null && !password.isBlank()) {
