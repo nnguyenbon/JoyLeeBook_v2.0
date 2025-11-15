@@ -6,7 +6,7 @@
     <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl border border-[#195DA9] overflow-hidden mb-6 p-8">
         <main class="overflow-y-auto max-h-[80vh] px-4 custom-scrollbar">
             <div class="text-center mb-6">
-                <h1 class="font-bold text-4xl text-[#0A2A66]">Create Account</h1>
+                <h1 class="font-bold text-4xl text-[#0A2A66]">Update Account</h1>
                 <c:if test="${not empty message}">
                     <p class="text-red-600 font-medium mt-2">${message}</p>
                 </c:if>

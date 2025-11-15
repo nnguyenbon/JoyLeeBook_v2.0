@@ -48,8 +48,8 @@
             <h2 class="text-3xl font-bold text-gray-800 mb-2">${series.title}</h2>
             <p class="text-gray-600">
               by <span class="font-semibold text-gray-800">
-                                <c:forEach var="author" items="${series.authorNameList}" varStatus="loop">
-                                  ${author}<c:if test="${!loop.last}">, </c:if>
+                                <c:forEach var="author" items="${series.authorList}" varStatus="loop">
+                                  ${author.authorName}<c:if test="${!loop.last}">, </c:if>
                                 </c:forEach>
                             </span>
             </p>
@@ -320,7 +320,6 @@
         </table>
       </div>
     </div>
-  </div>
   </div>
 </div>
 
