@@ -37,7 +37,7 @@
                     <th class="px-4 py-3">Role</th>
                     <th class="px-4 py-3">Email</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Create Date</th>
+                    <th class="px-4 py-3">Updated Date</th>
                     <th class="px-4 py-4 text-center">Action</th>
                 </tr>
                 </thead>
@@ -69,7 +69,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-700">
-                            ${account.createdAt}
+                            ${account.updatedAt}
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">

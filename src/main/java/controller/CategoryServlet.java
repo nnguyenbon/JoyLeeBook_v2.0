@@ -81,7 +81,7 @@ public class CategoryServlet extends HttpServlet {
             CategoryDAO dao = new CategoryDAO(conn);
 
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("updated_at");
+            paginationRequest.setOrderBy("created_at");
             paginationRequest.setSortDir("desc");
 
             List<Category> categories = dao.getAll();
