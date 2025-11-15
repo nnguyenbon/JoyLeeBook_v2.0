@@ -49,18 +49,17 @@ public class SeriesAuthorDAO {
      * @return the SeriesAuthor object if found, null otherwise
      */
     public SeriesAuthor findById(int seriesId, int userId) throws SQLException {
-        String sql = "SELECT * FROM series_author WHERE series_id = ? AND user_id = ?";
-        SeriesAuthor seriesAuthor = new SeriesAuthor();
+        String sql = "SELECT series_author.series_id, users.user_id, users.username, series_author.is_owner FROM series_author INNER JOIN users ON series_author.user_id = users.user_id WHERE series_author.series_id = ? AND series_author.user_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, seriesId);
             ps.setInt(2, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    seriesAuthor = mapResultSetToSeriesAuthor(rs);
+                    return mapResultSetToSeriesAuthor(rs);
                 }
             }
         }
-        return seriesAuthor;
+        return null;
     }
 
     public List<SeriesAuthor> findByUserId(int userId) throws SQLException {

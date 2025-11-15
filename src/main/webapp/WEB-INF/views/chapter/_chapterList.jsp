@@ -12,7 +12,7 @@
         <h2 class="font-semibold text-xl ">Chapter List</h2>
         <a
                 href="${pageContext.request.contextPath}/chapter/add?seriesId=${seriesId}"
-                class="px-4 py-2 bg-sky-800 text-white rounded-lg hover:bg-sky-900 cursor-pointer transition duration-300" ${loginedUser.role == 'author' ? "" : "hidden"}>Create
+                class="px-4 py-2 bg-sky-800 text-white rounded-lg hover:bg-sky-900 cursor-pointer transition duration-300" ${not empty authorCurrent ? "" : "hidden"}>Create
             Chapter
             <i class="fa-solid fa-circle-plus"></i>
         </a>
@@ -28,42 +28,54 @@
 
                                 <span>Chapter ${chapter.chapterNumber}: ${chapter.title}</span>
                                 <div class="flex gap-4 items-center">
-                                    <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt}</span>
-                                    <c:if test="${chapter.authorId == loginedUser.userId}">
+                                    <span class="text-sm text-gray-500">${chapter.totalLike} Likes · ${chapter.updatedAt} · by ${chapter.authorName}</span>
+                                    <c:if test="${not empty authorCurrent}">
                                         <c:choose>
-                                            <c:when test="${chapter.approvalStatus == 'approved'}">
-                                                <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
-                                            </c:when>
-                                            <c:when test="${chapter.approvalStatus == 'pending'}">
-                                                <span class="bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                            <c:when test="${chapter.status == 'published'}">
+                                                <span class="bg-green-100 text-green-600 px-3 rounded-full font-medium">${chapter.status}</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                                <span class="bg-gray-100 text-gray-600 px-3 rounded-full font-medium">${chapter.status}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <c:choose>
+                                            <c:when test="${chapter.approvalStatus == 'approved'}">
+                                                <span class="bg-green-100 text-green-600 px-3 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                            </c:when>
+                                            <c:when test="${chapter.approvalStatus == 'pending'}">
+                                                <span class="bg-yellow-100 text-yellow-600 px-3 rounded-full font-medium">${chapter.approvalStatus}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="bg-red-100 text-red-600 px-3 rounded-full font-medium">${chapter.approvalStatus}</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </c:if>
                                 </div>
                             </a>
-                            <c:if test="${chapter.authorId == loginedUser.userId}">
+                            <c:if test="${not empty authorCurrent}">
                                 <div class="flex gap-2 items-center">
-                                    <a type="button"
-                                       class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
-                                       href="${pageContext.request.contextPath}/chapter/edit?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </a>
-
+                                    <c:if test="${authorCurrent.owner}">
                                     <button type="button"
                                             class="upload-chapter-btn text-blue-600 hover:text-blue-700 hover:scale-110 transition-all duration-300"
                                             data-series-id="${chapter.seriesId}"
                                             data-chapter-id="${chapter.chapterId}">
                                         <i class="fa-solid fa-arrow-up-from-bracket"></i>
                                     </button>
+                                    </c:if>
+                                    <c:if test="${chapter.authorId == authorCurrent.authorId  || authorCurrent.owner}">
+                                    <a type="button"
+                                       class="text-green-600 hover:text-green-700 hover:scale-110 transition-all duration-300"
+                                       href="${pageContext.request.contextPath}/chapter/edit?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </a>
+
 
                                     <a type="button"
                                        class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
                                        href="${pageContext.request.contextPath}/chapter/delete?seriesId=${chapter.seriesId}&chapterId=${chapter.chapterId}">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </a>
+                                    </c:if>
                                 </div>
                             </c:if>
                         </li>
