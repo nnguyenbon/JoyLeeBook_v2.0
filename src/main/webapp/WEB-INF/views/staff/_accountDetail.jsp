@@ -135,7 +135,7 @@
 
 
 
-            <div class="flex-1 py-3 bg-[#F5F4FA]">
+            <div class="flex-1 py-3 bg-[#F5F4FA]" ${account.role == 'author' ? "" : "hidden"}>
                 <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
                     <!-- Table -->
                     <div class="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-sm mb-3">

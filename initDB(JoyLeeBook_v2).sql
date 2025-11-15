@@ -286,7 +286,7 @@ GO
 CREATE TABLE notifications (
     notification_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    type NVARCHAR(20) CHECK (type IN ('system', 'submission_status', 'moderation')) NOT NULL,
+    type NVARCHAR(20) CHECK (type IN ('system', 'submission_status', 'moderation',  'coauthor_invitation')) NOT NULL,
     title NVARCHAR(255) NOT NULL,
     message NVARCHAR(500),
     is_read BIT DEFAULT 0 NOT NULL,

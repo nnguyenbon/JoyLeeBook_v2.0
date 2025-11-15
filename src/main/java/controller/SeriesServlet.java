@@ -125,7 +125,7 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
-    private void viewAuthorDashboard (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void viewAuthorDashboard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId;
         if (user == null || !"author".equals(user.getRole())) {
@@ -137,7 +137,7 @@ public class SeriesServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new  ChapterDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             LikeDAO likeDAO = new LikeDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             double rate = ratingDAO.getAverageRating(userId);
@@ -369,7 +369,7 @@ public class SeriesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
+    private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
@@ -398,21 +398,23 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
-
+            List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);
+            ;
             request.setAttribute("totalChapter", series.getTotalChapters());
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
             request.setAttribute("series", series);
             request.setAttribute("pageTitle", "Series Detail");
+            request.setAttribute("chapterList", chapterList);
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
-                SeriesAuthor author = new  SeriesAuthor();
-                for(SeriesAuthor seriesAuthor : series.getAuthorList()) {
+                SeriesAuthor author = new SeriesAuthor();
+                for (SeriesAuthor seriesAuthor : series.getAuthorList()) {
                     if (seriesAuthor.getAuthorId() == userId) {
                         author = seriesAuthor;
                     }
@@ -578,9 +580,17 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         int staffId = ((Staff) loggedInAccount).getStaffId();
 
         try (Connection conn = DBConnection.getConnection()) {
-            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+                int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String approveStatus = request.getParameter("approveStatus");
-            String comment = request.getParameter("comment") == null ? "" : request.getParameter("comment");
+            String comment = request.getParameter("reason") == null ? "" : request.getParameter("reason");
+            if (comment.isEmpty()) {
+                if (approveStatus.equals("approved")) {
+                    comment = "This series is in line with our policy.";
+                } else {
+                    comment = "This series isn't in line with our policy.";
+                }
+            }
+
 
             // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
@@ -596,7 +606,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
             // Create review record
             ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId, staffId);
-            if  (reviewSeries == null) {
+            if (reviewSeries == null) {
                 reviewSeries = new ReviewSeries();
                 reviewSeries.setSeriesId(seriesId);
                 reviewSeries.setStaffId(staffId);
@@ -606,7 +616,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 if (reviewSeriesDAO.insert(reviewSeries)) {
                     // Create and send notification to series owner
                     Notification notification = NotificationUtils.createApprovalNotification(
-                            conn, seriesId, comment, approveStatus
+                            conn, seriesId, comment,series.getTitle(),approveStatus
                     );
                 }
             } else {
@@ -615,13 +625,13 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 if (reviewSeriesDAO.update(reviewSeries)) {
                     // Create and send notification to series owner
                     Notification notification = NotificationUtils.createApprovalNotification(
-                            conn, seriesId, comment, approveStatus
+                            conn, seriesId, comment, series.getTitle(), approveStatus
                     );
                 }
             }
 
             String message;
-            if(approveStatus.equals("approved")) {
+            if (approveStatus.equals("approved")) {
                 message = "Series has been approved successfully.";
             } else {
                 message = "Series has been rejected successfully.";
@@ -659,6 +669,11 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             seriesDAO.deleteSeries(seriesId);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
+            List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, "");
+            for (Chapter chapter : chapterList) {
+                chapterDAO.delete(chapter.getChapterId());
+            }
 
             request.getSession().setAttribute("message", "Series has been deleted successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
@@ -723,7 +738,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
      * @return the enriched Series object, or null if the input was null
      * @throws SQLException if a database access error occurs
      */
-    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
+    private static Series buildSeries(Connection conn, Series series, String role) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(conn);
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
@@ -737,6 +752,15 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         return series;
     }
 
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(connection);
+        LikeDAO likeDAO = new LikeDAO(connection);
+        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+        for (Chapter chapter : chapterList) {
+            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+        }
+        return chapterList;
+    }
 
     private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
         List<Series> copy = new ArrayList<>(seriesList);

@@ -131,27 +131,19 @@
                         <p class="text-sm text-gray-600 mb-4">Review the chapter content and take appropriate action.</p>
 
                         <div class="space-y-3">
-                            <form method="post" action="${pageContext.request.contextPath}/chapter/approve">
-                                <input type="hidden" name="chapterId" value="${chapter.chapterId}">
-                                <input type="hidden" name="approveStatus" value="approved">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to approve this chapter?')"
-                                        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                    <i class="fas fa-check-circle"></i>
-                                    Approve Chapter
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('approved', '${chapter.chapterId}')"
+                                    class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                <i class="fas fa-check-circle"></i>
+                                Approve Chapter
+                            </button>
 
-                            <form method="post" action="${pageContext.request.contextPath}/chapter/approve">
-                                <input type="hidden" name="chapterId" value="${chapter.chapterId}">
-                                <input type="hidden" name="approveStatus" value="rejected">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to reject this chapter?')"
-                                        class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                    <i class="fas fa-times-circle"></i>
-                                    Reject Chapter
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('rejected', '${chapter.chapterId}')"
+                                    class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                <i class="fas fa-times-circle"></i>
+                                Reject Chapter
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -164,16 +156,12 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Chapter Approved</h3>
                             <p class="text-sm text-gray-600 mb-4">This chapter has been reviewed and approved.</p>
 
-                            <form method="post" action="${pageContext.request.contextPath}/chapter/approve" class="mt-4">
-                                <input type="hidden" name="chapterId" value="${chapter.chapterId}">
-                                <input type="hidden" name="approveStatus" value="rejected">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to reject this approved chapter?')"
-                                        class="text-red-600 hover:text-red-800 text-sm font-medium">
-                                    <i class="fas fa-times-circle mr-1"></i>
-                                    Revoke Approval
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('rejected', '${chapter.chapterId}')"
+                                    class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                <i class="fas fa-times-circle mr-1"></i>
+                                Revoke Approval
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -185,16 +173,12 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Chapter Rejected</h3>
                             <p class="text-sm text-gray-600 mb-4">This chapter has been rejected.</p>
 
-                            <form method="post" action="${pageContext.request.contextPath}/chapter/approve" class="mt-4">
-                                <input type="hidden" name="chapterId" value="${chapter.chapterId}">
-                                <input type="hidden" name="approveStatus" value="approved">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to approve this chapter?')"
-                                        class="text-green-600 hover:text-green-800 text-sm font-medium">
-                                    <i class="fas fa-check-circle mr-1"></i>
-                                    Approve Chapter
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('approved', '${chapter.chapterId}')"
+                                    class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Approve Chapter
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -203,4 +187,129 @@
     </div>
 </div>
 
+<!-- Reason Modal -->
+<div id="reasonModal" class="hidden fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-gray-800" id="modalTitle">Confirm Action</h3>
+                <button onclick="closeReasonModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
 
+            <form id="reasonForm" method="post" action="${pageContext.request.contextPath}/chapter/approve">
+                <input type="hidden" name="chapterId" value="${chapter.chapterId}">
+                <input type="hidden" name="approveStatus" id="approveStatus">
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Reason <span class="text-red-500">*</span>
+                    </label>
+                    <textarea
+                            name="reason"
+                            id="reasonInput"
+                            rows="4"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            placeholder="Please provide a reason for this action..."></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button"
+                            onclick="closeReasonModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            id="submitBtn"
+                            class="flex-1 px-4 py-2 text-white rounded-lg transition">
+                        Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openReasonModal(action, chapterId) {
+        const modal = document.getElementById('reasonModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const reasonInput = document.getElementById('reasonInput');
+
+        // Set status
+        document.getElementById('approveStatus').value = action;
+
+        // Update UI based on action
+        if (action === 'approved') {
+            modalTitle.innerHTML = '<i class="fas fa-check-circle text-green-500 mr-2"></i>Approve Chapter';
+            submitBtn.className = 'flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition';
+            submitBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Approve';
+            reasonInput.placeholder = 'Example: Content meets quality standards, well-written, follows guidelines...';
+        } else {
+            modalTitle.innerHTML = '<i class="fas fa-times-circle text-red-500 mr-2"></i>Reject Chapter';
+            submitBtn.className = 'flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition';
+            submitBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Reject';
+            reasonInput.placeholder = 'Example: Contains inappropriate content, violates guidelines, poor quality...';
+        }
+
+        // Clear previous input
+        reasonInput.value = '';
+
+        // Show modal
+        modal.classList.remove('hidden');
+
+        // Focus on textarea
+        setTimeout(() => reasonInput.focus(), 100);
+    }
+
+    function closeReasonModal() {
+        document.getElementById('reasonModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('reasonModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeReasonModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeReasonModal();
+        }
+    });
+
+    // Form validation
+    document.getElementById('reasonForm').addEventListener('submit', function(e) {
+        const reason = document.getElementById('reasonInput').value.trim();
+
+        if (reason.length < 10) {
+            e.preventDefault();
+            alert('Please provide a reason with at least 10 characters');
+            return false;
+        }
+    });
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
