@@ -78,7 +78,8 @@ public class AccountServlet extends HttpServlet {
     private void viewAccountList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String currentUserRole = getCurrentRole(request);
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
+        String currentUserRole = loginedUser.getRole();
         String search = request.getParameter("search");
         String roleFilter = request.getParameter("roleFilter");
         // Check if this is an AJAX request

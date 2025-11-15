@@ -29,12 +29,12 @@
                class="block">
                 <div class="relative flex bg-white rounded-lg shadow-sm hover:shadow-md transition p-3 h-full">
                     <!-- Bookmark Remove Icon -->
-                    <form action="${pageContext.request.contextPath}/library/save?type=unsave&seriesId=${series.seriesId}&isLibrary=true" method="post">
-                        <button class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition"
-                                type="submit" title="Remove from saved">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
+                    <button
+                            class="absolute top-2 right-2 z-10 text-gray-400 hover:text-red-500 transition btn-unsave"
+                            data-series-id="${series.seriesId}"
+                            title="Remove from saved">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
 
                     <!-- Content -->
                     <img src="${series.coverImgUrl}" alt="cover" class="w-24 h-32 object-cover rounded-md flex-shrink-0">
@@ -161,5 +161,30 @@
         tabSaved.classList.add('text-gray-500');
         contentSaved.classList.add('hidden');
         contentHistory.classList.remove('hidden');
+    });
+    const ctx = "${pageContext.request.contextPath}";
+
+    document.querySelectorAll(".btn-unsave").forEach(button => {
+        button.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation(); // tránh click vào thẻ <a>
+
+            const seriesId = this.dataset.seriesId;
+
+            fetch(ctx + `/library/save?type=unsave&seriesId=` + seriesId, {
+                method: "POST"
+            })
+                .then(res => res.json())
+                .then(json => {
+                    if (json.success) {
+                        // Xoá card khỏi giao diện
+                        const card = this.closest("a");
+                        if (card) card.remove();
+                    } else {
+                        alert(json.message || "Error occurred");
+                    }
+                })
+                .catch(err => console.error("Fetch error:", err));
+        });
     });
 </script>

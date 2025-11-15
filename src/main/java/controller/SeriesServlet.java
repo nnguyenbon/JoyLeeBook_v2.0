@@ -535,6 +535,12 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
             }
             series.setDescription(description);
 
+            ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
+            ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId);
+            if (reviewSeries.getStatus().equals("approved")) {
+                reviewSeries.setStatus("pending");
+                reviewSeriesDAO.update(reviewSeries);
+            }
             // Update series in database
             seriesDAO.updateSeries(series);
 
