@@ -419,7 +419,7 @@ GO
 -- Insert 20 users (unchanged structure, timestamps to recent dates)
 INSERT INTO users (username, full_name, bio, email, password_hash, google_id, role, is_verified, is_deleted, status, points, created_at, updated_at) VALUES
 ('reader', N'John Doe', N'Book lover', 'reader@example.com', '$2a$10$39UOPPwOgXRF/Iaeo6CGg.bFQ8lVGx6ixef39nKp27Yax7tTe.fwS', NULL, 'reader', 1, 0, 'active', 100, '2025-10-25', '2025-10-25'),
-('author1', N'Jane Smith', N'Fantasy writer', 'jane@example.com', 'hash2', NULL, 'author', 1, 0, 'active', 500, '2025-10-26', '2025-10-26'),
+('author1', N'Jane Smith', N'Fantasy writer', 'jane@example.com', '$2a$10$39UOPPwOgXRF/Iaeo6CGg.bFQ8lVGx6ixef39nKp27Yax7tTe.fwS', NULL, 'author', 1, 0, 'active', 500, '2025-10-26', '2025-10-26'),
 ('reader2', N'Mike Johnson', N'Casual reader', 'mike@example.com', 'hash3', NULL, 'reader', 0, 0, 'active', 50, '2025-10-27', '2025-10-27'),
 ('author2', N'Emily Davis', N'Mystery author', 'emily@example.com', 'hash4', NULL, 'author', 1, 0, 'active', 300, '2025-10-28', '2025-10-28'),
 ('reader3', N'Sarah Wilson', N'Avid reader', 'sarah@example.com', 'hash5', NULL, 'reader', 1, 0, 'active', 200, '2025-10-29', '2025-10-29'),
