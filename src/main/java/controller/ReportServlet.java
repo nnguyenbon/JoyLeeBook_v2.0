@@ -260,7 +260,7 @@ public class ReportServlet extends HttpServlet {
             boolean updated = reportDAO.updateStatus(reportId, status, staff.getStaffId());
             if (updated && "chapter".equals(report.getTargetType())) {
                 ChapterDAO chapterDAO = new ChapterDAO(conn);
-                chapterDAO.updateStatus(report.getChapterId(), status.equals("resolved") ? "rejected" : "approved");
+                chapterDAO.updateApprovalStatus(report.getChapterId(), status.equals("resolved") ? "rejected" : "approved");
                 Notification noti = createApprovalNotification(conn, report.getChapterId(), message, status);
                 notificationsDAO.insertNotification(noti);
             } else if (updated && "comment".equals(report.getTargetType())) {

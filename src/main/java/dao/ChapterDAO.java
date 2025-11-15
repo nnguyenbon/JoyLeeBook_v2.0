@@ -309,7 +309,16 @@ public class ChapterDAO {
         }
     }
 
-    public boolean updateStatus(int chapterId, String approvalStatus) throws SQLException {
+    public boolean updateStatus(int chapterId, String status) throws SQLException {
+        String sql = "UPDATE chapters SET status = ?, updated_at = ? WHERE chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean updateApprovalStatus(int chapterId, String approvalStatus) throws SQLException {
         String sql = "UPDATE chapters SET approval_status = ?, updated_at = ? WHERE chapter_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, approvalStatus);
