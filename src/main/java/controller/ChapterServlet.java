@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 @WebServlet("/chapter/*")
 public class ChapterServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ChapterServlet.class.getName());
-    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "published", "rejected", "approved"));
+    private static final Set<String> ALLOWED_STATUS = new HashSet<>(Arrays.asList("draft", "published"));
 
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -97,6 +97,9 @@ public class ChapterServlet extends HttpServlet {
                 List<Chapter> chapterList;
                 if (loggedInAccount instanceof User && loggedInAccount.getRole().equals("author")) {
                     chapterList = buildChapterList(seriesId, "", conn);
+                    SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+                    SeriesAuthor authorCurrent = seriesAuthorDAO.findById(seriesId, ((User) loggedInAccount).getUserId());
+                    request.setAttribute("authorCurrent", authorCurrent);
                 } else {
                     chapterList = buildChapterList(seriesId, "approved", conn);
                 }
@@ -126,10 +129,9 @@ public class ChapterServlet extends HttpServlet {
 
     private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(connection);
-        LikeDAO likeDAO = new LikeDAO(connection);
         List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
         for (Chapter chapter : chapterList) {
-            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+            buildChapter(chapter, connection);
         }
         return chapterList;
     }
@@ -386,7 +388,6 @@ public class ChapterServlet extends HttpServlet {
         Object loggedInAccount = request.getSession().getAttribute("loginedUser");
         int userId = ((User) loggedInAccount).getUserId();
 
-
         try {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
 
@@ -482,17 +483,10 @@ public class ChapterServlet extends HttpServlet {
                 chapter.setChapterNumber(chapterNumber);
             }
 
-            // Status
             if (status != null) {
-                if (!ALLOWED_STATUS.contains(status)) {
-                    throw new IllegalArgumentException("Invalid status.");
-                }
-                if ("published".equalsIgnoreCase(status) &&  chapter.getApprovalStatus().equals("approved")) {
-                    chapter.setApprovalStatus("pending");
-                }
-            } else {
-                chapter.setStatus("pending");
+                chapter.setStatus(status);
             }
+            chapter.setApprovalStatus("pending");
 
 
             // Update DB
@@ -635,12 +629,36 @@ public class ChapterServlet extends HttpServlet {
         }
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
-            SeriesDAO seriesDAO = new SeriesDAO(conn);
-            Series series = seriesDAO.findById(seriesId);
             Chapter chapter = chapterDAO.findByIdIfNotDeleted(chapterId);
+            String jsonResponse = "";
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(uploadDecide(series.getApprovalStatus(), chapter, chapterDAO));
+            if (chapter.getApprovalStatus().equals("approved")) {
+                jsonResponse = String.format(
+                        "{\"success\": false, \"message\": \"This chapter already been approved.\"}"
+                );
+                response.getWriter().write(jsonResponse);
+                return;
+            } else if (chapter.getApprovalStatus().equals("pending")) {
+                if (chapter.getStatus().equals("draft")) {
+                    chapterDAO.updateStatus(chapterId, "published");
+                    jsonResponse = String.format(
+                            "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
+                    );
+                } else {
+                    jsonResponse = String.format(
+                            "{\"success\": false, \"message\": \"Chapter has already been uploaded and is pending review!\"}"
+                    );
+                }
+                response.getWriter().write(jsonResponse);
+                return;
+            } else {
+                chapterDAO.updateApprovalStatus(chapterId, "pending");
+                jsonResponse = String.format(
+                        "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
+                );
+                response.getWriter().write(jsonResponse);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Failed to upload chapter.");
@@ -648,36 +666,6 @@ public class ChapterServlet extends HttpServlet {
         }
     }
 
-    public String uploadDecide (String seriesApprovalStatus, Chapter chapter, ChapterDAO chapterDAO) throws SQLException {
-        if (seriesApprovalStatus.equals("rejected") || seriesApprovalStatus.equals("pending")) {
-            return String.format(
-                    "{\"success\": false, \"message\": \"This series can not upload chapter because isn't approved yet.\"}"
-            );
-
-        } else {
-            if (chapter.getApprovalStatus().equals("approved")) {
-                return String.format(
-                        "{\"success\": false, \"message\": \"Chapter has already been approved yet!\"}"
-                );
-            } else if (chapter.getApprovalStatus().equals("pending") && chapter.getStatus().equals("published")) {
-                return String.format(
-                        "{\"success\": false, \"message\": \"Chapter has already been uploaded and is pending review!\"}"
-                );
-            } else if (chapter.getApprovalStatus().equals("rejected")) {
-                chapterDAO.updateStatus(chapter.getChapterId(), "pending");
-
-                return String.format(
-                        "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
-                );
-            } else {
-                chapter.setStatus("published");
-                chapterDAO.update(chapter);
-                return String.format(
-                        "{\"success\": true, \"message\": \"Uploaded chapter has been successfully!\"}"
-                );
-            }
-        }
-    }
     // Sửa lại như hàm trên
     private void showDeleteChapter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer chapterId = parseIntOrNull(request.getParameter("id"));
