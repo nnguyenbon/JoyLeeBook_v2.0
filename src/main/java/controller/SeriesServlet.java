@@ -147,7 +147,7 @@ public class SeriesServlet extends HttpServlet {
             request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
             request.setAttribute("avgRating", (double) Math.round(rate * 10) / 10);
-            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
+            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId, ""));
             request.setAttribute("pageTitle", "AuthorDashboard");
             request.setAttribute("contentPage", "/WEB-INF/views/general/AuthorDashboard.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
