@@ -6,6 +6,15 @@ public class ReportChapter extends Report {
     private String seriesName;
     private String reporterUsername;
     private String staffUsername;
+    private int reportCount;
+
+    public int getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
+    }
 
     // Additional Getters and Setters
     public String getChapterTitle() { return chapterTitle; }
