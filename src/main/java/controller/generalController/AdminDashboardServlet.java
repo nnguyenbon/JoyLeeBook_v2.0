@@ -2,8 +2,7 @@ package controller.generalController;
 
 import dao.*;
 import db.DBConnection;
-import model.Account;
-import model.Staff;
+import model.*;
 import model.staff.DashboardStats;
 import model.staff.InteractionStats;
 import model.staff.GenreStats;
@@ -18,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.sql.Timestamp;
@@ -63,19 +63,23 @@ public class AdminDashboardServlet extends HttpServlet {
 
             // Series Statistics
             dashboardStats.setTotalSeries(seriesDAO.countAllNonDeleted());
-            dashboardStats.setActiveUsers(userDAO.countActiveUsers());
-            dashboardStats.setAuthors(userDAO.countActiveAuthors());
-            dashboardStats.setBannedUsers(userDAO.countBannedUsers());
+            List<User> userList = userDAO.getAll();
+
+            dashboardStats.setActiveUsers(countActiveUsers(userList));
+            dashboardStats.setAuthors(countActiveAuthors(userList));
+            dashboardStats.setBannedUsers(countBannedUsers(userList));
             dashboardStats.setStaffs(staffDAO.countAllActive());
 
             // Chapter Statistics
-            dashboardStats.setTotalChapters(chapterDAO.countAllNonDeleted());
-            dashboardStats.setPendingChapters(chapterDAO.countByStatus("pending"));
-            dashboardStats.setRejectedChapters(chapterDAO.countByStatus("rejected"));
+            List<Chapter> chapterList = chapterDAO.getAll();
+            dashboardStats.setTotalChapters(chapterList.size());
+            dashboardStats.setPendingChapters(countChapterByApprovalStatus(chapterList, "pending"));
+            dashboardStats.setRejectedChapters(countChapterByApprovalStatus(chapterList, "rejected"));
 
             // Report Statistics
-            dashboardStats.setTotalReports(reportDAO.countAll());
-            dashboardStats.setPendingReports(reportDAO.countByStatus("pending"));
+            List<Report> reports = reportDAO.getAll();
+            dashboardStats.setTotalReports(reports.size());
+            dashboardStats.setPendingReports(countReportByStatus(reports, "pending"));
 
             // Interaction Statistics (for bar chart)
             InteractionStats interactionStats = interactionDAO.getTotalInteractions();
@@ -112,5 +116,54 @@ public class AdminDashboardServlet extends HttpServlet {
             e.printStackTrace();
             throw new ServletException("Error loading admin dashboard", e);
         }
+    }
+    private int countActiveUsers(List<User> userList) throws SQLException {
+        int count = 0;
+        for (User user : userList) {
+            if (user.getStatus().equals("active") && user.getRole().equals("reader")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countBannedUsers(List<User> userList) throws SQLException {
+        int count = 0;
+        for (User user : userList) {
+            if (user.getStatus().equals("banned")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countActiveAuthors(List<User> userList) throws SQLException {
+        int count = 0;
+        for (User user : userList) {
+            if (user.getStatus().equals("active") && user.getRole().equals("author")) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countReportByStatus(List<Report> reportList, String status) throws SQLException {
+        int count = 0;
+        for (Report report : reportList) {
+            if (report.getStatus().equals(status)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countChapterByApprovalStatus (List<Chapter> chapterList, String approvalStatus) throws SQLException {
+        int count = 0;
+        for (Chapter chapter : chapterList) {
+            if (chapter.getApprovalStatus().equals(approvalStatus)) {
+                count++;
+            }
+        }
+        return count;
     }
 }
