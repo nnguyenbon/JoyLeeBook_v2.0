@@ -317,6 +317,7 @@
         const wordsToFilter = words.split(' ');
         const setFilterWorks = new Set();
         const html = wordsToFilter.map(word => {
+            console.log(word);
             if(profaneWords.includes(word.toLowerCase())) {
                 setFilterWorks.add(word);
                 return `<span class="text-red-500">` + word + `</span>`;
