@@ -161,25 +161,41 @@ public class CategoryServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             if (name == null || name.trim().isEmpty()) {
+                request.getSession().setAttribute("error", "Name is empty!");
                 request.setAttribute("message", "Category name cannot be empty!");
-                showAddCategory(request, response);
+                response.sendRedirect(request.getContextPath() + "/category/list");
                 return;
             }
 
             CategoryDAO dao = new CategoryDAO(conn);
+            if (dao.checkExistCategory(name)) {
+                request.getSession().setAttribute("error", "Category already exists!");
+                request.setAttribute("message", "Category already exists!");
+                response.sendRedirect(request.getContextPath() + "/category/list");
+                return;
+            }
             Category category = new Category();
             category.setName(name);
             category.setDescription(description);
 
             success = dao.insert(category);
+            if (success) {
+                request.getSession().setAttribute("message", "Category added successfully!");
+                setFlashMessage(request, success, "Category added successfully!", "Failed to add category!");
+                response.sendRedirect(request.getContextPath() + "/category/list");
+                return;
+            } else {
+                request.setAttribute("message", "Failed to insert category!");
+                response.sendRedirect(request.getContextPath() + "/category/list");
+                return;
+            }
 
         } catch (SQLException | ClassNotFoundException e) {
             handleServerError(request, response, e, "Database error while inserting category.");
             return;
         }
 
-        setFlashMessage(request, success, "Category added successfully!", "Failed to add category!");
-        response.sendRedirect(request.getContextPath() + "/category/list");
+
     }
 
     /* ===========================

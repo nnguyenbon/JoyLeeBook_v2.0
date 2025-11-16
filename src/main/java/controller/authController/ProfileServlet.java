@@ -73,7 +73,7 @@ public class ProfileServlet extends HttpServlet {
 
                 request.setAttribute("seriesList", seriesList);
                 request.setAttribute("totalSeriesCount", seriesList.size());
-                request.setAttribute("avgRating", avgRating/seriesList.size());
+                request.setAttribute("avgRating", !seriesList.isEmpty() ? avgRating/seriesList.size(): 0);
                 request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId, "author"));
                 int totalLike = likeDAO.countLikesOfAuthor(userId);
                 request.setAttribute("totalLike", totalLike);
