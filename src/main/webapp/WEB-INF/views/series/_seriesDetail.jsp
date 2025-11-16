@@ -43,6 +43,8 @@
                             class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.approvalStatus} </span> </c:when>
                     <c:when test="${series.approvalStatus == 'pending'}"><span
                             class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.approvalStatus} </span> </c:when>
+                    <c:otherwise> <span
+                            class="text-xs px-3 py-1 rounded-full bg-red-100 text-red-700 font-medium"> ${series.approvalStatus} </span> </c:otherwise>
                 </c:choose>
             </c:if>
         </div>

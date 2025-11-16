@@ -547,7 +547,7 @@ public class SeriesServlet extends HttpServlet {
 
             ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
             ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId);
-            if (reviewSeries.getStatus().equals("approved")) {
+            if (reviewSeries != null && reviewSeries.getStatus().equals("approved")) {
                 reviewSeries.setStatus("pending");
                 reviewSeriesDAO.update(reviewSeries);
             }
@@ -610,6 +610,8 @@ public class SeriesServlet extends HttpServlet {
             if (series == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
+            } else {
+                seriesDAO.updateApprovalStatus(seriesId, approveStatus);
             }
 
 

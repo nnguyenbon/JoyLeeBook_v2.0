@@ -658,11 +658,19 @@ public class ChapterServlet extends HttpServlet {
         }
         try (Connection conn = DBConnection.getConnection()) {
             ChapterDAO chapterDAO = new ChapterDAO(conn);
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
             Chapter chapter = chapterDAO.findByIdIfNotDeleted(chapterId);
             String jsonResponse = "";
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            if (chapter.getApprovalStatus().equals("approved")) {
+            Series series = seriesDAO.findById(chapter.getSeriesId());
+            if (series != null && !series.getApprovalStatus().equals("approved")) {
+                jsonResponse = String.format(
+                        "{\"success\": false, \"message\": \"This series must be approved first.\"}"
+                );
+                response.getWriter().write(jsonResponse);
+                return;
+            } else if (chapter.getApprovalStatus().equals("approved")) {
                 jsonResponse = String.format(
                         "{\"success\": false, \"message\": \"This chapter already been approved.\"}"
                 );
