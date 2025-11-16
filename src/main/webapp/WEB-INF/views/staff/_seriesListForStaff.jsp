@@ -8,6 +8,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 <%@ page buffer="32kb" autoFlush="true" %>
 <!-- Content -->
 <div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-full custom-scrollbar ">
@@ -43,26 +45,24 @@
                     <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Cover</th>
                     <th class="px-4 py-3">Title</th>
-                    <th class="px-4 py-3">Categories</th>
                     <th class="px-4 py-3">Avg Rating</th>
                     <th class="px-4 py-3">Total Chapters</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3">Updated At</th>
                     <th class="px-4 py-4 text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
                 <c:forEach var="series" items="${seriesList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
                         <td class="px-4 py-3">
                             <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="${series.title}"
                                  class="w-10 h-12 rounded object-cover">
                         </td>
-                        <td class="px-4 py-3 font-semibold text-gray-800">${series.title}</td>
-                        <td class="px-4 py-3">
-                                <span class="border border-gray-200 text-xs px-2 rounded-full text-gray-600 bg-gray-100 mr-1">${series.categoryList.get(0).name}</span>
-                        </td>
+                        <td class="px-4 py-3 font-semibold text-gray-800">${series.title}</td>s
                         <td class="px-4 py-3 text-gray-700">
                             <div class="flex items-center">
                                 <i class="fa-regular fa-star text-yellow-500 mr-1"></i>
@@ -82,7 +82,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-gray-700">
-                              ${series.createdAt}
+                              ${series.updatedAt}
                         </td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
@@ -163,6 +163,7 @@
             <div class="mb-4">
                 <p class="text-gray-500 text-sm">Total: ${size}</p>
             </div>
+
             <!-- Pagination -->
             <div class="flex justify-end items-center mb-0 gap-1 text-sm px-9">
                 <c:if test="${totalPage > 1}">
