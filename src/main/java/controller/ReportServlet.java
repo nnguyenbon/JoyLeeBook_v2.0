@@ -78,8 +78,8 @@ public class ReportServlet extends HttpServlet {
 
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             // Ưu tiên những chapter/comment có nhiều report
-            paginationRequest.setOrderBy("report_count");
-            paginationRequest.setSortDir("DESC");
+            paginationRequest.setOrderBy("report_count DESC, report_id");
+            paginationRequest.setSortDir("ASC");
 
             ReportDAO reportDAO = new ReportDAO(conn);
 
