@@ -299,75 +299,15 @@ change this template use File | Settings | File Templates. --%>
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
     }
-    // if(window.location.pathname === "/homepage" || window.location.pathname === "/") {
-    //     console.log(window.location.pathname)
-    //     console.log("not homepage")
-    //     document.getElementById("search").classList.remove("hidden");
-    // } else {
-    //     document.getElementById("search").classList.add("hidden");
-    // }
-
-    // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
-    function updateFilter(page = 1) {
-        const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
-        const searchKeyword = document.querySelector("#search")?.value?.trim() || "";
-
-        const params = new URLSearchParams();
-
-        // Thêm keyword search
-        if (searchKeyword) params.append("search", searchKeyword);
-
-        // Thêm category nếu đã chọn
-        if (selectedCategory) {
-            params.append("genre", selectedCategory);
-        }
-
-        // Thêm genres nếu đang ở tab title
-        if (currentTab === 'title' && selectedGenres.length > 0) {
-            params.append("genre", selectedGenres.join(" "));
-        }
-
-        // Thêm tab type
-        params.append("searchType", currentTab);
-        params.append("currentPage", page);
-        params.append("sizePage", 12);
-
-        // Xác định endpoint dựa trên tab
-        const endpoint = currentTab === 'title'
-            ? "${pageContext.request.contextPath}/series/list"
-            : "${pageContext.request.contextPath}/account/list";
-
-        fetch(endpoint + "?" + params.toString(), {
-            method: "GET",
-            headers: {"X-Requested-With": "XMLHttpRequest"}
-        })
-            .then(res => res.text())
-            .then(html => {
-                const container = document.querySelector("#result-container");
-                container.innerHTML = html;
-                bindPagination();
-            })
-            .catch(err => console.error("Search error:", err));
+    if(window.location.pathname === "/homepage" || window.location.pathname === "/") {
+        console.log(window.location.pathname)
+        console.log("not homepage")
+        document.getElementById("search").classList.remove("hidden");
+    } else {
+        document.getElementById("search").classList.add("hidden");
     }
 
-    // Xử lý sự kiện Enter trong search box
-    document.getElementById("search").addEventListener("keypress", e => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            updateFilter();
 
-            const container = document.querySelector("#container");
-            const header = document.querySelector("header");
-            const headerHeight = header ? header.offsetHeight : 0;
-            const elementPosition = container.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerHeight - 10;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "instant"
-            });
-        }
-    });
 
     // Ẩn menu khi click ra ngoài
     document.addEventListener('click', (e) => {
