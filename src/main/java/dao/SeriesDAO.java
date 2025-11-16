@@ -227,6 +227,19 @@ public class SeriesDAO {
         }
     }
 
+    public Series getSeriesByChapterId(int chapterId) throws SQLException {
+        String sql = "SELECT * FROM series s JOIN chapters c ON c.series_id = s.series_id AND c.chapter_id = ? WHERE s.is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Series series = extractSeriesFromResultSet(rs);
+                    return series;
+                }
+                return null;
+            }
+        }
+    }
     /**
      * Updates an existing series in the database.
      *

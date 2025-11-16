@@ -36,7 +36,16 @@
                         class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.status} </span> </c:when>
                 <c:otherwise> <span
                         class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium"> ${series.status} </span> </c:otherwise>
-            </c:choose></div>
+            </c:choose>
+            <c:if test="${loginedUser.role == 'author'}">
+                <c:choose>
+                    <c:when test="${series.approvalStatus == 'approved'}"><span
+                            class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.approvalStatus} </span> </c:when>
+                    <c:when test="${series.approvalStatus == 'pending'}"><span
+                            class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.approvalStatus} </span> </c:when>
+                </c:choose>
+            </c:if>
+        </div>
         <div class="flex items-center gap-30">
             <div class="flex flex-col items-center justify-center"><span
                     class="font-semibold text-lg">${series.totalChapters}</span> Chapters
