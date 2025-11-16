@@ -202,7 +202,7 @@ public class AccountServlet extends HttpServlet {
         }
 
         try {
-            int staffId = Integer.parseInt(request.getParameter("id"));
+            int staffId = Integer.parseInt(request.getParameter("staffId"));
 
             try (Connection conn = DBConnection.getConnection()) {
                 AccountDAO accountDAO = new AccountDAO(conn);
