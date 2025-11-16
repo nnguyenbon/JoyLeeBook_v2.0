@@ -17,11 +17,20 @@
 
     <!-- Right (Title, Info, Tags) -->
     <div class="col-span-4 h-full flex flex-col justify-between"><h1 class="text-4xl font-bold">${series.title}</h1>
-        <!-- Tác giả --> <p class="text-gray-600"> by <span class="font-semibold">
+        <!-- Tác giả -->
+        <p class="text-gray-600"> by
+            <span class="font-semibold">
             <c:forEach var="author"
                        items="${series.authorList}"
-                       varStatus="loop"> ${author.authorName}
-                <c:if test="${!loop.last}">, </c:if> </c:forEach> </span></p> <!-- Thể loại + Trạng thái -->
+                       varStatus="loop">
+                <a class="hover:text-[#195DA9]" href="${pageContext.request.contextPath}/profile?userId=${author.authorId}">
+                        ${author.authorName}
+                </a>
+                <c:if test="${!loop.last}">, </c:if>
+            </c:forEach>
+            </span>
+        </p>
+        <!-- Thể loại + Trạng thái -->
         <div class="flex flex-wrap items-center gap-2"> <!-- Danh mục -->
             <c:forEach var="category"
                        items="${series.categoryList}">
@@ -30,9 +39,9 @@
             </c:forEach>
             <!-- Trạng thái -->
             <c:choose>
-                <c:when test="${series.status == 'Completed'}"> <span
+                <c:when test="${series.status == 'completed'}"> <span
                         class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.status} </span> </c:when>
-                <c:when test="${series.status == 'Ongoing'}"> <span
+                <c:when test="${series.status == 'ongoing'}"> <span
                         class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.status} </span> </c:when>
                 <c:otherwise> <span
                         class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium"> ${series.status} </span> </c:otherwise>
