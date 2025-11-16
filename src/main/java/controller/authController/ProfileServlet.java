@@ -1,8 +1,6 @@
 package controller.authController;
 
-import dao.BadgesUserDAO;
-import dao.SeriesDAO;
-import dao.UserDAO;
+import dao.*;
 import db.DBConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -46,7 +44,7 @@ public class ProfileServlet extends HttpServlet {
         int userId = ValidationInput.isPositiveInteger(request.getParameter("userId")) ? Integer.parseInt(request.getParameter("userId")) : 0;
         User loginedUser = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int accountId = loginedUser != null ? loginedUser.getUserId() : -1;
-        String role = loginedUser != null ? loginedUser.getRole() : null;
+        String role = loginedUser != null ? loginedUser.getRole() : "readers";
         try (Connection conn = DBConnection.getConnection()) {
             UserDAO userDAO = new UserDAO(conn);
             BadgesUserDAO badgesUserDAO = new BadgesUserDAO(conn);
@@ -56,18 +54,31 @@ public class ProfileServlet extends HttpServlet {
             badgesUserDAO.checkAndSaveBadges(userId);
 
             request.setAttribute("user", user);
-            request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
+
 
             if (accountId == userId && role.equals("reader")) {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
+                request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             } else {
                 SeriesDAO seriesDAO = new SeriesDAO(conn);
-                List<Series> series = seriesDAO.getSeriesByAuthorId(userId);
-                request.setAttribute("seriesInfoDTOList", series);
-                request.setAttribute("totalSeriesCount", series.size());
-                request.getRequestDispatcher("WEB-INF/views/profile/AuthorProfile.jsp").forward(request, response);
+                LikeDAO  likeDAO = new LikeDAO(conn);
+                List<Series> seriesList = seriesDAO.getSeriesByAuthorId(userId, "approved");
+                double avgRating = 0;
+                for (Series series : seriesList) {
+                    buildSeries(conn, series, "");
+                    avgRating += series.getAvgRating();
+                }
+
+                request.setAttribute("seriesList", seriesList);
+                request.setAttribute("totalSeriesCount", seriesList.size());
+                request.setAttribute("avgRating", avgRating/seriesList.size());
+                request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId, "author"));
+                int totalLike = likeDAO.countLikesOfAuthor(userId);
+                request.setAttribute("totalLike", totalLike);
+                request.setAttribute("contentPage","/WEB-INF/views/profile/AuthorProfile.jsp");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -222,5 +233,19 @@ public class ProfileServlet extends HttpServlet {
         } catch (SQLException | ClassNotFoundException e) {
             response.getWriter().write("{\"success\": false, \"message\": \"Something went wrong. Please try again\"}");
         }
+    }
+
+    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(conn);
+        RatingDAO ratingDAO = new RatingDAO(conn);
+        CategoryDAO categoryDAO = new CategoryDAO(conn);
+        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        UserDAO userDAO = new UserDAO(conn);
+        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
+        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
+        return series;
     }
 }

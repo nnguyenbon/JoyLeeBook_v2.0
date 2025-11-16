@@ -54,13 +54,14 @@
                     <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3">Staff</th>
                     <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3 text-center">Reports</th>
                     <th class="px-4 py-4 text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="report" items="${reportList}">
+                <c:forEach var="report" items="${reportList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${report.reportId}</td>
+                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
                         <td class="px-4 py-3">
                             <c:choose>
                                 <c:when test="${type == 'chapter'}">
@@ -108,6 +109,7 @@
                         <td class="px-4 py-3 text-gray-700">
                             ${report.createdAt}
                         </td>
+                        <td class="px-4 py-3 text-center">${report.reportCount}</td>
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 text-left">
                                 <a href="${pageContext.request.contextPath}/report/detail?reportId=${report.reportId}&type=${type}"

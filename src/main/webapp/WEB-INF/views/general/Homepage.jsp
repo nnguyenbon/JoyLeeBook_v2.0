@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <section class="relative h-auto left-1/2 right-1/2 -mx-[50vw] w-[100vw]">
     <img src="${pageContext.request.contextPath}/img/shared/hero-reading.png" class="w-full" alt=""/>
     <div
@@ -149,7 +150,7 @@
                                 <!-- Overlay chứa nút -->
                                 <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
                                     <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${newReleaseSeries.seriesId}"
-                                       class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                                       class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition" ${newReleaseSeries.totalChapters == 0 ? "hidden" :""}>
                                         Read now
                                     </a>
                                     <a href="${pageContext.request.contextPath}/series/detail?seriesId=${newReleaseSeries.seriesId}"
@@ -220,7 +221,7 @@
                         <!-- Overlay chứa nút -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
                             <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${recentlyUpdatedSeries.seriesId}&chapterId="
-                               class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                               class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition" ${recentlyUpdatedSeries.totalChapters == 0 ? "hidden" :""}>
                                 Read now
                             </a>
                             <a href="${pageContext.request.contextPath}/series/detail?seriesId=${recentlyUpdatedSeries.seriesId}"
@@ -271,16 +272,18 @@
         <p class="font-bold text-6xl">Explore by Genre</p>
         <ul class="flex justify-center gap-8 mt-12">
             <c:forEach var="category" items="${categoryList}" varStatus="loop">
-                <li class=" bg-white rounded-lg hover:shadow-4xl hover:scale-110 transition duration-300">
-                    <a class="p-8 inline-block"
-                       href="${pageContext.request.contextPath}/search?searchType=&genres=${category.name}">
+                <li class="bg-white rounded-lg hover:shadow-4xl hover:scale-110 transition duration-300">
+                    <button class="p-8 inline-block category-btn"
+                            data-category-id="${category.categoryId}"
+                            data-category-name="${category.name}"
+                            onclick="selectCategory(this)">
                         <p class="text-primary mb-2 text-3xl font-semibold">
                                 ${category.name}
                         </p>
                         <p class="text-neutral-500 text-xl">
                                 ${category.totalSeries} series
                         </p>
-                    </a>
+                    </button>
                 </li>
             </c:forEach>
         </ul>
@@ -309,7 +312,7 @@
                             <!-- Overlay chứa nút -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition duration-300">
                                 <a href="${pageContext.request.contextPath}/chapter/detail?seriesId=${completedSeries.seriesId}&chapterId="
-                                   class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                                   class="bg-[#195DA9] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition" ${completedSeries.totalChapters == 0 ? "hidden" :""}>
                                     Read now
                                 </a>
                                 <a href="${pageContext.request.contextPath}/series/detail?seriesId=${completedSeries.seriesId}"
@@ -367,13 +370,12 @@
                     Share your stories with millions of readers, inspire new worlds, and become part of a thriving
                     community of authors.
                 </p>
-                <a src=""
-                   class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-2xl px-3 py-1 rounded-xl border-2 border-[#E3E346]">
-                    <span
-                            class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent ">
-                        Write Now
-                    </span>
-                </a>
+                <button class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
+                        onclick="openRegisterAuthorModal(); return false;">
+                        <span class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent">
+                            Write Now
+                        </span>
+                </button>
             </div>
         </div>
     </section>
@@ -426,7 +428,37 @@
         // Gọi hàm search với tab mới
         updateFilter(1);
     }
+    let selectedCategory = null;
 
+    function selectCategory(btnElement) {
+        const categoryId = btnElement.dataset.categoryId;
+
+        if (selectedCategory === categoryId) {
+            selectedCategory = null;
+        } else {
+            selectedCategory = categoryId;
+        }
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            if (btn.dataset.categoryId === selectedCategory) {
+                btn.classList.add('bg-blue-100', 'border-2', 'border-blue-500');
+            } else {
+                btn.classList.remove('bg-blue-100', 'border-2', 'border-blue-500');
+            }
+        });
+
+        updateFilter(1);
+        const container = document.querySelector("#container");
+        const header = document.querySelector("header");
+        const headerHeight = header ? header.offsetHeight : 0;
+        const elementPosition = container.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - headerHeight - 10;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+        });
+    }
     // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
     function updateFilter(page = 1) {
         const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
@@ -436,6 +468,11 @@
 
         // Thêm keyword search
         if (searchKeyword) params.append("search", searchKeyword);
+
+        // Thêm category nếu đã chọn
+        if (selectedCategory) {
+            params.append("genre", selectedCategory);
+        }
 
         // Thêm genres nếu đang ở tab title
         if (currentTab === 'title' && selectedGenres.length > 0) {

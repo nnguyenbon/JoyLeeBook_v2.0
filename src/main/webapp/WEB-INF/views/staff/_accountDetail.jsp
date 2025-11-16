@@ -82,7 +82,7 @@
                         <!-- Action Buttons -->
                         <div class="flex gap-2">
                             <!-- Admin: Edit & Delete -->
-                            <c:if test="${loginedUser.role eq 'admin'}">
+                            <c:if test="${loginedUser.role eq 'admin' && account.role eq 'staff'}">
                                 <a href="${pageContext.request.contextPath}/account/edit?id=${account.accountId}&type=${account.accountType}"
                                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2">
                                     <i class="fas fa-edit"></i>
@@ -135,7 +135,7 @@
 
 
 
-            <div class="flex-1 py-3 bg-[#F5F4FA]">
+            <div class="flex-1 py-3 bg-[#F5F4FA]" ${account.role == 'author' ? "" : "hidden"}>
                 <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl px-5 py-2">
                     <!-- Table -->
                     <div class="overflow-x-auto overflow-y-auto max-h-[75vh] rounded-sm mb-3">

@@ -3,15 +3,13 @@ package controller;
 import dao.CategoryDAO;
 import dao.SeriesCategoriesDAO;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Category;
 import model.Staff;
-import model.User;
 import utils.PaginationUtils;
-import utils.ValidationInput;
 
 import java.io.IOException;
 import java.sql.Connection;

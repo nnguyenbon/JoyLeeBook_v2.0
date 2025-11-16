@@ -52,9 +52,9 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="series" items="${seriesList}">
+                <c:forEach var="series" items="${seriesList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${series.seriesId}</td>
+                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
                         <td class="px-4 py-3">
                             <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="${series.title}"
                                  class="w-10 h-12 rounded object-cover">

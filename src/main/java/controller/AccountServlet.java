@@ -1,16 +1,12 @@
 package controller;
 
-import dao.AccountDAO;
-import dao.BadgeDAO;
-import dao.SeriesDAO;
-import dao.UserDAO;
+import dao.*;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.*;
-import org.mindrot.jbcrypt.BCrypt;
 import utils.AuthenticationUtils;
 import utils.PaginationUtils;
 
@@ -78,7 +74,14 @@ public class AccountServlet extends HttpServlet {
     private void viewAccountList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String currentUserRole = getCurrentRole(request);
+        Account loginedUser = AuthenticationUtils.getLoginedUser(request.getSession());
+        String currentUserRole;
+        if (loginedUser == null) {
+            currentUserRole = "reader";
+        } else {
+            currentUserRole = loginedUser.getRole();
+        }
+
         String search = request.getParameter("search");
         String roleFilter = request.getParameter("roleFilter");
         // Check if this is an AJAX request
@@ -139,7 +142,10 @@ public class AccountServlet extends HttpServlet {
 
                 if ("author".equals(role)) {
                     SeriesDAO seriesDAO = new SeriesDAO(conn);
-                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId);
+                    List<Series> authorSeriesList = seriesDAO.getSeriesByAuthorId(accountId,"");
+                    for (Series series : authorSeriesList) {
+                        buildSeries(conn, series, "");
+                    }
                     request.setAttribute("authorSeriesList", authorSeriesList);
                 }
 
@@ -195,7 +201,7 @@ public class AccountServlet extends HttpServlet {
         }
 
         try {
-            int staffId = Integer.parseInt(request.getParameter("staffId"));
+            int staffId = Integer.parseInt(request.getParameter("id"));
 
             try (Connection conn = DBConnection.getConnection()) {
                 AccountDAO accountDAO = new AccountDAO(conn);
@@ -325,8 +331,7 @@ public class AccountServlet extends HttpServlet {
             String staffIdStr = request.getParameter("staffId");
             String fullName = request.getParameter("fullName");
             String password = request.getParameter("password");
-
-            // Kiểm tra ID hợp lệ
+            String username = request.getParameter("username");
             int staffId;
             try {
                 staffId = Integer.parseInt(staffIdStr);
@@ -350,6 +355,7 @@ public class AccountServlet extends HttpServlet {
             // Tạo đối tượng Staff và cập nhật
             Staff staff = new Staff();
             staff.setStaffId(staffId);
+            staff.setUsername(username);
             staff.setFullName(fullName);
             staff.setRole("staff");
             if (password != null && !password.isBlank()) {
@@ -440,6 +446,19 @@ public class AccountServlet extends HttpServlet {
         response.sendRedirect(referer != null ? referer : request.getContextPath() + "/account/list");
     }
 
+    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(conn);
+        RatingDAO ratingDAO = new RatingDAO(conn);
+        CategoryDAO categoryDAO = new CategoryDAO(conn);
+        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
+        UserDAO userDAO = new UserDAO(conn);
+        series.setTotalChapters(chapterDAO.countChapterBySeriesId(series.getSeriesId(), role));
+        series.setTotalRating(ratingDAO.getRatingCount(series.getSeriesId()));
+        series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+        series.setAuthorList(userDAO.getAuthorList(series.getSeriesId()));
+        series.setAvgRating(Math.round(ratingDAO.getAverageRating(series.getSeriesId()) * 10.0) / 10.0);
+        return series;
+    }
     /* ===========================
        ======= HELPERS ===========
        =========================== */

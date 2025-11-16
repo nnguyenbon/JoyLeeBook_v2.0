@@ -62,6 +62,20 @@ public class ReviewSeriesDAO {
         return null;
     }
 
+    public ReviewSeries findById(int seriesId) throws SQLException {
+        String sql = "SELECT * FROM review_series WHERE series_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, seriesId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToReview(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Retrieves all review records for a specific series.
      *

@@ -13,18 +13,22 @@
 <main class="my-12 grid grid-cols-12 gap-x-12 justify-center">
 
     <div class="col-span-3 flex flex-col items-center text-center">
-        <img src="${pageContext.request.contextPath}/img/shared/imgUser.png" alt="avatar" class="rounded-full mb-4">
+        <img src="${pageContext.request.contextPath}/img/shared/imgUser.png"
+             alt="avatar"
+             class="w-32 h-32 rounded-full object-cover mb-4">
     </div>
+
     <div class="col-span-9">
         <div class="flex items-center gap-4">
-            <h2 class="flex-1 text-3xl font-semibold text-[#195DA9] text-nowrap">Nguyen Trung Nguyen</h2>
+            <h2 class="flex-1 text-3xl font-semibold text-[#195DA9] text-nowrap">${user.fullName}</h2>
+
             <c:forEach var="badge" items="${badgeList}" begin="1" end="4">
                 <div>
-                    <img alt="${badge.name}" src="${badge.iconUrl}" class="rounded-full">
+                    <img alt="${badge.name}"
+                         src="${badge.iconUrl}"
+                         class="w-20 h-20 rounded-full object-cover">
                 </div>
             </c:forEach>
-
-
         </div>
 
         <div class=" mt-4 text-gray-600 border border-[#195DA9] rounded-lg p-3 leading-relaxed">
@@ -60,7 +64,7 @@
     <!-- Danh sách Series -->
     <div class="col-span-12 mt-10 border border-[#195DA9] rounded-xl p-4 h-[400px] mb-5 overflow-y-auto">
         <c:choose>
-            <c:when test="${empty seriesInfoDTOList}">
+            <c:when test="${empty seriesList}">
                 <p class="text-center text-gray-800 text-xl font-semibold mt-32">
                     There are currently no series
                 </p>
@@ -68,7 +72,7 @@
             <c:otherwise>
                 <div class="flex flex-col gap-4">
                     <!-- Card Series -->
-                    <c:forEach var="series" items="${seriesInfoDTOList}" varStatus="loop">
+                    <c:forEach var="series" items="${seriesList}" varStatus="loop">
                         <a href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}">
                             <div
                                     class="flex items-center justify-between border border-gray-300 rounded-lg bg-white px-4 py-3 hover:shadow-sm">
@@ -76,15 +80,13 @@
                                     <img src="./${series.coverImgUrl}" class="w-12 h-16 rounded object-cover" alt="">
                                     <div>
                                         <p class="font-semibold text-gray-800">${series.title}</p>
-                                        <c:forEach var="category" items="${series.categories}">
-                                            <span class="border text-xs px-2 rounded-full text-gray-600 bg-gray-100">${category}</span>
-                                        </c:forEach>
+
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-10 text-sm">
                                     <p class="flex items-center">
                                         <i class="fa-regular fa-star"></i>
-                                        <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>
+<%--                                        <span class="ml-1 text-gray-700">${series.avgRating} (${series.countRatings})</span>--%>
                                     </p>
                                     <p>${series.totalChapters} Chapters</p>
                                     <c:choose>

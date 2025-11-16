@@ -51,7 +51,6 @@ public class UserDAO {
                 "FROM   series_author \n" +
                 "INNER JOIN users ON series_author.user_id = users.user_id \n" +
                 "WHERE series_author.series_id = ?";
-
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, seriesId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -87,8 +86,8 @@ public class UserDAO {
     public boolean insert(User user) throws SQLException {
         String sql = """
                 INSERT INTO users (username, full_name, email, password_hash, 
-                                   is_deleted, points, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                   is_deleted, points)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

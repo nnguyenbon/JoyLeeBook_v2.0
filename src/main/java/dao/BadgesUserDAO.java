@@ -106,6 +106,26 @@ public class BadgesUserDAO {
         }
     }
 
+    public List<Badge> getBadgesByUserId(int userId, String role) throws SQLException {
+        List<Badge> badgeList = new ArrayList<>();
+        String sql = "SELECT * FROM badges_users bu JOIN badges b ON bu.badge_id = b.badge_id AND user_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Badge badge = new Badge();
+                    badge.setBadgeId(rs.getInt("badge_id"));
+                    badge.setDescription(rs.getString("description"));
+                    badge.setName(rs.getString("name"));
+                    badge.setIconUrl("img/Badges/" + rs.getString("icon_url"));
+                    badge.setUnlocked(rs.getInt("user_id") != 0);
+                    badgeList.add(badge);
+                }
+                return badgeList;
+            }
+        }
+    }
+
     public List<String> checkAndSaveBadges(int userId) throws Exception {
         List<String> newlyUnlocked = new ArrayList<>();
 

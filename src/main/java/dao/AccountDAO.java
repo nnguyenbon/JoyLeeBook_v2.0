@@ -1,7 +1,7 @@
 package dao;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Account;
 import model.Staff;
 import model.User;
@@ -54,7 +54,7 @@ public class AccountDAO {
             sql.append("AND 1=0 "); // Không lấy gì từ bảng staffs
         }
 
-        sql.append(" ");
+        sql.append(")");
         sql.append("SELECT * FROM AllAccounts WHERE is_deleted = 0 ");
 
         // Filter theo search
@@ -358,13 +358,14 @@ public class AccountDAO {
      * Cập nhật Staff
      */
     public boolean updateStaff(Staff staff) {
-        String sql = "UPDATE staffs SET full_name = ?, role = ?, updated_at = GETDATE() " +
+        String sql = "UPDATE staffs SET full_name = ?, role = ?, username = ?, updated_at = GETDATE() " +
                 "WHERE staff_id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, staff.getFullName());
             ps.setString(2, staff.getRole());
-            ps.setInt(3, staff.getStaffId());
+            ps.setString(3, staff.getUsername());
+            ps.setInt(4, staff.getStaffId());
 
             return ps.executeUpdate() > 0;
 

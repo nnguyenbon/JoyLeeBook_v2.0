@@ -49,7 +49,7 @@
                         <p class="text-gray-600">
                             by <span class="font-semibold text-gray-800">
                                 <c:forEach var="author" items="${series.authorList}" varStatus="loop">
-                                    ${author}<c:if test="${!loop.last}">, </c:if>
+                                    ${author.authorName}<c:if test="${!loop.last}">, </c:if>
                                 </c:forEach>
                             </span>
                         </p>
@@ -91,8 +91,7 @@
                             <p class="text-xs text-gray-500 uppercase mb-1">Rating</p>
                             <p class="text-2xl font-bold text-gray-800">
                                 <span class="text-yellow-400"><i class="fas fa-star"></i></span>
-                                <fmt:formatNumber value="${series.avgRating}" type="number" maxFractionDigits="1"
-                                                  minFractionDigits="1"/>
+                                <fmt:formatNumber value="${series.avgRating}" type="number" maxFractionDigits="1" minFractionDigits="1"/>
                             </p>
                         </div>
                         <div class="bg-white rounded-lg p-4 shadow-sm">
@@ -137,27 +136,19 @@
                         <p class="text-sm text-gray-600 mb-4">Review the series and take appropriate action.</p>
 
                         <div class="space-y-3">
-                            <form method="post" action="${pageContext.request.contextPath}/series/approve">
-                                <input type="hidden" name="seriesId" value="${series.seriesId}">
-                                <input type="hidden" name="approveStatus" value="approved">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to approve this series?')"
-                                        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                    <i class="fas fa-check-circle"></i>
-                                    Approve Series
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('approved', '${series.seriesId}', 'series')"
+                                    class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                <i class="fas fa-check-circle"></i>
+                                Approve Series
+                            </button>
 
-                            <form method="post" action="${pageContext.request.contextPath}/series/approve">
-                                <input type="hidden" name="seriesId" value="${series.seriesId}">
-                                <input type="hidden" name="approveStatus" value="rejected">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to reject this series?')"
-                                        class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                    <i class="fas fa-times-circle"></i>
-                                    Reject Series
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('rejected', '${series.seriesId}', 'series')"
+                                    class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                <i class="fas fa-times-circle"></i>
+                                Reject Series
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -170,16 +161,12 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Series Approved</h3>
                             <p class="text-sm text-gray-600 mb-4">This series has been reviewed and approved.</p>
 
-                            <form method="post" action="${pageContext.request.contextPath}/series/approve" class="mt-4">
-                                <input type="hidden" name="seriesId" value="${series.seriesId}">
-                                <input type="hidden" name="approveStatus" value="rejected">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to reject this approved series?')"
-                                        class="text-red-600 hover:text-red-800 text-sm font-medium">
-                                    <i class="fas fa-times-circle mr-1"></i>
-                                    Revoke Approval
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('rejected', '${series.seriesId}', 'series')"
+                                    class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                <i class="fas fa-times-circle mr-1"></i>
+                                Revoke Approval
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -191,16 +178,12 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Series Rejected</h3>
                             <p class="text-sm text-gray-600 mb-4">This series has been rejected.</p>
 
-                            <form method="post" action="${pageContext.request.contextPath}/series/approve" class="mt-4">
-                                <input type="hidden" name="seriesId" value="${series.seriesId}">
-                                <input type="hidden" name="approveStatus" value="approved">
-                                <button type="submit"
-                                        onclick="return confirm('Are you sure you want to approve this series?')"
-                                        class="text-green-600 hover:text-green-800 text-sm font-medium">
-                                    <i class="fas fa-check-circle mr-1"></i>
-                                    Approve Series
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="openReasonModal('approved', '${series.seriesId}', 'series')"
+                                    class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Approve Series
+                            </button>
                         </div>
                     </div>
                 </c:if>
@@ -232,8 +215,7 @@
                             <td class="px-4 py-3">${chapter.chapterId}</td>
                             <td class="px-4 py-3">
                                 <div class="flex flex-col">
-                                    <p class="font-semibold text-gray-800">
-                                        Chapter ${chapter.chapterNumber}: ${chapter.title}</p>
+                                    <p class="font-semibold text-gray-800">Chapter ${chapter.chapterNumber}: ${chapter.title}</p>
                                     <p class="text-gray-500 text-sm">Series: ${chapter.seriesTitle}</p>
                                 </div>
                             </td>
@@ -257,54 +239,38 @@
                                     </a>
 
                                     <button type="button"
-                                            class="text-gray-500 hover:text-gray-700"
-                                            data-bs-toggle="dropdown">
+                                            class="text-gray-500 hover:text-gray-700 dropdown-btn">
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
 
                                     <!-- Dropdown Menu -->
-                                    <ul class="absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                                    <ul class="dropdown-menu absolute right-0 bottom-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg hidden z-10">
                                         <!-- Approve / Reject logic -->
                                         <c:choose>
                                             <c:when test="${chapter.approvalStatus == 'pending'}">
                                                 <li>
-                                                    <form action="${pageContext.request.contextPath}/chapter/approve"
-                                                          method="post">
-                                                        <input type="hidden" name="chapterId"
-                                                               value="${chapter.chapterId}">
-                                                        <input type="hidden" name="approveStatus" value="approved">
-                                                        <button type="submit"
-                                                                class="w-full text-left flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50">
-                                                            <i class="fa-solid fa-check"></i> Approve
-                                                        </button>
-                                                    </form>
+                                                    <button type="button"
+                                                            onclick="openReasonModal('approved', '${chapter.chapterId}', 'chapter')"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-green-600 hover:bg-green-50">
+                                                        <i class="fa-solid fa-check"></i> Approve
+                                                    </button>
                                                 </li>
                                                 <li>
-                                                    <form action="${pageContext.request.contextPath}/chapter/approve"
-                                                          method="post">
-                                                        <input type="hidden" name="chapterId"
-                                                               value="${chapter.chapterId}">
-                                                        <input type="hidden" name="approveStatus" value="rejected">
-                                                        <button type="submit"
-                                                                class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
-                                                            <i class="fa-solid fa-xmark"></i> Reject
-                                                        </button>
-                                                    </form>
+                                                    <button type="button"
+                                                            onclick="openReasonModal('rejected', '${chapter.chapterId}', 'chapter')"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
                                                 </li>
                                             </c:when>
 
                                             <c:when test="${chapter.approvalStatus == 'approved'}">
                                                 <li>
-                                                    <form action="${pageContext.request.contextPath}/chapter/approve"
-                                                          method="post">
-                                                        <input type="hidden" name="chapterId"
-                                                               value="${chapter.chapterId}">
-                                                        <input type="hidden" name="approveStatus" value="rejected">
-                                                        <button type="submit"
-                                                                class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
-                                                            <i class="fa-solid fa-xmark"></i> Reject
-                                                        </button>
-                                                    </form>
+                                                    <button type="button"
+                                                            onclick="openReasonModal('rejected', '${chapter.chapterId}', 'chapter')"
+                                                            class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50">
+                                                        <i class="fa-solid fa-xmark"></i> Reject
+                                                    </button>
                                                 </li>
                                             </c:when>
                                         </c:choose>
@@ -330,10 +296,111 @@
         </div>
     </div>
 </div>
+
+<!-- Reason Modal -->
+<div id="reasonModal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-gray-800" id="modalTitle">Confirm Action</h3>
+                <button onclick="closeReasonModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="reasonForm" method="post">
+                <input type="hidden" name="approveStatus" id="approveStatus">
+                <input type="hidden" name="seriesId" id="itemId">
+                <input type="hidden" name="chapterId" id="chapterId">
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Reason <span class="text-red-500">*</span>
+                    </label>
+                    <textarea
+                            name="reason"
+                            id="reasonInput"
+                            rows="4"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            placeholder="Please provide a reason for this action..."></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button"
+                            onclick="closeReasonModal()"
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            id="submitBtn"
+                            class="flex-1 px-4 py-2 text-white rounded-lg transition">
+                        Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-
 <script>
+    let currentAction = '';
+    let currentType = '';
+
+    function openReasonModal(action, itemId, type) {
+        currentAction = action;
+        currentType = type;
+
+        const modal = document.getElementById('reasonModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('reasonForm');
+        const reasonInput = document.getElementById('reasonInput');
+
+        // Set form action
+        if (type === 'series') {
+            form.action = '${pageContext.request.contextPath}/series/approve';
+            document.getElementById('itemId').value = itemId;
+            document.getElementById('chapterId').value = '';
+        } else {
+            form.action = '${pageContext.request.contextPath}/chapter/approve';
+            document.getElementById('chapterId').value = itemId;
+            document.getElementById('itemId').value = '';
+        }
+
+        // Set status
+        document.getElementById('approveStatus').value = action;
+
+        // Update UI based on action
+        if (action === 'approved') {
+            modalTitle.textContent = 'Approve ' + (type === 'series' ? 'Series' : 'Chapter');
+            submitBtn.className = 'flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition';
+            submitBtn.textContent = 'Approve';
+            reasonInput.placeholder = 'Please provide a reason for approval...';
+        } else {
+            modalTitle.textContent = 'Reject ' + (type === 'series' ? 'Series' : 'Chapter');
+            submitBtn.className = 'flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition';
+            submitBtn.textContent = 'Reject';
+            reasonInput.placeholder = 'Please provide a reason for rejection...';
+        }
+
+        // Clear previous input
+        reasonInput.value = '';
+
+        // Show modal
+        modal.classList.remove('hidden');
+    }
+
+    function closeReasonModal() {
+        document.getElementById('reasonModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('reasonModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeReasonModal();
+        }
+    });
+
     // Auto-hide success/error messages after 3 seconds
     setTimeout(() => {
         const messages = document.querySelectorAll('.animate-fade-in');

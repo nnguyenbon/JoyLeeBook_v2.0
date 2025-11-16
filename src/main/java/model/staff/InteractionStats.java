@@ -4,19 +4,17 @@ public class InteractionStats {
     private int likes;
     private int comments;
     private int ratings;
-    private int points;
     private int saves;
     private int totalInteractions;
 
     public InteractionStats() {}
 
-    public InteractionStats(int likes, int comments, int ratings, int points, int saves) {
+    public InteractionStats(int likes, int comments, int ratings, int saves) {
         this.likes = likes;
         this.comments = comments;
         this.ratings = ratings;
-        this.points = points;
         this.saves = saves;
-        this.totalInteractions = likes + comments + ratings + points + saves;
+        this.totalInteractions = likes + comments + ratings + saves;
     }
 
     // Getters and Setters
@@ -29,8 +27,6 @@ public class InteractionStats {
     public int getVotes() { return ratings; }
     public void setVotes(int votes) { this.ratings = votes; }
 
-    public int getPoints() { return points; }
-    public void setPoints(int points) { this.points = points; }
 
     public int getSaves() { return saves; }
     public void setSaves(int saves) { this.saves = saves; }

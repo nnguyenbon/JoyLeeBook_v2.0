@@ -2,7 +2,7 @@ package controller;
 
 import dao.*;
 import db.DBConnection;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,10 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.*;
-import utils.AuthenticationUtils;
-import utils.PaginationUtils;
-import utils.ValidationInput;
-import utils.WebpConverter;
+import utils.*;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -128,7 +125,7 @@ public class SeriesServlet extends HttpServlet {
         }
     }
 
-    private void viewAuthorDashboard (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void viewAuthorDashboard(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
         int userId;
         if (user == null || !"author".equals(user.getRole())) {
@@ -140,7 +137,7 @@ public class SeriesServlet extends HttpServlet {
 
         try (Connection conn = DBConnection.getConnection()) {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
-            ChapterDAO chapterDAO = new  ChapterDAO(conn);
+            ChapterDAO chapterDAO = new ChapterDAO(conn);
             LikeDAO likeDAO = new LikeDAO(conn);
             RatingDAO ratingDAO = new RatingDAO(conn);
             double rate = ratingDAO.getAverageRating(userId);
@@ -150,7 +147,7 @@ public class SeriesServlet extends HttpServlet {
             request.setAttribute("pendingChapters", chapterDAO.countChapterByUserId(userId, "pending"));
             request.setAttribute("totalLikes", likeDAO.countLikesOfAuthor(userId));
             request.setAttribute("avgRating", (double) Math.round(rate * 10) / 10);
-            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId));
+            request.setAttribute("mySeriesList", seriesDAO.getSeriesByAuthorId(userId, ""));
             request.setAttribute("pageTitle", "AuthorDashboard");
             request.setAttribute("contentPage", "/WEB-INF/views/general/AuthorDashboard.jsp");
             request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
@@ -307,7 +304,7 @@ public class SeriesServlet extends HttpServlet {
 
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("series_id");
+            paginationRequest.setOrderBy("created_at");
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
@@ -372,7 +369,7 @@ public class SeriesServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException      if an I/O error occurs
      */
-private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
+    private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
         String role = "reader";
@@ -392,30 +389,31 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
             RatingDAO ratingDAO = new RatingDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
-            Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), role);
 
-            if (series == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
-                return;
-            }
 
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
-
-            request.setAttribute("totalChapter", series.getTotalChapters());
+            List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
-            request.setAttribute("series", series);
             request.setAttribute("pageTitle", "Series Detail");
+            request.setAttribute("chapterList", chapterList);
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
+                Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), "reader");
+                request.setAttribute("totalChapter", series.getTotalChapters());
+                request.setAttribute("series", series);
+                boolean acquire = LockManager.acquire(seriesId, userId, true);
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
-                SeriesAuthor author = new  SeriesAuthor();
-                for(SeriesAuthor seriesAuthor : series.getAuthorList()) {
+                Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), role);
+                request.setAttribute("totalChapter", series.getTotalChapters());
+                request.setAttribute("series", series);
+                SeriesAuthor author = new SeriesAuthor();
+                for (SeriesAuthor seriesAuthor : series.getAuthorList()) {
                     if (seriesAuthor.getAuthorId() == userId) {
                         author = seriesAuthor;
                     }
@@ -445,23 +443,32 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
     private void showEditSeriesForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try (Connection conn = DBConnection.getConnection()) {
+            Account loggedInAccount = AuthenticationUtils.getLoginedUser(request.getSession());
+            int userId = 0;
+            if (loggedInAccount instanceof User) {
+                userId = ((User) loggedInAccount).getUserId();
+            }
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+            boolean accquire = LockManager.acquire(seriesId ,userId, false);
 
             CategoryDAO categoryDAO = new CategoryDAO(conn);
             SeriesDAO seriesDAO = new SeriesDAO(conn);
 
             List<Category> categories = categoryDAO.getAll();
             Series series = seriesDAO.findById(seriesId, "");
-            series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
+            if (accquire) {
+                series.setCategoryList(categoryDAO.getCategoryBySeriesId(series.getSeriesId()));
 
-            request.setAttribute("categories", categories);
-            request.setAttribute("series", series);
-            request.setAttribute("action", "update");
-
-            //            request.setAttribute("contentPage", "WEB-INF/views/series/_showEditSeries.jsp");
-            request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
-            request.setAttribute("activePage", "Edit Series");
-            request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+                request.setAttribute("categories", categories);
+                request.setAttribute("series", series);
+                request.setAttribute("action", "update");
+                request.setAttribute("contentPage", "/WEB-INF/views/series/_showAddSeries.jsp");
+                request.setAttribute("activePage", "Edit Series");
+                request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
+            } else {
+                request.getSession().setAttribute("message", "Series is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+            }
 
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error loading edit series form", e);
@@ -538,6 +545,12 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
             }
             series.setDescription(description);
 
+            ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
+            ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId);
+            if (reviewSeries.getStatus().equals("approved")) {
+                reviewSeries.setStatus("pending");
+                reviewSeriesDAO.update(reviewSeries);
+            }
             // Update series in database
             seriesDAO.updateSeries(series);
 
@@ -575,14 +588,21 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         int staffId = ((Staff) loggedInAccount).getStaffId();
 
         try (Connection conn = DBConnection.getConnection()) {
-            int seriesId = Integer.parseInt(request.getParameter("seriesId"));
+                int seriesId = Integer.parseInt(request.getParameter("seriesId"));
             String approveStatus = request.getParameter("approveStatus");
-            String comment = request.getParameter("comment") == null ? "" : request.getParameter("comment");
+            String comment = request.getParameter("reason") == null ? "" : request.getParameter("reason");
+            if (comment.isEmpty()) {
+                if (approveStatus.equals("approved")) {
+                    comment = "This series is in line with our policy.";
+                } else {
+                    comment = "This series isn't in line with our policy.";
+                }
+            }
+
 
             // Initialize DAOs
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
-            NotificationsDAO notificationsDAO = new NotificationsDAO(conn);
 
             // Verify series exists
             Series series = seriesDAO.findById(seriesId, "");
@@ -594,7 +614,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
             // Create review record
             ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId, staffId);
-            if  (reviewSeries == null) {
+            if (reviewSeries == null) {
                 reviewSeries = new ReviewSeries();
                 reviewSeries.setSeriesId(seriesId);
                 reviewSeries.setStaffId(staffId);
@@ -603,29 +623,28 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
                 // Insert review (database trigger will update series.approval_status)
                 if (reviewSeriesDAO.insert(reviewSeries)) {
                     // Create and send notification to series owner
-                    Notification notification = createApprovalNotification(
-                            conn, seriesId, comment, approveStatus
+                    Notification notification = NotificationUtils.createApprovalNotification(
+                            conn, seriesId, comment,series.getTitle(),approveStatus
                     );
-                    notificationsDAO.insertNotification(notification);
                 }
             } else {
                 reviewSeries.setStatus(approveStatus);
                 // Insert review (database trigger will update series.approval_status)
                 if (reviewSeriesDAO.update(reviewSeries)) {
                     // Create and send notification to series owner
-                    Notification notification = createApprovalNotification(
-                            conn, seriesId, comment, approveStatus
+                    Notification notification = NotificationUtils.createApprovalNotification(
+                            conn, seriesId, comment, series.getTitle(), approveStatus
                     );
-                    notificationsDAO.insertNotification(notification);
                 }
             }
 
             String message;
-            if(approveStatus.equals("approved")) {
+            if (approveStatus.equals("approved")) {
                 message = "Series has been approved successfully.";
             } else {
                 message = "Series has been rejected successfully.";
             }
+            LockManager.release(seriesId, staffId);
             request.getSession().setAttribute("message", message);
             response.sendRedirect(request.getContextPath() + "/series/list?filterByStatus=");
 
@@ -656,13 +675,21 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
 
         try (Connection conn = DBConnection.getConnection()) {
             int seriesId = Integer.parseInt(request.getParameter("seriesId"));
-
-            SeriesDAO seriesDAO = new SeriesDAO(conn);
-            seriesDAO.deleteSeries(seriesId);
-
-            request.getSession().setAttribute("message", "Series has been deleted successfully.");
-            response.sendRedirect(request.getContextPath() + "/author");
-
+            boolean accquire = LockManager.acquire(seriesId ,authorId, false);
+            if (accquire) {
+                SeriesDAO seriesDAO = new SeriesDAO(conn);
+                seriesDAO.deleteSeries(seriesId);
+                ChapterDAO chapterDAO = new ChapterDAO(conn);
+                List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, "");
+                for (Chapter chapter : chapterList) {
+                    chapterDAO.delete(chapter.getChapterId());
+                }
+                request.getSession().setAttribute("message", "Series has been deleted successfully.");
+                response.sendRedirect(request.getContextPath() + "/author");
+            } else {
+                request.getSession().setAttribute("message", "Series is locked now.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + seriesId);
+            }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException("Error deleting series", e);
         }
@@ -723,7 +750,7 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
      * @return the enriched Series object, or null if the input was null
      * @throws SQLException if a database access error occurs
      */
-    private static Series buildSeries(Connection conn, Series series,String role) throws SQLException {
+    private static Series buildSeries(Connection conn, Series series, String role) throws SQLException {
         ChapterDAO chapterDAO = new ChapterDAO(conn);
         RatingDAO ratingDAO = new RatingDAO(conn);
         CategoryDAO categoryDAO = new CategoryDAO(conn);
@@ -737,6 +764,15 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         return series;
     }
 
+    private List<Chapter> buildChapterList(int seriesId, String approvalStatus, Connection connection) throws SQLException {
+        ChapterDAO chapterDAO = new ChapterDAO(connection);
+        LikeDAO likeDAO = new LikeDAO(connection);
+        List<Chapter> chapterList = chapterDAO.findChapterBySeriesId(seriesId, approvalStatus);
+        for (Chapter chapter : chapterList) {
+            chapter.setTotalLike(likeDAO.countByChapter(chapter.getChapterId()));
+        }
+        return chapterList;
+    }
 
     private List<Series> getTopRatedSeries(int limit, List<Series> seriesList) throws SQLException {
         List<Series> copy = new ArrayList<>(seriesList);
@@ -766,29 +802,5 @@ private void viewSeriesDetail(HttpServletRequest request, HttpServletResponse re
         List<Series> copy = new ArrayList<>(seriesList);
         copy.removeIf(series -> !series.getStatus().equals(status));
         return copy.size() > limit ? copy.subList(0, limit) : copy;
-    }
-
-    /**
-     * Creates a notification object for series approval/rejection.
-     *
-     * @param conn          the database connection to use for queries
-     * @param seriesId      the ID of the series that was reviewed
-     * @param comment       the staff's feedback comment
-     * @param approveStatus the approval decision ("approved" or "rejected")
-     * @return a Notification object ready to be inserted into the database
-     * @throws SQLException if a database access error occurs while fetching owner ID
-     */
-    private static Notification createApprovalNotification(Connection conn, int seriesId,
-                                                           String comment, String approveStatus) throws SQLException {
-        SeriesAuthorDAO seriesAuthorDAO = new SeriesAuthorDAO(conn);
-
-        Notification notification = new Notification();
-        notification.setUserId(seriesAuthorDAO.findOwnerIdBySeriesId(seriesId).getAuthorId());
-        notification.setTitle("Series " + approveStatus);
-        notification.setType("submission_status");
-        notification.setMessage(comment);
-        notification.setUrlRedirect("/series/detail?seriesId=" + seriesId);
-
-        return notification;
     }
 }

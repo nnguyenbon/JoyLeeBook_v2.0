@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div class="flex-1 bg-gray-100 p-4">
+<div class="flex-1 bg-gray-100 p-4 overflow-y-auto max-h-[100vh] custom-scrollbar">
   <!-- Dashboard Content -->
   <div class="flex-1 grid grid-cols-8 gap-6 px-6">
     <!-- Bar Chart - Total Interactions -->
@@ -209,14 +209,13 @@
         ${interactionStats.likes},
         ${interactionStats.comments},
         ${interactionStats.votes},
-        ${interactionStats.points},
         ${interactionStats.saves}
       ]
     }],
     chart: {
       sparkline: { enabled: false },
       type: "bar",
-      width: 300,
+      width: 270,
       height: 220,
       toolbar: { show: false }
     },
@@ -252,7 +251,7 @@
           cssClass: 'text-xs font-normal fill-gray-500'
         }
       },
-      categories: ["Likes", "Comments", "Votes", "Points", "Saves"],
+      categories: ["Likes", "Comments", "Votes", "Saves"],
       axisTicks: { show: false },
       axisBorder: { show: false }
     },

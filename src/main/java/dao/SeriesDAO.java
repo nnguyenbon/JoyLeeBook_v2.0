@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Series;
 import utils.FormatUtils;
 
@@ -227,6 +227,19 @@ public class SeriesDAO {
         }
     }
 
+    public Series getSeriesByChapterId(int chapterId) throws SQLException {
+        String sql = "SELECT * FROM series s JOIN chapters c ON c.series_id = s.series_id AND c.chapter_id = ? WHERE s.is_deleted = 0";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, chapterId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Series series = extractSeriesFromResultSet(rs);
+                    return series;
+                }
+                return null;
+            }
+        }
+    }
     /**
      * Updates an existing series in the database.
      *
@@ -333,9 +346,12 @@ public class SeriesDAO {
      * @return a list of Series objects associated with the author
      * @throws SQLException if a database access error occurs
      */
-    public List<Series> getSeriesByAuthorId(int authorId) throws SQLException {
+    public List<Series> getSeriesByAuthorId(int authorId, String approvalStatus) throws SQLException {
         List<Series> seriesList = new ArrayList<>();
         String sql = "SELECT * FROM series s " + "JOIN dbo.series_author sa ON s.series_id = sa.series_id " + "WHERE sa.user_id = ? AND is_deleted = 0";
+        if (!approvalStatus.equals("")) {
+            sql += "AND s.approval_status = '" + approvalStatus + "'";
+        }
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, authorId);
             ResultSet rs = ps.executeQuery();

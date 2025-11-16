@@ -36,7 +36,16 @@
                         class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.status} </span> </c:when>
                 <c:otherwise> <span
                         class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium"> ${series.status} </span> </c:otherwise>
-            </c:choose></div>
+            </c:choose>
+            <c:if test="${loginedUser.role == 'author'}">
+                <c:choose>
+                    <c:when test="${series.approvalStatus == 'approved'}"><span
+                            class="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium"> ${series.approvalStatus} </span> </c:when>
+                    <c:when test="${series.approvalStatus == 'pending'}"><span
+                            class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-medium"> ${series.approvalStatus} </span> </c:when>
+                </c:choose>
+            </c:if>
+        </div>
         <div class="flex items-center gap-30">
             <div class="flex flex-col items-center justify-center"><span
                     class="font-semibold text-lg">${series.totalChapters}</span> Chapters
@@ -124,7 +133,7 @@
                 <li class="flex items-center justify-between gap-2}">
                     <span class="flex items-center gap-2">
                         <c:choose>
-                            <c:when test="${authorCurrent.owner}">
+                            <c:when test="${author.owner}">
                                 <i class="fa-solid fa-crown text-yellow-500"></i>
                             </c:when>
                             <c:otherwise>
@@ -133,7 +142,7 @@
                         </c:choose>
                         ${author.authorName}
                     </span>
-                    <c:if test="${authorCurrent.owner && author.authorId == loginedUser.userId}">
+                    <c:if test="${authorCurrent.owner && author.authorId != loginedUser.userId}">
                         <button
                                 onclick="deleteCoauthor('${author.authorName}')"
                                 class="text-red-600 hover:text-red-700 hover:scale-110 transition-all duration-300"
@@ -160,11 +169,14 @@
         <div class="col-span-10 col-start-2"><h2 class="font-semibold text-xl mb-3">Summary</h2>
             <div class="border-2 border-neutral-400 rounded-lg bg-white p-4 leading-relaxed text-gray-700"> ${series.description} </div>
         </div>
-    </section> <!-- Chapter List -->
+    </section>
+    <!-- Chapter List -->
     <section class="col-span-12 mb-16 grid grid-cols-12 gap-8" id="chapter-list-container">
         <jsp:include page="/WEB-INF/views/chapter/_chapterList.jsp"/>
     </section>
-    <dialog id="modalCoauthor" class="md:w-lg w-sm rounded-xl p-4">
+
+<%--    Model add co-author--%>
+    <dialog id="modalCoauthor" class="md:w-lg w-sm rounded-xl p-4 min-h-128">
         <div>
             <p class="text-2xl font-semibold">Add Co-Author</p>
             <p class="text-gray-500 font-light">

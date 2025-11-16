@@ -1,7 +1,7 @@
 package dao;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Report;
 import model.ReportChapter;
 import model.ReportComment;
@@ -171,36 +171,55 @@ public class ReportDAO {
         return list;
     }
 
+    public List<Report> getAll() throws SQLException {
+        List<Report> list = new ArrayList<>();
+        String sql = "SELECT * FROM reports";
+        try (PreparedStatement statement = conn.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()){
+            while (rs.next()) {
+                list.add(extractReportFromResultSet(rs));
+            }
+            return list;
+        }
+    }
     // ============= GET DETAILED REPORT LISTS =============
 
-    public List<ReportChapter> getReportChapterList() throws SQLException {
-        return getReportChapterList(null, null);
-    }
+    public List<ReportChapter> getReportChapterList(String statusFilter, PaginationRequest pagination)
+            throws SQLException {
 
-    public List<ReportChapter> getReportChapterList(String statusFilter, PaginationRequest pagination) throws SQLException {
         List<ReportChapter> reports = new ArrayList<>();
-        StringBuilder sql = new StringBuilder(
-                "SELECT r.report_id, r.reporter_id, r.staff_id, r.chapter_id, " +
-                        "r.reason, r.status, r.created_at, r.updated_at, " +
-                        "c.title AS chapter_title, c.chapter_number, " +
-                        "s.title AS series_name, " +
-                        "u.username AS reporter_username, " +
-                        "st.username AS staff_username " +
-                        "FROM reports r " +
-                        "INNER JOIN chapters c ON r.chapter_id = c.chapter_id " +
-                        "INNER JOIN series s ON c.series_id = s.series_id " +
-                        "INNER JOIN users u ON r.reporter_id = u.user_id " +
-                        "LEFT JOIN staffs st ON r.staff_id = st.staff_id " +
-                        "WHERE r.target_type = 'chapter'"
-        );
 
-        // Add status filter if provided
+        StringBuilder sql = new StringBuilder();
+        sql.append("WITH ReportGrouped AS ( ");
+        sql.append("  SELECT ");
+        sql.append("    r.report_id, r.reporter_id, r.staff_id, r.chapter_id, ");
+        sql.append("    r.reason, r.status, r.created_at, r.updated_at, ");
+        sql.append("    c.title AS chapter_title, c.chapter_number, ");
+        sql.append("    s.title AS series_name, ");
+        sql.append("    u.username AS reporter_username, ");
+        sql.append("    st.username AS staff_username, ");
+        // tổng số report trên mỗi chapter
+        sql.append("    COUNT(*) OVER (PARTITION BY r.chapter_id) AS report_count, ");
+        // chọn 1 report mới nhất cho mỗi chapter
+        sql.append("    ROW_NUMBER() OVER (PARTITION BY r.chapter_id ORDER BY r.created_at DESC) AS rn ");
+        sql.append("  FROM reports r ");
+        sql.append("  INNER JOIN chapters c ON r.chapter_id = c.chapter_id ");
+        sql.append("  INNER JOIN series s ON c.series_id = s.series_id ");
+        sql.append("  INNER JOIN users u ON r.reporter_id = u.user_id ");
+        sql.append("  LEFT JOIN staffs st ON r.staff_id = st.staff_id ");
+        sql.append("  WHERE r.target_type = 'chapter' ");
+
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sql.append(" AND r.status = ? ");
+            sql.append("    AND r.status = ? ");
         }
 
-        PaginationDAOHelper helper = new PaginationDAOHelper(pagination);
-        sql.append(helper.buildPaginationClause());
+        sql.append(") ");
+        sql.append("SELECT * FROM ReportGrouped WHERE rn = 1 ");
+
+        if (pagination != null) {
+            PaginationDAOHelper helper = new PaginationDAOHelper(pagination);
+            sql.append(helper.buildPaginationClause()); // ORDER BY report_count DESC ...
+        }
 
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             if (statusFilter != null && !statusFilter.isEmpty()) {
@@ -209,43 +228,57 @@ public class ReportDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    reports.add(extractReportChapterFromResultSet(rs));
+                    reports.add(extractReportChapterForList(rs));
                 }
             }
         }
         return reports;
     }
 
-    public List<ReportComment> getReportCommentList() throws SQLException {
-        return getReportCommentList(null, null);
+    // helper for report list extraction with report count
+    private ReportChapter extractReportChapterForList(ResultSet rs) throws SQLException {
+        ReportChapter report = extractReportChapterFromResultSet(rs);
+        // Ở query list đã SELECT report_count AS report_count
+        report.setReportCount(rs.getInt("report_count"));
+        return report;
     }
 
-    public List<ReportComment> getReportCommentList(String statusFilter, PaginationRequest pagination) throws SQLException {
+    public List<ReportComment> getReportCommentList(String statusFilter, PaginationRequest pagination)
+            throws SQLException {
+
         List<ReportComment> reports = new ArrayList<>();
-        StringBuilder sql = new StringBuilder(
-                "SELECT r.report_id, r.reporter_id, r.staff_id, r.comment_id, " +
-                        "r.reason, r.status, r.created_at, r.updated_at, " +
-                        "cm.content AS comment_content, " +
-                        "cu.username AS commenter_username, " +
-                        "c.title AS chapter_title, " +
-                        "u.username AS reporter_username, " +
-                        "st.username AS staff_username " +
-                        "FROM reports r " +
-                        "INNER JOIN comments cm ON r.comment_id = cm.comment_id " +
-                        "INNER JOIN users cu ON cm.user_id = cu.user_id " +
-                        "INNER JOIN chapters c ON cm.chapter_id = c.chapter_id " +
-                        "INNER JOIN users u ON r.reporter_id = u.user_id " +
-                        "LEFT JOIN staffs st ON r.staff_id = st.staff_id " +
-                        "WHERE r.target_type = 'comment'"
-        );
 
-        // Add status filter if provided
+        StringBuilder sql = new StringBuilder();
+        sql.append("WITH ReportGrouped AS ( ");
+        sql.append("  SELECT ");
+        sql.append("    r.report_id, r.reporter_id, r.staff_id, r.comment_id, ");
+        sql.append("    r.reason, r.status, r.created_at, r.updated_at, ");
+        sql.append("    cm.content AS comment_content, ");
+        sql.append("    cu.username AS commenter_username, ");
+        sql.append("    c.title AS chapter_title, ");
+        sql.append("    u.username AS reporter_username, ");
+        sql.append("    st.username AS staff_username, ");
+        sql.append("    COUNT(*) OVER (PARTITION BY r.comment_id) AS report_count, ");
+        sql.append("    ROW_NUMBER() OVER (PARTITION BY r.comment_id ORDER BY r.created_at DESC) AS rn ");
+        sql.append("  FROM reports r ");
+        sql.append("  INNER JOIN comments cm ON r.comment_id = cm.comment_id ");
+        sql.append("  INNER JOIN chapters c ON cm.chapter_id = c.chapter_id ");
+        sql.append("  INNER JOIN users u ON r.reporter_id = u.user_id ");
+        sql.append("  INNER JOIN users cu ON cm.user_id = cu.user_id ");
+        sql.append("  LEFT JOIN staffs st ON r.staff_id = st.staff_id ");
+        sql.append("  WHERE r.target_type = 'comment' ");
+
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sql.append(" AND r.status = ? ");
+            sql.append("    AND r.status = ? ");
         }
 
-        PaginationDAOHelper helper = new PaginationDAOHelper(pagination);
-        sql.append(helper.buildPaginationClause());
+        sql.append(") ");
+        sql.append("SELECT * FROM ReportGrouped WHERE rn = 1 ");
+
+        if (pagination != null) {
+            PaginationDAOHelper helper = new PaginationDAOHelper(pagination);
+            sql.append(helper.buildPaginationClause());
+        }
 
         try (PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             if (statusFilter != null && !statusFilter.isEmpty()) {
@@ -254,12 +287,20 @@ public class ReportDAO {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    reports.add(extractReportCommentFromResultSet(rs));
+                    reports.add(extractReportCommentForList(rs));
                 }
             }
         }
         return reports;
     }
+
+    // helper for report list extraction with report count
+    private ReportComment extractReportCommentForList(ResultSet rs) throws SQLException {
+        ReportComment report = extractReportCommentFromResultSet(rs);
+        report.setReportCount(rs.getInt("report_count"));
+        return report;
+    }
+
     /**
      * Get chapter report detail by ID
      */

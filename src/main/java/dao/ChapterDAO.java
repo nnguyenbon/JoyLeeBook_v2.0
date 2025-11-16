@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dao.helper.PaginationDAOHelper;
-import dto.PaginationRequest;
+import model.PaginationRequest;
 import model.Chapter;
-import dto.chapter.ChapterItemDTO;
 import utils.FormatUtils;
 
 /**
@@ -310,7 +309,16 @@ public class ChapterDAO {
         }
     }
 
-    public boolean updateStatus(int chapterId, String approvalStatus) throws SQLException {
+    public boolean updateStatus(int chapterId, String status) throws SQLException {
+        String sql = "UPDATE chapters SET status = ?, updated_at = ? WHERE chapter_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setTimestamp(2, Timestamp.valueOf(java.time.LocalDateTime.now()));
+            ps.setInt(3, chapterId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+    public boolean updateApprovalStatus(int chapterId, String approvalStatus) throws SQLException {
         String sql = "UPDATE chapters SET approval_status = ?, updated_at = ? WHERE chapter_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, approvalStatus);
@@ -345,62 +353,6 @@ public class ChapterDAO {
     }
 
     /**
-     * Retrieve a paginated list of chapters authored by a specific user with optional filters.
-     * Author mode
-     *
-     * @param userId       the ID of the author
-     * @param offset       the starting point for pagination
-     * @param pageSize     the number of records to retrieve
-     * @param statusFilter optional status filter (e.g., "published", "draft")
-     * @param keyword      optional keyword to search in series or chapter titles
-     * @return a list of ChapterListItem objects matching the criteria
-     * @throws SQLException if a database access error occurs
-     */
-    public List<ChapterItemDTO> getAuthoredChapters(int userId, int offset, int pageSize, String statusFilter, String keyword) throws SQLException {
-
-        StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, c.chapter_number, c.title AS chapter_title, c.status, c.updated_at FROM chapters c " + "JOIN series s ON c.series_id = s.series_id " + "JOIN series_author sa ON sa.series_id = s.series_id " + "WHERE sa.user_id = ? ");
-
-        List<Object> params = new ArrayList<>();
-        params.add(userId);
-
-        if (statusFilter != null && !statusFilter.isBlank()) {
-            sql.append("AND c.status = ? ");
-            params.add(statusFilter);
-        }
-        if (keyword != null && !keyword.isBlank()) {
-            sql.append("AND (s.title LIKE ? OR c.title LIKE ?) ");
-            params.add("%" + keyword + "%");
-            params.add("%" + keyword + "%");
-        }
-
-        sql.append("ORDER BY c.updated_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        params.add(offset);
-        params.add(pageSize);
-
-        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                List<ChapterItemDTO> list = new ArrayList<>();
-                while (rs.next()) {
-                    ChapterItemDTO it = new ChapterItemDTO();
-                    it.setChapterId(rs.getInt("chapter_id"));
-                    it.setSeriesId(rs.getInt("series_id"));
-                    it.setSeriesTitle(rs.getString("series_title"));
-                    it.setChapterNumber(rs.getInt("chapter_number"));
-                    it.setTitle(rs.getString("chapter_title"));
-                    it.setStatus(rs.getString("status"));
-                    String up = rs.getString("updated_at");
-                    it.setUpdatedAt(up != null ? up : null);
-                    list.add(it);
-                }
-                return list;
-            }
-        }
-    }
-
-    /**
      * Count the total number of chapters authored by a specific user with optional filters.
      *
      * @param userId       the ID of the author
@@ -431,60 +383,6 @@ public class ChapterDAO {
             }
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
-            }
-        }
-    }
-
-    /**
-     * Retrieve a paginated list of chapters from a user's reading history with optional keyword filter.
-     * History mode
-     *
-     * @param userId   the ID of the user
-     * @param offset   the starting point for pagination
-     * @param pageSize the number of records to retrieve
-     * @param keyword  optional keyword to search in series or chapter titles
-     * @return a list of ChapterListItem objects from the user's reading history matching the criteria
-     * @throws SQLException if a database access error occurs
-     */
-    public List<ChapterItemDTO> getReadingHistoryChapters(int userId, int offset, int pageSize, String keyword) throws SQLException {
-
-        StringBuilder sql = new StringBuilder("SELECT c.chapter_id, c.series_id, s.title AS series_title, " + "       c.chapter_number, c.title AS chapter_title, c.status, c.updated_at, h.last_read_at, cover_image_url " + "FROM reading_history h " + "JOIN chapters c ON c.chapter_id = h.chapter_id " + "JOIN series s ON s.series_id = c.series_id " + "WHERE h.user_id = ? ");
-
-        List<Object> params = new ArrayList<>();
-        params.add(userId);
-
-        if (keyword != null && !keyword.isBlank()) {
-            sql.append("AND (s.title LIKE ? OR c.title LIKE ?) ");
-            params.add("%" + keyword + "%");
-            params.add("%" + keyword + "%");
-        }
-
-        sql.append("ORDER BY h.last_read_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
-        params.add(offset);
-        params.add(pageSize);
-
-        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            for (int i = 0; i < params.size(); i++) {
-                ps.setObject(i + 1, params.get(i));
-            }
-            try (ResultSet rs = ps.executeQuery()) {
-                List<ChapterItemDTO> list = new ArrayList<>();
-                while (rs.next()) {
-                    ChapterItemDTO it = new ChapterItemDTO();
-                    it.setChapterId(rs.getInt("chapter_id"));
-                    it.setSeriesId(rs.getInt("series_id"));
-                    it.setSeriesTitle(rs.getString("series_title"));
-                    it.setChapterNumber(rs.getInt("chapter_number"));
-                    it.setTitle(rs.getString("chapter_title"));
-                    it.setStatus(rs.getString("status"));
-                    it.setCoverImgUrl("img/" + rs.getString("cover_image_url"));
-                    String up = rs.getString("updated_at");
-                    it.setUpdatedAt(up != null ? up : null);
-                    String lr =  FormatUtils.formatDate(rs.getTimestamp("last_read_at").toLocalDateTime());
-                    it.setLastReadAt(lr != null ?lr : null);
-                    list.add(it);
-                }
-                return list;
             }
         }
     }
