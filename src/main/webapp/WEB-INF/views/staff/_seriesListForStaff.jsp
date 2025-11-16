@@ -62,7 +62,7 @@
                             <img src="${pageContext.request.contextPath}/${series.coverImgUrl}" alt="${series.title}"
                                  class="w-10 h-12 rounded object-cover">
                         </td>
-                        <td class="px-4 py-3 font-semibold text-gray-800">${series.title}</td>s
+                        <td class="px-4 py-3 font-semibold text-gray-800">${series.title}</td>
                         <td class="px-4 py-3 text-gray-700">
                             <div class="flex items-center">
                                 <i class="fa-regular fa-star text-yellow-500 mr-1"></i>

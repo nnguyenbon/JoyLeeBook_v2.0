@@ -304,7 +304,7 @@
 
         <!-- Danh sách series -->
         <ul class="col-span-12 flex justify-between gap-5 pt-6">
-            <c:forEach var="completedSeries" items="${recentlyUpdatedSeriesList}" varStatus="loop">
+            <c:forEach var="completedSeries" items="${completedSeriesList}" varStatus="loop">
                 <li class="md:w-50 relative group border border-gray-200 shadow-lg rounded-xl overflow-hidden bg-white hover:shadow-2xl transition duration-300">
                     <a href="${pageContext.request.contextPath}/series/detail?seriesId=${completedSeries.seriesId}">
                         <!-- Hình ảnh -->

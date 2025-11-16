@@ -2,8 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-full overflow-visible">
-    <div class="max-w-7xl mx-auto flex flex-col h-full">
+<div class="main-content flex-1 px-5 py-3 bg-[#F5F4FA] overflow-y-auto max-h-full custom-scrollbar">
+    <div class="max-w-7xl mx-auto flex flex-col h-fit">
 
         <!-- Account Profile Card -->
         <div class="bg-white shadow-lg shadow-gray-400 rounded-2xl overflow-hidden mb-6">

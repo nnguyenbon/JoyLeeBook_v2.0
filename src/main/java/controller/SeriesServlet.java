@@ -305,7 +305,6 @@ public class SeriesServlet extends HttpServlet {
             SeriesDAO seriesDAO = new SeriesDAO(conn);
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
             paginationRequest.setOrderBy("updated_at");
-            paginationRequest.setSortDir("desc");
 
             List<Series> seriesList = seriesDAO.getAll(search, genreIds, userId, approvalStatus, paginationRequest);
             for (Series series : seriesList) {
@@ -337,25 +336,6 @@ public class SeriesServlet extends HttpServlet {
                 if ("XMLHttpRequest".equals(ajaxHeader)) {
                     request.getRequestDispatcher("/WEB-INF/views/series/_seriesList.jsp").forward(request, response);
                 }
-//                else {
-//                    CategoryDAO categoryDAO = new CategoryDAO(conn);
-//                    List<Series> listSeries = seriesDAO.getAll("approved");
-//                    for (Series series : listSeries) {
-//                        buildSeries(conn, series);
-//                    }
-//
-//                    request.setAttribute("hotSeriesList", getTopRatedSeries(3, listSeries));
-//                    request.setAttribute("weeklySeriesList", getWeeklySeries(8,  listSeries));
-//                    request.setAttribute("newReleaseSeriesList", getNewReleasedSeries(4,  listSeries));
-//                    request.setAttribute("recentlyUpdatedSeriesList", getRecentlyUpdated(6, listSeries));
-//                    request.setAttribute("completedSeriesList", getSeriesByStatus(6, "completed", listSeries));
-//                    request.setAttribute("categoryList", categoryDAO.getCategoryTop(6));
-//
-//                    request.setAttribute("categories", categoryDAO.getAll());
-//                    request.setAttribute("pageTitle", "JoyLeeBook");
-//                    request.setAttribute("contentPage", "/WEB-INF/views/general/Homepage.jsp");
-//                    request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
-//                }
             }
         } catch (Exception e) {
             throw new RuntimeException("Error displaying series list", e);
@@ -804,7 +784,7 @@ public class SeriesServlet extends HttpServlet {
 
     private List<Series> getSeriesByStatus(int limit, String status, List<Series> seriesList) throws SQLException {
         List<Series> copy = new ArrayList<>(seriesList);
-        copy.removeIf(series -> !series.getStatus().equals(status));
+        copy.removeIf(series -> !series.getStatus().equalsIgnoreCase(status));
         return copy.size() > limit ? copy.subList(0, limit) : copy;
     }
 }

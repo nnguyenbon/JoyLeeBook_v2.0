@@ -103,7 +103,7 @@
             </div>
 
         <div id="contentArea" class="mt-6 text-gray-800 text-base transition-all duration-200">
-            <p class="text-gray-700 leading-relaxed mb-4">
+            <p class="text-gray-700 leading-relaxed mb-4 whitespace-pre-wrap">
                 ${chapter.content}
             </p>
         </div>
@@ -135,7 +135,7 @@
             </div>
             <a href="${pageContext.request.contextPath}/chapter/navigate?seriesId=${chapter.seriesId}&chapterNumber=${chapter.chapterNumber}&type=next"
                class="bg-[#195DA9] text-white px-4 py-2 rounded-lg hover:bg-indigo-700
-                      <c:if test='${chapter.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>">
+                      <c:if test='${chapter.chapterId >= lastChapterId}'>opacity-50 cursor-not-allowed pointer-events-none bg-gray-400 hover:bg-gray-400</c:if>" >
                 Next Chapter &gt;
             </a>
         </div>

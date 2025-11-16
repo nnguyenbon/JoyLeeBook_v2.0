@@ -114,11 +114,11 @@
                     <select name="status"
                             class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-                        <option value="Ongoing"
+                        <option value="ongoing"
                                 <c:if test="${series.status == 'ongoing'}">selected</c:if>
                         >Ongoing
                         </option>
-                        <option value="Completed"
+                        <option value="completed"
                                 <c:if test="${series.status == 'completed'}">selected</c:if>
                         >Completed
                         </option>
