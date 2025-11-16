@@ -9,17 +9,8 @@ public class PointHistory {
     private String reason;
     private String referenceType;
     private int referenceId;
-    private LocalDateTime createdAt;
+    private String createdAt;
 
-    public PointHistory(int historyId, int userId, int pointChange, String reason, String referenceType, int referenceId, LocalDateTime createdAt) {
-        this.historyId = historyId;
-        this.userId = userId;
-        this.pointChange = pointChange;
-        this.reason = reason;
-        this.referenceType = referenceType;
-        this.referenceId = referenceId;
-        this.createdAt = createdAt;
-    }
 
     public PointHistory() {}
 
@@ -71,11 +62,11 @@ public class PointHistory {
         this.referenceId = referenceId;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 }

@@ -1,6 +1,8 @@
 package dao;
 
 import model.PointHistory;
+import utils.FormatUtils;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,8 +29,8 @@ public class PointHistoryDAO {
      */
     public boolean insert(PointHistory history) throws SQLException {
         String sql = """
-            INSERT INTO point_history (user_id, points_change, reason, reference_type, reference_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO point_history (user_id, points_change, reason, reference_type, reference_id)
+            VALUES (?, ?, ?, ?, ?)
             """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, history.getUserId());
@@ -40,9 +42,6 @@ public class PointHistoryDAO {
             } else {
                 ps.setNull(5, Types.INTEGER);
             }
-            ps.setTimestamp(6, Timestamp.valueOf(
-                    history.getCreatedAt() != null ? history.getCreatedAt() : LocalDateTime.now()
-            ));
             return ps.executeUpdate() > 0;
         }
     }
@@ -189,13 +188,13 @@ public class PointHistoryDAO {
         PointHistory ph = new PointHistory();
         ph.setHistoryId(rs.getInt("history_id"));
         ph.setUserId(rs.getInt("user_id"));
-        ph.setPointChange(rs.getInt("point_change"));
+        ph.setPointChange(rs.getInt("points_change"));
         ph.setReason(rs.getString("reason"));
         ph.setReferenceType(rs.getString("reference_type"));
         int refId = rs.getInt("reference_id");
         ph.setReferenceId(rs.wasNull() ? 0 : refId);
         Timestamp ts = rs.getTimestamp("created_at");
-        ph.setCreatedAt(ts != null ? ts.toLocalDateTime() : null);
+        ph.setCreatedAt(FormatUtils.formatDate(rs.getTimestamp("created_at").toLocalDateTime()));
         return ph;
     }
 }
