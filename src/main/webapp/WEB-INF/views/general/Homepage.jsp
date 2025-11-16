@@ -370,13 +370,12 @@
                     Share your stories with millions of readers, inspire new worlds, and become part of a thriving
                     community of authors.
                 </p>
-                <a src=""
-                   class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-2xl px-3 py-1 rounded-xl border-2 border-[#E3E346]">
-                    <span
-                            class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent ">
-                        Write Now
-                    </span>
-                </a>
+                <button class="bg-gradient-to-r from-[#341661] via-[#491894] to-[#195DA9] font-black text-lg px-3 py-1 rounded-3xl border-2 border-[#E3E346]"
+                        onclick="openRegisterAuthorModal(); return false;">
+                        <span class="bg-gradient-to-r from-[#D2D200] via-[#F8F881] to-[#999400] bg-clip-text text-transparent">
+                            Write Now
+                        </span>
+                </button>
             </div>
         </div>
     </section>

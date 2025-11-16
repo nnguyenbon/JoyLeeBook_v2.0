@@ -10,7 +10,11 @@
 <main class="mt-10 grid grid-cols-12 gap-8 items-center">
     <!-- Nội dung chính -->
     <div class="col-span-8 col-start-3 bg-white p-6 rounded-xl shadow ">
-        <h1 class="text-4xl font-bold text-center mb-3">${chapter.seriesTitle}</h1>
+        <a class="text-4xl font-bold text-center mb-3 block mx-auto"
+           href="${pageContext.request.contextPath}/series/detail?seriesId=${chapter.seriesId}">
+            ${chapter.seriesTitle}
+        </a>
+
 
         <h2 class="text-center font-semibold text-gray-700 mb-3">by
             ${chapter.authorName}
@@ -255,10 +259,9 @@
         const likeBtn = document.getElementById("likeBtn");
         loadComments();
         likeBtn.addEventListener("click", function () {
-            // Nếu người dùng đã like rồi thì không cho click nữa
             if (likeBtn.classList.contains("liked")) return;
             if ("${loginedUser.userId}" == "") {
-                toastr["warning"]("Your must login to like chapter")
+                toastr["warning"]("You must login to like chapter")
                 return;
             }
             const chapterId = likeBtn.dataset.chapterId;

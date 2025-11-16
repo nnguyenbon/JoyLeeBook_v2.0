@@ -53,6 +53,10 @@ public class RegisterAuthorServlet extends HttpServlet {
 
     private void RegsiterAuthor(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) AuthenticationUtils.getLoginedUser(request.getSession());
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         try (Connection conn = DBConnection.getConnection()) {
             UserDAO userDAO = new UserDAO(conn);
             if (!userDAO.isAuthor(user.getEmail())) {
@@ -61,7 +65,7 @@ public class RegisterAuthorServlet extends HttpServlet {
             if (user.getRole().equals("reader")) {
                 user.setRole("author");
                 response.sendRedirect(request.getContextPath() + "/author");
-            } else {
+            } else if (user.getRole().equals("author")) {
                 user.setRole("reader");
                 response.sendRedirect(request.getContextPath() + "/homepage");
             }

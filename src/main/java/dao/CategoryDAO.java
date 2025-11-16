@@ -187,6 +187,18 @@ public class CategoryDAO {
         }
         return list;
     }
+
+    public boolean checkExistCategory(String categoryName) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM categories WHERE name = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, categoryName);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+            return false;
+        }
+    }
     /**
      * Helper: Map a ResultSet row into a Category object.
      */

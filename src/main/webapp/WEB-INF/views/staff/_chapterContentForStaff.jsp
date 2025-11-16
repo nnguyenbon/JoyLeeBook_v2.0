@@ -57,7 +57,8 @@
                         <i class="fas fa-book text-indigo-500"></i>
                         Series
                     </p>
-                    <p class="text-gray-800 font-semibold truncate" title="${chapter.seriesTitle}">${chapter.seriesTitle}</p>
+                    <p class="text-gray-800 font-semibold truncate"
+                       title="${chapter.seriesTitle}">${chapter.seriesTitle}</p>
                 </div>
 
                 <!-- Author -->
@@ -111,8 +112,8 @@
                     </div>
 
                     <div class="bg-gray-50 p-6 rounded-lg border border-gray-300 max-h-[600px] overflow-y-auto custom-scrollbar">
-                        <div class="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap">
-                            ${chapter.content}
+                        <div id="chapter-content" class="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap">
+<%--                            ${chapter.content}--%>
                         </div>
                     </div>
                 </div>
@@ -182,13 +183,24 @@
                         </div>
                     </div>
                 </c:if>
+
+                <div class="border-2 border-gray-300 rounded-lg p-5">
+                    <p>
+                        <i class="fa-solid fa-filter"></i>
+                        Filter words
+                    </p>
+
+                    <ul id="filterList" class="mt-3 text-red-500">
+
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Reason Modal -->
-<div id="reasonModal" class="hidden fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center">
+<div id="reasonModal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
@@ -269,7 +281,7 @@
     }
 
     // Close modal when clicking outside
-    document.getElementById('reasonModal').addEventListener('click', function(e) {
+    document.getElementById('reasonModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeReasonModal();
         }
@@ -281,6 +293,44 @@
             closeReasonModal();
         }
     });
+
+
+    const chapterContent = document.getElementById('chapter-content');
+    const filterList = document.getElementById('filterList');
+    async function filterWords(words) {
+        const response = await fetch('${pageContext.request.contextPath}/js/profane-words.json')
+        if(!response.ok) {
+            console.log('Error fetching profane words');
+        }
+
+        const profaneWords = await response.json();
+        const wordsToFilter = words.split(' ');
+        const setFilterWorks = new Map();
+        const html = wordsToFilter.map(word => {
+            const cleaned = word.toLowerCase().replace(/^[\W_]+|[\W_]+$/g, "");
+
+            if (profaneWords.includes(cleaned)) {
+                if(setFilterWorks.has(cleaned)) {
+                    setFilterWorks.set(cleaned, setFilterWorks.get(cleaned) + 1);
+                } else {
+                    setFilterWorks.set(cleaned, 1);
+                }
+                return `<span class="text-red-500">` + word + `</span>`;
+            }
+
+            return word;
+        })
+
+        const filteredWords = [...setFilterWorks]
+        console.log(filteredWords);
+        if (filteredWords.length > 0) {
+            filterList.innerHTML = [...filteredWords].map(word => `<li class="flex gap-2 items-center" ><span class="">` + word[1] + `:</span>` + word[0] +` </li>`).join('');
+
+        }
+        chapterContent.innerHTML = html.join(' ');
+    }
+
+    filterWords(`${chapter.content}`);
 
 </script>
 

@@ -389,30 +389,29 @@ public class SeriesServlet extends HttpServlet {
             RatingDAO ratingDAO = new RatingDAO(conn);
             ChapterDAO chapterDAO = new ChapterDAO(conn);
             SavedSeriesDAO savedSeriesDAO = new SavedSeriesDAO(conn);
-            Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), role);
 
-            if (series == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
-                return;
-            }
 
             int ratingByUser = ratingDAO.getRatingValueByUserId(userId, seriesId);
             boolean saved = savedSeriesDAO.isSaved(userId, seriesId);
             List<Chapter> chapterList = buildChapterList(seriesId, "approved", conn);
-            request.setAttribute("totalChapter", series.getTotalChapters());
             request.setAttribute("ratingByUser", ratingByUser);
             request.setAttribute("userId", userId);
             request.setAttribute("saved", saved);
-            request.setAttribute("series", series);
             request.setAttribute("pageTitle", "Series Detail");
             request.setAttribute("chapterList", chapterList);
             // Forward to role-specific layout
             if ("admin".equals(role) || "staff".equals(role)) {
+                Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), "reader");
+                request.setAttribute("totalChapter", series.getTotalChapters());
+                request.setAttribute("series", series);
                 boolean acquire = LockManager.acquire(seriesId, userId, true);
                 request.setAttribute("contentPage", "/WEB-INF/views/staff/_seriesDetailForStaff.jsp");
                 request.setAttribute("pageTitle", "Manage Series");
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutStaff.jsp").forward(request, response);
             } else {
+                Series series = buildSeries(conn, seriesDAO.findById(seriesId, approvalStatus), role);
+                request.setAttribute("totalChapter", series.getTotalChapters());
+                request.setAttribute("series", series);
                 SeriesAuthor author = new SeriesAuthor();
                 for (SeriesAuthor seriesAuthor : series.getAuthorList()) {
                     if (seriesAuthor.getAuthorId() == userId) {
@@ -548,7 +547,7 @@ public class SeriesServlet extends HttpServlet {
 
             ReviewSeriesDAO reviewSeriesDAO = new ReviewSeriesDAO(conn);
             ReviewSeries reviewSeries = reviewSeriesDAO.findById(seriesId);
-            if (reviewSeries.getStatus().equals("approved")) {
+            if (reviewSeries != null && reviewSeries.getStatus().equals("approved")) {
                 reviewSeries.setStatus("pending");
                 reviewSeriesDAO.update(reviewSeries);
             }
@@ -565,6 +564,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategory.setCategoryId(genreId);
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
+            LockManager.release(seriesId, authorId);
             request.getSession().setAttribute("message", "Series has been updated successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
@@ -610,6 +610,8 @@ public class SeriesServlet extends HttpServlet {
             if (series == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Series not found.");
                 return;
+            } else {
+                seriesDAO.updateApprovalStatus(seriesId, approveStatus);
             }
 
 
