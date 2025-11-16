@@ -74,8 +74,10 @@
 
                             <div class="flex-3 flex flex-col justify-between">
                                 <div>
-                                    <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
-                                    <p class="text-gray-400">
+                                    <a href="${pageContext.request.contextPath}/series/detail?seriesId=${hotSeries.seriesId}">
+                                        <p class="text-2xl font-bold truncate">${hotSeries.title}</p>
+                                    </a>
+                                    <p class="text-gray-400 truncate">
                                         by <span class="text-primary">
                                         <c:forEach var="author" items="${hotSeries.authorList}" varStatus="loop">
                                             ${author.authorName}<c:if test="${!loop.last}">, </c:if>
@@ -114,15 +116,18 @@
             <div class="border border-gray-300 rounded-xl pr-3 flex-1 shadow-xl">
                 <ul class="">
                     <c:forEach var="weeklySeries" items="${weeklySeriesList}" varStatus="loop">
-                        <li class="flex justify-between items-center py-2
+                        <li class=" py-2
                    ${loop.index == 0 ? 'text-[#E23636] font-semibold text-lg mt-2' :
                      loop.index == 1 ? 'text-[#F5A83D] font-semibold' :
                      loop.index == 2 ? 'text-[#195DA9] font-semibold' : 'text-gray-700'}">
-                            <div class="flex items-center gap-1">
-                                <span class="font-semibold w-6 text-right">${loop.index + 1}.</span>
-                                <p class="truncate w-48" title="${weeklySeries.title}">${weeklySeries.title} </p>
-                            </div>
-                            <span class="float-right">${weeklySeries.avgRating}</span>
+                            <a class="flex justify-between items-center"
+                               href="${pageContext.request.contextPath}/series/detail?seriesId=${weeklySeries.seriesId}">
+                                <div class="flex items-center gap-1">
+                                    <span class="font-semibold w-6 text-right">${loop.index + 1}.</span>
+                                    <p class="truncate w-48" title="${weeklySeries.title}">${weeklySeries.title} </p>
+                                </div>
+                                <span class="float-right">${weeklySeries.avgRating}</span>
+                            </a>
                         </li>
                     </c:forEach>
                 </ul>
@@ -162,8 +167,9 @@
 
                             <!-- Nội dung -->
                             <div class="p-3">
-                                <ul class="flex flex-wrap gap-2 text-xs">
-                                    <c:forEach var="category" items="${newReleaseSeries.categoryList}" varStatus="status">
+                                <ul class="flex flex-nowrap gap-2 text-xs truncate">
+                                    <c:forEach var="category" items="${newReleaseSeries.categoryList}"
+                                               varStatus="status">
                                         <c:if test="${status.index < 2}">
                                             <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
                                         </c:if>
@@ -172,8 +178,8 @@
                                 <p class="font-semibold text-lg truncate mt-1">
                                         ${newReleaseSeries.title}
                                 </p>
-                                <div class="flex justify-between text-sm text-gray-500">
-                                    <p>by <span class="text-gray-700 font-medium">
+                                <div class="flex justify-between text-sm text-gray-500 flex-nowrap">
+                                    <p class=" truncate">by <span class="text-gray-700 font-medium">
                                         <c:choose>
                                             <c:when test="${not empty newReleaseSeries.authorList}">
                                                 ${newReleaseSeries.authorList[0].authorName}
@@ -182,7 +188,7 @@
                                         </c:choose>
                                     </span>
                                     </p>
-                                    <p>${newReleaseSeries.totalChapters} chapters</p>
+                                    <p class="text-nowrap">${newReleaseSeries.totalChapters} chapters</p>
                                 </div>
                                 <p class="text-sm text-gray-600">
                                     ★ ${newReleaseSeries.avgRating}
@@ -233,7 +239,7 @@
                     <!-- Nội dung -->
                     <div class="p-3 flex flex-col justify-between flex-grow">
                         <div>
-                            <ul class="flex flex-wrap gap-2 text-xs mb-1">
+                            <ul class="flex flex-nowrap gap-2 text-xs mb-1 truncate">
                                 <c:forEach var="category" items="${recentlyUpdatedSeries.categoryList}"
                                            varStatus="status">
                                     <c:if test="${status.index < 2}">
@@ -247,7 +253,7 @@
                         </div>
                         <div class="text-sm opacity-70">
                             <div class="flex justify-between">
-                                <p>by <span class="font-medium">
+                                <p class="truncate">by <span class="font-medium">
                                     <c:choose>
                                         <c:when test="${not empty recentlyUpdatedSeries.authorList}">
                                             ${recentlyUpdatedSeries.authorList[0].authorName}
@@ -256,7 +262,7 @@
                                     </c:choose>
                                     </span>
                                 </p>
-                                <p>${recentlyUpdatedSeries.totalChapters} chapters</p>
+                                <p class="text-nowrap">${recentlyUpdatedSeries.totalChapters} chapters</p>
                             </div>
                             <p>★ ${recentlyUpdatedSeries.avgRating} (${recentlyUpdatedSeries.totalRating})</p>
                         </div>
@@ -325,20 +331,21 @@
                         <!-- Nội dung -->
                         <div class="p-3 flex flex-col justify-between flex-grow">
                             <div>
-                            <ul class="flex flex-wrap gap-2 text-xs mb-1">
-                                <c:forEach var="category" items="${completedSeries.categoryList}" varStatus="status">
-                                    <c:if test="${status.index < 2}">
-                                        <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
-                                    </c:if>
-                                </c:forEach>
-                            </ul>
-                            <p class="font-semibold text-lg truncate mb-1">
-                                    ${completedSeries.title}
-                            </p>
+                                <ul class="flex flex-nowrap gap-2 text-xs mb-1 truncate">
+                                    <c:forEach var="category" items="${completedSeries.categoryList}"
+                                               varStatus="status">
+                                        <c:if test="${status.index < 2}">
+                                            <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
+                                        </c:if>
+                                    </c:forEach>
+                                </ul>
+                                <p class="font-semibold text-lg truncate mb-1">
+                                        ${completedSeries.title}
+                                </p>
                             </div>
-                        <div class="text-sm opacity-70">
-                            <div class="flex justify-between">
-                                <p>by <span class="font-medium">
+                            <div class="text-sm opacity-70">
+                                <div class="flex justify-between">
+                                    <p class="truncate">by <span class="font-medium">
                                     <c:choose>
                                         <c:when test="${not empty completedSeries.authorList}">
                                             ${completedSeries.authorList[0].authorName}
@@ -346,11 +353,11 @@
                                         <c:otherwise>Unknown</c:otherwise>
                                     </c:choose>
                                     </span>
-                                </p>
-                                <p>${completedSeries.totalChapters} chapters</p>
+                                    </p>
+                                    <p class="text-nowrap">${completedSeries.totalChapters} chapters</p>
+                                </div>
+                                <p>★ ${completedSeries.avgRating} (${completedSeries.totalRating})</p>
                             </div>
-                            <p>★ ${completedSeries.avgRating} (${completedSeries.totalRating})</p>
-                        </div>
                         </div>
                     </a>
                 </li>
@@ -390,6 +397,7 @@
             })
             .catch(error => console.error("Error:", error));
     }
+
     document.addEventListener("DOMContentLoaded", () => {
         loadReaderRanking();
     });
@@ -428,6 +436,7 @@
         // Gọi hàm search với tab mới
         updateFilter(1);
     }
+
     let selectedCategory = null;
 
     function selectCategory(btnElement) {
@@ -459,67 +468,10 @@
             behavior: "smooth"
         });
     }
-    // Hàm cập nhật filter (được gọi từ cả checkbox và tab)
-    function updateFilter(page = 1) {
-        const selectedGenres = Array.from(document.querySelectorAll("input[name=genre]:checked")).map(cb => cb.value);
-        const searchKeyword = document.querySelector("#search")?.value?.trim() || "";
 
-        const params = new URLSearchParams();
+   
 
-        // Thêm keyword search
-        if (searchKeyword) params.append("search", searchKeyword);
 
-        // Thêm category nếu đã chọn
-        if (selectedCategory) {
-            params.append("genre", selectedCategory);
-        }
-
-        // Thêm genres nếu đang ở tab title
-        if (currentTab === 'title' && selectedGenres.length > 0) {
-            params.append("genre", selectedGenres.join(" "));
-        }
-
-        // Thêm tab type
-        params.append("searchType", currentTab);
-        params.append("currentPage", page);
-        params.append("sizePage", 12);
-
-        // Xác định endpoint dựa trên tab
-        const endpoint = currentTab === 'title'
-            ? "${pageContext.request.contextPath}/series/list"
-            : "${pageContext.request.contextPath}/account/list";
-
-        fetch(endpoint + "?" + params.toString(), {
-            method: "GET",
-            headers: {"X-Requested-With": "XMLHttpRequest"}
-        })
-            .then(res => res.text())
-            .then(html => {
-                const container = document.querySelector("#result-container");
-                container.innerHTML = html;
-                bindPagination();
-            })
-            .catch(err => console.error("Search error:", err));
-    }
-
-    // Xử lý sự kiện Enter trong search box
-    document.getElementById("search").addEventListener("keypress", e => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            updateFilter();
-
-            const container = document.querySelector("#container");
-            const header = document.querySelector("header");
-            const headerHeight = header ? header.offsetHeight : 0;
-            const elementPosition = container.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerHeight - 10;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "instant"
-            });
-        }
-    });
 
     // Gắn click event cho nút trang
     function bindPagination() {

@@ -146,7 +146,7 @@
                     </c:if>
                 </button>
                 <a type="button"
-                   href="${pageContext.request.contextPath}/series/detail?seriesId=${series.seriesId}"
+                   href="${pageContext.request.contextPath}/author"
                    class="border border-gray-400 text-gray-600 hover:bg-gray-100 px-5 py-2 rounded-md transition">
                     Cancel
                 </a>

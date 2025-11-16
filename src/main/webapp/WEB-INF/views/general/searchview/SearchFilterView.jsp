@@ -36,7 +36,7 @@
             <!-- Nội dung -->
             <div class="p-3 flex flex-col justify-between flex-grow">
                 <div>
-                    <ul class="flex flex-wrap gap-2 text-xs mb-1">
+                    <ul class="flex flex-nowrap gap-2 text-xs mb-1 truncate">
                         <c:forEach var="category" items="${series.categoryList}" varStatus="status">
                             <c:if test="${status.index < 2}">
                                 <li class="rounded-md bg-blue-100 px-1">${category.name}</li>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="text-sm opacity-70">
                     <div class="flex justify-between">
-                        <p>by <span class="font-medium">
+                        <p class="truncate">by <span class="font-medium">
                                     <c:choose>
                                         <c:when test="${not empty series.authorNameList}">
                                             ${series.authorNameList[0]}
@@ -58,7 +58,7 @@
                                     </c:choose>
                                     </span>
                         </p>
-                        <p>${series.totalChapters} chapters</p>
+                        <p class="text-nowrap">${series.totalChapters} chapters</p>
                     </div>
                     <p>★ ${series.avgRating} (${series.totalRating})</p>
                 </div>
