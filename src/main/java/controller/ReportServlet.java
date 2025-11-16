@@ -77,8 +77,9 @@ public class ReportServlet extends HttpServlet {
             String statusFilter = request.getParameter("filterByStatus");
 
             PaginationRequest paginationRequest = PaginationUtils.fromRequest(request);
-            paginationRequest.setOrderBy("updated_at");
-            paginationRequest.setSortDir("desc");
+            // Ưu tiên những chapter/comment có nhiều report
+            paginationRequest.setOrderBy("report_count DESC, report_id");
+            paginationRequest.setSortDir("ASC");
 
             ReportDAO reportDAO = new ReportDAO(conn);
 

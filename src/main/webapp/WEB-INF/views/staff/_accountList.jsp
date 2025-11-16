@@ -138,7 +138,7 @@
                             </c:choose>
                         </td>
 
-                        <td class="px-4 py-3 text-gray-700">${account.updatedAt}</td>
+                        <td class="px-4 py-3 text-gray-700">${account.createdAt}</td>
 
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 items-center">

@@ -282,16 +282,6 @@
         }
     });
 
-    // Form validation
-    document.getElementById('reasonForm').addEventListener('submit', function(e) {
-        const reason = document.getElementById('reasonInput').value.trim();
-
-        if (reason.length < 10) {
-            e.preventDefault();
-            alert('Please provide a reason with at least 10 characters');
-            return false;
-        }
-    });
 </script>
 
 <style>
