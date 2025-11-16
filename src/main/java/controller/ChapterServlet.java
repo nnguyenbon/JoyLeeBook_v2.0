@@ -253,7 +253,14 @@ public class ChapterServlet extends HttpServlet {
         int staffId = ((Staff) loggedInAccount).getStaffId();
 
         try (Connection conn = DBConnection.getConnection()) {
+            SeriesDAO seriesDAO = new SeriesDAO(conn);
             int chapterId = Integer.parseInt(request.getParameter("chapterId"));
+            Series series = seriesDAO.getSeriesByChapterId(chapterId);
+            if (series != null && !series.getApprovalStatus().equals("approved")) {
+                request.getSession().setAttribute("message", "Series must be approved before approve for chapter.");
+                response.sendRedirect(request.getContextPath() + "/series/detail?seriesId=" + series.getSeriesId() + "&chapterId=" + chapterId);
+                return;
+            }
             String approveStatus = request.getParameter("approveStatus");
             String comment = request.getParameter("reason") == null ? "" : request.getParameter("reason");
             if (comment.isEmpty()) {

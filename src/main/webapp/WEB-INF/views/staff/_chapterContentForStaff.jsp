@@ -200,7 +200,7 @@
 </div>
 
 <!-- Reason Modal -->
-<div id="reasonModal" class="hidden fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center">
+<div id="reasonModal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
@@ -294,16 +294,6 @@
         }
     });
 
-    // Form validation
-    document.getElementById('reasonForm').addEventListener('submit', function (e) {
-        const reason = document.getElementById('reasonInput').value.trim();
-
-        if (reason.length < 10) {
-            e.preventDefault();
-            alert('Please provide a reason with at least 10 characters');
-            return false;
-        }
-    });
 
     const chapterContent = document.getElementById('chapter-content');
     const filterList = document.getElementById('filterList');
