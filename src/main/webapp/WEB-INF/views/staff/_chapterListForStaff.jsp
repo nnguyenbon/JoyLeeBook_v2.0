@@ -42,7 +42,7 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold">
                 <tr>
-                    <th class="px-4 py-3">Id</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Chapter</th>
                     <th class="px-4 py-3">Action</th>
                     <th class="px-4 py-3">Status</th>
@@ -51,9 +51,11 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
-                <c:forEach var="chapter" items="${chapterList}">
+                <c:forEach var="chapter" items="${chapterList}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${chapter.chapterId}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
                         <td class="px-4 py-3">
                             <div class="flex flex-col">
                                 <p class="font-semibold text-gray-800">Chapter ${chapter.chapterNumber}: ${chapter.title}</p>

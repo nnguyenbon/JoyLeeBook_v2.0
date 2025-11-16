@@ -48,6 +48,8 @@ public class ProfileServlet extends HttpServlet {
         try (Connection conn = DBConnection.getConnection()) {
             UserDAO userDAO = new UserDAO(conn);
             BadgesUserDAO badgesUserDAO = new BadgesUserDAO(conn);
+            PointHistoryDAO pointHistoryDAO = new PointHistoryDAO(conn);
+
             User user = userDAO.findById(userId);
             user.setRole(FormatUtils.formatString(user.getRole()));
 
@@ -60,6 +62,8 @@ public class ProfileServlet extends HttpServlet {
                 request.setAttribute("pageTitle", "My Profile");
                 request.setAttribute("contentPage", "/WEB-INF/views/profile/MyProfile.jsp");
                 request.setAttribute("badgeList", badgesUserDAO.getBadgesByUserId(userId));
+                request.setAttribute("pointHistory", pointHistoryDAO.getByUserId(userId));
+
                 request.getRequestDispatcher("/WEB-INF/views/layout/layoutUser.jsp").forward(request, response);
             } else {
                 SeriesDAO seriesDAO = new SeriesDAO(conn);

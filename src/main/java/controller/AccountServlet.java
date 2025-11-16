@@ -92,7 +92,8 @@ public class AccountServlet extends HttpServlet {
             AccountDAO dao = new AccountDAO(conn);
 
             PaginationRequest pageRequest = PaginationUtils.fromRequest(request);
-            pageRequest.setOrderBy("id");
+            pageRequest.setOrderBy("updated_at");
+            pageRequest.setSortDir("desc");
 
             List<Account> accounts = dao.getAllAccounts(search, roleFilter, currentUserRole, pageRequest);
             int totalAccounts = dao.countAccounts(search, roleFilter, currentUserRole);
@@ -201,7 +202,7 @@ public class AccountServlet extends HttpServlet {
         }
 
         try {
-            int staffId = Integer.parseInt(request.getParameter("id"));
+            int staffId = Integer.parseInt(request.getParameter("staffId"));
 
             try (Connection conn = DBConnection.getConnection()) {
                 AccountDAO accountDAO = new AccountDAO(conn);

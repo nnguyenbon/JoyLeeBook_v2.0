@@ -71,20 +71,22 @@
             <table class="min-w-full text-sm text-left">
                 <thead class="bg-gray-100 text-gray-700 uppercase text-xs font-semibold sticky top-0 z-10">
                 <tr>
-                    <th class="px-4 py-3">ID</th>
+                    <th class="px-4 py-3">No.</th>
                     <th class="px-4 py-3">Username</th>
                     <th class="px-4 py-3">Full Name</th>
                     <th class="px-4 py-3">Email</th>
                     <th class="px-4 py-3">Role</th>
                     <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Created At</th>
+                    <th class="px-4 py-3">Updated At</th>
                     <th class="px-4 py-3 text-center">Actions</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-300">
                 <c:forEach var="account" items="${accounts}" varStatus="loop">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">${loop.index + 1 + (currentPage-1)*10}</td>
+                        <td class="px-4 py-3">
+                                ${(currentPage - 1) * sizePage + loop.index + 1}
+                        </td>
 
                         <td class="px-4 py-3">
                             <a href="${pageContext.request.contextPath}/account/detail?accountId=${account.accountId}&role=${account.role}"
@@ -136,7 +138,7 @@
                             </c:choose>
                         </td>
 
-                        <td class="px-4 py-3 text-gray-700">${account.createdAt}</td>
+                        <td class="px-4 py-3 text-gray-700">${account.updatedAt}</td>
 
                         <td class="px-4 py-3 text-center">
                             <div class="relative flex justify-end gap-2 items-center">
