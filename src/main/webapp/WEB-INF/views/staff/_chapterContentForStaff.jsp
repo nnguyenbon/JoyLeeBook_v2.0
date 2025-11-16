@@ -57,7 +57,8 @@
                         <i class="fas fa-book text-indigo-500"></i>
                         Series
                     </p>
-                    <p class="text-gray-800 font-semibold truncate" title="${chapter.seriesTitle}">${chapter.seriesTitle}</p>
+                    <p class="text-gray-800 font-semibold truncate"
+                       title="${chapter.seriesTitle}">${chapter.seriesTitle}</p>
                 </div>
 
                 <!-- Author -->
@@ -111,8 +112,8 @@
                     </div>
 
                     <div class="bg-gray-50 p-6 rounded-lg border border-gray-300 max-h-[600px] overflow-y-auto custom-scrollbar">
-                        <div class="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap">
-                            ${chapter.content}
+                        <div id="chapter-content" class="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap">
+<%--                            ${chapter.content}--%>
                         </div>
                     </div>
                 </div>
@@ -182,6 +183,17 @@
                         </div>
                     </div>
                 </c:if>
+
+                <div class="border-2 border-gray-300 rounded-lg p-5">
+                    <p>
+                        <i class="fa-solid fa-filter"></i>
+                        Filter words
+                    </p>
+
+                    <ul id="filterList" class="mt-3 text-red-500">
+
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -269,7 +281,7 @@
     }
 
     // Close modal when clicking outside
-    document.getElementById('reasonModal').addEventListener('click', function(e) {
+    document.getElementById('reasonModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeReasonModal();
         }
@@ -281,6 +293,48 @@
             closeReasonModal();
         }
     });
+
+    // Form validation
+    document.getElementById('reasonForm').addEventListener('submit', function (e) {
+        const reason = document.getElementById('reasonInput').value.trim();
+
+        if (reason.length < 10) {
+            e.preventDefault();
+            alert('Please provide a reason with at least 10 characters');
+            return false;
+        }
+    });
+
+    const chapterContent = document.getElementById('chapter-content');
+    const filterList = document.getElementById('filterList');
+    async function filterWords(words) {
+        const response = await fetch('${pageContext.request.contextPath}/js/profane-words.json')
+        if(!response.ok) {
+            console.log('Error fetching profane words');
+        }
+
+        const profaneWords = await response.json();
+        const wordsToFilter = words.split(' ');
+        const setFilterWorks = new Set();
+        const html = wordsToFilter.map(word => {
+            console.log(word);
+            if(profaneWords.includes(word.toLowerCase())) {
+                setFilterWorks.add(word);
+                return `<span class="text-red-500">` + word + `</span>`;
+            } else {
+                return word + " ";
+            }
+        })
+
+        const filteredWords = [...setFilterWorks]
+        if (filteredWords.length > 0) {
+            filterList.innerHTML = [...filteredWords].map(word => `<li>` + word + `</li>`).join('');
+
+        }
+        chapterContent.innerHTML = html.join('');
+    }
+
+    filterWords(`${chapter.content}`);
 
 </script>
 

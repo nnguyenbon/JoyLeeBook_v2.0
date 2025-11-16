@@ -46,7 +46,7 @@ change this template use File | Settings | File Templates. --%>
 %>
 <%@ include file="../author/register-author.jsp" %>
 
-<header class="sticky top-0 shadow-md bg-white z-50 transition-all duration-300">
+<header class="sticky top-0 right-0 left-0 shadow-md bg-white z-50 transition-all duration-300">
     <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 items-center">
         <div class="col-span-2 flex items-center gap-2 h-20">
             <a href="${pageContext.request.contextPath}/${loginedUser.role == 'author' ? "author" : "homepage"}">
