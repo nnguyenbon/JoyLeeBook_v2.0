@@ -24,7 +24,6 @@ public class TrackPointUtils {
             pointHistory.setReason(reason);
             pointHistory.setReferenceType(referenceType);
             pointHistory.setReferenceId(referenceId);
-            pointHistory.setCreatedAt(LocalDateTime.now());
             if (pointHistoryDAO.insert(pointHistory)) {
                 userDAO.updatePoint(userId, points);
             }

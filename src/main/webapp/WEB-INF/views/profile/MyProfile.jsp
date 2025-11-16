@@ -13,7 +13,10 @@
                 <p class="font-semibold text-3xl">${user.username}</p>
                 <div class="flex justify-between py-4 border-b border-black">
                     <p>${user.role}</p>
-                    <p><span class="text-sky-600 inline-block pr-2">${user.points}</span>Points</p>
+                    <button id="viewPointsHistoryBtn"
+                            class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-sky-600 font-semibold hover:bg-sky-100">
+                        <span>${user.points}</span> Points
+                    </button>
                 </div>
             </div>
 
@@ -258,6 +261,43 @@
         </div>
     </div>
 </dialog>
+<!-- Dialog: Points History -->
+<dialog id="pointsHistoryDialog"
+        class="p-4 rounded-xl max-w-lg w-full">
+
+    <h2 class="text-xl font-semibold mb-4">Points History</h2>
+
+    <ul class="space-y-3 max-h-80 overflow-y-auto">
+        <c:forEach items="${pointHistory}" var="p">
+            <li class="border border-sky-200 p-3 rounded-lg hover:bg-sky-50 transition">
+                <div class="flex justify-between">
+                    <p class="font-medium">
+                            ${p.reason}
+                    </p>
+
+                    <p class="${p.pointChange >= 0 ? 'text-green-600' : 'text-red-600'} font-semibold">
+                            ${p.pointChange >= 0 ? '+' : ''}${p.pointChange}
+                    </p>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-1">
+                        ${p.createdAt}
+                </p>
+            </li>
+        </c:forEach>
+
+        <c:if test="${empty pointHistory}">
+            <p class="text-center text-gray-500 py-3">No history found.</p>
+        </c:if>
+    </ul>
+
+    <div class="flex justify-center mt-6">
+        <button class="closePointsBtn py-2 px-4 border border-neutral-300 rounded-md hover:bg-sky-600 hover:text-white">
+            Close
+        </button>
+    </div>
+</dialog>
+
 
 <c:if test="${not empty message}">
     <script>
@@ -494,4 +534,10 @@
         validateEdit();
         if (document.getElementById("newPassword")) validateChange();
     });
+    const pointsBtn = document.getElementById("viewPointsHistoryBtn");
+    const pointsDialog = document.getElementById("pointsHistoryDialog");
+    const closePointsBtn = document.querySelector(".closePointsBtn");
+
+    pointsBtn.addEventListener("click", () => pointsDialog.showModal());
+    closePointsBtn.addEventListener("click", () => pointsDialog.close());
 </script>
