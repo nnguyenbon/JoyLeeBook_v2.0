@@ -305,23 +305,29 @@
 
         const profaneWords = await response.json();
         const wordsToFilter = words.split(' ');
-        const setFilterWorks = new Set();
+        const setFilterWorks = new Map();
         const html = wordsToFilter.map(word => {
-            console.log(word);
-            if(profaneWords.includes(word.toLowerCase())) {
-                setFilterWorks.add(word);
+            const cleaned = word.toLowerCase().replace(/^[\W_]+|[\W_]+$/g, "");
+
+            if (profaneWords.includes(cleaned)) {
+                if(setFilterWorks.has(cleaned)) {
+                    setFilterWorks.set(cleaned, setFilterWorks.get(cleaned) + 1);
+                } else {
+                    setFilterWorks.set(cleaned, 1);
+                }
                 return `<span class="text-red-500">` + word + `</span>`;
-            } else {
-                return word + " ";
             }
+
+            return word;
         })
 
         const filteredWords = [...setFilterWorks]
+        console.log(filteredWords);
         if (filteredWords.length > 0) {
-            filterList.innerHTML = [...filteredWords].map(word => `<li>` + word + `</li>`).join('');
+            filterList.innerHTML = [...filteredWords].map(word => `<li class="flex gap-2 items-center" ><span class="">` + word[1] + `:</span>` + word[0] +` </li>`).join('');
 
         }
-        chapterContent.innerHTML = html.join('');
+        chapterContent.innerHTML = html.join(' ');
     }
 
     filterWords(`${chapter.content}`);
