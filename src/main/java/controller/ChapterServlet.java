@@ -517,11 +517,12 @@ public class ChapterServlet extends HttpServlet {
             } else {
                 ReviewChapterDAO reviewChapterDAO = new ReviewChapterDAO(conn);
                 ReviewChapter reviewChapter = reviewChapterDAO.findById(chapter.getChapterId());
-                if (reviewChapter.getStatus().equals("approved")) {
+                if (reviewChapter != null && reviewChapter.getStatus().equals("approved")) {
                     reviewChapter.setStatus("pending");
                     reviewChapterDAO.update(reviewChapter);
                 }
             }
+            LockManager.release(chapterId, userId);
             request.getSession().setAttribute("message", "Chapter successfully updated.");
             response.sendRedirect("/series/detail?seriesId=" + seriesId);
 

@@ -564,6 +564,7 @@ public class SeriesServlet extends HttpServlet {
                 seriesCategory.setCategoryId(genreId);
                 seriesCategoriesDAO.insertSeriesCategory(seriesCategory);
             }
+            LockManager.release(seriesId, authorId);
             request.getSession().setAttribute("message", "Series has been updated successfully.");
             response.sendRedirect(request.getContextPath() + "/author");
 
